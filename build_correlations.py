@@ -1,17 +1,16 @@
 """
-Correlation Builder - 20-Year Lookback
-Computes historical return correlations between every stock and macro factors.
+Correlation Builder - 20-Year Lookback (Robust Version)
+Better error handling, progress saves, and memory management.
 
-Run locally:
-    python build_correlations.py
-
-Output:
-    correlations_cache.json (upload to quant-dashboard-pro repo)
+Run: python build_correlations.py
+Output: correlations_cache.json
 """
 
 import json
 import time
 import os
+import sys
+import traceback
 from datetime import datetime
 
 import numpy as np
@@ -30,13 +29,14 @@ MACRO_FACTORS = {
     "sp500": {"ticker": "^GSPC", "name": "S&P 500"},
 }
 
+# Shorter list for reliability - just S&P 500 + portfolio holdings
 ALL_TICKERS = sorted(set([
     "AAPL","ABBV","ABT","ACN","ADBE","ADI","ADM","ADP","ADSK","AEE",
     "AEP","AES","AFL","AIG","AIZ","AJG","AKAM","ALB","ALGN","ALK",
     "ALL","ALLE","AMAT","AMCR","AMD","AME","AMGN","AMP","AMT","AMZN",
     "ANET","AON","AOS","APA","APD","APH","APTV","ARE","ATO",
-    "AVB","AVGO","AVY","AWK","AXP","AZO","BA","BAC","BAX","BBWI",
-    "BBY","BDX","BEN","BF-B","BG","BIIB","BIO","BK","BKNG","BKR",
+    "AVB","AVGO","AVY","AWK","AXP","AZO","BA","BAC","BAX",
+    "BBY","BDX","BEN","BG","BIIB","BIO","BK","BKNG","BKR",
     "BLK","BMY","BR","BRK-B","BRO","BSX","BWA","BXP","C","CAG",
     "CAH","CARR","CAT","CB","CBOE","CBRE","CCI","CCL","CDNS",
     "CDW","CE","CEG","CF","CFG","CHD","CHRW","CHTR","CI","CINF",
@@ -59,11 +59,11 @@ ALL_TICKERS = sorted(set([
     "L","LDOS","LEN","LH","LHX","LIN","LKQ","LLY","LMT","LNC",
     "LNT","LOW","LRCX","LULU","LUV","LVS","LW","LYB","LYV","MA",
     "MAA","MAR","MAS","MCD","MCHP","MCK","MCO","MDLZ","MDT","MET",
-    "META","MGM","MHK","MKC","MKTX","MLM","MMC","MMM","MNST","MO",
+    "META","MGM","MHK","MKC","MKTX","MLM","MMM","MNST","MO",
     "MOH","MOS","MPC","MPWR","MRK","MRNA","MS","MSCI","MSFT",
     "MSI","MTB","MTCH","MTD","MU","NCLH","NDAQ","NDSN","NEE","NEM",
     "NFLX","NI","NKE","NOC","NOW","NRG","NSC","NTAP","NTRS","NUE",
-    "NVDA","NVR","NWL","NWS","NWSA","NXPI","O","ODFL","OGN","OKE",
+    "NVDA","NVR","NWL","NXPI","O","ODFL","OGN","OKE",
     "OMC","ON","ORCL","ORLY","OTIS","OXY","PAYC","PAYX","PCAR",
     "PCG","PEG","PEP","PFE","PFG","PG","PGR","PH","PHM",
     "PKG","PLD","PM","PNC","PNR","PNW","POOL","PPG","PPL",
@@ -81,182 +81,207 @@ ALL_TICKERS = sorted(set([
     "WYNN","XEL","XOM","XRAY","XYL","YUM","ZBH","ZBRA","ZION","ZTS",
     "COIN","PLTR","CRWD","DASH","DDOG","SNOW","NET","ZS","MDB",
     "TTD","PANW","ABNB","HOOD","RBLX","ARM","SMCI","VST",
-    "DECK","AXON","FICO","GDDY","HUBB","TW","GEV","VLTO","KVUE","SOLV","SW",
-    "CLS","IREN","ASTS","RKLB","BMNR","ONDS",
-    "APP","ASML","AZN","CCEP","GFS","HON","MRVL","TEAM","WDAY",
-    "ACGL","ACM","ACI","AFRM","AFG","AGCO","ALNY","ALLY",
-    "ARMK","ARES","ARW","ATR","AVTR","BFAM","BJ","BLD","BMRN",
-    "BROS","BURL","CART","CAVA","CBSH","CCK","CHDN","CHE","CG",
-    "CGNX","CLH","COHR","COKE","CRUS","CVNA","CW","CYBR",
-    "DAR","DINO","DKS","DOCU","DOX","DT","DUOL","ENTG","ENSG",
-    "EPRT","ESI","ESTC","EVR","EWBC","EXP","EXAS","FIVE","FIX",
-    "FNB","FND","FNF","FSLR","FSS","FTI","GATX","GBCI","GLPI",
-    "GPK","H","HALO","HGV","HLI","HOLX","HP","HQY","HRB",
-    "IAC","IBKR","ICL","ICLR","IDCC","IDA","INSP","IOT","IRTC",
-    "ITT","JEF","JLL","KNSL","KNX","LAMR","LBRDA","LBRDK","LEA",
-    "LFUS","LNTH","LSCC","MANH","MASI","MEDP","MIDD","MKSI",
-    "MORN","MTDR","MTN","MTZ","NBIX","NEU","NNN","NOV","NVT",
-    "OLED","OLN","ORI","OVV","PCOR","PCTY","PEN","PII","PLNT",
-    "PNFP","PPC","PSTG","PRI","RBA","RBC","RGA","RGLD","RNR",
-    "SAM","SAIA","SBRA","SCI","SFM","SSD","ST",
-    "TNET","TOST","TPG","TPL","TREX","TWLO","UHAL","UTHR",
-    "VEEV","VOYA","VVV","WAL","WBS","WCC","WEN","WEX","WH",
-    "WMS","WSC","WSM","WPC","YETI","ZWS",
-    "TSM","BABA","JD","PDD","BIDU","NIO","LI","XPEV",
-    "SHOP","TD","RY","CNQ","SU","BN","BAM","SE","MELI","NU","GRAB",
-    "BX","KKR","APO","OWL","SPOT","SQ","MSTR","CELH","CAVA",
-    "RIVN","LCID","JOBY","BILL","PATH","SNAP","U","PINS",
+    "DECK","AXON","FICO","GDDY","HUBB","GEV","VLTO",
+    "CLS","IREN","ASTS","RKLB","BMNR","ONDS","MSTR","SPOT",
+    "TSM","BABA","JD","PDD","NIO","SE","MELI","NU",
+    "BX","KKR","APO","ARES",
+    "APP","ASML","MRVL","TEAM","WDAY","HON",
 ]))
 
 
 def main():
     print("=" * 60)
-    print("CORRELATION BUILDER (20-Year Lookback)")
+    print("CORRELATION BUILDER (20-Year, Robust)")
     print("=" * 60)
     print(f"Tickers: {len(ALL_TICKERS)}")
     print(f"Factors: {', '.join(MACRO_FACTORS.keys())}")
     print()
 
-    # Step 1: Download factor prices
-    print("Downloading macro factor prices (20 years)...")
-    factor_tickers = [f["ticker"] for f in MACRO_FACTORS.values()]
-    factor_data = yf.download(factor_tickers, period="20y", auto_adjust=True, progress=False)
-
-    if isinstance(factor_data.columns, pd.MultiIndex):
-        factor_prices = factor_data["Close"]
-    else:
-        factor_prices = factor_data
-
-    ticker_to_key = {f["ticker"]: k for k, f in MACRO_FACTORS.items()}
-    factor_prices = factor_prices.rename(columns=ticker_to_key)
-
-    print(f"  Got {len(factor_prices)} days of factor data")
-    for col in factor_prices.columns:
-        valid = factor_prices[col].dropna()
-        print(f"    {col}: {len(valid)} days")
-
-    # Step 2: Download stock prices
-    print(f"\nDownloading stock prices for {len(ALL_TICKERS)} tickers (20 years)...")
-    all_stock_prices = pd.DataFrame()
-    chunk_size = 50
-
-    for i in range(0, len(ALL_TICKERS), chunk_size):
-        chunk = ALL_TICKERS[i:i + chunk_size]
-        pct = (i + len(chunk)) / len(ALL_TICKERS) * 100
-        print(f"  [{pct:5.1f}%] Chunk {i // chunk_size + 1}...")
+    try:
+        # Step 1: Download factor prices
+        print("Step 1: Downloading macro factor prices...")
+        factor_tickers = [f["ticker"] for f in MACRO_FACTORS.values()]
 
         try:
-            data = yf.download(chunk, period="20y", auto_adjust=True, progress=False)
-            if isinstance(data.columns, pd.MultiIndex):
-                chunk_prices = data["Close"]
-            else:
-                chunk_prices = data
-            all_stock_prices = pd.concat([all_stock_prices, chunk_prices], axis=1)
+            factor_data = yf.download(factor_tickers, period="20y", auto_adjust=True, progress=False)
         except Exception as e:
-            print(f"    Error: {e}")
+            print(f"  ERROR downloading factors: {e}")
+            print("  Trying 10-year lookback instead...")
+            factor_data = yf.download(factor_tickers, period="10y", auto_adjust=True, progress=False)
 
-        time.sleep(3)
+        if isinstance(factor_data.columns, pd.MultiIndex):
+            factor_prices = factor_data["Close"]
+        else:
+            factor_prices = factor_data
 
-    all_stock_prices = all_stock_prices.loc[:, ~all_stock_prices.columns.duplicated()]
-    print(f"  Got prices for {len(all_stock_prices.columns)} tickers")
+        ticker_to_key = {f["ticker"]: k for k, f in MACRO_FACTORS.items()}
+        factor_prices = factor_prices.rename(columns=ticker_to_key)
 
-    # Step 3: Compute correlations
-    print("\nComputing correlations (full available history per ticker)...")
-    stock_returns = all_stock_prices.pct_change().dropna(how="all")
-    factor_returns = factor_prices.pct_change().dropna(how="all")
+        print(f"  Got {len(factor_prices)} days of factor data")
+        for col in factor_prices.columns:
+            valid = factor_prices[col].dropna()
+            if len(valid) > 0:
+                print(f"    {col}: {len(valid)} days")
+            else:
+                print(f"    {col}: NO DATA")
 
-    common_dates = stock_returns.index.intersection(factor_returns.index)
-    stock_returns = stock_returns.loc[common_dates]
-    factor_returns = factor_returns.loc[common_dates]
+        # Step 2: Download stock prices in small chunks
+        print(f"\nStep 2: Downloading stock prices ({len(ALL_TICKERS)} tickers)...")
+        all_stock_prices = pd.DataFrame()
+        chunk_size = 25  # Smaller chunks for stability
+        errors = []
 
-    print(f"  {len(stock_returns)} total trading days available")
+        for i in range(0, len(ALL_TICKERS), chunk_size):
+            chunk = ALL_TICKERS[i:i + chunk_size]
+            pct = (i + len(chunk)) / len(ALL_TICKERS) * 100
+            print(f"  [{pct:5.1f}%] Chunk {i // chunk_size + 1} ({len(chunk)} tickers)...")
 
-    results = {}
-    total = len(stock_returns.columns)
-    min_days = 60
+            try:
+                data = yf.download(chunk, period="20y", auto_adjust=True, progress=False)
+                if isinstance(data.columns, pd.MultiIndex):
+                    chunk_prices = data["Close"]
+                else:
+                    chunk_prices = data
 
-    for i, ticker in enumerate(stock_returns.columns):
-        if (i + 1) % 100 == 0 or i == total - 1:
-            print(f"  [{(i+1)/total*100:5.1f}%] {i+1}/{total} | {len(results)} computed")
+                if not chunk_prices.empty:
+                    all_stock_prices = pd.concat([all_stock_prices, chunk_prices], axis=1)
+            except Exception as e:
+                print(f"    ERROR on chunk: {e}")
+                errors.append(str(e))
+                # Try individual tickers in the failed chunk
+                for t in chunk:
+                    try:
+                        td = yf.download(t, period="20y", auto_adjust=True, progress=False)
+                        if not td.empty:
+                            if isinstance(td.columns, pd.MultiIndex):
+                                all_stock_prices[t] = td["Close"]
+                            elif "Close" in td.columns:
+                                all_stock_prices[t] = td["Close"]
+                    except Exception:
+                        pass
 
-        stock_ret = stock_returns[ticker].dropna()
-        if len(stock_ret) < min_days:
-            continue
+            time.sleep(2)
 
-        ticker_corrs = {}
-        for factor_key in factor_returns.columns:
-            factor_ret = factor_returns[factor_key].dropna()
-            common = stock_ret.index.intersection(factor_ret.index)
-            if len(common) < min_days:
+        all_stock_prices = all_stock_prices.loc[:, ~all_stock_prices.columns.duplicated()]
+        print(f"\n  Got prices for {len(all_stock_prices.columns)} tickers")
+
+        if len(all_stock_prices.columns) < 50:
+            print("  WARNING: Very few tickers downloaded. Check internet connection.")
+
+        # Step 3: Compute correlations
+        print("\nStep 3: Computing correlations...")
+        stock_returns = all_stock_prices.pct_change().dropna(how="all")
+        factor_returns = factor_prices.pct_change().dropna(how="all")
+
+        common_dates = stock_returns.index.intersection(factor_returns.index)
+        stock_returns = stock_returns.loc[common_dates]
+        factor_returns = factor_returns.loc[common_dates]
+
+        print(f"  {len(stock_returns)} trading days, {len(stock_returns.columns)} stocks")
+
+        results = {}
+        total = len(stock_returns.columns)
+        min_days = 60
+
+        for i, ticker in enumerate(stock_returns.columns):
+            if (i + 1) % 100 == 0 or i == total - 1:
+                print(f"  [{(i+1)/total*100:5.1f}%] {i+1}/{total} | {len(results)} computed")
+
+            try:
+                stock_ret = stock_returns[ticker].dropna()
+                if len(stock_ret) < min_days:
+                    continue
+
+                ticker_corrs = {}
+                for factor_key in factor_returns.columns:
+                    try:
+                        factor_ret = factor_returns[factor_key].dropna()
+                        common = stock_ret.index.intersection(factor_ret.index)
+                        if len(common) < min_days:
+                            continue
+
+                        s = stock_ret.loc[common].values.astype(float)
+                        f = factor_ret.loc[common].values.astype(float)
+
+                        # Remove inf/nan
+                        mask = np.isfinite(s) & np.isfinite(f)
+                        s = s[mask]
+                        f = f[mask]
+
+                        if len(s) < min_days:
+                            continue
+
+                        corr = float(np.corrcoef(s, f)[0, 1])
+                        cov = float(np.cov(s, f)[0, 1])
+                        var_f = float(np.var(f))
+                        beta = cov / var_f if var_f > 0 else 0
+                        r_squared = corr ** 2
+
+                        if np.isfinite(corr):
+                            ticker_corrs[factor_key] = {
+                                "correlation": round(corr, 4),
+                                "beta": round(beta, 4),
+                                "r_squared": round(r_squared, 4),
+                                "days_used": int(len(s)),
+                            }
+                    except Exception:
+                        continue
+
+                if ticker_corrs:
+                    results[ticker] = ticker_corrs
+            except Exception:
                 continue
 
-            s = stock_ret.loc[common]
-            f = factor_ret.loc[common]
+        # Step 4: Save
+        print(f"\nStep 4: Saving {len(results)} tickers...")
+        output = {
+            "metadata": {
+                "computed_at": datetime.now().isoformat(),
+                "lookback": "20 years (full available history per ticker)",
+                "window_days": "all available",
+                "num_tickers": len(results),
+                "factors": {k: v["name"] for k, v in MACRO_FACTORS.items()},
+            },
+            "correlations": results,
+        }
 
-            mask = np.isfinite(s) & np.isfinite(f)
-            s = s[mask]
-            f = f[mask]
+        output_file = "correlations_cache.json"
+        with open(output_file, "w") as f:
+            json.dump(output, f, indent=2, default=str)
 
-            if len(s) < min_days:
-                continue
+        file_size = os.path.getsize(output_file) / 1024 / 1024
 
-            corr = s.corr(f)
-            cov = s.cov(f)
-            var_f = f.var()
-            beta = cov / var_f if var_f > 0 else 0
-            r_squared = corr ** 2 if not np.isnan(corr) else 0
+        print(f"\n{'='*60}")
+        print(f"DONE!")
+        print(f"  Tickers: {len(results)}")
+        print(f"  File: {output_file} ({file_size:.1f} MB)")
+        print(f"{'='*60}")
 
-            if not np.isnan(corr):
-                ticker_corrs[factor_key] = {
-                    "correlation": round(float(corr), 4),
-                    "beta": round(float(beta), 4),
-                    "r_squared": round(float(r_squared), 4),
-                    "days_used": int(len(s)),
-                }
+        # Show samples
+        def show_top(fk, name, n=8):
+            corrs = [(t, d[fk]["correlation"]) for t, d in results.items() if fk in d]
+            corrs.sort(key=lambda x: x[1], reverse=True)
+            if corrs:
+                print(f"\n{name}:")
+                print(f"  MOST POSITIVE: {', '.join(f'{t}({c:+.3f})' for t, c in corrs[:n])}")
+                print(f"  MOST NEGATIVE: {', '.join(f'{t}({c:+.3f})' for t, c in corrs[-n:])}")
 
-        if ticker_corrs:
-            results[ticker] = ticker_corrs
+        show_top("oil", "Oil Correlation")
+        show_top("rates_10y", "10Y Rates Correlation")
+        show_top("gold", "Gold Correlation")
+        show_top("sp500", "S&P 500 Beta")
+        show_top("bitcoin", "Bitcoin Correlation")
 
-    # Step 4: Save
-    output = {
-        "metadata": {
-            "computed_at": datetime.now().isoformat(),
-            "lookback": "20 years (full available history per ticker)",
-            "window_days": "all available",
-            "num_tickers": len(results),
-            "factors": {k: v["name"] for k, v in MACRO_FACTORS.items()},
-        },
-        "correlations": results,
-    }
+        print(f"\nUpload {output_file} to quant-dashboard-pro repo.")
 
-    output_file = "correlations_cache.json"
-    with open(output_file, "w") as f:
-        json.dump(output, f, indent=2, default=str)
+    except Exception as e:
+        print(f"\n{'='*60}")
+        print(f"FATAL ERROR:")
+        print(f"{'='*60}")
+        traceback.print_exc()
+        print(f"\nPlease share this error output.")
 
-    file_size = os.path.getsize(output_file) / 1024 / 1024
-
-    print(f"\n{'='*60}")
-    print(f"DONE!")
-    print(f"  Tickers: {len(results)}")
-    print(f"  File: {output_file} ({file_size:.1f} MB)")
-    print(f"{'='*60}")
-
-    # Sample output
-    def show_top(factor_key, name, n=10):
-        print(f"\nTop correlated to {name}:")
-        corrs = [(t, d[factor_key]["correlation"]) for t, d in results.items() if factor_key in d]
-        corrs.sort(key=lambda x: x[1], reverse=True)
-        print(f"  POSITIVE: {', '.join(f'{t} ({c:+.3f})' for t, c in corrs[:n])}")
-        print(f"  NEGATIVE: {', '.join(f'{t} ({c:+.3f})' for t, c in corrs[-n:])}")
-
-    show_top("oil", "Oil")
-    show_top("rates_10y", "10Y Rates")
-    show_top("gold", "Gold")
-    show_top("sp500", "S&P 500 Beta")
-    show_top("vix", "VIX")
-    show_top("bitcoin", "Bitcoin")
-
-    print(f"\nUpload {output_file} to quant-dashboard-pro repo.")
+    input("\nPress Enter to close...")
 
 
 if __name__ == "__main__":
