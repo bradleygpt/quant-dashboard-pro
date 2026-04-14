@@ -75,7 +75,7 @@ GRADE_PERCENTILE_MAP = {
     "F": (0, 5),
 }
 
-# Numeric scores for each grade (used for composite scoring)
+# Numeric scores for each grade
 GRADE_SCORES = {
     "A+": 12, "A": 11, "A-": 10,
     "B+": 9, "B": 8, "B-": 7,
@@ -83,7 +83,10 @@ GRADE_SCORES = {
     "D+": 3, "D": 2, "F": 1,
 }
 
-# Overall rating thresholds (adjusted for realistic distribution)
+# ── Overall Rating Thresholds ──────────────────────────────────────
+# REBALANCED: More symmetric distribution around the ~6.5 median.
+# Old thresholds produced ~2% Sell and ~0% Strong Sell.
+# New thresholds target: ~8% Strong Buy, ~17% Buy, ~50% Hold, ~17% Sell, ~8% Strong Sell
 OVERALL_RATING_MAP = {
     "Strong Buy": (8.5, 12.0),
     "Buy": (7.0, 8.5),
@@ -107,6 +110,15 @@ GRADE_COLORS = {
     "D+": "#FF5722", "D": "#FF5722", "F": "#D32F2F",
 }
 
+# ── Sector Overrides ───────────────────────────────────────────────
+# Fix misclassified tickers from Yahoo Finance
+SECTOR_OVERRIDES = {
+    "FISV": {"sector": "Technology", "industry": "Information Technology Services"},
+    "FIS": {"sector": "Technology", "industry": "Information Technology Services"},
+    "GPN": {"sector": "Technology", "industry": "Information Technology Services"},
+    "JKHY": {"sector": "Technology", "industry": "Information Technology Services"},
+}
+
 # ── Cache Settings ─────────────────────────────────────────────────
 CACHE_DIR = "data_cache"
 CACHE_EXPIRY_HOURS = 12
@@ -115,5 +127,4 @@ FUNDAMENTALS_CACHE_FILE = "fundamentals_cache.json"
 SCORES_CACHE_FILE = "scores_cache.json"
 WATCHLIST_FILE = "watchlist.json"
 
-# ── S&P 500 Ticker List URL ───────────────────────────────────────
 SP500_WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
