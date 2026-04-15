@@ -1,27 +1,24 @@
 """
-Fair Value Estimator - Sector-Specific Approach.
-Each sector uses its "north star" valuation metric as the primary method.
+Fair Value Estimator v3 - Quality-Adjusted Approach.
 
-Sector North Stars:
-- Technology/Growth:     Price-to-Sales (P/S) ratio vs sector median
-- Financial Services:    Price-to-Book (P/B) ratio vs sector median
-- Energy:               EV/EBITDA vs sector median
-- Utilities:            EV/EBITDA vs sector median
-- Industrials:          EV/EBITDA vs sector median
-- Real Estate:          Price-to-Book (P/B) as proxy for P/FFO
-- Healthcare:           P/E with growth adjustment
-- Consumer Cyclical:    P/E vs sector median
-- Consumer Defensive:   P/E vs sector median
-- Communication:        P/S ratio vs sector median (many high-growth)
-- Materials:            EV/EBITDA vs sector median
-- Basic Materials:      EV/EBITDA vs sector median
+Key principle: A company's fair multiple depends on its QUALITY relative to peers.
+A top-quartile growth company deserves a top-quartile multiple, not the sector median.
 
-Methods (weighted by sector):
-1. Sector North Star (40-50% weight) - sector-appropriate primary metric
-2. Graham Number (15%) - classic value
-3. Trailing Earnings Capitalization (15-25%) - quality-adjusted
-4. Analyst Target (10-15%) - forward-looking, weighted lowest
-5. PEG-Based (0-15%) - only for growth sectors
+Methods by weight:
+1. PEG-Based (30%) - primary for all sectors. PEG=1 is fair value baseline.
+2. Quality-Adjusted Relative (30%) - uses the multiple the company DESERVES
+   based on its growth + profitability rank within sector
+3. Trailing Earnings Capitalization (20%) - quality-adjusted PE
+4. Analyst Target (20%) - consensus with analyst count weighting
+
+Sector-specific primary multiples:
+- Technology/Comms: P/S relative (quality-adjusted)
+- Financials: P/B relative (quality-adjusted)
+- Energy/Utilities/Industrials/Materials: EV/EBITDA relative (quality-adjusted)
+- Real Estate: P/B relative (proxy for P/FFO)
+- Healthcare/Consumer: P/E relative (quality-adjusted)
+
+Graham Number removed: too conservative for modern markets.
 """
 
 import numpy as np
@@ -30,76 +27,27 @@ import pandas as pd
 
 # ── Sector Configuration ───────────────────────────────────────────
 
-SECTOR_CONFIG = {
-    "Technology": {
-        "north_star": "ps_relative",
-        "north_star_name": "Price/Sales vs Sector Median",
-        "weights": {"north_star": 0.40, "trailing_cap": 0.15, "graham": 0.15, "peg": 0.15, "analyst": 0.15},
-    },
-    "Communication Services": {
-        "north_star": "ps_relative",
-        "north_star_name": "Price/Sales vs Sector Median",
-        "weights": {"north_star": 0.40, "trailing_cap": 0.15, "graham": 0.15, "peg": 0.15, "analyst": 0.15},
-    },
-    "Financial Services": {
-        "north_star": "pb_relative",
-        "north_star_name": "Price/Book vs Sector Median",
-        "weights": {"north_star": 0.45, "trailing_cap": 0.20, "graham": 0.20, "peg": 0.0, "analyst": 0.15},
-    },
-    "Energy": {
-        "north_star": "ev_ebitda_relative",
-        "north_star_name": "EV/EBITDA vs Sector Median",
-        "weights": {"north_star": 0.45, "trailing_cap": 0.20, "graham": 0.15, "peg": 0.0, "analyst": 0.20},
-    },
-    "Utilities": {
-        "north_star": "ev_ebitda_relative",
-        "north_star_name": "EV/EBITDA vs Sector Median",
-        "weights": {"north_star": 0.45, "trailing_cap": 0.20, "graham": 0.20, "peg": 0.0, "analyst": 0.15},
-    },
-    "Industrials": {
-        "north_star": "ev_ebitda_relative",
-        "north_star_name": "EV/EBITDA vs Sector Median",
-        "weights": {"north_star": 0.40, "trailing_cap": 0.20, "graham": 0.15, "peg": 0.10, "analyst": 0.15},
-    },
-    "Real Estate": {
-        "north_star": "pb_relative",
-        "north_star_name": "Price/Book vs Sector Median (proxy for P/FFO)",
-        "weights": {"north_star": 0.45, "trailing_cap": 0.15, "graham": 0.20, "peg": 0.0, "analyst": 0.20},
-    },
-    "Healthcare": {
-        "north_star": "pe_relative",
-        "north_star_name": "P/E vs Sector Median",
-        "weights": {"north_star": 0.35, "trailing_cap": 0.20, "graham": 0.15, "peg": 0.15, "analyst": 0.15},
-    },
-    "Consumer Cyclical": {
-        "north_star": "pe_relative",
-        "north_star_name": "P/E vs Sector Median",
-        "weights": {"north_star": 0.35, "trailing_cap": 0.20, "graham": 0.15, "peg": 0.15, "analyst": 0.15},
-    },
-    "Consumer Defensive": {
-        "north_star": "pe_relative",
-        "north_star_name": "P/E vs Sector Median",
-        "weights": {"north_star": 0.40, "trailing_cap": 0.25, "graham": 0.15, "peg": 0.0, "analyst": 0.20},
-    },
-    "Basic Materials": {
-        "north_star": "ev_ebitda_relative",
-        "north_star_name": "EV/EBITDA vs Sector Median",
-        "weights": {"north_star": 0.40, "trailing_cap": 0.20, "graham": 0.15, "peg": 0.10, "analyst": 0.15},
-    },
+SECTOR_RELATIVE_METRIC = {
+    "Technology": {"key": "priceToSalesTrailing12Months", "name": "P/S", "label": "Price/Sales"},
+    "Communication Services": {"key": "priceToSalesTrailing12Months", "name": "P/S", "label": "Price/Sales"},
+    "Financial Services": {"key": "priceToBook", "name": "P/B", "label": "Price/Book"},
+    "Energy": {"key": "enterpriseToEbitda", "name": "EV/EBITDA", "label": "EV/EBITDA"},
+    "Utilities": {"key": "enterpriseToEbitda", "name": "EV/EBITDA", "label": "EV/EBITDA"},
+    "Industrials": {"key": "enterpriseToEbitda", "name": "EV/EBITDA", "label": "EV/EBITDA"},
+    "Basic Materials": {"key": "enterpriseToEbitda", "name": "EV/EBITDA", "label": "EV/EBITDA"},
+    "Real Estate": {"key": "priceToBook", "name": "P/B", "label": "Price/Book"},
+    "Healthcare": {"key": "trailingPE", "name": "P/E", "label": "Trailing P/E"},
+    "Consumer Cyclical": {"key": "priceToSalesTrailing12Months", "name": "P/S", "label": "Price/Sales"},
+    "Consumer Defensive": {"key": "trailingPE", "name": "P/E", "label": "Trailing P/E"},
 }
 
-# Default for unknown sectors
-DEFAULT_CONFIG = {
-    "north_star": "pe_relative",
-    "north_star_name": "P/E vs Sector Median",
-    "weights": {"north_star": 0.35, "trailing_cap": 0.20, "graham": 0.15, "peg": 0.15, "analyst": 0.15},
-}
+DEFAULT_RELATIVE_METRIC = {"key": "trailingPE", "name": "P/E", "label": "Trailing P/E"}
 
 
 def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = None) -> dict:
     """
-    Compute CURRENT fair value using sector-specific primary metrics.
-    The sector's north star metric gets the highest weight.
+    Compute fair value using quality-adjusted methods.
+    No Graham Number. PEG is primary. Relative valuation adjusts for company quality.
     """
     if ticker not in scored_df.index:
         if raw_cache and ticker in raw_cache:
@@ -114,83 +62,54 @@ def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = N
         return {"error": "No price data available."}
 
     sector = data.get("sector", "Unknown")
-    config = SECTOR_CONFIG.get(sector, DEFAULT_CONFIG)
     methods = {}
 
-    # Method 1: Sector North Star (highest weight)
-    ns_method = config["north_star"]
-    ns_result = None
+    # Method 1: PEG-Based (30% weight) - PRIMARY
+    peg_val = _peg_fair_value(data)
+    if peg_val:
+        methods["PEG Fair Value"] = peg_val
 
-    if ns_method == "ps_relative":
-        ns_result = _ps_relative(data, sector, scored_df)
-    elif ns_method == "pb_relative":
-        ns_result = _pb_relative(data, sector, scored_df)
-    elif ns_method == "ev_ebitda_relative":
-        ns_result = _ev_ebitda_relative(data, sector, scored_df)
-    elif ns_method == "pe_relative":
-        ns_result = _pe_relative(data, sector, scored_df)
+    # Method 2: Quality-Adjusted Relative (30% weight)
+    relative = _quality_adjusted_relative(data, sector, scored_df)
+    if relative:
+        methods[f"Quality-Adjusted {relative.get('metric_label', 'Relative')}"] = relative
 
-    if ns_result:
-        ns_result["is_north_star"] = True
-        ns_result["north_star_label"] = config["north_star_name"]
-        methods[f"Sector Primary: {config['north_star_name']}"] = ns_result
-
-    # Method 2: Trailing Earnings Capitalization
-    trailing = _trailing_earnings_value(data)
+    # Method 3: Trailing Earnings Capitalization (20% weight)
+    trailing = _trailing_earnings_value(data, sector, scored_df)
     if trailing:
-        methods["Trailing Earnings Value"] = trailing
+        methods["Earnings Capitalization"] = trailing
 
-    # Method 3: Graham Number
-    graham = _graham_number(data)
-    if graham:
-        methods["Graham Number"] = graham
-
-    # Method 4: PEG-Based (only if weight > 0)
-    if config["weights"]["peg"] > 0:
-        peg_val = _peg_fair_value(data)
-        if peg_val:
-            methods["PEG Fair Value"] = peg_val
-
-    # Method 5: Analyst Target
+    # Method 4: Analyst Target (20% weight)
     analyst = _analyst_target(data)
     if analyst:
-        methods["Analyst Target"] = analyst
+        methods["Analyst Consensus"] = analyst
 
     if not methods:
         return {
-            "ticker": ticker,
-            "current_price": current_price,
-            "error": "Insufficient data for fair value calculation.",
-            "methods": {},
+            "ticker": ticker, "current_price": current_price,
+            "error": "Insufficient data for fair value calculation.", "methods": {},
         }
 
     # ── Weighted Composite ─────────────────────────────────────────
-    # Map method names to weight keys
-    method_to_weight_key = {}
+    method_weights = {
+        "PEG Fair Value": 0.30,
+        "Earnings Capitalization": 0.20,
+        "Analyst Consensus": 0.20,
+    }
+    # Quality-adjusted relative gets 0.30
     for mname in methods:
-        if "Sector Primary" in mname:
-            method_to_weight_key[mname] = "north_star"
-        elif "Trailing" in mname:
-            method_to_weight_key[mname] = "trailing_cap"
-        elif "Graham" in mname:
-            method_to_weight_key[mname] = "graham"
-        elif "PEG" in mname:
-            method_to_weight_key[mname] = "peg"
-        elif "Analyst" in mname:
-            method_to_weight_key[mname] = "analyst"
+        if "Quality-Adjusted" in mname:
+            method_weights[mname] = 0.30
 
-    weights = config["weights"]
     weighted_sum = 0
     total_weight = 0
-
     for mname, mdata in methods.items():
         fv = mdata.get("fair_value", 0)
-        wkey = method_to_weight_key.get(mname, "trailing_cap")
-        w = weights.get(wkey, 0.10)
-
+        w = method_weights.get(mname, 0.15)
         if fv and fv > 0 and np.isfinite(fv):
             ratio = fv / current_price
-            if 0.05 < ratio < 10.0:
+            # Wider sanity bounds: 5% to 500% of current price
+            if 0.05 < ratio < 5.0:
                 weighted_sum += fv * w
                 total_weight += w
 
@@ -201,23 +120,19 @@ def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = N
     else:
         premium_discount_pct = 0
 
+    # Wider bands to reduce false precision
     if premium_discount_pct < -30:
-        verdict = "Deeply Undervalued"
-        verdict_color = "#00C805"
+        verdict, verdict_color = "Deeply Undervalued", "#00C805"
     elif premium_discount_pct < -10:
-        verdict = "Undervalued"
-        verdict_color = "#8BC34A"
-    elif premium_discount_pct < 15:
-        verdict = "Fairly Valued"
-        verdict_color = "#FFC107"
-    elif premium_discount_pct < 35:
-        verdict = "Overvalued"
-        verdict_color = "#FF5722"
+        verdict, verdict_color = "Undervalued", "#8BC34A"
+    elif premium_discount_pct < 20:
+        verdict, verdict_color = "Fairly Valued", "#FFC107"
+    elif premium_discount_pct < 40:
+        verdict, verdict_color = "Overvalued", "#FF5722"
     else:
-        verdict = "Significantly Overvalued"
-        verdict_color = "#D32F2F"
+        verdict, verdict_color = "Significantly Overvalued", "#D32F2F"
 
-    margin_of_safety = max(0, -premium_discount_pct)
+    rel_metric = SECTOR_RELATIVE_METRIC.get(sector, DEFAULT_RELATIVE_METRIC)
 
     return {
         "ticker": ticker,
@@ -226,38 +141,158 @@ def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = N
         "premium_discount_pct": round(premium_discount_pct, 1),
         "verdict": verdict,
         "verdict_color": verdict_color,
-        "margin_of_safety": round(margin_of_safety, 1),
+        "margin_of_safety": round(max(0, -premium_discount_pct), 1),
         "methods": methods,
         "num_methods_used": len(methods),
         "sector": sector,
-        "north_star_metric": config["north_star_name"],
+        "north_star_metric": f"Quality-Adjusted {rel_metric['label']}",
     }
 
 
-# ── North Star Methods ─────────────────────────────────────────────
+# ── Method 1: PEG-Based ───────────────────────────────────────────
 
-
-def _ps_relative(data: dict, sector: str, scored_df: pd.DataFrame) -> dict | None:
-    """Price-to-Sales vs sector median. Best for Tech/Growth/Comms."""
+def _peg_fair_value(data: dict) -> dict | None:
+    """
+    PEG = 1.0 means fairly valued. PEG < 1 = undervalued.
+    Fair Value = EPS * Growth Rate (as PE multiple).
+    Uses trailing earnings growth. Falls back to revenue growth.
+    Caps fair PE at 40x to avoid extreme results.
+    """
     price = data.get("currentPrice", 0)
-    ps = data.get("priceToSalesTrailing12Months")
+    trailing_pe = data.get("trailingPE")
+    forward_pe = data.get("forwardPE")
 
-    if not price or price <= 0 or not ps or ps <= 0 or ps > 200:
+    pe = trailing_pe or forward_pe
+    if not price or price <= 0 or not pe or pe <= 0 or pe > 500:
         return None
 
+    eps = price / pe
+
+    # Try multiple growth sources
+    growth = None
+    growth_source = None
+
+    eg = data.get("earningsGrowth")
+    if eg and isinstance(eg, (int, float)) and 0 < eg < 5:
+        growth = float(eg)
+        growth_source = "Trailing Earnings Growth"
+
+    if growth is None:
+        rg = data.get("revenueGrowth")
+        if rg and isinstance(rg, (int, float)) and 0 < rg < 5:
+            growth = float(rg)
+            growth_source = "Revenue Growth"
+
+    if growth is None:
+        return None
+
+    growth_pct = growth * 100
+
+    # Fair PE = growth rate (PEG=1 rule), with floors and caps
+    # Floor: even zero-growth companies deserve at least 8x
+    # Cap: even 50%+ growers shouldn't get more than 40x from this alone
+    fair_pe = max(8, min(growth_pct, 40))
+
+    # Adjust for profitability: high-margin companies deserve PE premium
+    op_margin = data.get("operatingMargins")
+    if op_margin and isinstance(op_margin, (int, float)):
+        if op_margin > 0.30:
+            fair_pe *= 1.25  # 25% premium for exceptional margins
+        elif op_margin > 0.20:
+            fair_pe *= 1.15  # 15% premium
+        elif op_margin < 0.05:
+            fair_pe *= 0.85  # 15% discount for thin margins
+
+    fair_value = eps * fair_pe
+    if fair_value <= 0 or not np.isfinite(fair_value):
+        return None
+
+    actual_peg = pe / growth_pct if growth_pct > 0 else None
+
+    return {
+        "fair_value": round(fair_value, 2),
+        "premium_discount_pct": round((price / fair_value - 1) * 100, 1),
+        "assumptions": {
+            "eps": round(eps, 2),
+            "growth_rate": f"{growth_pct:.1f}%",
+            "growth_source": growth_source,
+            "fair_pe": round(fair_pe, 1),
+            "actual_pe": round(pe, 1),
+            "actual_peg": round(actual_peg, 2) if actual_peg else "N/A",
+            "margin_adjustment": "Yes" if op_margin and op_margin > 0.20 else "No",
+            "method": "EPS * Margin-Adjusted Fair PE (PEG=1 baseline)",
+        },
+    }
+
+
+# ── Method 2: Quality-Adjusted Relative ────────────────────────────
+
+def _quality_adjusted_relative(data: dict, sector: str, scored_df: pd.DataFrame) -> dict | None:
+    """
+    Instead of comparing to sector MEDIAN, compare to the multiple that
+    this company DESERVES based on its quality rank within the sector.
+
+    A top-decile company (by growth + margins) is compared to the
+    top-decile multiple in the sector. A bottom-quartile company
+    is compared to the bottom-quartile multiple.
+
+    This prevents penalizing NVDA for trading above the median tech P/S.
+    """
+    price = data.get("currentPrice", 0)
+    if not price or price <= 0:
+        return None
+
+    rel_config = SECTOR_RELATIVE_METRIC.get(sector, DEFAULT_RELATIVE_METRIC)
+    metric_key = rel_config["key"]
+    metric_name = rel_config["name"]
+    metric_label = rel_config["label"]
+
+    # Get this stock's multiple
+    stock_multiple = data.get(metric_key)
+    if not stock_multiple or not isinstance(stock_multiple, (int, float)) or stock_multiple <= 0 or stock_multiple > 500:
+        return None
+
+    # Get all sector peers' data
     sector_stocks = scored_df[scored_df["sector"] == sector]
-    if "priceToSalesTrailing12Months" not in sector_stocks.columns:
+    if metric_key not in sector_stocks.columns:
         return None
 
-    sector_ps = pd.to_numeric(sector_stocks["priceToSalesTrailing12Months"], errors="coerce").dropna()
-    sector_ps = sector_ps[(sector_ps > 0) & (sector_ps < 200)]
+    sector_multiples = pd.to_numeric(sector_stocks[metric_key], errors="coerce").dropna()
+    sector_multiples = sector_multiples[(sector_multiples > 0) & (sector_multiples < 500)]
 
-    if len(sector_ps) < 5:
+    if len(sector_multiples) < 5:
         return None
 
-    median_ps = sector_ps.median()
-    revenue_per_share = price / ps
-    fair_value = revenue_per_share * median_ps
+    # Compute this company's QUALITY percentile within sector
+    quality_score = _compute_quality_percentile(data, sector, scored_df)
+
+    # The company "deserves" a multiple at the same percentile as its quality
+    # Quality percentile 90 -> deserves the 90th percentile multiple
+    # Quality percentile 30 -> deserves the 30th percentile multiple
+    deserved_multiple = sector_multiples.quantile(quality_score / 100)
+
+    # For "lower is better" metrics (PE, EV/EBITDA), lower quality = higher deserved
+    # For "higher is better" metrics... actually all these are "higher = more expensive"
+    # So higher quality = deserves higher multiple
+
+    # Compute fair value
+    if metric_key in ["priceToSalesTrailing12Months"]:
+        # P/S: fair_value = revenue_per_share * deserved_PS
+        rev_per_share = price / stock_multiple
+        fair_value = rev_per_share * deserved_multiple
+    elif metric_key in ["priceToBook"]:
+        # P/B: fair_value = book_per_share * deserved_PB
+        book_per_share = price / stock_multiple
+        fair_value = book_per_share * deserved_multiple
+    elif metric_key in ["enterpriseToEbitda"]:
+        # EV/EBITDA: approximate fair_value = price * (deserved / actual)
+        fair_value = price * (deserved_multiple / stock_multiple)
+    elif metric_key in ["trailingPE", "forwardPE"]:
+        # P/E: fair_value = EPS * deserved_PE
+        eps = price / stock_multiple
+        fair_value = eps * deserved_multiple
+    else:
+        fair_value = price * (deserved_multiple / stock_multiple)
 
     if fair_value <= 0 or not np.isfinite(fair_value):
         return None
@@ -265,116 +300,86 @@ def _ps_relative(data: dict, sector: str, scored_df: pd.DataFrame) -> dict | Non
     return {
         "fair_value": round(fair_value, 2),
         "premium_discount_pct": round((price / fair_value - 1) * 100, 1),
+        "metric_label": metric_label,
         "assumptions": {
-            "revenue_per_share": round(revenue_per_share, 2),
-            "your_ps": round(ps, 1),
-            "sector_median_ps": round(median_ps, 1),
-            "peer_count": len(sector_ps),
-            "method": "Revenue/Share * Sector Median P/S",
+            f"your_{metric_name}": round(stock_multiple, 1),
+            f"deserved_{metric_name}": round(deserved_multiple, 1),
+            "sector_median": round(sector_multiples.median(), 1),
+            "quality_percentile": round(quality_score, 0),
+            "peer_count": len(sector_multiples),
+            "method": f"Company deserves {round(quality_score)}th percentile {metric_name} based on growth+margins rank",
         },
     }
 
 
-def _pb_relative(data: dict, sector: str, scored_df: pd.DataFrame) -> dict | None:
-    """Price-to-Book vs sector median. Best for Financials/Real Estate."""
-    price = data.get("currentPrice", 0)
-    pb = data.get("priceToBook")
-
-    if not price or price <= 0 or not pb or pb <= 0 or pb > 100:
-        return None
-
+def _compute_quality_percentile(data: dict, sector: str, scored_df: pd.DataFrame) -> float:
+    """
+    Compute a company's quality percentile within its sector.
+    Based on: revenue growth, earnings growth, operating margin, ROE.
+    Returns 0-100 percentile (100 = best quality in sector).
+    """
     sector_stocks = scored_df[scored_df["sector"] == sector]
-    if "priceToBook" not in sector_stocks.columns:
-        return None
+    if len(sector_stocks) < 5:
+        return 50  # Default to median if too few peers
 
-    sector_pb = pd.to_numeric(sector_stocks["priceToBook"], errors="coerce").dropna()
-    sector_pb = sector_pb[(sector_pb > 0) & (sector_pb < 100)]
+    quality_metrics = ["revenueGrowth", "earningsGrowth", "operatingMargins", "returnOnEquity"]
+    percentiles = []
 
-    if len(sector_pb) < 5:
-        return None
+    for qm in quality_metrics:
+        if qm not in sector_stocks.columns:
+            continue
 
-    median_pb = sector_pb.median()
-    bvps = price / pb
-    fair_value = bvps * median_pb
+        col = pd.to_numeric(sector_stocks[qm], errors="coerce").dropna()
+        if len(col) < 5:
+            continue
 
-    if fair_value <= 0 or not np.isfinite(fair_value):
-        return None
+        stock_val = data.get(qm)
+        if stock_val is None or not isinstance(stock_val, (int, float)) or not np.isfinite(stock_val):
+            continue
 
-    return {
-        "fair_value": round(fair_value, 2),
-        "premium_discount_pct": round((price / fair_value - 1) * 100, 1),
-        "assumptions": {
-            "book_value_per_share": round(bvps, 2),
-            "your_pb": round(pb, 1),
-            "sector_median_pb": round(median_pb, 1),
-            "peer_count": len(sector_pb),
-            "method": "BVPS * Sector Median P/B",
-        },
-    }
+        # What percentile is this stock at for this metric?
+        pct = (col < stock_val).sum() / len(col) * 100
+        percentiles.append(pct)
 
+    if not percentiles:
+        return 50
 
-def _ev_ebitda_relative(data: dict, sector: str, scored_df: pd.DataFrame) -> dict | None:
-    """EV/EBITDA vs sector median. Best for Energy/Utilities/Industrials/Materials."""
-    price = data.get("currentPrice", 0)
-    ev_ebitda = data.get("enterpriseToEbitda")
-
-    if not price or price <= 0 or not ev_ebitda or ev_ebitda <= 0 or ev_ebitda > 200:
-        return None
-
-    sector_stocks = scored_df[scored_df["sector"] == sector]
-    if "enterpriseToEbitda" not in sector_stocks.columns:
-        return None
-
-    sector_ev = pd.to_numeric(sector_stocks["enterpriseToEbitda"], errors="coerce").dropna()
-    sector_ev = sector_ev[(sector_ev > 0) & (sector_ev < 200)]
-
-    if len(sector_ev) < 5:
-        return None
-
-    median_ev = sector_ev.median()
-
-    # EV/EBITDA implies: fair EV = EBITDA * median multiple
-    # But we need share price, not EV. Approximate:
-    # If stock's EV/EBITDA is X and sector median is Y,
-    # fair price ~ price * (Y / X)
-    fair_value = price * (median_ev / ev_ebitda)
-
-    if fair_value <= 0 or not np.isfinite(fair_value):
-        return None
-
-    return {
-        "fair_value": round(fair_value, 2),
-        "premium_discount_pct": round((price / fair_value - 1) * 100, 1),
-        "assumptions": {
-            "your_ev_ebitda": round(ev_ebitda, 1),
-            "sector_median_ev_ebitda": round(median_ev, 1),
-            "peer_count": len(sector_ev),
-            "method": "Price * (Sector Median EV/EBITDA / Your EV/EBITDA)",
-        },
-    }
+    # Average quality percentile across all available metrics
+    return np.mean(percentiles)
 
 
-def _pe_relative(data: dict, sector: str, scored_df: pd.DataFrame) -> dict | None:
-    """P/E vs sector median. Default for Healthcare/Consumer/Unknown sectors."""
+# ── Method 3: Trailing Earnings Capitalization ─────────────────────
+
+def _trailing_earnings_value(data: dict, sector: str, scored_df: pd.DataFrame) -> dict | None:
+    """
+    What PE does this company deserve based on its quality?
+    Uses sector PE distribution + company quality rank.
+    """
     price = data.get("currentPrice", 0)
     trailing_pe = data.get("trailingPE")
 
-    if not price or price <= 0 or not trailing_pe or trailing_pe <= 0 or trailing_pe > 200:
+    if not price or price <= 0 or not trailing_pe or trailing_pe <= 0 or trailing_pe > 500:
         return None
 
+    eps = price / trailing_pe
+
+    # Get sector PE distribution
     sector_stocks = scored_df[scored_df["sector"] == sector]
-    if "trailingPE" not in sector_stocks.columns:
-        return None
+    if "trailingPE" not in sector_stocks.columns or len(sector_stocks) < 5:
+        # Fallback: quality-based fixed PE
+        return _trailing_fallback(data, eps, trailing_pe, price)
 
     sector_pe = pd.to_numeric(sector_stocks["trailingPE"], errors="coerce").dropna()
     sector_pe = sector_pe[(sector_pe > 0) & (sector_pe < 200)]
 
     if len(sector_pe) < 5:
-        return None
+        return _trailing_fallback(data, eps, trailing_pe, price)
 
-    median_pe = sector_pe.median()
-    eps = price / trailing_pe
-    fair_value = eps * median_pe
+    # Quality-adjusted: this company deserves a PE at its quality percentile
+    quality_pct = _compute_quality_percentile(data, sector, scored_df)
+    deserved_pe = sector_pe.quantile(quality_pct / 100)
+
+    fair_value = eps * deserved_pe
 
     if fair_value <= 0 or not np.isfinite(fair_value):
         return None
@@ -384,155 +389,62 @@ def _pe_relative(data: dict, sector: str, scored_df: pd.DataFrame) -> dict | Non
         "premium_discount_pct": round((price / fair_value - 1) * 100, 1),
         "assumptions": {
             "trailing_eps": round(eps, 2),
-            "your_trailing_pe": round(trailing_pe, 1),
-            "sector_median_trailing_pe": round(median_pe, 1),
-            "peer_count": len(sector_pe),
-            "method": "Trailing EPS * Sector Median Trailing PE",
+            "actual_pe": round(trailing_pe, 1),
+            "deserved_pe": round(deserved_pe, 1),
+            "quality_percentile": round(quality_pct, 0),
+            "sector_median_pe": round(sector_pe.median(), 1),
+            "method": "EPS * Quality-Adjusted Sector PE",
         },
     }
 
 
-# ── Supporting Methods ─────────────────────────────────────────────
-
-
-def _trailing_earnings_value(data: dict) -> dict | None:
-    """
-    Capitalize trailing earnings at quality-adjusted multiple.
-    High ROE + high margins = higher deserved PE.
-    """
-    price = data.get("currentPrice", 0)
-    trailing_pe = data.get("trailingPE")
-
-    if not price or price <= 0 or not trailing_pe or trailing_pe <= 0 or trailing_pe > 200:
-        return None
-
-    eps = price / trailing_pe
-
+def _trailing_fallback(data, eps, trailing_pe, price):
+    """Fallback when sector PE data is insufficient."""
     roe = data.get("returnOnEquity")
     op_margin = data.get("operatingMargins")
 
-    quality_score = 0
+    q = 0
     if roe and isinstance(roe, (int, float)):
-        if roe > 0.30: quality_score += 3
-        elif roe > 0.20: quality_score += 2
-        elif roe > 0.12: quality_score += 1
-        elif roe < 0.05: quality_score -= 1
-
+        if roe > 0.25: q += 3
+        elif roe > 0.15: q += 2
+        elif roe > 0.08: q += 1
     if op_margin and isinstance(op_margin, (int, float)):
-        if op_margin > 0.25: quality_score += 3
-        elif op_margin > 0.15: quality_score += 2
-        elif op_margin > 0.08: quality_score += 1
-        elif op_margin < 0.03: quality_score -= 1
+        if op_margin > 0.25: q += 3
+        elif op_margin > 0.15: q += 2
+        elif op_margin > 0.08: q += 1
 
-    # Quality-adjusted PE (no growth assumption)
-    if quality_score >= 5:
-        fair_pe = 25  # Elite business (AAPL, MSFT quality)
-    elif quality_score >= 3:
-        fair_pe = 20  # High quality
-    elif quality_score >= 1:
-        fair_pe = 16  # Decent
-    elif quality_score >= 0:
-        fair_pe = 13  # Average
-    else:
-        fair_pe = 10  # Low quality
+    if q >= 5: fair_pe = 28
+    elif q >= 3: fair_pe = 22
+    elif q >= 1: fair_pe = 16
+    else: fair_pe = 12
 
     fair_value = eps * fair_pe
-
-    if fair_value <= 0 or not np.isfinite(fair_value):
-        return None
+    if fair_value <= 0 or not np.isfinite(fair_value): return None
 
     return {
         "fair_value": round(fair_value, 2),
         "premium_discount_pct": round((price / fair_value - 1) * 100, 1),
         "assumptions": {
             "trailing_eps": round(eps, 2),
-            "quality_score": quality_score,
+            "quality_score": q,
             "quality_fair_pe": round(fair_pe, 1),
-            "actual_trailing_pe": round(trailing_pe, 1),
-            "method": "Trailing EPS * Quality-adjusted PE",
+            "method": "EPS * Quality-Based PE (fallback)",
         },
     }
 
 
-def _graham_number(data: dict) -> dict | None:
-    """Graham Number = sqrt(22.5 * EPS * BVPS). Trailing data only."""
-    price = data.get("currentPrice", 0)
-    trailing_pe = data.get("trailingPE")
-    price_to_book = data.get("priceToBook")
-
-    if not price or price <= 0 or not trailing_pe or trailing_pe <= 0:
-        return None
-    if not price_to_book or price_to_book <= 0:
-        return None
-
-    eps = price / trailing_pe
-    bvps = price / price_to_book
-
-    if eps <= 0 or bvps <= 0:
-        return None
-
-    graham = np.sqrt(22.5 * eps * bvps)
-
-    if not np.isfinite(graham) or graham <= 0:
-        return None
-
-    return {
-        "fair_value": round(graham, 2),
-        "premium_discount_pct": round((price / graham - 1) * 100, 1),
-        "assumptions": {
-            "trailing_eps": round(eps, 2),
-            "book_value_per_share": round(bvps, 2),
-            "method": "sqrt(22.5 * EPS * BVPS)",
-        },
-    }
-
-
-def _peg_fair_value(data: dict) -> dict | None:
-    """PEG-Based using trailing growth. PEG=1 rule."""
-    price = data.get("currentPrice", 0)
-    trailing_pe = data.get("trailingPE")
-    earnings_growth = data.get("earningsGrowth")
-
-    if not price or price <= 0 or not trailing_pe or trailing_pe <= 0:
-        return None
-    if not earnings_growth or not isinstance(earnings_growth, (int, float)):
-        return None
-    if earnings_growth <= 0 or earnings_growth > 5:
-        return None
-
-    growth_pct = float(earnings_growth) * 100
-    if growth_pct <= 0 or growth_pct > 100:
-        return None
-
-    eps = price / trailing_pe
-    fair_pe = min(growth_pct, 35)
-    fair_value = eps * fair_pe
-
-    if fair_value <= 0 or not np.isfinite(fair_value):
-        return None
-
-    return {
-        "fair_value": round(fair_value, 2),
-        "premium_discount_pct": round((price / fair_value - 1) * 100, 1),
-        "assumptions": {
-            "trailing_eps": round(eps, 2),
-            "trailing_growth": f"{growth_pct:.1f}%",
-            "fair_pe_at_peg1": round(fair_pe, 1),
-            "method": "EPS * min(Growth%, 35) -- PEG=1 rule",
-        },
-    }
-
+# ── Method 4: Analyst Target ──────────────────────────────────────
 
 def _analyst_target(data: dict) -> dict | None:
-    """Analyst consensus 12-month target. Forward-looking, weighted lowest."""
+    """Analyst consensus 12-month target."""
     price = data.get("currentPrice", 0)
     upside = data.get("analyst_mean_target_upside")
+    count = data.get("analyst_count", 0)
 
     if not price or price <= 0 or upside is None:
         return None
 
     target = price * (1 + float(upside))
-
     if target <= 0 or not np.isfinite(target):
         return None
 
@@ -540,13 +452,15 @@ def _analyst_target(data: dict) -> dict | None:
         "fair_value": round(target, 2),
         "premium_discount_pct": round((price / target - 1) * 100, 1),
         "assumptions": {
-            "analyst_12mo_target": round(target, 2),
+            "analyst_target": round(target, 2),
             "implied_upside": f"{float(upside)*100:+.1f}%",
-            "num_analysts": data.get("analyst_count", 0),
-            "method": "Analyst consensus (forward-looking, lowest weight)",
+            "num_analysts": count,
+            "method": f"Consensus of {count} analysts",
         },
     }
 
+
+# ── Portfolio Batch ────────────────────────────────────────────────
 
 def compute_portfolio_fair_values(holdings_df: pd.DataFrame, scored_df: pd.DataFrame) -> pd.DataFrame:
     results = []
