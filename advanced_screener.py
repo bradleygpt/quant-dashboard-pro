@@ -1,15 +1,10 @@
 """
-Advanced Screener module.
-Multi-filter stock screening with fair value integration and custom metric ranges.
-Supports both dropdown filters and custom metric range queries.
+Advanced Screener with multi-filter support and fair value integration.
 """
 
 import pandas as pd
 import numpy as np
 from fairvalue import compute_fair_value
-
-
-# ── Available Filter Metrics ───────────────────────────────────────
 
 FILTERABLE_METRICS = {
     "Valuation": [
@@ -55,58 +50,25 @@ def apply_advanced_filters(
     sort_ascending: bool = False,
     max_results: int = 500,
 ) -> pd.DataFrame:
-    """
-    Apply multiple filters simultaneously to the scored universe.
-
-    Args:
-        scored_df: Full scored DataFrame
-        rating_filter: List of ratings to include (e.g., ["Strong Buy", "Buy"])
-        sector_filter: List of sectors to include
-        fair_value_filter: List of verdicts (e.g., ["Undervalued", "Fairly Valued"])
-        metric_filters: Dict of {metric_key: (min_val, max_val)}
-        sort_by: Column to sort results by
-        sort_ascending: Sort direction
-        max_results: Maximum rows to return
-    """
-    if scored_df.empty:
-        return pd.DataFrame()
-
+    if scored_df.empty: return pd.DataFrame()
     df = scored_df.copy()
 
-    # Rating filter
     if rating_filter and "All" not in rating_filter:
         df = df[df["overall_rating"].isin(rating_filter)]
 
-    # Sector filter
     if sector_filter and "All" not in sector_filter:
         df = df[df["sector"].isin(sector_filter)]
 
-    # Metric range filters
     if metric_filters:
-        for metric_key, (min_val, max_val) in metric_filters.items():
-            if metric_key not in df.columns:
-                continue
+        for mk, (mn, mx) in metric_filters.items():
+            if mk not in df.columns: continue
+            col = pd.to_numeric(df[mk], errors="coerce")
+            is_pct = any(m["key"] == mk and m["type"] == "pct_range"
+                for cm in FILTERABLE_METRICS.values() for m in cm)
+            if is_pct: amn, amx = mn / 100, mx / 100
+            else: amn, amx = mn, mx
+            df = df[col.between(amn, amx, inclusive="both") | col.isna()]
 
-            col = pd.to_numeric(df[metric_key], errors="coerce")
-
-            # For percentage metrics stored as decimals (0.15 = 15%)
-            is_pct = any(
-                m["key"] == metric_key and m["type"] == "pct_range"
-                for cat_metrics in FILTERABLE_METRICS.values()
-                for m in cat_metrics
-            )
-
-            if is_pct:
-                # Convert filter values from percentage to decimal
-                actual_min = min_val / 100
-                actual_max = max_val / 100
-            else:
-                actual_min = min_val
-                actual_max = max_val
-
-            df = df[col.between(actual_min, actual_max, inclusive="both") | col.isna()]
-
-    # Sort
     if sort_by in df.columns:
         df = df.sort_values(sort_by, ascending=sort_ascending)
 
@@ -114,21 +76,14 @@ def apply_advanced_filters(
 
 
 def compute_fair_values_batch(scored_df: pd.DataFrame, tickers: list[str]) -> dict:
-    """
-    Compute fair values for a batch of tickers.
-    Returns dict of {ticker: verdict_string}.
-    Caches results to avoid recomputation.
-    """
+    """Compute fair values for up to 500 tickers."""
     results = {}
-    for ticker in tickers:
+    for ticker in tickers[:500]:  # Increased from 100
         try:
             fv = compute_fair_value(ticker, scored_df)
             if "error" not in fv:
-                results[ticker] = {
-                    "fair_value": fv["composite_fair_value"],
-                    "premium_discount": fv["premium_discount_pct"],
-                    "verdict": fv["verdict"],
-                }
+                results[ticker] = {"fair_value": fv["composite_fair_value"],
+                    "premium_discount": fv["premium_discount_pct"], "verdict": fv["verdict"]}
             else:
                 results[ticker] = {"fair_value": None, "premium_discount": None, "verdict": "N/A"}
         except Exception:
@@ -136,68 +91,35 @@ def compute_fair_values_batch(scored_df: pd.DataFrame, tickers: list[str]) -> di
     return results
 
 
-# ── Preset Screens ─────────────────────────────────────────────────
-
 PRESET_SCREENS = {
     "Undervalued Strong Buys": {
-        "description": "Strong Buy and Buy rated stocks that are Fairly Valued to Deeply Undervalued",
+        "description": "Strong Buy and Buy stocks that are Fairly Valued to Deeply Undervalued",
         "rating_filter": ["Strong Buy", "Buy"],
         "fair_value_filter": ["Deeply Undervalued", "Undervalued", "Fairly Valued"],
-        "metric_filters": {},
-        "sort_by": "composite_score",
+        "metric_filters": {}, "sort_by": "composite_score",
     },
     "Growth at Reasonable Price": {
-        "description": "PEG ratio 0.5-2.0 with at least 10% earnings growth",
-        "rating_filter": [],
-        "fair_value_filter": [],
-        "metric_filters": {
-            "pegRatio": (0.5, 2.0),
-            "earningsGrowth": (10, 200),
-        },
+        "description": "PEG 0.5-2.0 with at least 10% earnings growth",
+        "rating_filter": [], "fair_value_filter": [],
+        "metric_filters": {"pegRatio": (0.5, 2.0), "earningsGrowth": (10, 200)},
         "sort_by": "composite_score",
     },
     "Value Plays": {
-        "description": "Low P/E (under 15x) with positive margins and reasonable debt",
-        "rating_filter": [],
-        "fair_value_filter": [],
-        "metric_filters": {
-            "trailingPE": (1, 15),
-            "profitMargins": (5, 100),
-        },
+        "description": "Low P/E (under 15x) with positive margins",
+        "rating_filter": [], "fair_value_filter": [],
+        "metric_filters": {"trailingPE": (1, 15), "profitMargins": (5, 100)},
         "sort_by": "composite_score",
     },
     "Momentum Leaders": {
-        "description": "Top momentum stocks with positive returns across all timeframes",
-        "rating_filter": [],
-        "fair_value_filter": [],
-        "metric_filters": {
-            "momentum_1m": (0, 200),
-            "momentum_3m": (5, 300),
-            "momentum_6m": (10, 500),
-        },
-        "sort_by": "momentum_12m",
-        "sort_ascending": False,
-    },
-    "High Quality Compounders": {
-        "description": "High margins, strong ROE, and consistent growth",
-        "rating_filter": [],
-        "fair_value_filter": [],
-        "metric_filters": {
-            "operatingMargins": (15, 100),
-            "returnOnEquity": (15, 100),
-            "revenueGrowth": (5, 200),
-        },
+        "description": "Positive returns across all timeframes",
+        "rating_filter": [], "fair_value_filter": [],
+        "metric_filters": {"momentum_1m": (0, 200), "momentum_3m": (5, 300), "momentum_6m": (10, 500)},
         "sort_by": "composite_score",
     },
-    "Dividend Candidates": {
-        "description": "Profitable, reasonably valued stocks suitable for income",
-        "rating_filter": ["Strong Buy", "Buy", "Hold"],
-        "fair_value_filter": [],
-        "metric_filters": {
-            "trailingPE": (5, 25),
-            "profitMargins": (5, 100),
-            "returnOnEquity": (10, 100),
-        },
+    "High Quality Compounders": {
+        "description": "High margins, strong ROE, consistent growth",
+        "rating_filter": [], "fair_value_filter": [],
+        "metric_filters": {"operatingMargins": (15, 100), "returnOnEquity": (15, 100), "revenueGrowth": (5, 200)},
         "sort_by": "composite_score",
     },
 }

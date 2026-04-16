@@ -1,7 +1,6 @@
 """
-Quantitative Strategy Dashboard Pro v3.1
-11 tabs: Market Sentiment, Screener, Advanced Screener, Sector Overview,
-Stock Detail (Fair Value), Portfolio, Monte Carlo, Thesis Engine, ETF Screener, Watchlist, Compare
+Quantitative Strategy Dashboard Pro v3.2
+12 tabs with Quant Buy Point in Stock Detail
 """
 import streamlit as st
 import pandas as pd
@@ -25,13 +24,12 @@ from fairvalue import compute_fair_value
 from sentiment import fetch_index_data, fetch_vix_data, fetch_buffett_indicator, compute_market_breadth, compute_fear_greed, COMING_SOON_INDICATORS
 from advanced_screener import apply_advanced_filters, compute_fair_values_batch, PRESET_SCREENS, FILTERABLE_METRICS
 from etf_screener import load_etf_data, get_etf_categories, filter_etfs, get_etf_detail
+from buy_point import compute_buy_point
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
 .main-header{font-size:1.8em;font-weight:800;background:linear-gradient(90deg,#00D4AA,#00A3FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0}
 .sub-header{color:#888;font-size:0.95em;margin-top:-8px}
-.suggestion-card{background:#1A1F2E;border-radius:10px;padding:14px;margin-bottom:10px}
-.suggestion-warning{border-left:4px solid #FF5722}.suggestion-info{border-left:4px solid #FFC107}.suggestion-opportunity{border-left:4px solid #00C805}
 </style>""", unsafe_allow_html=True)
 
 for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("sector_relative",True),("portfolio_holdings",[])]:
@@ -112,26 +110,22 @@ if scored_df is None or scored_df.empty: st.warning("No data.");st.stop()
 # ═══ TAB 1: MARKET SENTIMENT ══════════════════════════════════════
 with tab_sentiment:
     st.markdown("### Market Sentiment Dashboard")
-    st.caption("When to buy: favorable sentiment (gauges right). What to buy: use Screener.")
     with st.spinner("Fetching live market data..."):
         index_data=fetch_index_data();vix_data=fetch_vix_data();breadth_data=compute_market_breadth(scored_df);buffett_data=fetch_buffett_indicator()
         fear_greed=compute_fear_greed(vix_data,breadth_data,index_data,buffett_data)
     st.markdown("---")
-    st.markdown("### Composite Fear & Greed Score")
     fg1,fg2=st.columns([1,1])
     with fg1: st.plotly_chart(make_gauge(fear_greed["score"],"Fear & Greed",0,100),use_container_width=True,key="fg_g")
     with fg2:
         st.markdown(f'### <span style="color:{fear_greed["color"]}">{fear_greed["classification"]}</span>',unsafe_allow_html=True)
-        st.markdown(f"**Score: {fear_greed['score']:.0f}/100**")
         st.caption("0 = Extreme Fear (buy signal) | 100 = Extreme Greed (caution)")
         for comp in fear_greed["components"]:
-            st.markdown(f"**{comp['name']}**: {comp['value']} ({comp['interpretation']})")
-            st.progress(comp["score"]/100)
+            st.markdown(f"**{comp['name']}**: {comp['value']} ({comp['interpretation']})");st.progress(comp["score"]/100)
     st.markdown("---")
     st.markdown("### Sentiment Gauges")
     g1,g2,g3=st.columns(3)
     with g1:
-        if vix_data: st.plotly_chart(make_gauge(vix_data["score"],f"VIX: {vix_data['current']}",0,100),use_container_width=True,key="vg");st.caption(f"{vix_data.get('level','')} | 1Y: {vix_data.get('low_1y','')}-{vix_data.get('high_1y','')}")
+        if vix_data: st.plotly_chart(make_gauge(vix_data["score"],f"VIX: {vix_data['current']}",0,100),use_container_width=True,key="vg")
     with g2:
         if breadth_data: st.plotly_chart(make_gauge(breadth_data["pct_above_50sma"],f"Above 50-SMA: {breadth_data['pct_above_50sma']:.0f}%",0,100),use_container_width=True,key="s5g")
     with g3:
@@ -140,7 +134,7 @@ with tab_sentiment:
     with g4:
         if breadth_data: st.plotly_chart(make_gauge(breadth_data["pct_positive_1m"],"1M Momentum Breadth",0,100),use_container_width=True,key="m1g")
     with g5:
-        if buffett_data and buffett_data.get("ratio"): st.plotly_chart(make_gauge(buffett_data["score"],f"Buffett Indicator: {buffett_data['ratio']:.0f}%",0,100),use_container_width=True,key="bg");st.caption(f"Total Mkt Cap / GDP | {buffett_data.get('level','')}")
+        if buffett_data and buffett_data.get("ratio"): st.plotly_chart(make_gauge(buffett_data["score"],f"Buffett: {buffett_data['ratio']:.0f}%",0,100),use_container_width=True,key="bg")
     with g6:
         sp_dist=0
         for idx in index_data:
@@ -164,11 +158,14 @@ with tab_screener:
     with c3: top_n=st.selectbox("Show Top",[50,100,250,500],index=3)
     filtered=get_top_stocks(scored_df,top_n,sel_sec,sel_rat)
     if not filtered.empty:
-        s1,s2,s3,s4=st.columns(4)
+        # Rating distribution
+        s1,s2,s3,s4,s5,s6=st.columns(6)
         with s1: st.metric("Universe",f"{len(scored_df):,}")
         with s2: st.metric("Strong Buys",len(scored_df[scored_df["overall_rating"]=="Strong Buy"]))
-        with s3: st.metric("Avg Score",f"{scored_df['composite_score'].mean():.1f}")
-        with s4: st.metric("Showing",f"{len(filtered):,}")
+        with s3: st.metric("Buys",len(scored_df[scored_df["overall_rating"]=="Buy"]))
+        with s4: st.metric("Holds",len(scored_df[scored_df["overall_rating"]=="Hold"]))
+        with s5: st.metric("Sells",len(scored_df[scored_df["overall_rating"]=="Sell"]))
+        with s6: st.metric("Strong Sells",len(scored_df[scored_df["overall_rating"]=="Strong Sell"]))
         dc=["shortName","sector","marketCapB","currentPrice"]
         for p in PILLAR_METRICS: dc.append(f"{p}_grade")
         dc+=["composite_score","overall_rating"]
@@ -209,8 +206,8 @@ with tab_advanced:
         if results.empty: st.warning("No stocks match all filters.")
         else:
             if adv_fv:
-                with st.spinner("Computing fair values..."):
-                    fv_r=compute_fair_values_batch(scored_df,results.index.tolist()[:100])
+                with st.spinner(f"Computing fair values for {len(results)} stocks..."):
+                    fv_r=compute_fair_values_batch(scored_df,results.index.tolist())
                     results["fv_verdict"]=results.index.map(lambda t:fv_r.get(t,{}).get("verdict","N/A"))
                     results["fv_premium"]=results.index.map(lambda t:fv_r.get(t,{}).get("premium_discount"))
                     results=results[results["fv_verdict"].isin(adv_fv)]
@@ -232,10 +229,10 @@ with tab_sectors:
     if not overview.empty:
         rc=["Rank","Sector","Stocks","composite_avg","Strong Buy","Buy","Hold","Sell","Strong Sell"]
         for p in PILLAR_METRICS: rc.append(f"{p}_grade")
-        rc+=["best_stock","worst_stock"];ac=[c for c in rc if c in overview.columns];rdf=overview[ac].copy()
+        rc+=["best_stock","worst_stock"];ac=[c for c in rc if c in overview.columns]
         rn2={"composite_avg":"Avg Score","best_stock":"Best","worst_stock":"Worst"}
         for p in PILLAR_METRICS: rn2[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
-        st.dataframe(rdf.rename(columns=rn2),use_container_width=True,hide_index=True)
+        st.dataframe(overview[ac].rename(columns=rn2),use_container_width=True,hide_index=True)
         fig_s=px.bar(overview,x="Sector",y="composite_avg",color="composite_avg",color_continuous_scale=["#D32F2F","#FFC107","#00C805"],range_color=[4,9])
         fig_s.update_layout(yaxis=dict(range=[0,12],title="Avg Score"),height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),coloraxis_showscale=False)
         st.plotly_chart(fig_s,use_container_width=True,key="sec_bar")
@@ -248,11 +245,11 @@ with tab_sectors:
                 with m1: st.metric("Stocks",sd["num_stocks"])
                 with m2: st.metric("Avg Score",f"{sd['composite_avg']:.1f}")
                 with m3: st.metric("Median",f"{sd['composite_median']:.1f}")
-                sdf=sd["stocks_df"].copy();cm={"shortName":"Company","currentPrice":"Price","marketCapB":"Mkt Cap","composite_score":"Score","overall_rating":"Rating"}
+                cm={"shortName":"Company","currentPrice":"Price","marketCapB":"Mkt Cap","composite_score":"Score","overall_rating":"Rating"}
                 for p in PILLAR_METRICS: cm[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
-                st.dataframe(sdf.rename(columns={c:cm.get(c,c) for c in sdf.columns}),use_container_width=True,height=500)
+                st.dataframe(sd["stocks_df"].rename(columns={c:cm.get(c,c) for c in sd["stocks_df"].columns}),use_container_width=True,height=500)
 
-# ═══ TAB 5: STOCK DETAIL ═════════════════════════════════════════
+# ═══ TAB 5: STOCK DETAIL + FAIR VALUE + BUY POINT ════════════════
 with tab_detail:
     all_t=sorted(scored_df.index.tolist());di=0
     if st.session_state.selected_ticker in all_t: di=all_t.index(st.session_state.selected_ticker)
@@ -265,10 +262,14 @@ with tab_detail:
         with h3: st.metric("Mkt Cap",fmt_mcap(row.get("marketCapB",0)))
         with h4: rat=row.get("overall_rating","Hold");st.metric("Score",f"{row.get('composite_score',0):.1f}/12");st.markdown(f'<span style="background:{RATING_COLORS.get(rat,"#666")};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{rat}</span>',unsafe_allow_html=True)
         st.markdown(f"**Sector:** {row.get('sector','N/A')} | **Industry:** {row.get('industry','N/A')}")
+
+        # ── Fair Value Section ─────────────────────────────────────
         st.markdown("---")
         st.markdown("### Fair Value Analysis")
         fv=compute_fair_value(sel,scored_df)
+        fv_price = None
         if "error" not in fv:
+            fv_price = fv["composite_fair_value"]
             f1,f2,f3,f4=st.columns(4)
             with f1: st.metric("Current Price",f"${fv['current_price']:.2f}")
             with f2: st.metric("Fair Value",f"${fv['composite_fair_value']:.2f}")
@@ -281,14 +282,38 @@ with tab_detail:
             fig_fv.add_hline(y=fv["composite_fair_value"],line_dash="dash",line_color="#00D4AA",annotation_text=f"Composite: ${fv['composite_fair_value']:.0f}")
             fig_fv.update_layout(yaxis=dict(title="Price ($)",tickformat="$,.0f"),height=350,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
             st.plotly_chart(fig_fv,use_container_width=True,key="fv_bar")
-            with st.expander("Method Details"):
+            with st.expander("Fair Value Method Details"):
                 for mn,md in fv["methods"].items():
-                    star=" ⭐ SECTOR PRIMARY" if md.get("is_north_star") else ""
-                    st.markdown(f"**{mn}**: ${md['fair_value']:.2f} ({md['premium_discount_pct']:+.1f}%){star}")
+                    st.markdown(f"**{mn}**: ${md['fair_value']:.2f} ({md['premium_discount_pct']:+.1f}%)")
                     if "assumptions" in md:
                         for ak,av in md["assumptions"].items(): st.caption(f"  {ak}: {av}")
                     st.markdown("---")
         else: st.caption(fv.get("error","Insufficient data."))
+
+        # ── Quant Buy Point Section ────────────────────────────────
+        st.markdown("---")
+        st.markdown("### Quant Buy Point")
+        st.caption("Data-driven entry price using mean reversion, Bollinger Bands, support levels, and fair value discount.")
+        with st.spinner(f"Computing buy point for {sel}..."):
+            bp = compute_buy_point(sel, scored_df, fair_value=fv_price)
+        if "error" not in bp:
+            bp1,bp2,bp3,bp4=st.columns(4)
+            with bp1: st.metric("Current Price",f"${bp['current_price']:.2f}")
+            with bp2: st.metric("Buy Point",f"${bp['buy_point']:.2f}")
+            with bp3: st.metric("Distance",f"{bp['distance_pct']:+.1f}%")
+            with bp4: st.markdown(f'<span style="background:{bp["signal_color"]};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{bp["signal"]}</span>',unsafe_allow_html=True)
+            # Buy point component breakdown
+            with st.expander("Buy Point Components"):
+                for cn,cd in bp["components"].items():
+                    st.markdown(f"**{cn}**: ${cd['price']:.2f} (weight: {cd['weight']*100:.0f}%)")
+                    st.caption(cd["description"])
+            # Technical indicators
+            with st.expander("Technical Indicators"):
+                for tk,tv in bp.get("technicals",{}).items():
+                    st.markdown(f"**{tk}**: {tv}")
+        else: st.caption(bp.get("error","Could not compute."))
+
+        # ── Pillar Breakdown ───────────────────────────────────────
         st.markdown("---")
         if detail:
             cc,cg=st.columns(2)
@@ -343,8 +368,6 @@ with tab_portfolio:
             with m3: st.metric("Rating",analysis["weighted_rating"])
             with m4: st.metric("Score",f"{analysis['weighted_composite']:.1f}/12")
             with m5: st.metric("Concentration",analysis["concentration_level"])
-            if analysis.get("num_etfs",0)>0: st.caption(f"Stocks: {analysis.get('stock_weight',0):.0f}% | ETFs: {analysis.get('etf_weight',0):.0f}%")
-            if analysis["num_unmatched"]>0: st.caption(f"Unmatched: {', '.join(analysis['unmatched_tickers'])}")
             td2=[];
             for p,t2 in analysis["factor_tilts"].items(): td2.append({"Pillar":p,"Portfolio":t2["portfolio"],"Universe":t2["universe"]})
             fig_t=go.Figure();tdf=pd.DataFrame(td2)
@@ -356,8 +379,8 @@ with tab_portfolio:
             if sugs:
                 st.markdown("### Suggestions")
                 for sg in sugs:
-                    css=f"suggestion-{sg['type']}";icon={"warning":"!!","info":"i","opportunity":"++"}[sg["type"]]
-                    st.markdown(f'<div class="suggestion-card {css}"><strong>{icon} {sg["title"]}</strong><br><span style="color:#aaa;">{sg["detail"]}</span></div>',unsafe_allow_html=True)
+                    icon={"warning":"⚠️","info":"ℹ️","opportunity":"✅"}[sg["type"]]
+                    st.markdown(f"{icon} **{sg['title']}**");st.caption(sg["detail"])
 
 # ═══ TAB 7: MONTE CARLO ══════════════════════════════════════════
 with tab_mc:
@@ -397,20 +420,18 @@ with tab_thesis:
         st.warning("Correlation data not found. Run build_correlations.py locally and upload correlations_cache.json.")
     else:
         from thesis import get_factor_documentation, analyze_portfolio_impact
-        with st.expander("Factor Guide -- What can I ask about?"):
+        with st.expander("Factor Guide"):
             docs=get_factor_documentation()
             for doc in docs:
                 st.markdown(f"**{doc['name']}**");st.caption(doc["description"])
                 st.markdown(f"Try: *\"{doc['examples'][0]}\"*")
                 st.caption(f"Positive: {doc['typical_positive']} | Negative: {doc['typical_negative']}");st.markdown("---")
-        st.caption("Powered by 20-year historical return correlations.")
         thesis_input=st.text_area("Your thesis",placeholder="e.g., I think oil prices will increase by 20%",height=100,key="thesis_input")
         if thesis_input:
             results=get_thesis_results(thesis_input,scored_df)
             if not results["matched"]: st.warning(results.get("message","No match."))
             else:
                 st.info(f"**{results['factor_name']}** going **{results['direction']}**: {results.get('description','')}")
-                st.caption(f"{results['num_tickers_analyzed']} tickers | Data: {results.get('computed_at','N/A')[:10]}")
                 if st.session_state.portfolio_holdings:
                     st.markdown("---");st.markdown("### Your Portfolio Impact")
                     impact=analyze_portfolio_impact(results["factor_key"],results["direction"],st.session_state.portfolio_holdings,scored_df)
@@ -423,52 +444,50 @@ with tab_thesis:
                             with c4: st.markdown(f"{h['correlation']:+.3f}" if h["correlation"] else "N/A")
                             with c5: st.markdown(f'<span style="color:{h["impact_color"]};font-weight:700;">{h["impact"]}</span>',unsafe_allow_html=True)
                 if not results["bullish_top_rated"].empty:
-                    st.markdown("---");st.markdown("### Highest Conviction (Buy/Strong Buy + Correlated)")
+                    st.markdown("---");st.markdown("### Highest Conviction")
                     tc=["shortName","sector","correlation","beta","r_squared","composite_score","overall_rating"]
                     ac2=[c for c in tc if c in results["bullish_top_rated"].columns]
-                    st.dataframe(results["bullish_top_rated"][ac2].rename(columns={"shortName":"Company","sector":"Sector","correlation":"Corr","beta":"Beta","r_squared":"R2","composite_score":"Score","overall_rating":"Rating"}),use_container_width=True)
-                st.markdown(f"### All Positively Correlated ({len(results['bullish_all'])})")
+                    st.dataframe(results["bullish_top_rated"][ac2].rename(columns={"shortName":"Company","correlation":"Corr","composite_score":"Score","overall_rating":"Rating"}),use_container_width=True)
+                st.markdown(f"### Positively Correlated ({len(results['bullish_all'])})")
                 if not results["bullish_all"].empty:
                     bc=["shortName","sector","correlation","beta","composite_score","overall_rating"];ac3=[c for c in bc if c in results["bullish_all"].columns]
-                    st.dataframe(results["bullish_all"][ac3].rename(columns={"shortName":"Company","sector":"Sector","correlation":"Corr","beta":"Beta","composite_score":"Score","overall_rating":"Rating"}),use_container_width=True,height=400)
+                    st.dataframe(results["bullish_all"][ac3].rename(columns={"shortName":"Company","correlation":"Corr","composite_score":"Score","overall_rating":"Rating"}),use_container_width=True,height=400)
                 st.markdown(f"### Negatively Correlated ({len(results['bearish_all'])})")
                 if not results["bearish_all"].empty:
                     bc2=["shortName","sector","correlation","beta","composite_score","overall_rating"];ac4=[c for c in bc2 if c in results["bearish_all"].columns]
-                    st.dataframe(results["bearish_all"][ac4].rename(columns={"shortName":"Company","sector":"Sector","correlation":"Corr","beta":"Beta","composite_score":"Score","overall_rating":"Rating"}),use_container_width=True,height=400)
+                    st.dataframe(results["bearish_all"][ac4].rename(columns={"shortName":"Company","correlation":"Corr","composite_score":"Score","overall_rating":"Rating"}),use_container_width=True,height=400)
 
 # ═══ TAB 9: ETF SCREENER ═════════════════════════════════════════
 with tab_etfs:
     st.markdown("### ETF Screener")
-    st.caption("Screen and analyze ETFs by momentum, category, and expense ratio.")
     etf_df=load_etf_data()
-    if etf_df.empty: st.info("No ETF data found. Re-run build_cache.py to include ETFs.")
+    if etf_df.empty: st.info("No ETF data. Re-run build_cache.py.")
     else:
-        st.metric("ETFs Available",len(etf_df))
+        st.metric("ETFs",len(etf_df))
         ec1,ec2,ec3=st.columns(3)
         with ec1: etf_cat=st.selectbox("Category",["All"]+get_etf_categories(etf_df),key="etf_cat")
-        with ec2: etf_sort=st.selectbox("Sort By",["momentum_score","momentum_1m","momentum_3m","momentum_12m","currentPrice"],key="etf_sort",format_func=lambda x:{"momentum_score":"Momentum Score","momentum_1m":"1M Return","momentum_3m":"3M Return","momentum_12m":"12M Return","currentPrice":"Price"}.get(x,x))
-        with ec3: max_er=st.slider("Max Expense Ratio (%)",0.0,2.0,2.0,0.05,key="etf_er")
-        filtered_etfs=filter_etfs(etf_df,category=etf_cat if etf_cat!="All" else None,max_expense_ratio=max_er,sort_by=etf_sort)
-        if not filtered_etfs.empty:
+        with ec2: etf_sort=st.selectbox("Sort",["momentum_score","momentum_1m","momentum_3m","momentum_12m"],key="etf_sort",format_func=lambda x:{"momentum_score":"Score","momentum_1m":"1M","momentum_3m":"3M","momentum_12m":"12M"}.get(x,x))
+        with ec3: max_er=st.slider("Max Expense %",0.0,2.0,2.0,0.05,key="etf_er")
+        fe=filter_etfs(etf_df,category=etf_cat if etf_cat!="All" else None,max_expense_ratio=max_er,sort_by=etf_sort)
+        if not fe.empty:
             dcols=["shortName","industry","currentPrice","aum_b","momentum_1m","momentum_3m","momentum_6m","momentum_12m"]
-            avail=[c for c in dcols if c in filtered_etfs.columns];ed=filtered_etfs[avail].copy()
+            avail=[c for c in dcols if c in fe.columns];ed=fe[avail].copy()
             for mc in ["momentum_1m","momentum_3m","momentum_6m","momentum_12m"]:
                 if mc in ed.columns: ed[mc]=pd.to_numeric(ed[mc],errors="coerce").apply(lambda x:f"{x*100:+.1f}%" if pd.notna(x) else "N/A")
             ed=ed.rename(columns={"shortName":"Name","industry":"Category","currentPrice":"Price","aum_b":"AUM ($B)","momentum_1m":"1M","momentum_3m":"3M","momentum_6m":"6M","momentum_12m":"12M"})
             st.dataframe(ed,use_container_width=True,height=500)
-        st.markdown("---");st.markdown("#### ETF Detail")
+        st.markdown("---")
         if not etf_df.empty:
-            etf_sel=st.selectbox("Select ETF",etf_df.index.tolist(),format_func=lambda x:f"{x} -- {etf_df.loc[x,'shortName']}" if x in etf_df.index else x,key="etf_det")
+            etf_sel=st.selectbox("ETF Detail",etf_df.index.tolist(),format_func=lambda x:f"{x} -- {etf_df.loc[x,'shortName']}" if x in etf_df.index else x,key="etf_det")
             if etf_sel:
                 edt=get_etf_detail(etf_sel,etf_df)
                 if edt:
                     e1,e2,e3,e4=st.columns(4)
                     with e1: st.metric("Price",f"${edt['price']:.2f}" if edt['price'] else "N/A")
                     with e2: st.metric("AUM",f"${edt['aum_b']:.1f}B" if edt['aum_b'] else "N/A")
-                    with e3: st.metric("Expense Ratio",f"{edt['expense_ratio']*100:.2f}%" if edt['expense_ratio'] else "N/A")
-                    with e4: st.markdown(f"**Category:** {edt['category']}")
-                    st.markdown("**Momentum:**")
-                    mc1,mc2,mc3,mc4,mc5,mc6=st.columns(6);mom=edt["momentum_summary"]
+                    with e3: st.metric("Expense",f"{edt['expense_ratio']*100:.2f}%" if edt['expense_ratio'] else "N/A")
+                    with e4: st.markdown(f"**{edt['category']}**")
+                    mom=edt["momentum_summary"];mc1,mc2,mc3,mc4,mc5,mc6=st.columns(6)
                     with mc1: st.metric("1M",mom["1 Month"])
                     with mc2: st.metric("3M",mom["3 Month"])
                     with mc3: st.metric("6M",mom["6 Month"])
@@ -514,4 +533,4 @@ with tab_compare:
         if rows: st.dataframe(pd.DataFrame(rows),use_container_width=True,hide_index=True)
 
 st.markdown("---")
-st.caption("Quant Strategy Dashboard Pro v3.1 | Not financial advice")
+st.caption("Quant Strategy Dashboard Pro v3.2 | Not financial advice")

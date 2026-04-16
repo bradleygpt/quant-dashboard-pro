@@ -1,14 +1,11 @@
 """
 Configuration for the Quantitative Strategy Dashboard.
-Defines the five scoring pillars, their sub-metrics, weights, and grading logic.
 """
 
-# ── Market Cap Filter ──────────────────────────────────────────────
 DEFAULT_MARKET_CAP_FLOOR_B = 10
 MIN_MARKET_CAP_FLOOR_B = 1
 MAX_MARKET_CAP_FLOOR_B = 50
 
-# ── Default Pillar Weights (must sum to 1.0) ───────────────────────
 DEFAULT_PILLAR_WEIGHTS = {
     "Valuation": 0.20,
     "Growth": 0.20,
@@ -16,9 +13,6 @@ DEFAULT_PILLAR_WEIGHTS = {
     "Momentum": 0.20,
     "EPS Revisions": 0.20,
 }
-
-# ── Pillar Metric Definitions ──────────────────────────────────────
-# Each metric: (yfinance_key, display_name, higher_is_better)
 
 PILLAR_METRICS = {
     "Valuation": [
@@ -59,23 +53,13 @@ PILLAR_METRICS = {
     ],
 }
 
-# ── Grade Thresholds (percentile-based) ────────────────────────────
 GRADE_PERCENTILE_MAP = {
-    "A+": (95, 100),
-    "A": (85, 95),
-    "A-": (75, 85),
-    "B+": (65, 75),
-    "B": (55, 65),
-    "B-": (45, 55),
-    "C+": (35, 45),
-    "C": (25, 35),
-    "C-": (15, 25),
-    "D+": (10, 15),
-    "D": (5, 10),
-    "F": (0, 5),
+    "A+": (95, 100), "A": (85, 95), "A-": (75, 85),
+    "B+": (65, 75), "B": (55, 65), "B-": (45, 55),
+    "C+": (35, 45), "C": (25, 35), "C-": (15, 25),
+    "D+": (10, 15), "D": (5, 10), "F": (0, 5),
 }
 
-# Numeric scores for each grade
 GRADE_SCORES = {
     "A+": 12, "A": 11, "A-": 10,
     "B+": 9, "B": 8, "B-": 7,
@@ -83,24 +67,21 @@ GRADE_SCORES = {
     "D+": 3, "D": 2, "F": 1,
 }
 
-# ── Overall Rating Thresholds ──────────────────────────────────────
-# REBALANCED: More symmetric distribution around the ~6.5 median.
-# Old thresholds produced ~2% Sell and ~0% Strong Sell.
-# New thresholds target: ~8% Strong Buy, ~17% Buy, ~50% Hold, ~17% Sell, ~8% Strong Sell
+# ── Rating Thresholds ──────────────────────────────────────────────
+# REBALANCED for ~12% Strong Buy, 13% Buy, 50% Hold, 13% Sell, 12% Strong Sell
+# With sector-relative scoring, mean composite is ~7.0 with SD ~1.5
+# These thresholds produce approximately 25% buy zone / 50% hold / 25% sell zone
 OVERALL_RATING_MAP = {
-    "Strong Buy": (8.5, 12.0),
-    "Buy": (7.0, 8.5),
-    "Hold": (5.0, 7.0),
-    "Sell": (3.5, 5.0),
-    "Strong Sell": (0.0, 3.5),
+    "Strong Buy": (9.0, 12.0),   # Top ~8-12%
+    "Buy": (8.0, 9.0),           # Next ~12-17%
+    "Hold": (6.0, 8.0),          # Middle ~45-55%
+    "Sell": (5.0, 6.0),          # Next ~12-17%
+    "Strong Sell": (0.0, 5.0),   # Bottom ~8-12%
 }
 
 RATING_COLORS = {
-    "Strong Buy": "#00C805",
-    "Buy": "#8BC34A",
-    "Hold": "#FFC107",
-    "Sell": "#FF5722",
-    "Strong Sell": "#D32F2F",
+    "Strong Buy": "#00C805", "Buy": "#8BC34A", "Hold": "#FFC107",
+    "Sell": "#FF5722", "Strong Sell": "#D32F2F",
 }
 
 GRADE_COLORS = {
@@ -110,8 +91,6 @@ GRADE_COLORS = {
     "D+": "#FF5722", "D": "#FF5722", "F": "#D32F2F",
 }
 
-# ── Sector Overrides ───────────────────────────────────────────────
-# Fix misclassified tickers from Yahoo Finance
 SECTOR_OVERRIDES = {
     "FISV": {"sector": "Technology", "industry": "Information Technology Services"},
     "FIS": {"sector": "Technology", "industry": "Information Technology Services"},
@@ -119,12 +98,10 @@ SECTOR_OVERRIDES = {
     "JKHY": {"sector": "Technology", "industry": "Information Technology Services"},
 }
 
-# ── Cache Settings ─────────────────────────────────────────────────
 CACHE_DIR = "data_cache"
 CACHE_EXPIRY_HOURS = 12
 TICKER_LIST_CACHE_FILE = "ticker_universe.json"
 FUNDAMENTALS_CACHE_FILE = "fundamentals_cache.json"
 SCORES_CACHE_FILE = "scores_cache.json"
 WATCHLIST_FILE = "watchlist.json"
-
 SP500_WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
