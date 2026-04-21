@@ -264,15 +264,21 @@ with tab_advanced:
                 results["fv_price"]=results.index.map(lambda t:fv_r.get(t,{}).get("fair_value"))
                 results["fv_verdict"]=results.index.map(lambda t:fv_r.get(t,{}).get("verdict","N/A"))
                 results["fv_premium"]=results.index.map(lambda t:fv_r.get(t,{}).get("premium_discount"))
+            # Compute buy points
+            with st.spinner("Computing buy points..."):
+                bp_r=compute_buy_points_batch(results.index.tolist()[:100],scored_df)
+                results["bp_price"]=results.index.map(lambda t:bp_r.get(t,{}).get("buy_point"))
+                results["bp_distance"]=results.index.map(lambda t:bp_r.get(t,{}).get("distance_pct"))
+                results["bp_signal"]=results.index.map(lambda t:bp_r.get(t,{}).get("signal","N/A"))
             # Filter by fair value if selected
             if adv_fv:
                 results=results[results["fv_verdict"].isin(adv_fv)]
             st.metric("Results",len(results))
-            dc2=["shortName","sector","currentPrice","fv_price","fv_verdict","fv_premium"]
+            dc2=["shortName","sector","currentPrice","fv_price","fv_verdict","fv_premium","bp_price","bp_distance","bp_signal"]
             for p in PILLAR_METRICS: dc2.append(f"{p}_grade")
             dc2+=["composite_score","overall_rating"]
             avail=[c for c in dc2 if c in results.columns];dd2=results[avail].copy()
-            rn={"shortName":"Company","sector":"Sector","currentPrice":"Price","fv_price":"Fair Value","fv_verdict":"FV Verdict","fv_premium":"Prem/Disc %","composite_score":"Score","overall_rating":"Rating"}
+            rn={"shortName":"Company","sector":"Sector","currentPrice":"Price","fv_price":"Fair Value","fv_verdict":"FV Verdict","fv_premium":"Prem/Disc %","bp_price":"Buy Point","bp_distance":"BP Dist %","bp_signal":"BP Signal","composite_score":"Score","overall_rating":"Rating"}
             for p in PILLAR_METRICS: rn[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
             dd2=dd2.rename(columns={c:rn.get(c,c) for c in dd2.columns})
             st.dataframe(dd2,use_container_width=True,height=600)
