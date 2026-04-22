@@ -428,26 +428,30 @@ with tab_portfolio:
                     icon={"warning":"⚠️","info":"ℹ️","opportunity":"✅"}[sg["type"]]
                     st.markdown(f"{icon} **{sg['title']}**");st.caption(sg["detail"])
 
-# ═══ TAB 8: MONTE CARLO ══════════════════════════════════════════
+# ═══ TAB 8: MONTE CARLO v2 ════════════════════════════════════════
 with tab_mc:
     st.markdown("### Monte Carlo Simulation")
+    st.caption("Geometric Brownian Motion with mean reversion, return caps, and macro scenario adjustment.")
     if not st.session_state.portfolio_holdings: st.info("Enter holdings in Portfolio tab first.")
     else:
         analysis=analyze_portfolio(st.session_state.portfolio_holdings,scored_df,sector_stats)
         if "error" not in analysis and analysis:
-            mc1,mc2=st.columns(2)
+            mc1,mc2,mc3=st.columns(3)
             with mc1: ns=st.selectbox("Sims",[1000,5000,10000],index=1)
-            with mc2: nd=st.selectbox("Horizon",[63,126,252],index=2,format_func=lambda x:{63:"3Mo",126:"6Mo",252:"1Yr"}[x])
-            if st.button("Run",key="mcr"):
+            with mc2: nd=st.selectbox("Horizon",[63,126,252],index=2,format_func=lambda x:{63:"3 Months",126:"6 Months",252:"1 Year"}[x])
+            with mc3: scenario=st.selectbox("Scenario",["Blended","Bull","Base","Bear"],index=0,help="Bull: +8% drift (expansion). Base: neutral. Bear: -12% drift (recession). Blended: 25/50/25 weighted avg.")
+            if st.button("Run Simulation",key="mcr"):
                 hdf=analysis.get("holdings_df",pd.DataFrame())
                 with st.spinner("Simulating..."):
-                    mc=run_monte_carlo(hdf,scored_df,n_simulations=ns,n_days=nd)
+                    mc=run_monte_carlo(hdf,scored_df,n_simulations=ns,n_days=nd,scenario=scenario)
                 if mc:
-                    r1,r2,r3,r4=st.columns(4)
-                    with r1: st.metric("Return",f"{mc['expected_annual_return']}%")
-                    with r2: st.metric("Vol",f"{mc['estimated_annual_vol']}%")
+                    r1,r2,r3,r4,r5=st.columns(5)
+                    with r1: st.metric("Exp. Return",f"{mc['expected_annual_return']}%")
+                    with r2: st.metric("Volatility",f"{mc['estimated_annual_vol']}%")
                     with r3: st.metric("P(Gain)",f"{mc['prob_positive']}%")
                     with r4: st.metric("P(Loss>20%)",f"{mc['prob_loss_20']}%")
+                    with r5: st.metric("Scenario",mc["scenario"])
+                    # Fan chart
                     paths=mc["path_percentiles"];days=list(range(1,nd+1))
                     fig_f=go.Figure()
                     fig_f.add_trace(go.Scatter(x=days,y=paths["p95"].tolist(),mode="lines",line=dict(width=0),showlegend=False))
@@ -455,9 +459,36 @@ with tab_mc:
                     fig_f.add_trace(go.Scatter(x=days,y=paths["p75"].tolist(),mode="lines",line=dict(width=0),showlegend=False))
                     fig_f.add_trace(go.Scatter(x=days,y=paths["p25"].tolist(),mode="lines",line=dict(width=0),fill="tonexty",fillcolor="rgba(0,212,170,0.25)",name="25-75th"))
                     fig_f.add_trace(go.Scatter(x=days,y=paths["p50"].tolist(),mode="lines",line=dict(color="#00D4AA",width=2),name="Median"))
-                    fig_f.add_hline(y=mc["total_value"],line_dash="dash",line_color="#666")
-                    fig_f.update_layout(yaxis=dict(title="Value ($)",tickformat="$,.0f"),height=450,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
+                    fig_f.add_hline(y=mc["total_value"],line_dash="dash",line_color="#666",annotation_text="Starting Value")
+                    fig_f.update_layout(yaxis=dict(title="Value ($)",tickformat="$,.0f"),xaxis=dict(title="Trading Days"),height=450,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
                     st.plotly_chart(fig_f,use_container_width=True,key="mcf")
+                    # Outcome probabilities
+                    st.markdown("### Outcome Probabilities")
+                    prob_df=pd.DataFrame({"Outcome":["Gain 50%+","Gain 20%+","Any Gain","Loss <10%","Loss 10-20%","Loss >20%"],
+                        "Probability":[f"{mc['prob_gain_50']}%",f"{mc['prob_gain_20']}%",f"{mc['prob_positive']}%",
+                        f"{max(0,100-mc['prob_positive']-mc['prob_loss_10']):.1f}%",f"{max(0,mc['prob_loss_10']-mc['prob_loss_20']):.1f}%",f"{mc['prob_loss_20']}%"]})
+                    st.dataframe(prob_df,use_container_width=True,hide_index=True)
+                    # VaR percentiles
+                    st.markdown("### Value at Risk")
+                    var_df=pd.DataFrame({"Percentile":["5th (worst)","25th","50th (median)","75th","95th (best)"],
+                        "Value":[f"${mc['percentiles']['p5']:,.0f}",f"${mc['percentiles']['p25']:,.0f}",f"${mc['percentiles']['p50']:,.0f}",
+                        f"${mc['percentiles']['p75']:,.0f}",f"${mc['percentiles']['p95']:,.0f}"],
+                        "Return":[f"{(mc['percentiles']['p5']/mc['total_value']-1)*100:+.1f}%",f"{(mc['percentiles']['p25']/mc['total_value']-1)*100:+.1f}%",
+                        f"{(mc['percentiles']['p50']/mc['total_value']-1)*100:+.1f}%",f"{(mc['percentiles']['p75']/mc['total_value']-1)*100:+.1f}%",
+                        f"{(mc['percentiles']['p95']/mc['total_value']-1)*100:+.1f}%"]})
+                    st.dataframe(var_df,use_container_width=True,hide_index=True)
+                    # Per-holding assumptions (transparency)
+                    with st.expander("Model Assumptions (per holding)"):
+                        if mc.get("holding_details"):
+                            ha_df=pd.DataFrame(mc["holding_details"])
+                            ha_df.columns=["Ticker","Exp. Return %","Est. Vol %","Weight %"]
+                            st.dataframe(ha_df,use_container_width=True,hide_index=True)
+                        mp=mc.get("model_params",{})
+                        st.caption(f"Mean reversion: {mp.get('mean_reversion_weight',0)*100:.0f}% long-term / {(1-mp.get('mean_reversion_weight',0))*100:.0f}% trailing")
+                        st.caption(f"Return cap: {mp.get('max_annual_return_cap',0)*100:.0f}% max per holding")
+                        st.caption(f"Long-term equity premium: {mp.get('long_term_premium',0)*100:.0f}%")
+                        st.caption(f"Avg cross-correlation: {mp.get('avg_correlation',0):.2f}")
+                        st.caption(f"Scenario adjustment: {mp.get('scenario_adjustment',0):+.1f}%")
 
 # ═══ TAB 9: THESIS ENGINE ════════════════════════════════════════
 with tab_thesis:
