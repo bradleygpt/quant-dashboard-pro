@@ -1,6 +1,6 @@
 """
-Quantitative Strategy Dashboard Pro v3.3
-12 tabs: Macro Economics added, Fair Value & Buy Point in screeners
+Quantitative Strategy Dashboard Pro v3.4
+13 tabs: Added IBD Swing Trader, expanded ETF universe with Motley Fool rankings
 """
 import streamlit as st
 import pandas as pd
@@ -26,6 +26,7 @@ from advanced_screener import apply_advanced_filters, compute_fair_values_batch,
 from etf_screener import load_etf_data, get_etf_categories, filter_etfs, get_etf_detail
 from buy_point import compute_buy_point, compute_buy_points_batch
 from macro import get_macro_summary, get_fed_rate_outlook, fetch_economic_calendar, fetch_yield_curve
+from swing_trader import scan_swing_candidates, get_swing_methodology, compute_swing_signals
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
@@ -85,8 +86,8 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["Macro Economy","Market Sentiment","Screener","Advanced Screener","Sector Overview","Stock Detail","Portfolio","Monte Carlo","Thesis Engine","ETF Screener","Watchlist","Compare"])
-tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_sectors,tab_detail,tab_portfolio,tab_mc,tab_thesis,tab_etfs,tab_watchlist,tab_compare=tabs
+tabs=st.tabs(["Macro Economy","Market Sentiment","Screener","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","Portfolio","Monte Carlo","Thesis Engine","ETF Screener","Watchlist","Compare"])
+tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_portfolio,tab_mc,tab_thesis,tab_etfs,tab_watchlist,tab_compare=tabs
 
 @st.cache_data(ttl=43200,show_spinner=False)
 def load_and_score(mcap,wt,sr):
@@ -283,7 +284,77 @@ with tab_advanced:
             dd2=dd2.rename(columns={c:rn.get(c,c) for c in dd2.columns})
             st.dataframe(dd2,use_container_width=True,height=600)
 
-# ═══ TAB 5: SECTOR OVERVIEW ═══════════════════════════════════════
+# ═══ TAB 5: SWING TRADER ═══════════════════════════════════════════
+with tab_swing:
+    st.markdown("### IBD-Inspired Swing Trader")
+    st.caption("Combines fundamental quality (5-pillar score) with technical swing setups. Targets 5-10% gains over 3-10 trading days.")
+    methodology=get_swing_methodology()
+    with st.expander("Methodology"):
+        for comp in methodology["components"]:
+            st.markdown(f"**{comp['name']}** ({comp['weight']})")
+            st.caption(comp["description"])
+        st.markdown("---")
+        tp=methodology["trade_plan"]
+        st.markdown(f"**Entry:** {tp['entry']}")
+        st.markdown(f"**Target:** {tp['profit_target']}")
+        st.markdown(f"**Stop:** {tp['stop_loss']}")
+        st.markdown(f"**Hold:** {tp['holding_period']}")
+        st.markdown(f"**R/R:** {tp['risk_reward']}")
+    sw1,sw2=st.columns(2)
+    with sw1: sw_min_score=st.slider("Min Quant Score",4.0,10.0,6.5,0.5,key="sw_ms")
+    with sw2: sw_max_scan=st.selectbox("Scan Pool",[50,100,150,200],index=2,key="sw_pool",help="Top N stocks by quant score to scan for setups")
+    if st.button("Scan for Swing Setups",key="sw_run"):
+        with st.spinner(f"Scanning top {sw_max_scan} stocks for swing setups..."):
+            swing_results=scan_swing_candidates(scored_df,max_scan=sw_max_scan,min_score=sw_min_score)
+        if not swing_results:
+            st.info("No swing setups found with current filters. Try lowering the minimum quant score.")
+        else:
+            st.success(f"Found {len(swing_results)} swing candidates")
+            # Summary metrics
+            a_setups=len([s for s in swing_results if s["setup"] in ["A+ Setup","Strong Setup"]])
+            avg_rr=np.mean([s["risk_reward"] for s in swing_results])
+            st.markdown(f"**Strong+ setups:** {a_setups} | **Avg R/R:** {avg_rr:.1f}:1")
+            # Results table
+            sw_rows=[]
+            for s in swing_results:
+                sw_rows.append({
+                    "Ticker":s["ticker"],"Company":s.get("shortName","")[:25],
+                    "Sector":s["sector"],"Price":f"${s['price']:.2f}",
+                    "Setup":s["setup"],"Swing":s["swing_score"],
+                    "Quant":f"{s['composite_score']:.1f}","Combined":s["combined_score"],
+                    "Target":f"${s['target_price']} (+{s['target_pct']}%)",
+                    "Stop":f"${s['stop_price']} (-{s['stop_pct']}%)",
+                    "R/R":f"{s['risk_reward']}:1",
+                    "RSI":s["rsi_14"],"Vol Ratio":s["volume_ratio"],
+                    "21-EMA Dist":f"{s['dist_from_ema21_pct']:+.1f}%",
+                    "Trend":s["trend"],
+                })
+            sw_df=pd.DataFrame(sw_rows)
+            st.dataframe(sw_df,use_container_width=True,height=500,hide_index=True)
+            # Detail view for top pick
+            if swing_results:
+                st.markdown("---")
+                top=swing_results[0]
+                st.markdown(f"### Top Pick: {top['ticker']} ({top['shortName']})")
+                tc1,tc2,tc3,tc4,tc5,tc6=st.columns(6)
+                with tc1: st.metric("Price",f"${top['price']}")
+                with tc2: st.metric("Setup",top["setup"])
+                with tc3: st.metric("Target",f"${top['target_price']}",f"+{top['target_pct']}%")
+                with tc4: st.metric("Stop",f"${top['stop_price']}",f"-{top['stop_pct']}%",delta_color="inverse")
+                with tc5: st.metric("R/R",f"{top['risk_reward']}:1")
+                with tc6: st.metric("RSI",f"{top['rsi_14']}")
+                ti1,ti2,ti3,ti4=st.columns(4)
+                with ti1: st.metric("21-EMA",f"${top['ema_21']}",f"{top['dist_from_ema21_pct']:+.1f}%")
+                with ti2: st.metric("Volume Ratio",f"{top['volume_ratio']}x","Surging" if top['volume_ratio']>1.3 else "Normal")
+                with ti3: st.metric("Channel Pos",f"{top['channel_position']}%")
+                with ti4: st.metric("From 20d High",f"{top['pct_from_20d_high']:+.1f}%")
+                flags=[]
+                if top["is_pullback"]: flags.append("Pullback detected")
+                if top["is_bouncing"]: flags.append("Bounce confirmed")
+                if top["trend"]=="Uptrend": flags.append("Uptrend intact")
+                if flags: st.info(" | ".join(flags))
+
+# ═══ TAB 6: SECTOR OVERVIEW ═══════════════════════════════════════
 with tab_sectors:
     st.markdown("### Sector Overview")
     overview=get_sector_overview(scored_df)
@@ -604,4 +675,4 @@ with tab_compare:
         if rows: st.dataframe(pd.DataFrame(rows),use_container_width=True,hide_index=True)
 
 st.markdown("---")
-st.caption("Quant Strategy Dashboard Pro v3.3 | Not financial advice")
+st.caption("Quant Strategy Dashboard Pro v3.4 | Not financial advice")
