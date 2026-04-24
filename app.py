@@ -1,6 +1,7 @@
 """
-Quantitative Strategy Dashboard Pro v3.4
-13 tabs: Added IBD Swing Trader, expanded ETF universe with Motley Fool rankings
+Quantitative Strategy Dashboard Pro v3.5
+14 tabs: Home Dashboard, Doppelganger Analysis, AI-powered research notes and thesis,
+enhanced prescriptive suggestions, click-to-navigate ticker links.
 """
 import streamlit as st
 import pandas as pd
@@ -28,6 +29,9 @@ from etf_screener import load_etf_data, get_etf_categories, filter_etfs, get_etf
 from buy_point import compute_buy_point, compute_buy_points_batch
 from macro import get_macro_summary, get_fed_rate_outlook, fetch_economic_calendar, fetch_yield_curve
 from swing_trader import scan_swing_candidates, get_swing_methodology, compute_swing_signals
+from ai_assistant import generate_stock_research_note, interpret_thesis, generate_doppelganger_narrative, generate_portfolio_optimization, is_ai_available, get_provider_status
+from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, HISTORICAL_ANALOGS
+from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
@@ -87,8 +91,8 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["Macro Economy","Market Sentiment","Screener","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","Portfolio","Monte Carlo","Thesis Engine","ETF Screener","Watchlist","Compare"])
-tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_portfolio,tab_mc,tab_thesis,tab_etfs,tab_watchlist,tab_compare=tabs
+tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Screener","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","Doppelganger","Portfolio","Monte Carlo","Thesis Engine","ETF Screener","Watchlist","Compare"])
+tab_home,tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_doppel,tab_portfolio,tab_mc,tab_thesis,tab_etfs,tab_watchlist,tab_compare=tabs
 
 @st.cache_data(ttl=43200,show_spinner=False)
 def load_and_score(mcap,wt,sr):
@@ -100,6 +104,85 @@ def load_and_score(mcap,wt,sr):
 try: raw_data,scored_df,sector_stats=load_and_score(market_cap_floor,tuple(st.session_state.weights.values()),st.session_state.sector_relative)
 except Exception as e: st.error(f"Error: {e}");st.stop()
 if scored_df is None or scored_df.empty: st.warning("No data.");st.stop()
+
+# ═══ TAB 0: HOME DASHBOARD ════════════════════════════════════════
+with tab_home:
+    st.markdown("### Dashboard Overview")
+    st.caption("Your portfolio and market at a glance")
+
+    # Top-line market metrics
+    with st.spinner("Loading market overview..."):
+        hm_index=fetch_index_data();hm_vix=fetch_vix_data();hm_breadth=compute_market_breadth(scored_df);hm_buffett=fetch_buffett_indicator()
+        hm_fg=compute_fear_greed(hm_vix,hm_breadth,hm_index,hm_buffett)
+
+    st.markdown("#### Market Health")
+    mh1,mh2,mh3,mh4,mh5=st.columns(5)
+    with mh1: st.metric("Fear & Greed",f"{hm_fg['score']:.0f}/100",hm_fg["classification"])
+    with mh2:
+        sp_dist=0
+        for idx in hm_index:
+            if idx["name"]=="S&P 500": sp_dist=idx["distance_from_ath_pct"];break
+        st.metric("S&P vs ATH",f"{sp_dist:+.1f}%")
+    with mh3:
+        if hm_vix: st.metric("VIX",f"{hm_vix['current']:.1f}",hm_vix.get("level","N/A"))
+    with mh4:
+        if hm_breadth: st.metric("Above 200-SMA",f"{hm_breadth['pct_above_200sma']:.0f}%")
+    with mh5:
+        if hm_buffett: st.metric("Buffett Ind.",f"{hm_buffett['ratio']:.0f}%",hm_buffett.get("level","N/A"))
+
+    st.markdown("---")
+
+    # Portfolio snapshot if holdings exist
+    if st.session_state.portfolio_holdings:
+        analysis_h=analyze_portfolio(st.session_state.portfolio_holdings,scored_df,sector_stats)
+        if "error" not in analysis_h and analysis_h:
+            st.markdown("#### Your Portfolio")
+            ph1,ph2,ph3,ph4,ph5=st.columns(5)
+            with ph1: st.metric("Value",f"${analysis_h['total_value']:,.0f}")
+            with ph2: st.metric("Holdings",analysis_h["num_holdings"])
+            with ph3: st.metric("Rating",analysis_h["weighted_rating"])
+            with ph4: st.metric("Score",f"{analysis_h['weighted_composite']:.1f}/12")
+            with ph5: st.metric("Concentration",analysis_h["concentration_level"])
+
+            # Top 3 actionable suggestions
+            sugs_h=generate_suggestions_v2(analysis_h,scored_df,max_suggestions=3)
+            if sugs_h:
+                st.markdown("**Top Actions:**")
+                for sug in sugs_h:
+                    card=format_suggestion_card(sug)
+                    st.markdown(f'<div style="background:#1A1F2E;border-left:4px solid {card["color"]};padding:12px;margin-bottom:8px;border-radius:4px;"><strong style="color:{card["color"]};">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # Sector heatmap
+    st.markdown("#### Sector Heatmap")
+    non_etf=scored_df[scored_df["sector"]!="ETF"].copy()
+    if not non_etf.empty:
+        tmap=non_etf.groupby("sector").agg(count=("composite_score","count"),avg_score=("composite_score","mean"),total_cap=("marketCapB","sum")).reset_index()
+        fig_tm=go.Figure(go.Treemap(
+            labels=tmap["sector"],
+            parents=[""]*len(tmap),
+            values=tmap["total_cap"],
+            customdata=tmap[["count","avg_score"]].values,
+            marker=dict(colors=tmap["avg_score"],colorscale=[[0,"#D32F2F"],[0.5,"#FFC107"],[1,"#00C805"]],cmid=6.5,showscale=True,colorbar=dict(title="Avg Score")),
+            texttemplate="<b>%{label}</b><br>%{customdata[0]} stocks<br>Score: %{customdata[1]:.1f}",
+            hovertemplate="<b>%{label}</b><br>Stocks: %{customdata[0]}<br>Avg Score: %{customdata[1]:.1f}<br>Total Cap: $%{value:,.0f}B<extra></extra>"
+        ))
+        fig_tm.update_layout(height=450,paper_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),margin=dict(l=10,r=10,t=10,b=10))
+        st.plotly_chart(fig_tm,use_container_width=True,key="home_heatmap")
+
+    st.markdown("---")
+
+    # Top movers today
+    st.markdown("#### Top Rated Opportunities")
+    top5=scored_df[(scored_df["overall_rating"]=="Strong Buy")&(scored_df["sector"]!="ETF")].nlargest(5,"composite_score")
+    if not top5.empty:
+        top_cols=st.columns(5)
+        for i,(tk,rw) in enumerate(top5.iterrows()):
+            with top_cols[i]:
+                st.markdown(f"**{tk}**")
+                st.caption(rw.get("shortName",""))
+                st.metric("Score",f"{rw.get('composite_score',0):.1f}",rw.get("sector","")[:12])
 
 # ═══ TAB 1: MACRO ECONOMICS ══════════════════════════════════════
 with tab_macro:
@@ -470,6 +553,20 @@ with tab_detail:
             with st.expander("Technical Indicators"):
                 for tk,tv in bp.get("technicals",{}).items(): st.markdown(f"**{tk}**: {tv}")
         else: st.caption(bp.get("error",""))
+
+        # ═══ AI Research Note ═══
+        if is_ai_available():
+            st.markdown("---")
+            st.markdown("### 🤖 AI Research Note")
+            if st.button(f"Generate AI Analysis for {sel}",key="ai_stock_note"):
+                with st.spinner("AI analyzing stock..."):
+                    ai_note=generate_stock_research_note(sel,row.to_dict(),fv if "error" not in fv else {})
+                if "error" in ai_note:
+                    st.error(ai_note["error"])
+                else:
+                    st.markdown(ai_note["text"])
+                    st.caption(f"Analysis powered by {ai_note.get('provider','AI')} • {ai_note.get('model','')}")
+
         # Pillar breakdown
         st.markdown("---")
         if detail:
@@ -490,6 +587,81 @@ with tab_detail:
                         with mc4: st.markdown(m["percentile"])
                         with mc5: st.markdown(m["sector_avg"])
                         with mc6: st.markdown(f'**{m["a_threshold"]}**')
+
+# ═══ TAB: DOPPELGANGER ANALYSIS ════════════════════════════════════
+with tab_doppel:
+    st.markdown("### Doppelganger Analysis")
+    st.caption("Find historical stock setups that resemble current companies. Learn from history.")
+
+    db_stats=get_database_stats()
+    with st.expander("About the Historical Database"):
+        st.markdown(f"**{db_stats['total_analogs']} curated historical setups** across major inflection points.")
+        st.markdown(f"Sectors covered: {', '.join(db_stats['sectors'])}")
+        st.markdown("**How it works:** We build a fingerprint from valuation, growth, margins, size, and momentum. Then we find the closest historical match across bubbles, crises, and transformations. Similarity scores range 0-1 (1 = identical profile).")
+        st.caption("Remember: History doesn't repeat, but it rhymes. Use these as perspective, not prophecy.")
+
+    dop_tickers=sorted([t for t in scored_df.index if scored_df.loc[t,"sector"]!="ETF"])
+    dop_sel=st.selectbox("Select a stock to analyze",dop_tickers,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="dop_sel")
+
+    dc1,dc2=st.columns(2)
+    with dc1: dop_same_sector=st.checkbox("Match within same sector only",value=False,key="dop_sec")
+    with dc2: dop_tag=st.selectbox("Filter by theme (optional)",["All"]+db_stats["tags"],key="dop_tag")
+
+    if dop_sel:
+        sector_f=scored_df.loc[dop_sel,"sector"] if dop_same_sector else None
+        tag_f=dop_tag if dop_tag!="All" else None
+        matches=find_doppelgangers(dop_sel,scored_df,top_n=5,sector_filter=sector_f,tag_filter=tag_f)
+
+        if not matches:
+            st.warning("No strong matches found with current filters. Try removing filters.")
+        else:
+            # Show current stock summary
+            cur_row=scored_df.loc[dop_sel]
+            st.markdown(f"#### {dop_sel} ({cur_row.get('shortName','')}) Today")
+            cur_c1,cur_c2,cur_c3,cur_c4,cur_c5=st.columns(5)
+            with cur_c1: st.metric("Mkt Cap",f"${cur_row.get('marketCapB',0):.0f}B")
+            with cur_c2: st.metric("P/E",f"{cur_row.get('trailingPE','N/A')}" if cur_row.get('trailingPE') else "N/A")
+            with cur_c3: st.metric("P/S",f"{cur_row.get('priceToSalesTrailing12Months','N/A'):.1f}" if cur_row.get('priceToSalesTrailing12Months') else "N/A")
+            with cur_c4:
+                rg=cur_row.get('revenueGrowth')
+                st.metric("Rev Growth",f"{rg*100:+.0f}%" if rg else "N/A")
+            with cur_c5:
+                m12=cur_row.get('momentum_12m')
+                st.metric("12M Return",f"{m12*100:+.0f}%" if m12 else "N/A")
+
+            st.markdown("---")
+            st.markdown(f"#### Top {len(matches)} Historical Analogues")
+            for i,m in enumerate(matches):
+                similarity_bar_pct=int(m["similarity"]*100)
+                bar_color="#22C55E" if m["similarity"]>=0.7 else "#EAB308" if m["similarity"]>=0.5 else "#F97316"
+                with st.expander(f"{i+1}. {m['company']} {m['era']} -- Similarity: {similarity_bar_pct}%",expanded=(i==0)):
+                    st.markdown(f'<div style="background:#1A1F2E;padding:10px;border-radius:4px;margin-bottom:10px;"><div style="background:{bar_color};width:{similarity_bar_pct}%;height:6px;border-radius:3px;"></div></div>',unsafe_allow_html=True)
+
+                    ma=m["data"]
+                    mc1,mc2,mc3,mc4,mc5=st.columns(5)
+                    with mc1: st.metric("Mkt Cap",f"${ma.get('marketCapB',0):.0f}B")
+                    with mc2: st.metric("P/E",f"{ma.get('trailingPE','N/A')}")
+                    with mc3: st.metric("P/S",f"{ma.get('priceToSalesTrailing12Months','N/A')}")
+                    with mc4: st.metric("Rev Growth",f"{ma.get('revenueGrowth',0)*100:+.0f}%" if ma.get('revenueGrowth') else "N/A")
+                    with mc5: st.metric("12M Return",f"{ma.get('momentum_12m',0)*100:+.0f}%" if ma.get('momentum_12m') else "N/A")
+
+                    st.markdown(f"**Context:** {m['context']}")
+                    st.markdown(f"**Narrative:** {m['narrative']}")
+                    st.markdown(f"**What Happened Next:** {m['outcome']}")
+                    st.markdown(f"**Lesson:** {m['lesson']}")
+                    st.caption(f"Tags: {', '.join(m['tags'])}")
+
+                    # AI Narrative button (if available)
+                    if is_ai_available():
+                        if st.button(f"Generate AI Comparison Analysis",key=f"dop_ai_{i}"):
+                            with st.spinner("AI analyzing parallels..."):
+                                ai_result=generate_doppelganger_narrative(dop_sel,cur_row.to_dict(),m["company"],m["era"],m["data"],m["similarity"])
+                            if "error" in ai_result:
+                                st.error(ai_result["error"])
+                            else:
+                                st.markdown("**AI Analysis:**")
+                                st.markdown(ai_result["text"])
+                                st.caption(f"Powered by {ai_result.get('provider','AI')}")
 
 # ═══ TAB 7: PORTFOLIO ═════════════════════════════════════════════
 with tab_portfolio:
@@ -530,11 +702,71 @@ with tab_portfolio:
             fig_t.add_trace(go.Bar(name="Universe",x=tdf["Pillar"],y=tdf["Universe"],marker_color="#555"))
             fig_t.update_layout(barmode="group",yaxis=dict(range=[0,12]),height=350,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
             st.plotly_chart(fig_t,use_container_width=True,key="pt")
-            sugs=generate_suggestions(analysis,scored_df)
-            if sugs:
-                for sg in sugs:
-                    icon={"warning":"⚠️","info":"ℹ️","opportunity":"✅"}[sg["type"]]
-                    st.markdown(f"{icon} **{sg['title']}**");st.caption(sg["detail"])
+
+            # ═══ Portfolio Suggestions v2 (Prescriptive) ═══
+            st.markdown("---")
+            st.markdown("### 🎯 Actionable Recommendations")
+            st.caption("Specific actions with shares, dollar amounts, and reasoning.")
+            sugs=generate_suggestions_v2(analysis,scored_df,max_suggestions=12)
+            if not sugs:
+                st.success("Portfolio looks healthy. No specific actions needed.")
+            else:
+                # Group by type
+                criticals=[s for s in sugs if s["type"]=="critical"]
+                warnings=[s for s in sugs if s["type"]=="warning"]
+                opportunities=[s for s in sugs if s["type"]=="opportunity"]
+                infos=[s for s in sugs if s["type"]=="info"]
+
+                if criticals:
+                    st.markdown("##### ⚠️ Critical")
+                    for sg in criticals:
+                        card=format_suggestion_card(sg)
+                        st.markdown(f'<div style="background:#1A1F2E;border-left:5px solid {card["color"]};padding:14px;margin-bottom:10px;border-radius:6px;"><strong style="color:{card["color"]};font-size:1.05em;">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;font-weight:600;margin-top:8px;display:inline-block;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;margin-top:4px;display:inline-block;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+                if warnings:
+                    st.markdown("##### ⚠ Warnings")
+                    for sg in warnings:
+                        card=format_suggestion_card(sg)
+                        st.markdown(f'<div style="background:#1A1F2E;border-left:5px solid {card["color"]};padding:14px;margin-bottom:10px;border-radius:6px;"><strong style="color:{card["color"]};font-size:1.05em;">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;font-weight:600;margin-top:8px;display:inline-block;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;margin-top:4px;display:inline-block;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+                if opportunities:
+                    st.markdown("##### 💡 Opportunities")
+                    for sg in opportunities:
+                        card=format_suggestion_card(sg)
+                        st.markdown(f'<div style="background:#1A1F2E;border-left:5px solid {card["color"]};padding:14px;margin-bottom:10px;border-radius:6px;"><strong style="color:{card["color"]};font-size:1.05em;">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;font-weight:600;margin-top:8px;display:inline-block;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;margin-top:4px;display:inline-block;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+                if infos:
+                    st.markdown("##### ℹ Info")
+                    for sg in infos:
+                        card=format_suggestion_card(sg)
+                        st.markdown(f'<div style="background:#1A1F2E;border-left:5px solid {card["color"]};padding:14px;margin-bottom:10px;border-radius:6px;"><strong style="color:{card["color"]};font-size:1.05em;">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;font-weight:600;margin-top:8px;display:inline-block;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;margin-top:4px;display:inline-block;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+            # AI Portfolio Optimization (if available)
+            if is_ai_available():
+                st.markdown("---")
+                st.markdown("### 🤖 AI Portfolio Advisor")
+                ai_obj=st.selectbox("Investment objective",["growth","income","balanced","defensive"],key="ai_obj")
+                if st.button("Get AI Optimization",key="ai_opt"):
+                    with st.spinner("AI analyzing your portfolio..."):
+                        port_summary=f"Total: ${analysis['total_value']:,.0f} across {analysis['num_holdings']} positions. Top positions: " + ", ".join([f"{r['ticker']} ({r['weight']*100:.0f}%)" for _,r in analysis["holdings_df"].nlargest(5,"weight").iterrows()])
+                        available=scored_df[(~scored_df.index.isin([h["ticker"] for h in st.session_state.portfolio_holdings]))&(scored_df["overall_rating"]=="Strong Buy")&(scored_df["sector"]!="ETF")].nlargest(10,"composite_score")
+                        univ_summary="; ".join([f"{t}({scored_df.loc[t,'sector'][:5]},Score {scored_df.loc[t,'composite_score']:.1f})" for t in available.index[:10]])
+                        ai_opt=generate_portfolio_optimization(port_summary,univ_summary,ai_obj)
+                    if "error" in ai_opt:
+                        st.error(ai_opt["error"])
+                    else:
+                        st.markdown(f"**Overall Assessment:** {ai_opt.get('overall_assessment','')}")
+                        st.info(f"**Biggest Opportunity:** {ai_opt.get('biggest_opportunity','')}")
+                        st.warning(f"**Biggest Risk:** {ai_opt.get('biggest_risk','')}")
+                        if "recommendations" in ai_opt:
+                            st.markdown("**AI Recommendations:**")
+                            for r in ai_opt["recommendations"]:
+                                action_colors={"BUY":"#22C55E","ADD":"#84CC16","HOLD":"#EAB308","TRIM":"#F97316","SELL":"#DC2626"}
+                                ac=action_colors.get(r.get("action","HOLD"),"#666")
+                                st.markdown(f'<div style="background:#1A1F2E;border-left:4px solid {ac};padding:10px;margin-bottom:6px;border-radius:4px;"><strong style="color:{ac};">{r.get("action")} {r.get("ticker")} ({r.get("suggested_allocation_pct",0):.1f}%)</strong><br><span style="color:#ccc;font-size:0.9em;">{r.get("reasoning","")}</span></div>',unsafe_allow_html=True)
+                        st.caption(f"Powered by {ai_opt.get('provider','AI')}")
+            else:
+                st.caption("💡 Configure AI provider (Gemini free tier) in .streamlit/secrets.toml for AI-powered portfolio optimization.")
 
 # ═══ TAB 8: MONTE CARLO v2 ════════════════════════════════════════
 with tab_mc:
@@ -712,4 +944,4 @@ with tab_compare:
         if rows: st.dataframe(pd.DataFrame(rows),use_container_width=True,hide_index=True)
 
 st.markdown("---")
-st.caption("Quant Strategy Dashboard Pro v3.4 | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.5 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
