@@ -46,11 +46,14 @@ OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 # ── Provider-specific API calls ────────────────────────────────────
 
 def _call_gemini(prompt, max_tokens=800, temperature=0.7):
-    """Call Google Gemini API (free tier: 15 RPM, 1M tokens/day)."""
+    """Call Google Gemini API. Using gemini-flash-latest for best free tier limits (10 RPM, 250 RPD on 2.0 Flash; 15 RPM on Flash Lite)."""
     if not GEMINI_API_KEY:
-        return {"error": "GEMINI_API_KEY not configured. Get a free key at https://ai.google.dev/"}
+        return {"error": "GEMINI_API_KEY not configured. Get a free key at https://aistudio.google.com/apikey"}
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+    # Use gemini-2.5-flash-lite for higher free tier quotas (15 RPM, 1000 RPD)
+    # Fallback to gemini-2.0-flash-exp if needed
+    model = "gemini-2.5-flash-lite"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -60,10 +63,12 @@ def _call_gemini(prompt, max_tokens=800, temperature=0.7):
     }
     try:
         resp = requests.post(url, json=payload, timeout=30)
+        if resp.status_code == 429:
+            return {"error": "Gemini free tier quota exceeded. Limits reset daily. Consider waiting or switching models in ai_assistant.py."}
         resp.raise_for_status()
         data = resp.json()
         text = data["candidates"][0]["content"]["parts"][0]["text"]
-        return {"text": text, "provider": "gemini", "model": "gemini-2.0-flash"}
+        return {"text": text, "provider": "gemini", "model": model}
     except requests.HTTPError as e:
         return {"error": f"Gemini API error: {e.response.status_code} - {e.response.text[:200]}"}
     except Exception as e:
@@ -172,7 +177,7 @@ def is_ai_available():
 
 # ── Specialized Prompts ───────────────────────────────────────────
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=86400, show_spinner=False)
 def generate_stock_research_note(ticker, stock_data, fv_data, sector_avgs=None):
     """Generate an AI research note for a stock."""
     prompt = f"""You are a senior equity analyst. Write a concise 4-paragraph research note for {ticker} ({stock_data.get('shortName', ticker)}).
@@ -201,7 +206,7 @@ Keep it punchy. 350 words max. Write like a Morgan Stanley analyst, not marketin
     return call_llm(prompt, max_tokens=600, temperature=0.5)
 
 
-@st.cache_data(ttl=1800, show_spinner=False)
+@st.cache_data(ttl=43200, show_spinner=False)
 def interpret_thesis(thesis_text, universe_summary):
     """Use AI to parse a free-form investment thesis."""
     prompt = f"""You are an investment analyst. A user has the following investment thesis:
@@ -239,7 +244,7 @@ Parse this thesis and respond in JSON format ONLY (no other text):
         return {"error": f"Could not parse AI response as JSON: {str(e)}", "raw": result.get("text", "")}
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=86400, show_spinner=False)
 def generate_doppelganger_narrative(current_ticker, current_data, match_ticker, match_era, match_data, similarity_score):
     """Generate narrative comparing current stock to historical doppelganger."""
     prompt = f"""You are a financial historian. Compare these two companies/situations:
@@ -272,7 +277,7 @@ Write 3 concise paragraphs (NO headers, NO bullets, NO em dashes):
     return call_llm(prompt, max_tokens=500, temperature=0.6)
 
 
-@st.cache_data(ttl=1800, show_spinner=False)
+@st.cache_data(ttl=43200, show_spinner=False)
 def generate_portfolio_optimization(portfolio_summary, universe_summary, objective="growth"):
     """Generate AI-powered portfolio optimization recommendations."""
     prompt = f"""You are a portfolio manager. Analyze this portfolio and recommend specific actions.

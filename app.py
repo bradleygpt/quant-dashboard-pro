@@ -21,7 +21,6 @@ from data_fetcher import (
 from scoring import score_universe, get_pillar_detail, get_top_stocks, get_sector_stats
 from portfolio import analyze_portfolio, run_monte_carlo, generate_suggestions, parse_fidelity_csv
 from sectors import get_sector_overview, get_sector_detail
-from thesis import get_thesis_results, is_correlation_data_available
 from fairvalue import compute_fair_value
 from sentiment import fetch_index_data, fetch_vix_data, fetch_buffett_indicator, compute_market_breadth, compute_fear_greed, compute_pgi, COMING_SOON_INDICATORS
 from advanced_screener import apply_advanced_filters, compute_fair_values_batch, PRESET_SCREENS, FILTERABLE_METRICS
@@ -91,8 +90,8 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Screener","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","Doppelganger","Portfolio","Monte Carlo","Thesis Engine","ETF Screener","Watchlist","Compare"])
-tab_home,tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_doppel,tab_portfolio,tab_mc,tab_thesis,tab_etfs,tab_watchlist,tab_compare=tabs
+tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Screener","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","Doppelganger","Portfolio","Monte Carlo","ETF Screener","Watchlist","Compare"])
+tab_home,tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_doppel,tab_portfolio,tab_mc,tab_etfs,tab_watchlist,tab_compare=tabs
 
 @st.cache_data(ttl=43200,show_spinner=False)
 def load_and_score(mcap,wt,sr):
@@ -604,16 +603,27 @@ with tab_doppel:
     dop_sel=st.selectbox("Select a stock to analyze",dop_tickers,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="dop_sel")
 
     dc1,dc2=st.columns(2)
-    with dc1: dop_same_sector=st.checkbox("Match within same sector only",value=False,key="dop_sec")
+    with dc1:
+        sector_mode=st.radio("Match mode",["Same sector (recommended)","Any sector","Specific sector"],index=0,key="dop_mode",horizontal=True)
+        if sector_mode=="Specific sector":
+            sector_f=st.selectbox("Which sector?",sorted(db_stats["sectors"]),key="dop_sec_pick")
+        elif sector_mode=="Same sector (recommended)":
+            sector_f="same"
+        else:
+            sector_f="any"
     with dc2: dop_tag=st.selectbox("Filter by theme (optional)",["All"]+db_stats["tags"],key="dop_tag")
 
     if dop_sel:
-        sector_f=scored_df.loc[dop_sel,"sector"] if dop_same_sector else None
         tag_f=dop_tag if dop_tag!="All" else None
         matches=find_doppelgangers(dop_sel,scored_df,top_n=5,sector_filter=sector_f,tag_filter=tag_f)
 
         if not matches:
-            st.warning("No strong matches found with current filters. Try removing filters.")
+            cur_sector=scored_df.loc[dop_sel,"sector"]
+            if sector_mode=="Same sector (recommended)":
+                st.warning(f"No historical analogs in our database match {dop_sel}'s sector ({cur_sector}). Try 'Any sector' mode or check the sector coverage below.")
+                st.caption(f"Available sectors in database: {', '.join([f'{s} ({n})' for s,n in db_stats['sector_counts'].items()])}")
+            else:
+                st.warning("No strong matches found with current filters. Try removing filters.")
         else:
             # Show current stock summary
             cur_row=scored_df.loc[dop_sel]
@@ -830,45 +840,7 @@ with tab_mc:
                         st.caption(f"Avg cross-correlation: {mp.get('avg_correlation',0):.2f}")
                         st.caption(f"Scenario adjustment: {mp.get('scenario_adjustment',0):+.1f}%")
 
-# ═══ TAB 9: THESIS ENGINE ════════════════════════════════════════
-with tab_thesis:
-    st.markdown("### Investment Thesis Engine")
-    if not is_correlation_data_available():
-        st.warning("Correlation data not found. Run build_correlations.py locally.")
-    else:
-        from thesis import get_factor_documentation, analyze_portfolio_impact
-        with st.expander("Factor Guide"):
-            docs=get_factor_documentation()
-            for doc in docs:
-                st.markdown(f"**{doc['name']}**");st.caption(doc["description"])
-                st.markdown(f"Try: *\"{doc['examples'][0]}\"*");st.markdown("---")
-        thesis_input=st.text_area("Your thesis",placeholder="e.g., I think oil prices will increase by 20%",height=100,key="thesis_input")
-        if thesis_input:
-            results=get_thesis_results(thesis_input,scored_df)
-            if not results["matched"]: st.warning(results.get("message","No match."))
-            else:
-                st.info(f"**{results['factor_name']}** going **{results['direction']}**")
-                if st.session_state.portfolio_holdings:
-                    impact=analyze_portfolio_impact(results["factor_key"],results["direction"],st.session_state.portfolio_holdings,scored_df)
-                    if impact:
-                        st.markdown("### Portfolio Impact")
-                        for h in impact:
-                            c1,c2,c3,c4,c5=st.columns([1.2,2.5,1.2,1,1.5])
-                            with c1: st.markdown(f"**{h['ticker']}**")
-                            with c2: st.markdown(h["name"])
-                            with c3: st.markdown(f"${h['market_value']:,.0f}")
-                            with c4: st.markdown(f"{h['correlation']:+.3f}" if h["correlation"] else "N/A")
-                            with c5: st.markdown(f'<span style="color:{h["impact_color"]};font-weight:700;">{h["impact"]}</span>',unsafe_allow_html=True)
-                if not results["bullish_top_rated"].empty:
-                    st.markdown("### Highest Conviction")
-                    tc=["shortName","sector","correlation","composite_score","overall_rating"];ac2=[c for c in tc if c in results["bullish_top_rated"].columns]
-                    st.dataframe(results["bullish_top_rated"][ac2].rename(columns={"shortName":"Company","correlation":"Corr","composite_score":"Score","overall_rating":"Rating"}),use_container_width=True)
-                st.markdown(f"### Positively Correlated ({len(results['bullish_all'])})")
-                if not results["bullish_all"].empty:
-                    bc=["shortName","sector","correlation","composite_score","overall_rating"];ac3=[c for c in bc if c in results["bullish_all"].columns]
-                    st.dataframe(results["bullish_all"][ac3].rename(columns={"shortName":"Company","correlation":"Corr","composite_score":"Score","overall_rating":"Rating"}),use_container_width=True,height=400)
-
-# ═══ TAB 10: ETF SCREENER ════════════════════════════════════════
+# ═══ TAB: ETF SCREENER ════════════════════════════════════════════
 with tab_etfs:
     st.markdown("### ETF Screener")
     etf_df=load_etf_data()
@@ -944,4 +916,4 @@ with tab_compare:
         if rows: st.dataframe(pd.DataFrame(rows),use_container_width=True,hide_index=True)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.5 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.5.1 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
