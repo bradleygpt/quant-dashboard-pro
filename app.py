@@ -31,12 +31,24 @@ from swing_trader import scan_swing_candidates, get_swing_methodology, compute_s
 from ai_assistant import generate_stock_research_note, interpret_thesis, generate_doppelganger_narrative, generate_portfolio_optimization, is_ai_available, get_provider_status
 from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, HISTORICAL_ANALOGS
 from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
+from auth import is_logged_in, is_auth_configured, render_login_page, render_user_sidebar, get_current_user, get_user_tier, can_use_ai
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
 .main-header{font-size:1.8em;font-weight:800;background:linear-gradient(90deg,#00D4AA,#00A3FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0}
 .sub-header{color:#888;font-size:0.95em;margin-top:-8px}
 </style>""", unsafe_allow_html=True)
+
+# ═══════════════════════════════════════════════════════════════════
+# AUTH GATE - App requires login to access
+# ═══════════════════════════════════════════════════════════════════
+if not is_logged_in():
+    render_login_page()
+    st.stop()
+
+# ═══════════════════════════════════════════════════════════════════
+# AUTHENTICATED APP BELOW
+# ═══════════════════════════════════════════════════════════════════
 
 for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("sector_relative",True),("portfolio_holdings",[])]:
     if k not in st.session_state: st.session_state[k]=v
@@ -63,6 +75,8 @@ def multi_radar(td):
         fig.add_trace(go.Scatterpolar(r=v,theta=c_,fill="toself",fillcolor=f"rgba({','.join(str(int(cl[j:j+2],16)) for j in (1,3,5))},0.1)",line=dict(color=cl,width=2),name=t))
     fig.update_layout(polar=dict(radialaxis=dict(visible=True,range=[0,12],tickvals=[3,6,9,12],ticktext=["D","C","B","A+"],gridcolor="#2a2f3e"),angularaxis=dict(gridcolor="#2a2f3e"),bgcolor="rgba(0,0,0,0)"),margin=dict(l=60,r=60,t=40,b=40),height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),legend=dict(orientation="h",yanchor="bottom",y=-0.15,xanchor="center",x=0.5))
     return fig
+
+render_user_sidebar()
 
 with st.sidebar:
     st.markdown("## Settings")

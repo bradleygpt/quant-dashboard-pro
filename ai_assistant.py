@@ -144,18 +144,40 @@ def _call_openai(prompt, max_tokens=800, temperature=0.7):
 
 # ── Unified Interface ─────────────────────────────────────────────
 
-def call_llm(prompt, max_tokens=800, temperature=0.7, provider=None):
-    """Unified LLM call. Returns {text, provider, model} or {error}."""
+def call_llm(prompt, max_tokens=800, temperature=0.7, provider=None, feature="general"):
+    """Unified LLM call with user permission check. Returns {text, provider, model} or {error}."""
+    # Check user permission
+    try:
+        from auth import can_use_ai, log_ai_call, is_logged_in
+        if not is_logged_in():
+            return {"error": "Please log in to use AI features."}
+        allowed, msg = can_use_ai()
+        if not allowed:
+            return {"error": msg}
+    except ImportError:
+        pass  # Auth module optional
+
     p = provider or PROVIDER
     if p == "gemini":
-        return _call_gemini(prompt, max_tokens, temperature)
+        result = _call_gemini(prompt, max_tokens, temperature)
     elif p == "claude":
-        return _call_claude(prompt, max_tokens, temperature)
+        result = _call_claude(prompt, max_tokens, temperature)
     elif p == "ollama":
-        return _call_ollama(prompt, max_tokens, temperature)
+        result = _call_ollama(prompt, max_tokens, temperature)
     elif p == "openai":
-        return _call_openai(prompt, max_tokens, temperature)
-    return {"error": f"Unknown provider: {p}"}
+        result = _call_openai(prompt, max_tokens, temperature)
+    else:
+        return {"error": f"Unknown provider: {p}"}
+
+    # Log successful call
+    if "error" not in result:
+        try:
+            from auth import log_ai_call
+            log_ai_call(feature_name=feature)
+        except ImportError:
+            pass
+
+    return result
 
 
 def is_ai_available():
@@ -203,7 +225,7 @@ Write in 4 paragraphs (NO headers, NO bullet points, NO em dashes):
 4. Bottom line recommendation with timeframe
 
 Keep it punchy. 350 words max. Write like a Morgan Stanley analyst, not marketing copy."""
-    return call_llm(prompt, max_tokens=600, temperature=0.5)
+    return call_llm(prompt, max_tokens=600, temperature=0.5, feature="stock_research")
 
 
 @st.cache_data(ttl=43200, show_spinner=False)
@@ -228,7 +250,7 @@ Parse this thesis and respond in JSON format ONLY (no other text):
   "reasoning": "2-3 sentence explanation of the logic",
   "confidence": "low, medium, or high"
 }}"""
-    result = call_llm(prompt, max_tokens=500, temperature=0.3)
+    result = call_llm(prompt, max_tokens=500, temperature=0.3, feature="thesis")
     if "error" in result:
         return result
     try:
@@ -274,7 +296,7 @@ Write 3 concise paragraphs (NO headers, NO bullets, NO em dashes):
 3. What lessons from the historical outcome might apply (with appropriate caveats)
 
 250 words max. Be analytical, not speculative. End with a clear one-sentence takeaway."""
-    return call_llm(prompt, max_tokens=500, temperature=0.6)
+    return call_llm(prompt, max_tokens=500, temperature=0.6, feature="doppelganger")
 
 
 @st.cache_data(ttl=43200, show_spinner=False)
@@ -313,7 +335,7 @@ Rules:
 - Flag any position <1% as "consolidate or remove"
 - Consider sector concentration
 - Don't recommend buying stocks already in portfolio"""
-    result = call_llm(prompt, max_tokens=1000, temperature=0.4)
+    result = call_llm(prompt, max_tokens=1000, temperature=0.4, feature="portfolio_opt")
     if "error" in result:
         return result
     try:
