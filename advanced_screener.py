@@ -1,10 +1,15 @@
 """
-Advanced Screener with multi-filter support and fair value integration.
+Advanced Screener module.
+Multi-filter stock screening with fair value integration and custom metric ranges.
+Includes preset screens inspired by institutional portfolio strategy frameworks.
 """
 
 import pandas as pd
 import numpy as np
 from fairvalue import compute_fair_value
+
+
+# ── Available Filter Metrics ───────────────────────────────────────
 
 FILTERABLE_METRICS = {
     "Valuation": [
@@ -41,16 +46,18 @@ FILTERABLE_METRICS = {
 
 
 def apply_advanced_filters(
-    scored_df: pd.DataFrame,
-    rating_filter: list[str] = None,
-    sector_filter: list[str] = None,
-    fair_value_filter: list[str] = None,
-    metric_filters: dict = None,
-    sort_by: str = "composite_score",
-    sort_ascending: bool = False,
-    max_results: int = 500,
-) -> pd.DataFrame:
-    if scored_df.empty: return pd.DataFrame()
+    scored_df,
+    rating_filter=None,
+    sector_filter=None,
+    fair_value_filter=None,
+    metric_filters=None,
+    sort_by="composite_score",
+    sort_ascending=False,
+    max_results=500,
+):
+    if scored_df.empty:
+        return pd.DataFrame()
+
     df = scored_df.copy()
 
     if rating_filter and "All" not in rating_filter:
@@ -60,14 +67,22 @@ def apply_advanced_filters(
         df = df[df["sector"].isin(sector_filter)]
 
     if metric_filters:
-        for mk, (mn, mx) in metric_filters.items():
-            if mk not in df.columns: continue
-            col = pd.to_numeric(df[mk], errors="coerce")
-            is_pct = any(m["key"] == mk and m["type"] == "pct_range"
-                for cm in FILTERABLE_METRICS.values() for m in cm)
-            if is_pct: amn, amx = mn / 100, mx / 100
-            else: amn, amx = mn, mx
-            df = df[col.between(amn, amx, inclusive="both") | col.isna()]
+        for metric_key, (min_val, max_val) in metric_filters.items():
+            if metric_key not in df.columns:
+                continue
+            col = pd.to_numeric(df[metric_key], errors="coerce")
+            is_pct = any(
+                m["key"] == metric_key and m["type"] == "pct_range"
+                for cat_metrics in FILTERABLE_METRICS.values()
+                for m in cat_metrics
+            )
+            if is_pct:
+                actual_min = min_val / 100
+                actual_max = max_val / 100
+            else:
+                actual_min = min_val
+                actual_max = max_val
+            df = df[col.between(actual_min, actual_max, inclusive="both") | col.isna()]
 
     if sort_by in df.columns:
         df = df.sort_values(sort_by, ascending=sort_ascending)
@@ -75,15 +90,17 @@ def apply_advanced_filters(
     return df.head(max_results)
 
 
-def compute_fair_values_batch(scored_df: pd.DataFrame, tickers: list[str]) -> dict:
-    """Compute fair values for up to 500 tickers."""
+def compute_fair_values_batch(scored_df, tickers):
     results = {}
-    for ticker in tickers[:500]:  # Increased from 100
+    for ticker in tickers:
         try:
             fv = compute_fair_value(ticker, scored_df)
             if "error" not in fv:
-                results[ticker] = {"fair_value": fv["composite_fair_value"],
-                    "premium_discount": fv["premium_discount_pct"], "verdict": fv["verdict"]}
+                results[ticker] = {
+                    "fair_value": fv["composite_fair_value"],
+                    "premium_discount": fv["premium_discount_pct"],
+                    "verdict": fv["verdict"],
+                }
             else:
                 results[ticker] = {"fair_value": None, "premium_discount": None, "verdict": "N/A"}
         except Exception:
@@ -91,35 +108,101 @@ def compute_fair_values_batch(scored_df: pd.DataFrame, tickers: list[str]) -> di
     return results
 
 
+# ── Preset Screens ─────────────────────────────────────────────────
+
 PRESET_SCREENS = {
     "Undervalued Strong Buys": {
-        "description": "Strong Buy and Buy stocks that are Fairly Valued to Deeply Undervalued",
+        "description": "Strong Buy and Buy rated stocks that are Fairly Valued to Deeply Undervalued",
         "rating_filter": ["Strong Buy", "Buy"],
         "fair_value_filter": ["Deeply Undervalued", "Undervalued", "Fairly Valued"],
-        "metric_filters": {}, "sort_by": "composite_score",
+        "metric_filters": {},
+        "sort_by": "composite_score",
+    },
+    "Foundational Stocks": {
+        "description": "Large-cap, highly profitable, well-covered companies that anchor a portfolio. Inspired by long-term buy-and-hold philosophy: wide moats, consistent execution, analyst consensus.",
+        "rating_filter": ["Strong Buy", "Buy", "Hold"],
+        "fair_value_filter": [],
+        "metric_filters": {
+            "marketCapB": (50, 5000),
+            "operatingMargins": (15, 100),
+            "returnOnEquity": (12, 100),
+            "analyst_count": (15, 60),
+        },
+        "sort_by": "composite_score",
     },
     "Growth at Reasonable Price": {
-        "description": "PEG 0.5-2.0 with at least 10% earnings growth",
-        "rating_filter": [], "fair_value_filter": [],
-        "metric_filters": {"pegRatio": (0.5, 2.0), "earningsGrowth": (10, 200)},
+        "description": "PEG ratio 0.5-2.0 with at least 10% earnings growth. Classic GARP strategy.",
+        "rating_filter": [],
+        "fair_value_filter": [],
+        "metric_filters": {
+            "pegRatio": (0.5, 2.0),
+            "earningsGrowth": (10, 200),
+        },
         "sort_by": "composite_score",
     },
     "Value Plays": {
-        "description": "Low P/E (under 15x) with positive margins",
-        "rating_filter": [], "fair_value_filter": [],
-        "metric_filters": {"trailingPE": (1, 15), "profitMargins": (5, 100)},
+        "description": "Low P/E (under 15x) with positive margins. Deep value hunting.",
+        "rating_filter": [],
+        "fair_value_filter": [],
+        "metric_filters": {
+            "trailingPE": (1, 15),
+            "profitMargins": (5, 100),
+        },
         "sort_by": "composite_score",
     },
     "Momentum Leaders": {
-        "description": "Positive returns across all timeframes",
-        "rating_filter": [], "fair_value_filter": [],
-        "metric_filters": {"momentum_1m": (0, 200), "momentum_3m": (5, 300), "momentum_6m": (10, 500)},
+        "description": "Top momentum stocks with positive returns across all timeframes.",
+        "rating_filter": [],
+        "fair_value_filter": [],
+        "metric_filters": {
+            "momentum_1m": (0, 200),
+            "momentum_3m": (5, 300),
+            "momentum_6m": (10, 500),
+        },
         "sort_by": "composite_score",
     },
     "High Quality Compounders": {
-        "description": "High margins, strong ROE, consistent growth",
-        "rating_filter": [], "fair_value_filter": [],
-        "metric_filters": {"operatingMargins": (15, 100), "returnOnEquity": (15, 100), "revenueGrowth": (5, 200)},
+        "description": "High margins, strong ROE, and consistent growth. Companies that reinvest profits effectively.",
+        "rating_filter": [],
+        "fair_value_filter": [],
+        "metric_filters": {
+            "operatingMargins": (15, 100),
+            "returnOnEquity": (15, 100),
+            "revenueGrowth": (5, 200),
+        },
+        "sort_by": "composite_score",
+    },
+    "Dividend Candidates": {
+        "description": "Profitable, reasonably valued stocks suitable for income. Stable earners with payout capacity.",
+        "rating_filter": ["Strong Buy", "Buy", "Hold"],
+        "fair_value_filter": [],
+        "metric_filters": {
+            "trailingPE": (5, 25),
+            "profitMargins": (5, 100),
+            "returnOnEquity": (10, 100),
+        },
+        "sort_by": "composite_score",
+    },
+    "Aggressive Growth": {
+        "description": "High-growth, high-momentum stocks for aggressive portfolios. Higher risk, higher potential reward. Small/mid-cap bias.",
+        "rating_filter": ["Strong Buy", "Buy"],
+        "fair_value_filter": [],
+        "metric_filters": {
+            "revenueGrowth": (20, 200),
+            "momentum_3m": (10, 300),
+            "marketCapB": (2, 100),
+        },
+        "sort_by": "composite_score",
+    },
+    "Cautious / Defensive": {
+        "description": "Large-cap, profitable, lower-volatility stocks for cautious portfolios. Focus on capital preservation with steady returns.",
+        "rating_filter": ["Strong Buy", "Buy", "Hold"],
+        "fair_value_filter": [],
+        "metric_filters": {
+            "marketCapB": (50, 5000),
+            "profitMargins": (10, 100),
+            "trailingPE": (5, 30),
+        },
         "sort_by": "composite_score",
     },
 }

@@ -319,3 +319,76 @@ COMING_SOON_INDICATORS = [
     {"name": "Mutual Fund/ETF Cash Flows", "source": "ICI", "description": "Fund inflows vs outflows indicating risk appetite.", "type": "flow", "status": "Needs paid data"},
     {"name": "News/Social Media Sentiment", "source": "NLP Analysis", "description": "AI-powered sentiment from news and social media.", "type": "alternative", "status": "Needs NLP infrastructure"},
 ]
+
+
+# ── Potential Growth Indicator (PGI) ───────────────────────────────
+# Inspired by Motley Fool's framework: measures the ratio of money market
+# assets to total US stock market cap. Higher PGI = more cash on sidelines
+# = more fear = contrarian buy signal.
+#
+# PGI = Money Market Fund Assets / Total US Stock Market Cap
+# Historical range: ~8-20% (spiked to 47% during 2009 crisis)
+# Above 11.5%: eager to invest (others are fearful)
+# 9.5-11.5%: neutral
+# Below 9.5%: cautious (others are greedy)
+
+def compute_pgi() -> dict:
+    """
+    Compute the Potential Growth Indicator.
+    Uses Wilshire 5000 as total market cap proxy and estimates money market
+    assets from publicly available data.
+
+    Since FRED API requires a key, we use a simplified approach:
+    - Total US market cap from Wilshire 5000 (yfinance: ^W5000)
+    - Money market estimate: ~$6.7T as of early 2026 (updated manually)
+    """
+    try:
+        # Wilshire 5000 Total Market Index
+        w5000 = yf.Ticker("^W5000")
+        hist = w5000.history(period="5d")
+        if hist.empty:
+            return None
+
+        # Wilshire 5000 value represents total US market cap in billions
+        # The index level * ~1.2 approximates total market cap in $B
+        w5000_level = float(hist["Close"].iloc[-1])
+        # Wilshire 5000 full cap in trillions (index ~48000 = ~$48T market cap)
+        total_mkt_cap_t = w5000_level / 1000
+
+        # Money market fund assets (updated periodically)
+        # Source: ICI, Federal Reserve. As of early 2026 ~$6.7T
+        # This should be updated manually when new data is available
+        money_market_t = 6.7  # Trillions
+
+        pgi = (money_market_t / total_mkt_cap_t) * 100 if total_mkt_cap_t > 0 else 0
+
+        # Interpretation
+        if pgi > 11.5:
+            level = "Eager to Invest"
+            interpretation = "High cash on sidelines. Others are fearful. Contrarian bullish."
+            color = "#22C55E"
+            score = min(100, (pgi - 8) * 5)  # Higher PGI = higher score (more bullish)
+        elif pgi > 9.5:
+            level = "Neutral"
+            interpretation = "Cash levels are in a normal range. Neither extreme fear nor greed."
+            color = "#EAB308"
+            score = 50
+        else:
+            level = "Cautious"
+            interpretation = "Low cash on sidelines. Others are greedy. Be more selective."
+            color = "#F97316"
+            score = max(0, pgi * 5)
+
+        return {
+            "pgi": round(pgi, 2),
+            "level": level,
+            "interpretation": interpretation,
+            "color": color,
+            "score": round(score),
+            "money_market_t": money_market_t,
+            "total_mkt_cap_t": round(total_mkt_cap_t, 1),
+            "note": "Money market assets updated manually (~$6.7T as of early 2026). Update sentiment.py when new ICI data is released.",
+        }
+    except Exception:
+        return None
+

@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import yfinance as yf
 from datetime import datetime
 
 from config import (
@@ -21,7 +22,7 @@ from portfolio import analyze_portfolio, run_monte_carlo, generate_suggestions, 
 from sectors import get_sector_overview, get_sector_detail
 from thesis import get_thesis_results, is_correlation_data_available
 from fairvalue import compute_fair_value
-from sentiment import fetch_index_data, fetch_vix_data, fetch_buffett_indicator, compute_market_breadth, compute_fear_greed, COMING_SOON_INDICATORS
+from sentiment import fetch_index_data, fetch_vix_data, fetch_buffett_indicator, compute_market_breadth, compute_fear_greed, compute_pgi, COMING_SOON_INDICATORS
 from advanced_screener import apply_advanced_filters, compute_fair_values_batch, PRESET_SCREENS, FILTERABLE_METRICS
 from etf_screener import load_etf_data, get_etf_categories, filter_etfs, get_etf_detail
 from buy_point import compute_buy_point, compute_buy_points_batch
@@ -197,6 +198,21 @@ with tab_sentiment:
         if breadth_data: st.plotly_chart(make_gauge(breadth_data["pct_above_50sma"],f"Above 50-SMA: {breadth_data['pct_above_50sma']:.0f}%",0,100),use_container_width=True,key="s5g")
     with g3:
         if breadth_data: st.plotly_chart(make_gauge(breadth_data["pct_above_200sma"],f"Above 200-SMA: {breadth_data['pct_above_200sma']:.0f}%",0,100),use_container_width=True,key="s2g")
+    st.markdown("---")
+    # PGI (Potential Growth Indicator)
+    pgi_data=compute_pgi()
+    if pgi_data:
+        st.markdown("### Potential Growth Indicator (PGI)")
+        st.caption("Measures cash sitting in money markets vs total US stock market cap. Higher PGI = more fear = contrarian buy signal.")
+        pg1,pg2=st.columns([1,2])
+        with pg1:
+            st.plotly_chart(make_gauge(pgi_data["score"],f"PGI: {pgi_data['pgi']:.1f}%",0,100),use_container_width=True,key="pgi_g")
+        with pg2:
+            st.markdown(f'### <span style="color:{pgi_data["color"]}">{pgi_data["level"]}</span>',unsafe_allow_html=True)
+            st.markdown(f"**PGI: {pgi_data['pgi']:.2f}%** (Money Markets: ${pgi_data['money_market_t']}T / US Market Cap: ${pgi_data['total_mkt_cap_t']}T)")
+            st.caption(pgi_data["interpretation"])
+            st.caption("Above 11.5% = Eager to invest (others fearful) | 9.5-11.5% = Neutral | Below 9.5% = Cautious (others greedy)")
+            st.caption(pgi_data["note"])
     st.markdown("---")
     if index_data:
         idf=pd.DataFrame(index_data);dc=["name","current_price","all_time_high","distance_from_ath_pct","change_1d_pct","change_5d_pct","change_1m_pct","change_ytd_pct"]
@@ -394,6 +410,27 @@ with tab_detail:
         with h3: st.metric("Mkt Cap",fmt_mcap(row.get("marketCapB",0)))
         with h4: rat=row.get("overall_rating","Hold");st.metric("Score",f"{row.get('composite_score',0):.1f}/12");st.markdown(f'<span style="background:{RATING_COLORS.get(rat,"#666")};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{rat}</span>',unsafe_allow_html=True)
         st.markdown(f"**Sector:** {row.get('sector','N/A')} | **Industry:** {row.get('industry','N/A')}")
+        # Historical Price Chart
+        st.markdown("---")
+        st.markdown("### Price History")
+        chart_period=st.selectbox("Period",["3mo","6mo","1y","2y","5y"],index=2,key="price_period")
+        try:
+            t_obj=yf.Ticker(sel)
+            price_hist=t_obj.history(period=chart_period)
+            if not price_hist.empty:
+                ph_close=price_hist["Close"]
+                sma50=ph_close.rolling(50).mean() if len(ph_close)>=50 else None
+                sma200=ph_close.rolling(200).mean() if len(ph_close)>=200 else None
+                fig_ph=go.Figure()
+                fig_ph.add_trace(go.Scatter(x=price_hist.index,y=ph_close,mode="lines",name="Price",line=dict(color="#00D4AA",width=2)))
+                if sma50 is not None:
+                    fig_ph.add_trace(go.Scatter(x=price_hist.index,y=sma50,mode="lines",name="50-SMA",line=dict(color="#FFC107",width=1,dash="dot")))
+                if sma200 is not None:
+                    fig_ph.add_trace(go.Scatter(x=price_hist.index,y=sma200,mode="lines",name="200-SMA",line=dict(color="#FF6B6B",width=1,dash="dot")))
+                fig_ph.update_layout(yaxis=dict(title="Price ($)",tickformat="$,.2f"),height=350,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),legend=dict(orientation="h",yanchor="bottom",y=-0.2,xanchor="center",x=0.5),margin=dict(l=60,r=20,t=10,b=40))
+                st.plotly_chart(fig_ph,use_container_width=True,key="price_chart")
+        except Exception:
+            st.caption("Price chart unavailable.")
         # Fair Value
         st.markdown("---");st.markdown("### Fair Value Analysis")
         fv=compute_fair_value(sel,scored_df);fv_price=None
