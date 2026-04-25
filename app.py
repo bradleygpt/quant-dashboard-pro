@@ -31,6 +31,7 @@ from swing_trader import scan_swing_candidates, get_swing_methodology, compute_s
 from ai_assistant import generate_stock_research_note, interpret_thesis, generate_doppelganger_narrative, generate_portfolio_optimization, is_ai_available, get_provider_status
 from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, HISTORICAL_ANALOGS
 from doppelganger_returns import get_forward_returns, aggregate_forward_returns
+from fmp_data import is_fmp_configured, get_combined_earnings_data
 from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
 from auth import is_logged_in, is_auth_configured, render_login_page, render_user_sidebar, get_current_user, get_user_tier, can_use_ai
 from portfolio_persistence import save_portfolio, load_portfolios, delete_portfolio, get_portfolio_by_id
@@ -606,7 +607,7 @@ with tab_detail:
         # ═══ Combined Price + Quarterly Earnings Chart ═══
         st.markdown("---")
         st.markdown("### Price & Quarterly Earnings")
-        st.caption("Stock price line with quarterly EPS bars overlaid. Green bars = beat/growing, red = miss/declining, gray = annual-derived approximation (older quarters where exact data unavailable).")
+        st.caption("Stock price line with quarterly EPS bars overlaid. Green bars = beat estimates, red = missed, gray = no estimate available.")
         chart_period=st.selectbox("Period",["1y","2y","3y","5y","max"],index=2,key="price_period")
         try:
             t_obj=yf.Ticker(sel)
@@ -616,132 +617,83 @@ with tab_detail:
                 sma50=ph_close.rolling(50).mean() if len(ph_close)>=50 else None
                 sma200=ph_close.rolling(200).mean() if len(ph_close)>=200 else None
 
-                # ── Get quarterly EPS - try multiple sources ──
+                chart_start=price_hist.index.min().tz_localize(None) if price_hist.index.tz is not None else price_hist.index.min()
+
+                # ── Get quarterly EPS - FMP first, yfinance fallback ──
                 quarterly_eps=None
+                surprises_series=None
                 eps_source=""
+                fmp_revenue_df=None
 
-                # Source 1: earnings_dates (has surprise % but limited history)
-                try:
-                    ed=t_obj.earnings_dates
-                    if ed is not None and not ed.empty:
-                        if ed.index.tz is not None:
-                            ed.index=ed.index.tz_localize(None)
-                        now=pd.Timestamp.now()
-                        ed_past=ed[ed.index<=now]
-                        eps_col="Reported EPS" if "Reported EPS" in ed_past.columns else None
-                        if eps_col:
-                            eps_series=ed_past[eps_col].dropna()
-                            if not eps_series.empty:
-                                quarterly_eps=eps_series
-                                eps_source="earnings_dates"
-                                # Also capture surprise data
-                                if "Surprise(%)" in ed_past.columns:
-                                    surprises_series=ed_past.loc[eps_series.index,"Surprise(%)"]
-                                else:
-                                    surprises_series=None
-                except Exception:
-                    pass
+                # PRIMARY SOURCE: FMP (5+ years of real quarterly EPS with surprises)
+                if is_fmp_configured():
+                    fmp_data=get_combined_earnings_data(sel,period_start=chart_start)
+                    fmp_earnings=fmp_data.get("earnings_df")
+                    if fmp_earnings is not None and not fmp_earnings.empty:
+                        quarterly_eps=fmp_earnings["reported_eps"]
+                        if "surprise_pct" in fmp_earnings.columns:
+                            surprises_series=fmp_earnings["surprise_pct"]
+                        eps_source="fmp"
+                    fmp_revenue_df=fmp_data.get("revenue_df")
+                    if isinstance(fmp_revenue_df,dict):  # error case
+                        fmp_revenue_df=None
 
-                # Source 2: quarterly_income_stmt with computed EPS (recent ~4-5 quarters)
-                if quarterly_eps is None or len(quarterly_eps)<4:
+                # FALLBACK 1: yfinance earnings_dates (limited to ~5 quarters typically)
+                if quarterly_eps is None or quarterly_eps.empty:
+                    try:
+                        ed=t_obj.earnings_dates
+                        if ed is not None and not ed.empty:
+                            if ed.index.tz is not None:
+                                ed.index=ed.index.tz_localize(None)
+                            now=pd.Timestamp.now()
+                            ed_past=ed[ed.index<=now]
+                            ed_past=ed_past[ed_past.index>=chart_start]
+                            eps_col="Reported EPS" if "Reported EPS" in ed_past.columns else None
+                            if eps_col:
+                                eps_series=ed_past[eps_col].dropna()
+                                if not eps_series.empty:
+                                    quarterly_eps=eps_series
+                                    eps_source="yfinance_earnings_dates"
+                                    if "Surprise(%)" in ed_past.columns:
+                                        surprises_series=ed_past.loc[eps_series.index,"Surprise(%)"]
+                    except Exception:
+                        pass
+
+                # FALLBACK 2: yfinance quarterly income statement
+                if quarterly_eps is None or quarterly_eps.empty:
                     try:
                         qis=t_obj.quarterly_income_stmt
                         if qis is not None and not qis.empty:
-                            eps_row_names=["Diluted EPS","Basic EPS"]
-                            for row_name in eps_row_names:
+                            for row_name in ["Diluted EPS","Basic EPS"]:
                                 if row_name in qis.index:
                                     eps_from_stmt=qis.loc[row_name].dropna()
                                     if not eps_from_stmt.empty:
                                         quarterly_eps=eps_from_stmt.sort_index()
-                                        eps_source="quarterly_income_stmt"
-                                        surprises_series=None
+                                        eps_source="yfinance_income_stmt"
                                         break
                     except Exception:
                         pass
-
-                # Source 3: annual income_stmt as fallback for longer history (5+ years)
-                # Each annual EPS is divided by 4 to approximate quarterly avg, plotted at year mid-point
-                annual_eps=None
-                try:
-                    ais=t_obj.income_stmt
-                    if ais is not None and not ais.empty:
-                        for row_name in ["Diluted EPS","Basic EPS"]:
-                            if row_name in ais.index:
-                                annual_data=ais.loc[row_name].dropna().sort_index()
-                                if not annual_data.empty:
-                                    # Distribute annual EPS as 4 quarterly bars per year (approximation for older periods)
-                                    annual_eps=annual_data
-                                    break
-                except Exception:
-                    pass
-
-                # If we have quarterly data, supplement with annual data for periods not covered
-                if annual_eps is not None and not annual_eps.empty and quarterly_eps is not None:
-                    earliest_quarterly=quarterly_eps.index.min()
-                    older_annuals=annual_eps[annual_eps.index<earliest_quarterly]
-                    if not older_annuals.empty:
-                        # Convert annual to 4 quarterly approximations per year
-                        synthetic_quarters={}
-                        for date,annual_val in older_annuals.items():
-                            quarterly_approx=float(annual_val)/4
-                            year=date.year
-                            for q in range(4):
-                                q_date=pd.Timestamp(year=year,month=q*3+2,day=15)
-                                synthetic_quarters[q_date]=quarterly_approx
-                        synthetic_series=pd.Series(synthetic_quarters)
-                        # Combine with existing quarterly data
-                        combined=pd.concat([synthetic_series,quarterly_eps]).sort_index()
-                        # Mark synthetic vs real for coloring
-                        synthetic_index_set=set(synthetic_series.index)
-                        quarterly_eps=combined
-                        eps_source=f"{eps_source}+annual_synthetic"
-                elif annual_eps is not None and (quarterly_eps is None or quarterly_eps.empty):
-                    # Only annual available - convert all to quarterly approximations
-                    synthetic_quarters={}
-                    for date,annual_val in annual_eps.items():
-                        quarterly_approx=float(annual_val)/4
-                        year=date.year
-                        for q in range(4):
-                            q_date=pd.Timestamp(year=year,month=q*3+2,day=15)
-                            synthetic_quarters[q_date]=quarterly_approx
-                    quarterly_eps=pd.Series(synthetic_quarters).sort_index()
-                    eps_source="annual_synthetic"
-                    synthetic_index_set=set(quarterly_eps.index)
-                else:
-                    synthetic_index_set=set()
-
-                # Filter EPS to chart period
-                if quarterly_eps is not None and not quarterly_eps.empty:
-                    chart_start=price_hist.index.min().tz_localize(None) if price_hist.index.tz is not None else price_hist.index.min()
-                    quarterly_eps=quarterly_eps[quarterly_eps.index>=chart_start]
 
                 # ── Build combo chart ──
                 from plotly.subplots import make_subplots
                 fig_combo=make_subplots(specs=[[{"secondary_y":True}]])
 
                 # Earnings bars FIRST (so they render behind the price line)
-                bar_colors=[]
                 if quarterly_eps is not None and not quarterly_eps.empty:
-                    if "earnings_dates" in eps_source and surprises_series is not None:
+                    bar_colors=[]
+                    if surprises_series is not None:
                         for idx in quarterly_eps.index:
-                            if idx in synthetic_index_set:
-                                bar_colors.append("#6B7280")  # Gray for synthetic
-                            else:
-                                s=surprises_series.get(idx)
-                                if pd.isna(s): bar_colors.append("#888")
-                                elif s>0: bar_colors.append("#22C55E")
-                                else: bar_colors.append("#EF4444")
+                            s=surprises_series.get(idx) if hasattr(surprises_series,"get") else None
+                            if s is None or pd.isna(s): bar_colors.append("#888")
+                            elif s>0: bar_colors.append("#22C55E")
+                            else: bar_colors.append("#EF4444")
                     else:
                         # Color by EPS direction (growing = green, declining = red)
                         eps_sorted=quarterly_eps.sort_index()
                         prev=None
-                        for idx,v in eps_sorted.items():
-                            if idx in synthetic_index_set:
-                                bar_colors.append("#6B7280")  # Gray for synthetic
-                            elif prev is None or v>=prev:
-                                bar_colors.append("#22C55E")
-                            else:
-                                bar_colors.append("#EF4444")
+                        for v in eps_sorted.values:
+                            if prev is None or v>=prev: bar_colors.append("#22C55E")
+                            else: bar_colors.append("#EF4444")
                             prev=v
 
                     fig_combo.add_trace(
@@ -751,7 +703,7 @@ with tab_detail:
                             name="Quarterly EPS",
                             marker_color=bar_colors,
                             opacity=0.55,
-                            width=86400000*60,  # 60-day bar width
+                            width=86400000*60,
                             hovertemplate="<b>%{x|%b %Y}</b><br>EPS: $%{y:.2f}<extra></extra>",
                         ),
                         secondary_y=True,
@@ -783,12 +735,21 @@ with tab_detail:
 
                 st.plotly_chart(fig_combo,use_container_width=True,key="price_earnings_combo")
 
+                # Source badge
+                if eps_source=="fmp":
+                    st.caption(f"📊 Earnings data: Financial Modeling Prep ({len(quarterly_eps)} quarters)")
+                elif eps_source.startswith("yfinance"):
+                    if not is_fmp_configured():
+                        st.caption(f"📊 Earnings data: Yahoo Finance ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). Add FMP_API_KEY to secrets for 5+ years of history with surprises.")
+                    else:
+                        st.caption(f"📊 Earnings data: Yahoo Finance fallback ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). FMP unavailable.")
+
                 # ── Earnings summary ──
                 if quarterly_eps is None or quarterly_eps.empty:
                     st.caption("No quarterly earnings data available for this period.")
                 else:
-                    if eps_source=="earnings_dates" and surprises_series is not None:
-                        sc=surprises_series.dropna()
+                    if surprises_series is not None:
+                        sc=surprises_series.dropna() if hasattr(surprises_series,"dropna") else pd.Series([s for s in surprises_series if s is not None and not pd.isna(s)])
                         if not sc.empty:
                             beat_count=int((sc>0).sum())
                             miss_count=int((sc<=0).sum())
@@ -799,7 +760,6 @@ with tab_detail:
                             with ec3: st.metric("Misses",miss_count,f"{miss_count/(beat_count+miss_count)*100:.0f}%" if (beat_count+miss_count)>0 else "",delta_color="inverse")
                             with ec4: st.metric("Avg Surprise",f"{avg_surprise:+.1f}%")
                     else:
-                        # Show EPS trend metrics instead
                         eps_sorted=quarterly_eps.sort_index()
                         latest=float(eps_sorted.iloc[-1])
                         ec1,ec2,ec3=st.columns(3)
@@ -809,27 +769,36 @@ with tab_detail:
                             yoy_eps=eps_sorted.iloc[-1]-eps_sorted.iloc[-5]
                             with ec3: st.metric("YoY EPS Change",f"${yoy_eps:+.2f}")
 
-                # ── Quarterly Revenue Trend (expandable) ──
-                try:
-                    income_stmt=t_obj.quarterly_income_stmt
-                    if income_stmt is not None and not income_stmt.empty and "Total Revenue" in income_stmt.index:
-                        rev_data=income_stmt.loc["Total Revenue"].dropna().sort_index()
-                        if len(rev_data)>=2:
-                            with st.expander("Quarterly Revenue Trend"):
-                                fig_rev=go.Figure()
-                                rev_colors=["#00D4AA" if (i==0 or rev_data.iloc[i]>=rev_data.iloc[i-1]) else "#F97316" for i in range(len(rev_data))]
-                                fig_rev.add_trace(go.Bar(x=rev_data.index,y=rev_data.values/1e9,marker_color=rev_colors,hovertemplate="<b>%{x|%b %Y}</b><br>Revenue: $%{y:.2f}B<extra></extra>"))
-                                fig_rev.update_layout(yaxis=dict(title="Revenue ($B)",tickformat="$,.1f",gridcolor="#2a2f3e"),xaxis=dict(gridcolor="#2a2f3e"),height=300,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),margin=dict(l=60,r=20,t=20,b=40),showlegend=False)
-                                st.plotly_chart(fig_rev,use_container_width=True,key="rev_chart")
-                                if len(rev_data)>=5:
-                                    yoy=(rev_data.iloc[-1]/rev_data.iloc[-5]-1)*100
-                                    qoq=(rev_data.iloc[-1]/rev_data.iloc[-2]-1)*100
-                                    rg1,rg2,rg3=st.columns(3)
-                                    with rg1: st.metric("Latest Quarter",f"${rev_data.iloc[-1]/1e9:.2f}B")
-                                    with rg2: st.metric("YoY Growth",f"{yoy:+.1f}%")
-                                    with rg3: st.metric("QoQ Growth",f"{qoq:+.1f}%")
-                except Exception:
-                    pass
+                # ── Quarterly Revenue Trend (uses FMP if available, else yfinance) ──
+                rev_data=None
+                rev_in_billions=False
+                if fmp_revenue_df is not None and not fmp_revenue_df.empty:
+                    rev_data=fmp_revenue_df["revenue"]
+                    rev_in_billions=False  # FMP gives raw dollars
+                else:
+                    try:
+                        income_stmt=t_obj.quarterly_income_stmt
+                        if income_stmt is not None and not income_stmt.empty and "Total Revenue" in income_stmt.index:
+                            rev_data=income_stmt.loc["Total Revenue"].dropna().sort_index()
+                            rev_data=rev_data[rev_data.index>=chart_start] if hasattr(rev_data.index,'min') else rev_data
+                    except Exception:
+                        pass
+
+                if rev_data is not None and len(rev_data)>=2:
+                    with st.expander(f"Quarterly Revenue Trend ({len(rev_data)} quarters)"):
+                        fig_rev=go.Figure()
+                        rev_colors=["#00D4AA" if (i==0 or rev_data.iloc[i]>=rev_data.iloc[i-1]) else "#F97316" for i in range(len(rev_data))]
+                        rev_billions=rev_data.values/1e9
+                        fig_rev.add_trace(go.Bar(x=rev_data.index,y=rev_billions,marker_color=rev_colors,hovertemplate="<b>%{x|%b %Y}</b><br>Revenue: $%{y:.2f}B<extra></extra>"))
+                        fig_rev.update_layout(yaxis=dict(title="Revenue ($B)",tickformat="$,.1f",gridcolor="#2a2f3e"),xaxis=dict(gridcolor="#2a2f3e"),height=300,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),margin=dict(l=60,r=20,t=20,b=40),showlegend=False)
+                        st.plotly_chart(fig_rev,use_container_width=True,key="rev_chart")
+                        if len(rev_data)>=5:
+                            yoy=(rev_data.iloc[-1]/rev_data.iloc[-5]-1)*100
+                            qoq=(rev_data.iloc[-1]/rev_data.iloc[-2]-1)*100
+                            rg1,rg2,rg3=st.columns(3)
+                            with rg1: st.metric("Latest Quarter",f"${rev_data.iloc[-1]/1e9:.2f}B")
+                            with rg2: st.metric("YoY Growth",f"{yoy:+.1f}%")
+                            with rg3: st.metric("QoQ Growth",f"{qoq:+.1f}%")
         except Exception as e:
             st.caption(f"Chart unavailable: {str(e)[:80]}")
         # Fair Value
@@ -1772,4 +1741,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.8.1 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.8.2 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
