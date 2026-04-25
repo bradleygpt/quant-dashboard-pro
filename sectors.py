@@ -22,6 +22,47 @@ def get_sector_overview(scored_df: pd.DataFrame) -> pd.DataFrame:
     sectors = scored_df["sector"].dropna().unique()
     rows = []
 
+    # Pre-compute cross-sector pillar averages for ranking-based grades
+    # This avoids the "everything is B- because sector-relative pulls all to ~7" issue
+    sector_pillar_avgs = {}
+    for sector in sorted(sectors):
+        if sector == "ETF":
+            continue
+        sector_df = scored_df[scored_df["sector"] == sector]
+        if len(sector_df) == 0:
+            continue
+        for pillar in PILLAR_METRICS:
+            score_col = f"{pillar}_score"
+            if score_col in sector_df.columns:
+                avg = sector_df[score_col].mean()
+                if pillar not in sector_pillar_avgs:
+                    sector_pillar_avgs[pillar] = {}
+                sector_pillar_avgs[pillar][sector] = avg
+
+    # Build percentile-based grades per pillar
+    # If a sector ranks in top 10% across pillars, it gets A; bottom 10% gets F
+    sector_pillar_grades = {}
+    for pillar, sector_avgs in sector_pillar_avgs.items():
+        if not sector_avgs:
+            continue
+        sorted_sectors = sorted(sector_avgs.items(), key=lambda x: x[1], reverse=True)
+        n_sectors = len(sorted_sectors)
+        for rank, (sector, avg) in enumerate(sorted_sectors):
+            percentile = (n_sectors - rank - 1) / max(1, n_sectors - 1)  # 0=worst, 1=best
+            if percentile >= 0.90: grade = "A+"
+            elif percentile >= 0.80: grade = "A"
+            elif percentile >= 0.70: grade = "A-"
+            elif percentile >= 0.60: grade = "B+"
+            elif percentile >= 0.50: grade = "B"
+            elif percentile >= 0.40: grade = "B-"
+            elif percentile >= 0.30: grade = "C+"
+            elif percentile >= 0.20: grade = "C"
+            elif percentile >= 0.10: grade = "C-"
+            else: grade = "D"
+            if pillar not in sector_pillar_grades:
+                sector_pillar_grades[pillar] = {}
+            sector_pillar_grades[pillar][sector] = grade
+
     for sector in sorted(sectors):
         if sector == "ETF":
             continue
@@ -42,13 +83,14 @@ def get_sector_overview(scored_df: pd.DataFrame) -> pd.DataFrame:
             row[rating] = count
             row[f"{rating}_pct"] = round(count / n * 100, 1) if n > 0 else 0
 
-        # Pillar averages
+        # Pillar averages with cross-sector percentile-based grades
         for pillar in PILLAR_METRICS:
             score_col = f"{pillar}_score"
             if score_col in sector_df.columns:
                 avg = sector_df[score_col].mean()
                 row[f"{pillar}_avg"] = round(avg, 1)
-                row[f"{pillar}_grade"] = _score_to_grade(avg)
+                # Use cross-sector ranking grade instead of absolute
+                row[f"{pillar}_grade"] = sector_pillar_grades.get(pillar, {}).get(sector, "N/A")
             else:
                 row[f"{pillar}_avg"] = 0
                 row[f"{pillar}_grade"] = "N/A"

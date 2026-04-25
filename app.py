@@ -33,6 +33,7 @@ from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, 
 from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
 from auth import is_logged_in, is_auth_configured, render_login_page, render_user_sidebar, get_current_user, get_user_tier, can_use_ai
 from portfolio_persistence import save_portfolio, load_portfolios, delete_portfolio, get_portfolio_by_id
+from help_content import GETTING_STARTED, PILLAR_METHODOLOGY, RATING_SYSTEM, FAIR_VALUE, BUY_POINT, SWING_TRADER, DOPPELGANGER, MONTE_CARLO, PGI, GLOSSARY, BEST_PRACTICES, DATA_SOURCES, DISCLAIMER
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
@@ -115,8 +116,8 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Screener","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","Doppelganger","Portfolio","Monte Carlo","ETF Screener","Watchlist","Compare"])
-tab_home,tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_doppel,tab_portfolio,tab_mc,tab_etfs,tab_watchlist,tab_compare=tabs
+tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Screener","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","Doppelganger","Portfolio","Monte Carlo","ETF Screener","Watchlist","Compare","📖 Help"])
+tab_home,tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_doppel,tab_portfolio,tab_mc,tab_etfs,tab_watchlist,tab_compare,tab_help=tabs
 
 @st.cache_data(ttl=43200,show_spinner=False)
 def load_and_score(mcap,wt,sr):
@@ -599,7 +600,7 @@ with tab_detail:
         # ═══ Combined Price + Quarterly Earnings Chart ═══
         st.markdown("---")
         st.markdown("### Price & Quarterly Earnings")
-        st.caption("Stock price line with quarterly EPS bars overlaid. Bars show actual diluted EPS per quarter.")
+        st.caption("Stock price line with quarterly EPS bars overlaid. Green bars = beat/growing, red = miss/declining, gray = annual-derived approximation (older quarters where exact data unavailable).")
         chart_period=st.selectbox("Period",["1y","2y","3y","5y","max"],index=2,key="price_period")
         try:
             t_obj=yf.Ticker(sel)
@@ -635,12 +636,11 @@ with tab_detail:
                 except Exception:
                     pass
 
-                # Source 2: quarterly_income_stmt with computed EPS
+                # Source 2: quarterly_income_stmt with computed EPS (recent ~4-5 quarters)
                 if quarterly_eps is None or len(quarterly_eps)<4:
                     try:
                         qis=t_obj.quarterly_income_stmt
                         if qis is not None and not qis.empty:
-                            # Try Diluted EPS row directly
                             eps_row_names=["Diluted EPS","Basic EPS"]
                             for row_name in eps_row_names:
                                 if row_name in qis.index:
@@ -652,6 +652,57 @@ with tab_detail:
                                         break
                     except Exception:
                         pass
+
+                # Source 3: annual income_stmt as fallback for longer history (5+ years)
+                # Each annual EPS is divided by 4 to approximate quarterly avg, plotted at year mid-point
+                annual_eps=None
+                try:
+                    ais=t_obj.income_stmt
+                    if ais is not None and not ais.empty:
+                        for row_name in ["Diluted EPS","Basic EPS"]:
+                            if row_name in ais.index:
+                                annual_data=ais.loc[row_name].dropna().sort_index()
+                                if not annual_data.empty:
+                                    # Distribute annual EPS as 4 quarterly bars per year (approximation for older periods)
+                                    annual_eps=annual_data
+                                    break
+                except Exception:
+                    pass
+
+                # If we have quarterly data, supplement with annual data for periods not covered
+                if annual_eps is not None and not annual_eps.empty and quarterly_eps is not None:
+                    earliest_quarterly=quarterly_eps.index.min()
+                    older_annuals=annual_eps[annual_eps.index<earliest_quarterly]
+                    if not older_annuals.empty:
+                        # Convert annual to 4 quarterly approximations per year
+                        synthetic_quarters={}
+                        for date,annual_val in older_annuals.items():
+                            quarterly_approx=float(annual_val)/4
+                            year=date.year
+                            for q in range(4):
+                                q_date=pd.Timestamp(year=year,month=q*3+2,day=15)
+                                synthetic_quarters[q_date]=quarterly_approx
+                        synthetic_series=pd.Series(synthetic_quarters)
+                        # Combine with existing quarterly data
+                        combined=pd.concat([synthetic_series,quarterly_eps]).sort_index()
+                        # Mark synthetic vs real for coloring
+                        synthetic_index_set=set(synthetic_series.index)
+                        quarterly_eps=combined
+                        eps_source=f"{eps_source}+annual_synthetic"
+                elif annual_eps is not None and (quarterly_eps is None or quarterly_eps.empty):
+                    # Only annual available - convert all to quarterly approximations
+                    synthetic_quarters={}
+                    for date,annual_val in annual_eps.items():
+                        quarterly_approx=float(annual_val)/4
+                        year=date.year
+                        for q in range(4):
+                            q_date=pd.Timestamp(year=year,month=q*3+2,day=15)
+                            synthetic_quarters[q_date]=quarterly_approx
+                    quarterly_eps=pd.Series(synthetic_quarters).sort_index()
+                    eps_source="annual_synthetic"
+                    synthetic_index_set=set(quarterly_eps.index)
+                else:
+                    synthetic_index_set=set()
 
                 # Filter EPS to chart period
                 if quarterly_eps is not None and not quarterly_eps.empty:
@@ -665,19 +716,26 @@ with tab_detail:
                 # Earnings bars FIRST (so they render behind the price line)
                 bar_colors=[]
                 if quarterly_eps is not None and not quarterly_eps.empty:
-                    if eps_source=="earnings_dates" and surprises_series is not None:
+                    if "earnings_dates" in eps_source and surprises_series is not None:
                         for idx in quarterly_eps.index:
-                            s=surprises_series.get(idx)
-                            if pd.isna(s): bar_colors.append("#888")
-                            elif s>0: bar_colors.append("#22C55E")
-                            else: bar_colors.append("#EF4444")
+                            if idx in synthetic_index_set:
+                                bar_colors.append("#6B7280")  # Gray for synthetic
+                            else:
+                                s=surprises_series.get(idx)
+                                if pd.isna(s): bar_colors.append("#888")
+                                elif s>0: bar_colors.append("#22C55E")
+                                else: bar_colors.append("#EF4444")
                     else:
                         # Color by EPS direction (growing = green, declining = red)
                         eps_sorted=quarterly_eps.sort_index()
                         prev=None
-                        for v in eps_sorted.values:
-                            if prev is None or v>=prev: bar_colors.append("#22C55E")
-                            else: bar_colors.append("#EF4444")
+                        for idx,v in eps_sorted.items():
+                            if idx in synthetic_index_set:
+                                bar_colors.append("#6B7280")  # Gray for synthetic
+                            elif prev is None or v>=prev:
+                                bar_colors.append("#22C55E")
+                            else:
+                                bar_colors.append("#EF4444")
                             prev=v
 
                     fig_combo.add_trace(
@@ -960,10 +1018,30 @@ with tab_portfolio:
 
     inp=st.radio("Input",["Manual Entry","CSV Upload (Fidelity)"],horizontal=True)
     if inp=="CSV Upload (Fidelity)":
-        up=st.file_uploader("Upload CSV",type=["csv"])
-        if up:
-            parsed=parse_fidelity_csv(up.read().decode("utf-8"))
-            if parsed: st.session_state.portfolio_holdings=parsed;st.success(f"Parsed {len(parsed)}")
+        up=st.file_uploader("Upload CSV",type=["csv"],key="csv_upload")
+        if up is not None:
+            csv_key=f"csv_processed_{up.name}_{up.size}"
+            if not st.session_state.get(csv_key):
+                try:
+                    csv_text=up.read().decode("utf-8")
+                    parsed=parse_fidelity_csv(csv_text)
+                    if parsed and len(parsed)>0:
+                        st.session_state.portfolio_holdings=parsed
+                        st.session_state[csv_key]=True
+                        st.session_state.current_portfolio_id=None
+                        st.session_state.current_portfolio_name=f"Imported {datetime.now().strftime('%b %d')}"
+                        st.success(f"✓ Parsed {len(parsed)} holdings: {', '.join([h['ticker'] for h in parsed[:10]])}{'...' if len(parsed)>10 else ''}")
+                        st.rerun()
+                    else:
+                        st.error("Could not parse any holdings from this CSV. Make sure it's a Fidelity export with 'Symbol' and 'Quantity' columns.")
+                        with st.expander("CSV preview (first 500 chars)"):
+                            st.code(csv_text[:500])
+                except UnicodeDecodeError:
+                    st.error("Could not decode CSV. Make sure it's UTF-8 encoded.")
+                except Exception as e:
+                    st.error(f"Parse error: {str(e)}")
+        if st.session_state.portfolio_holdings:
+            st.info(f"Currently loaded: {len(st.session_state.portfolio_holdings)} holdings. Scroll down to analyze.")
     else:
         nr=st.number_input("Holdings",1,50,min(len(st.session_state.portfolio_holdings) or 5,50),key="n_hold")
         holdings=[]
@@ -976,7 +1054,7 @@ with tab_portfolio:
             with c2: s=st.number_input("Shares",value=float(ds),min_value=0.0,key=f"ps_{i}")
             with c3: cb=st.number_input("Cost ($)",value=float(dcb or 0),min_value=0.0,key=f"pc_{i}")
             if t and s>0: holdings.append({"ticker":t,"shares":s,"cost_basis":cb if cb>0 else None})
-        if st.button("Analyze",key="ab"): st.session_state.portfolio_holdings=holdings
+        if st.button("Analyze",key="ab"): st.session_state.portfolio_holdings=holdings;st.rerun()
     if st.session_state.portfolio_holdings:
         # ── Save to Supabase ──
         st.markdown("---")
@@ -1223,5 +1301,64 @@ with tab_compare:
                 rd["Composite"]=f"{r.get('composite_score',0):.1f}";rd["Rating"]=r.get("overall_rating","N/A");rows.append(rd)
         if rows: st.dataframe(pd.DataFrame(rows),use_container_width=True,hide_index=True)
 
+# ═══ TAB: HELP & GLOSSARY ═══════════════════════════════════════════
+with tab_help:
+    help_section=st.radio(
+        "Topic",
+        ["Getting Started","Best Practices","5-Pillar Methodology","Rating System","Fair Value","Buy Point","Swing Trader","Doppelganger","Monte Carlo","PGI","Glossary","Data Sources","Disclaimer"],
+        horizontal=True,
+        key="help_section"
+    )
+    st.markdown("---")
+    if help_section=="Getting Started":
+        st.markdown("# Getting Started")
+        st.markdown(GETTING_STARTED)
+    elif help_section=="Best Practices":
+        st.markdown("# Best Practices")
+        st.markdown(BEST_PRACTICES)
+    elif help_section=="5-Pillar Methodology":
+        st.markdown("# 5-Pillar Quant Methodology")
+        st.markdown(PILLAR_METHODOLOGY)
+    elif help_section=="Rating System":
+        st.markdown("# Rating System")
+        st.markdown(RATING_SYSTEM)
+    elif help_section=="Fair Value":
+        st.markdown("# Fair Value Analysis")
+        st.markdown(FAIR_VALUE)
+    elif help_section=="Buy Point":
+        st.markdown("# Buy Point Analysis")
+        st.markdown(BUY_POINT)
+    elif help_section=="Swing Trader":
+        st.markdown("# IBD-Inspired Swing Trader")
+        st.markdown(SWING_TRADER)
+    elif help_section=="Doppelganger":
+        st.markdown("# Doppelganger Analysis")
+        st.markdown(DOPPELGANGER)
+    elif help_section=="Monte Carlo":
+        st.markdown("# Monte Carlo Simulation")
+        st.markdown(MONTE_CARLO)
+    elif help_section=="PGI":
+        st.markdown("# Potential Growth Indicator (PGI)")
+        st.markdown(PGI)
+    elif help_section=="Glossary":
+        st.markdown("# Glossary of Terms")
+        gloss_search=st.text_input("Search glossary",key="gloss_search",placeholder="e.g. PEG, ROE, RSI...")
+        filtered=GLOSSARY
+        if gloss_search:
+            q=gloss_search.lower().strip()
+            filtered=[g for g in GLOSSARY if q in g["term"].lower() or q in g["definition"].lower()]
+        if not filtered:
+            st.info("No matches. Try a different term.")
+        else:
+            st.caption(f"Showing {len(filtered)} of {len(GLOSSARY)} terms.")
+            for g in filtered:
+                st.markdown(f"**{g['term']}** -- {g['definition']}")
+    elif help_section=="Data Sources":
+        st.markdown("# Data Sources & Limitations")
+        st.markdown(DATA_SOURCES)
+    elif help_section=="Disclaimer":
+        st.markdown("# Disclaimer")
+        st.markdown(DISCLAIMER)
+
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.5.1 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.7.1 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
