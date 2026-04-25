@@ -21,39 +21,60 @@ import streamlit as st
 from datetime import datetime
 
 
-# ── Configuration ──────────────────────────────────────────────────
+# ── Configuration (lazy-loaded so Streamlit secrets work) ───────
 
-PROVIDER = os.getenv("AI_PROVIDER", "gemini")  # Default to free Gemini
-
-# API key loading with Streamlit secrets fallback
 def _get_key(name):
-    """Try env var first, then Streamlit secrets."""
+    """Try env var first, then Streamlit secrets. Lazy-evaluated each call."""
     val = os.getenv(name)
     if val:
         return val
     try:
-        return st.secrets.get(name)
+        if name in st.secrets:
+            return st.secrets[name]
     except Exception:
-        return None
+        pass
+    return None
 
 
-GEMINI_API_KEY = _get_key("GEMINI_API_KEY")
-ANTHROPIC_API_KEY = _get_key("ANTHROPIC_API_KEY")
-OPENAI_API_KEY = _get_key("OPENAI_API_KEY")
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+def _provider():
+    """Get current AI provider, defaulting to gemini."""
+    return _get_key("AI_PROVIDER") or "gemini"
+
+
+def _gemini_key():
+    return _get_key("GEMINI_API_KEY")
+
+
+def _anthropic_key():
+    return _get_key("ANTHROPIC_API_KEY")
+
+
+def _openai_key():
+    return _get_key("OPENAI_API_KEY")
+
+
+def _ollama_host():
+    return os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
+
+# Backwards-compat constants (some code paths reference these)
+PROVIDER = None  # Resolved at call time via _provider()
+GEMINI_API_KEY = None
+ANTHROPIC_API_KEY = None
+OPENAI_API_KEY = None
+OLLAMA_HOST = "http://localhost:11434"
 
 
 # ── Provider-specific API calls ────────────────────────────────────
 
 def _call_gemini(prompt, max_tokens=800, temperature=0.7):
-    """Call Google Gemini API. Using gemini-flash-latest for best free tier limits (10 RPM, 250 RPD on 2.0 Flash; 15 RPM on Flash Lite)."""
-    if not GEMINI_API_KEY:
+    """Call Google Gemini API. Using gemini-2.5-flash-lite for best free tier limits."""
+    api_key = _gemini_key()
+    if not api_key:
         return {"error": "GEMINI_API_KEY not configured. Get a free key at https://aistudio.google.com/apikey"}
 
-    # Use gemini-2.5-flash-lite for higher free tier quotas (15 RPM, 1000 RPD)
-    # Fallback to gemini-2.0-flash-exp if needed
     model = "gemini-2.5-flash-lite"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -77,11 +98,12 @@ def _call_gemini(prompt, max_tokens=800, temperature=0.7):
 
 def _call_claude(prompt, max_tokens=800, temperature=0.7):
     """Call Anthropic Claude API."""
-    if not ANTHROPIC_API_KEY:
+    api_key = _anthropic_key()
+    if not api_key:
         return {"error": "ANTHROPIC_API_KEY not configured."}
     url = "https://api.anthropic.com/v1/messages"
     headers = {
-        "x-api-key": ANTHROPIC_API_KEY,
+        "x-api-key": api_key,
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
     }
@@ -105,7 +127,7 @@ def _call_ollama(prompt, max_tokens=800, temperature=0.7):
     """Call local Ollama (free, requires Ollama running locally)."""
     try:
         resp = requests.post(
-            f"{OLLAMA_HOST}/api/generate",
+            f"{_ollama_host()}/api/generate",
             json={
                 "model": "llama3.2",
                 "prompt": prompt,
@@ -118,15 +140,16 @@ def _call_ollama(prompt, max_tokens=800, temperature=0.7):
         data = resp.json()
         return {"text": data["response"], "provider": "ollama", "model": "llama3.2"}
     except Exception as e:
-        return {"error": f"Ollama call failed (is Ollama running at {OLLAMA_HOST}?): {str(e)}"}
+        return {"error": f"Ollama call failed (is Ollama running at {_ollama_host()}?): {str(e)}"}
 
 
 def _call_openai(prompt, max_tokens=800, temperature=0.7):
     """Call OpenAI API."""
-    if not OPENAI_API_KEY:
+    api_key = _openai_key()
+    if not api_key:
         return {"error": "OPENAI_API_KEY not configured."}
     url = "https://api.openai.com/v1/chat/completions"
-    headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": prompt}],
@@ -155,9 +178,9 @@ def call_llm(prompt, max_tokens=800, temperature=0.7, provider=None, feature="ge
         if not allowed:
             return {"error": msg}
     except ImportError:
-        pass  # Auth module optional
+        pass
 
-    p = provider or PROVIDER
+    p = provider or _provider()
     if p == "gemini":
         result = _call_gemini(prompt, max_tokens, temperature)
     elif p == "claude":
@@ -181,20 +204,32 @@ def call_llm(prompt, max_tokens=800, temperature=0.7, provider=None, feature="ge
 
 
 def is_ai_available():
-    """Check if any AI provider is configured."""
-    if PROVIDER == "gemini" and GEMINI_API_KEY:
+    """Check if any AI provider is configured. Lazy-evaluated."""
+    p = _provider()
+    if p == "gemini" and _gemini_key():
         return True
-    if PROVIDER == "claude" and ANTHROPIC_API_KEY:
+    if p == "claude" and _anthropic_key():
         return True
-    if PROVIDER == "openai" and OPENAI_API_KEY:
+    if p == "openai" and _openai_key():
         return True
-    if PROVIDER == "ollama":
+    if p == "ollama":
         try:
-            requests.get(f"{OLLAMA_HOST}/api/tags", timeout=2)
+            requests.get(f"{_ollama_host()}/api/tags", timeout=2)
             return True
         except Exception:
             return False
     return False
+
+
+def get_provider_status():
+    """Return current provider status for UI display."""
+    return {
+        "provider": _provider(),
+        "available": is_ai_available(),
+        "gemini_configured": bool(_gemini_key()),
+        "claude_configured": bool(_anthropic_key()),
+        "openai_configured": bool(_openai_key()),
+    }
 
 
 # ── Specialized Prompts ───────────────────────────────────────────
@@ -349,14 +384,3 @@ Rules:
         return parsed
     except Exception as e:
         return {"error": f"Could not parse AI response: {str(e)}", "raw": result.get("text", "")}
-
-
-def get_provider_status():
-    """Return current provider status for UI display."""
-    return {
-        "provider": PROVIDER,
-        "available": is_ai_available(),
-        "gemini_configured": bool(GEMINI_API_KEY),
-        "claude_configured": bool(ANTHROPIC_API_KEY),
-        "openai_configured": bool(OPENAI_API_KEY),
-    }

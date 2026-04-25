@@ -24,29 +24,42 @@ except ImportError:
 # ── Configuration ──────────────────────────────────────────────────
 
 def _get_secret(name):
-    """Get secret from env or Streamlit secrets."""
+    """Get secret from env or Streamlit secrets. Lazy-evaluated."""
     val = os.getenv(name)
     if val:
         return val
     try:
-        return st.secrets.get(name)
+        if name in st.secrets:
+            return st.secrets[name]
     except Exception:
-        return None
+        pass
+    return None
 
 
-SUPABASE_URL = _get_secret("SUPABASE_URL")
-SUPABASE_KEY = _get_secret("SUPABASE_ANON_KEY")
+def _supabase_url():
+    return _get_secret("SUPABASE_URL")
+
+
+def _supabase_key():
+    return _get_secret("SUPABASE_ANON_KEY")
+
+
+def _admin_email():
+    return _get_secret("ADMIN_EMAIL") or "bmhartnett1990@gmail.com"
+
+
+# Backwards-compat
+SUPABASE_URL = None
+SUPABASE_KEY = None
+ADMIN_EMAIL = None
 
 # Default AI usage limits per tier
 AI_LIMITS = {
-    "free": 0,        # No AI
-    "beta": 20,       # Beta users get AI during testing
-    "pro": 200,       # Pro tier
-    "admin": 9999,    # Admin unlimited
+    "free": 0,
+    "beta": 20,
+    "pro": 200,
+    "admin": 9999,
 }
-
-# Admin email (you)
-ADMIN_EMAIL = _get_secret("ADMIN_EMAIL") or "bradley.hartnett@gmail.com"
 
 
 # ── Supabase Client ─────────────────────────────────────────────────
@@ -56,10 +69,12 @@ def get_supabase() -> "Client":
     """Singleton Supabase client."""
     if not SUPABASE_AVAILABLE:
         return None
-    if not SUPABASE_URL or not SUPABASE_KEY:
+    url = _supabase_url()
+    key = _supabase_key()
+    if not url or not key:
         return None
     try:
-        return create_client(SUPABASE_URL, SUPABASE_KEY)
+        return create_client(url, key)
     except Exception as e:
         st.error(f"Supabase connection failed: {e}")
         return None
@@ -67,7 +82,7 @@ def get_supabase() -> "Client":
 
 def is_auth_configured():
     """Check if Supabase is properly configured."""
-    return SUPABASE_AVAILABLE and SUPABASE_URL and SUPABASE_KEY
+    return SUPABASE_AVAILABLE and bool(_supabase_url()) and bool(_supabase_key())
 
 
 # ── Session Helpers ─────────────────────────────────────────────────
@@ -122,7 +137,7 @@ def sign_up(email, password, display_name=None):
         response = sb.auth.sign_up({"email": email, "password": password})
         if response.user:
             # Create profile row
-            tier = "admin" if email == ADMIN_EMAIL else "beta"  # Beta during testing phase
+            tier = "admin" if email == _admin_email() else "beta"  # Beta during testing phase
             profile_data = {
                 "user_id": response.user.id,
                 "email": email,
@@ -170,7 +185,7 @@ def sign_in(email, password):
             profile = _load_profile(response.user.id)
             if not profile:
                 # Create if missing (legacy users)
-                tier = "admin" if response.user.email == ADMIN_EMAIL else "beta"
+                tier = "admin" if response.user.email == _admin_email() else "beta"
                 profile_data = {
                     "user_id": response.user.id,
                     "email": response.user.email,

@@ -197,6 +197,29 @@ with tab_home:
                 st.caption(rw.get("shortName",""))
                 st.metric("Score",f"{rw.get('composite_score',0):.1f}",rw.get("sector","")[:12])
 
+    # AI Status Diagnostic
+    st.markdown("---")
+    st.markdown("#### AI Assistant Status")
+    ai_status=get_provider_status()
+    can_use_now,ai_msg=can_use_ai()
+    ai_c1,ai_c2,ai_c3=st.columns(3)
+    with ai_c1:
+        if ai_status["available"]:
+            st.success(f"✓ Provider: {ai_status['provider'].title()}")
+        else:
+            st.error("✗ AI provider not configured")
+            st.caption("Add GEMINI_API_KEY to Streamlit secrets")
+    with ai_c2:
+        if can_use_now:
+            st.success(f"✓ {ai_msg}")
+        else:
+            st.warning(f"⚠ {ai_msg}")
+    with ai_c3:
+        if ai_status["available"] and can_use_now:
+            st.info("AI buttons appear in: Stock Detail, Doppelganger, Portfolio")
+        else:
+            st.caption("Fix the issues at left to unlock AI features")
+
 # ═══ TAB 1: MACRO ECONOMICS ══════════════════════════════════════
 with tab_macro:
     st.markdown("### Macroeconomic Dashboard")
@@ -506,10 +529,11 @@ with tab_detail:
         with h3: st.metric("Mkt Cap",fmt_mcap(row.get("marketCapB",0)))
         with h4: rat=row.get("overall_rating","Hold");st.metric("Score",f"{row.get('composite_score',0):.1f}/12");st.markdown(f'<span style="background:{RATING_COLORS.get(rat,"#666")};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{rat}</span>',unsafe_allow_html=True)
         st.markdown(f"**Sector:** {row.get('sector','N/A')} | **Industry:** {row.get('industry','N/A')}")
-        # Historical Price Chart
+        # ═══ Price + Earnings Combo Chart ═══
         st.markdown("---")
-        st.markdown("### Price History")
-        chart_period=st.selectbox("Period",["3mo","6mo","1y","2y","5y"],index=2,key="price_period")
+        st.markdown("### Price & Earnings History")
+        st.caption("Stock price line with quarterly earnings (EPS) bars overlaid. EPS bars show actual reported earnings per share for each quarter.")
+        chart_period=st.selectbox("Period",["6mo","1y","2y","5y","max"],index=2,key="price_period")
         try:
             t_obj=yf.Ticker(sel)
             price_hist=t_obj.history(period=chart_period)
@@ -517,16 +541,108 @@ with tab_detail:
                 ph_close=price_hist["Close"]
                 sma50=ph_close.rolling(50).mean() if len(ph_close)>=50 else None
                 sma200=ph_close.rolling(200).mean() if len(ph_close)>=200 else None
-                fig_ph=go.Figure()
-                fig_ph.add_trace(go.Scatter(x=price_hist.index,y=ph_close,mode="lines",name="Price",line=dict(color="#00D4AA",width=2)))
+
+                # Get quarterly earnings (EPS history)
+                earnings_dates=None
+                try:
+                    earnings_dates=t_obj.earnings_dates
+                    # Filter to the same period as the price chart
+                    if earnings_dates is not None and not earnings_dates.empty:
+                        # Remove timezone info if any to avoid comparison issues
+                        if earnings_dates.index.tz is not None:
+                            earnings_dates.index=earnings_dates.index.tz_localize(None)
+                        # Get only past earnings (no future estimates)
+                        now=pd.Timestamp.now()
+                        earnings_dates=earnings_dates[earnings_dates.index<=now]
+                        # Filter to chart range
+                        chart_start=price_hist.index.min().tz_localize(None) if price_hist.index.tz is not None else price_hist.index.min()
+                        earnings_dates=earnings_dates[earnings_dates.index>=chart_start]
+                except Exception:
+                    earnings_dates=None
+
+                # Create combo chart with secondary y-axis
+                from plotly.subplots import make_subplots
+                fig_combo=make_subplots(specs=[[{"secondary_y":True}]])
+
+                # Price line (primary y-axis)
+                fig_combo.add_trace(go.Scatter(x=price_hist.index,y=ph_close,mode="lines",name="Price",line=dict(color="#00D4AA",width=2.5),hovertemplate="<b>%{x|%b %d, %Y}</b><br>Price: $%{y:.2f}<extra></extra>"),secondary_y=False)
                 if sma50 is not None:
-                    fig_ph.add_trace(go.Scatter(x=price_hist.index,y=sma50,mode="lines",name="50-SMA",line=dict(color="#FFC107",width=1,dash="dot")))
+                    fig_combo.add_trace(go.Scatter(x=price_hist.index,y=sma50,mode="lines",name="50-SMA",line=dict(color="#FFC107",width=1,dash="dot")),secondary_y=False)
                 if sma200 is not None:
-                    fig_ph.add_trace(go.Scatter(x=price_hist.index,y=sma200,mode="lines",name="200-SMA",line=dict(color="#FF6B6B",width=1,dash="dot")))
-                fig_ph.update_layout(yaxis=dict(title="Price ($)",tickformat="$,.2f"),height=350,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),legend=dict(orientation="h",yanchor="bottom",y=-0.2,xanchor="center",x=0.5),margin=dict(l=60,r=20,t=10,b=40))
-                st.plotly_chart(fig_ph,use_container_width=True,key="price_chart")
-        except Exception:
-            st.caption("Price chart unavailable.")
+                    fig_combo.add_trace(go.Scatter(x=price_hist.index,y=sma200,mode="lines",name="200-SMA",line=dict(color="#FF6B6B",width=1,dash="dot")),secondary_y=False)
+
+                # Earnings bars (secondary y-axis)
+                if earnings_dates is not None and not earnings_dates.empty:
+                    eps_col="Reported EPS" if "Reported EPS" in earnings_dates.columns else "EPS Estimate"
+                    eps_data=earnings_dates[eps_col].dropna()
+                    if not eps_data.empty:
+                        # Color bars by surprise (green if beat, red if missed)
+                        bar_colors=[]
+                        if "Surprise(%)" in earnings_dates.columns:
+                            surprises=earnings_dates.loc[eps_data.index,"Surprise(%)"]
+                            for s in surprises:
+                                if pd.isna(s):
+                                    bar_colors.append("#666")
+                                elif s>0:
+                                    bar_colors.append("#22C55E")
+                                else:
+                                    bar_colors.append("#EF4444")
+                        else:
+                            bar_colors=["#00A3FF"]*len(eps_data)
+
+                        fig_combo.add_trace(go.Bar(x=eps_data.index,y=eps_data.values,name="Quarterly EPS",marker_color=bar_colors,opacity=0.6,width=86400000*30,hovertemplate="<b>%{x|%b %Y}</b><br>EPS: $%{y:.2f}<extra></extra>"),secondary_y=True)
+
+                fig_combo.update_layout(
+                    height=450,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
+                    font=dict(color="#e0e0e0"),
+                    legend=dict(orientation="h",yanchor="bottom",y=-0.2,xanchor="center",x=0.5,bgcolor="rgba(0,0,0,0)"),
+                    margin=dict(l=60,r=60,t=20,b=40),
+                    hovermode="x unified",
+                    bargap=0.4,
+                )
+                fig_combo.update_xaxes(gridcolor="#2a2f3e",showgrid=True)
+                fig_combo.update_yaxes(title_text="Price ($)",tickformat="$,.2f",gridcolor="#2a2f3e",secondary_y=False)
+                fig_combo.update_yaxes(title_text="EPS ($)",tickformat="$,.2f",showgrid=False,secondary_y=True)
+
+                st.plotly_chart(fig_combo,use_container_width=True,key="price_earnings_chart")
+
+                # EPS surprise summary
+                if earnings_dates is not None and not earnings_dates.empty and "Surprise(%)" in earnings_dates.columns:
+                    surprises_clean=earnings_dates["Surprise(%)"].dropna()
+                    if not surprises_clean.empty:
+                        beat_count=(surprises_clean>0).sum()
+                        miss_count=(surprises_clean<=0).sum()
+                        avg_surprise=surprises_clean.mean()
+                        ec1,ec2,ec3,ec4=st.columns(4)
+                        with ec1: st.metric("Quarters Shown",len(surprises_clean))
+                        with ec2: st.metric("Beats",beat_count,f"{beat_count/len(surprises_clean)*100:.0f}%")
+                        with ec3: st.metric("Misses",miss_count,f"{miss_count/len(surprises_clean)*100:.0f}%",delta_color="inverse")
+                        with ec4: st.metric("Avg Surprise",f"{avg_surprise:+.1f}%")
+
+                # Revenue trend (separate chart if available)
+                try:
+                    income_stmt=t_obj.quarterly_income_stmt
+                    if income_stmt is not None and not income_stmt.empty and "Total Revenue" in income_stmt.index:
+                        rev_data=income_stmt.loc["Total Revenue"].dropna().sort_index()
+                        if len(rev_data)>=2:
+                            with st.expander("Quarterly Revenue Trend"):
+                                fig_rev=go.Figure()
+                                rev_colors=["#00D4AA" if (i==0 or rev_data.iloc[i]>=rev_data.iloc[i-1]) else "#F97316" for i in range(len(rev_data))]
+                                fig_rev.add_trace(go.Bar(x=rev_data.index,y=rev_data.values/1e9,marker_color=rev_colors,hovertemplate="<b>%{x|%b %Y}</b><br>Revenue: $%{y:.2f}B<extra></extra>"))
+                                fig_rev.update_layout(yaxis=dict(title="Revenue ($B)",tickformat="$,.1f",gridcolor="#2a2f3e"),xaxis=dict(gridcolor="#2a2f3e"),height=300,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),margin=dict(l=60,r=20,t=20,b=40),showlegend=False)
+                                st.plotly_chart(fig_rev,use_container_width=True,key="rev_chart")
+                                # YoY growth
+                                if len(rev_data)>=5:
+                                    yoy=(rev_data.iloc[-1]/rev_data.iloc[-5]-1)*100
+                                    qoq=(rev_data.iloc[-1]/rev_data.iloc[-2]-1)*100
+                                    rg1,rg2,rg3=st.columns(3)
+                                    with rg1: st.metric("Latest Quarter",f"${rev_data.iloc[-1]/1e9:.2f}B")
+                                    with rg2: st.metric("YoY Growth",f"{yoy:+.1f}%")
+                                    with rg3: st.metric("QoQ Growth",f"{qoq:+.1f}%")
+                except Exception:
+                    pass
+        except Exception as e:
+            st.caption(f"Price chart unavailable: {str(e)[:80]}")
         # Fair Value
         st.markdown("---");st.markdown("### Fair Value Analysis")
         fv=compute_fair_value(sel,scored_df);fv_price=None
