@@ -30,6 +30,7 @@ from macro import get_macro_summary, get_fed_rate_outlook, fetch_economic_calend
 from swing_trader import scan_swing_candidates, get_swing_methodology, compute_swing_signals
 from ai_assistant import generate_stock_research_note, interpret_thesis, generate_doppelganger_narrative, generate_portfolio_optimization, is_ai_available, get_provider_status
 from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, HISTORICAL_ANALOGS
+from doppelganger_returns import get_forward_returns, aggregate_forward_returns
 from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
 from auth import is_logged_in, is_auth_configured, render_login_page, render_user_sidebar, get_current_user, get_user_tier, can_use_ai
 from portfolio_persistence import save_portfolio, load_portfolios, delete_portfolio, get_portfolio_by_id
@@ -1013,13 +1014,10 @@ with tab_procharts:
                         "Rating": score_data["overall_rating"] if score_data is not None else "N/A",
                     })
                 mon_df=pd.DataFrame(rows)
-                # Color code % change
-                def highlight_change(val):
-                    if isinstance(val,(int,float)):
-                        return f"color: {'#22C55E' if val>0 else '#EF4444' if val<0 else '#888'}"
-                    return ""
-                styled_df=mon_df.style.applymap(highlight_change,subset=["% Change"]).format({"% Change":"{:+.2f}%","Day Range %":"{:.0f}%"})
-                st.dataframe(styled_df,use_container_width=True,hide_index=True,height=min(700,40+len(rows)*36))
+                # Simple display - format change column inline (avoids Styler API issues)
+                mon_df["% Change"]=mon_df["% Change"].apply(lambda x: f"{x:+.2f}%" if isinstance(x,(int,float)) else x)
+                mon_df["Day Range %"]=mon_df["Day Range %"].apply(lambda x: f"{x:.0f}%" if isinstance(x,(int,float)) else x)
+                st.dataframe(mon_df,use_container_width=True,hide_index=True,height=min(700,40+len(rows)*36))
 
                 st.caption(f"Last updated: {datetime.now().strftime('%H:%M:%S')} | Click Refresh to update.")
             else:
@@ -1125,7 +1123,12 @@ with tab_doppel:
             for i,m in enumerate(matches):
                 similarity_bar_pct=int(m["similarity"]*100)
                 bar_color="#22C55E" if m["similarity"]>=0.7 else "#EAB308" if m["similarity"]>=0.5 else "#F97316"
-                with st.expander(f"{i+1}. {m['company']} {m['era']} -- Similarity: {similarity_bar_pct}%",expanded=(i==0)):
+                # Get forward returns for this analog
+                fwd=get_forward_returns(m["match_key"])
+                fwd_label=""
+                if fwd:
+                    fwd_label=f" | 1Y: {fwd['1yr']:+.0f}% | 5Y: {fwd['5yr']:+.0f}%"
+                with st.expander(f"{i+1}. {m['company']} {m['era']} -- Similarity: {similarity_bar_pct}%{fwd_label}",expanded=(i==0)):
                     st.markdown(f'<div style="background:#1A1F2E;padding:10px;border-radius:4px;margin-bottom:10px;"><div style="background:{bar_color};width:{similarity_bar_pct}%;height:6px;border-radius:3px;"></div></div>',unsafe_allow_html=True)
 
                     ma=m["data"]
@@ -1135,6 +1138,18 @@ with tab_doppel:
                     with mc3: st.metric("P/S",f"{ma.get('priceToSalesTrailing12Months','N/A')}")
                     with mc4: st.metric("Rev Growth",f"{ma.get('revenueGrowth',0)*100:+.0f}%" if ma.get('revenueGrowth') else "N/A")
                     with mc5: st.metric("12M Return",f"{ma.get('momentum_12m',0)*100:+.0f}%" if ma.get('momentum_12m') else "N/A")
+
+                    # Forward returns row
+                    if fwd:
+                        st.markdown("**📈 What happened next:**")
+                        fc1,fc2,fc3=st.columns(3)
+                        def _fmt_ret(r):
+                            color="#22C55E" if r>0 else "#EF4444"
+                            return f'<span style="color:{color};font-weight:700;">{r:+.0f}%</span>'
+                        with fc1: st.markdown(f'1-Year: {_fmt_ret(fwd["1yr"])}',unsafe_allow_html=True)
+                        with fc2: st.markdown(f'3-Year: {_fmt_ret(fwd["3yr"])}',unsafe_allow_html=True)
+                        with fc3: st.markdown(f'5-Year: {_fmt_ret(fwd["5yr"])}',unsafe_allow_html=True)
+                        st.caption(fwd.get("narrative",""))
 
                     st.markdown(f"**Context:** {m['context']}")
                     st.markdown(f"**Narrative:** {m['narrative']}")
@@ -1153,6 +1168,81 @@ with tab_doppel:
                                 st.markdown("**AI Analysis:**")
                                 st.markdown(ai_result["text"])
                                 st.caption(f"Powered by {ai_result.get('provider','AI')}")
+
+            # ═══ Aggregate Forward-Looking Analysis ═══
+            agg=aggregate_forward_returns(matches)
+            if agg and agg["contributing_count"]>=2:
+                st.markdown("---")
+                st.markdown(f"### 🔮 Predictive Aggregate ({agg['contributing_count']} analogs)")
+                st.caption("Similarity-weighted average of what historically happened to similar setups. Use as historical context, not financial prophecy.")
+
+                # Top metrics
+                ag1,ag2,ag3=st.columns(3)
+                with ag1:
+                    color1="#22C55E" if agg["weighted_1yr_pct"]>0 else "#EF4444"
+                    st.markdown(f'<div style="background:#1A1F2E;padding:16px;border-radius:6px;border-left:4px solid {color1};"><div style="color:#888;font-size:0.85em;">1-Year (weighted)</div><div style="color:{color1};font-size:1.8em;font-weight:700;">{agg["weighted_1yr_pct"]:+.0f}%</div><div style="color:#666;font-size:0.8em;">Median: {agg["median_1yr_pct"]:+.0f}% | Range: {agg["worst_1yr"]:+.0f}% to {agg["best_1yr"]:+.0f}%</div></div>',unsafe_allow_html=True)
+                with ag2:
+                    color3="#22C55E" if agg["weighted_3yr_pct"]>0 else "#EF4444"
+                    st.markdown(f'<div style="background:#1A1F2E;padding:16px;border-radius:6px;border-left:4px solid {color3};"><div style="color:#888;font-size:0.85em;">3-Year (weighted)</div><div style="color:{color3};font-size:1.8em;font-weight:700;">{agg["weighted_3yr_pct"]:+.0f}%</div><div style="color:#666;font-size:0.8em;">Median: {agg["median_3yr_pct"]:+.0f}%</div></div>',unsafe_allow_html=True)
+                with ag3:
+                    color5="#22C55E" if agg["weighted_5yr_pct"]>0 else "#EF4444"
+                    st.markdown(f'<div style="background:#1A1F2E;padding:16px;border-radius:6px;border-left:4px solid {color5};"><div style="color:#888;font-size:0.85em;">5-Year (weighted)</div><div style="color:{color5};font-size:1.8em;font-weight:700;">{agg["weighted_5yr_pct"]:+.0f}%</div><div style="color:#666;font-size:0.8em;">Median: {agg["median_5yr_pct"]:+.0f}% | Range: {agg["worst_5yr"]:+.0f}% to {agg["best_5yr"]:+.0f}%</div></div>',unsafe_allow_html=True)
+
+                # Aggregate projection chart
+                st.markdown("##### Forward Projection")
+                current_price=cur_row.get("currentPrice",0)
+                if current_price>0:
+                    timeline=[0,1,3,5]
+                    weighted_path=[current_price,
+                                   current_price*(1+agg["weighted_1yr_pct"]/100),
+                                   current_price*(1+agg["weighted_3yr_pct"]/100),
+                                   current_price*(1+agg["weighted_5yr_pct"]/100)]
+                    best_path=[current_price,
+                               current_price*(1+agg["best_1yr"]/100),
+                               current_price*(1+max(c["ret_3yr"] for c in agg["contributing"])/100),
+                               current_price*(1+agg["best_5yr"]/100)]
+                    worst_path=[current_price,
+                                current_price*(1+agg["worst_1yr"]/100),
+                                current_price*(1+min(c["ret_3yr"] for c in agg["contributing"])/100),
+                                current_price*(1+agg["worst_5yr"]/100)]
+
+                    fig_proj=go.Figure()
+                    # Best/worst envelope
+                    fig_proj.add_trace(go.Scatter(x=timeline,y=best_path,mode="lines",line=dict(width=0),showlegend=False,hovertemplate="Best: $%{y:.2f}<extra></extra>"))
+                    fig_proj.add_trace(go.Scatter(x=timeline,y=worst_path,mode="lines",line=dict(width=0),fill="tonexty",fillcolor="rgba(0,212,170,0.15)",name="Best/Worst Range",hovertemplate="Worst: $%{y:.2f}<extra></extra>"))
+                    # Weighted projection
+                    fig_proj.add_trace(go.Scatter(x=timeline,y=weighted_path,mode="lines+markers",line=dict(color="#00D4AA",width=3),marker=dict(size=10),name="Weighted Average",hovertemplate="Year %{x}: $%{y:.2f}<extra></extra>"))
+                    # Current
+                    fig_proj.add_hline(y=current_price,line_dash="dot",line_color="#666",annotation_text=f"Current: ${current_price:.2f}")
+
+                    fig_proj.update_layout(
+                        height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
+                        font=dict(color="#e0e0e0"),
+                        xaxis=dict(title="Years from Now",gridcolor="#2a2f3e",tickvals=[0,1,3,5]),
+                        yaxis=dict(title="Projected Price ($)",tickformat="$,.2f",gridcolor="#2a2f3e"),
+                        legend=dict(orientation="h",yanchor="bottom",y=-0.2,xanchor="center",x=0.5),
+                        margin=dict(l=60,r=20,t=20,b=40),
+                        hovermode="x unified",
+                    )
+                    st.plotly_chart(fig_proj,use_container_width=True,key="dop_projection")
+
+                # Contributing breakdown
+                with st.expander("Contributing Analogs Detail"):
+                    contrib_rows=[]
+                    for c in agg["contributing"]:
+                        contrib_rows.append({
+                            "Company": c["company"],
+                            "Era": c["era"],
+                            "Similarity": f"{c['similarity']*100:.0f}%",
+                            "1Y Return": f"{c['ret_1yr']:+.0f}%",
+                            "3Y Return": f"{c['ret_3yr']:+.0f}%",
+                            "5Y Return": f"{c['ret_5yr']:+.0f}%",
+                        })
+                    st.dataframe(pd.DataFrame(contrib_rows),use_container_width=True,hide_index=True)
+                    if agg["missing_count"]>0:
+                        st.caption(f"Note: {agg['missing_count']} analog(s) had no forward return data and were excluded from the aggregate.")
+
+                st.warning("⚠️ This is descriptive of past outcomes for similar setups, not a prediction. Each stock's future depends on factors not captured in financial fingerprints (management, competition, regulation, macro). Use this as one of many inputs to your investment thesis.")
 
 # ═══ TAB: PORTFOLIO ═══════════════════════════════════════════════
 with tab_portfolio:
@@ -1682,4 +1772,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.8 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.8.1 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
