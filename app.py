@@ -239,13 +239,15 @@ with tab_home:
 
     # AI Status Diagnostic
     st.markdown("---")
-    st.markdown("#### AI Assistant Status")
+    st.markdown("#### Service Status")
     ai_status=get_provider_status()
     can_use_now,ai_msg=can_use_ai()
+
+    # Row 1: AI status
     ai_c1,ai_c2,ai_c3=st.columns(3)
     with ai_c1:
         if ai_status["available"]:
-            st.success(f"✓ Provider: {ai_status['provider'].title()}")
+            st.success(f"✓ AI Provider: {ai_status['provider'].title()}")
         else:
             st.error("✗ AI provider not configured")
             st.caption("Add GEMINI_API_KEY to Streamlit secrets")
@@ -259,6 +261,25 @@ with tab_home:
             st.info("AI buttons appear in: Stock Detail, Doppelganger, Portfolio")
         else:
             st.caption("Fix the issues at left to unlock AI features")
+
+    # Row 2: Data sources
+    ds_c1,ds_c2,ds_c3=st.columns(3)
+    with ds_c1:
+        if is_fmp_configured():
+            st.success("✓ FMP Earnings Data")
+            st.caption("5-10 years of quarterly EPS available")
+        else:
+            st.warning("⚠ FMP not configured")
+            st.caption("Add FMP_API_KEY to secrets for full earnings history. Falls back to Yahoo Finance (~5 quarters).")
+    with ds_c2:
+        if is_auth_configured():
+            st.success("✓ Supabase Auth & Storage")
+            st.caption("Saved portfolios, watchlist, usage tracking")
+        else:
+            st.warning("⚠ Supabase not configured")
+    with ds_c3:
+        st.info("📊 Yahoo Finance: Always available")
+        st.caption("Primary source for prices, quotes, fundamentals")
 
 # ═══ TAB 1: MACRO ECONOMICS ══════════════════════════════════════
 with tab_macro:
@@ -608,7 +629,7 @@ with tab_detail:
         st.markdown("---")
         st.markdown("### Price & Quarterly Earnings")
         st.caption("Stock price line with quarterly EPS bars overlaid. Green bars = beat estimates, red = missed, gray = no estimate available.")
-        chart_period=st.selectbox("Period",["1y","2y","3y","5y","max"],index=2,key="price_period")
+        chart_period=st.selectbox("Period",["1y","2y","3y","5y","10y","max"],index=3,key="price_period")
         try:
             t_obj=yf.Ticker(sel)
             price_hist=t_obj.history(period=chart_period)
@@ -624,6 +645,7 @@ with tab_detail:
                 surprises_series=None
                 eps_source=""
                 fmp_revenue_df=None
+                fmp_error_msg=None  # Capture FMP error to display
 
                 # PRIMARY SOURCE: FMP (5+ years of real quarterly EPS with surprises)
                 if is_fmp_configured():
@@ -634,12 +656,14 @@ with tab_detail:
                         if "surprise_pct" in fmp_earnings.columns:
                             surprises_series=fmp_earnings["surprise_pct"]
                         eps_source="fmp"
+                    elif fmp_data.get("earnings_error"):
+                        fmp_error_msg=fmp_data["earnings_error"]
                     fmp_revenue_df=fmp_data.get("revenue_df")
-                    if isinstance(fmp_revenue_df,dict):  # error case
+                    if isinstance(fmp_revenue_df,dict):
                         fmp_revenue_df=None
 
-                # FALLBACK 1: yfinance earnings_dates (limited to ~5 quarters typically)
-                if quarterly_eps is None or quarterly_eps.empty:
+                # FALLBACK 1: yfinance earnings_dates
+                if quarterly_eps is None or (hasattr(quarterly_eps,'empty') and quarterly_eps.empty):
                     try:
                         ed=t_obj.earnings_dates
                         if ed is not None and not ed.empty:
@@ -660,7 +684,7 @@ with tab_detail:
                         pass
 
                 # FALLBACK 2: yfinance quarterly income statement
-                if quarterly_eps is None or quarterly_eps.empty:
+                if quarterly_eps is None or (hasattr(quarterly_eps,'empty') and quarterly_eps.empty):
                     try:
                         qis=t_obj.quarterly_income_stmt
                         if qis is not None and not qis.empty:
@@ -735,14 +759,16 @@ with tab_detail:
 
                 st.plotly_chart(fig_combo,use_container_width=True,key="price_earnings_combo")
 
-                # Source badge
+                # Source badge - explicit diagnostics
                 if eps_source=="fmp":
-                    st.caption(f"📊 Earnings data: Financial Modeling Prep ({len(quarterly_eps)} quarters)")
+                    st.success(f"📊 Earnings data: Financial Modeling Prep ({len(quarterly_eps)} quarters of real data with surprises)")
                 elif eps_source.startswith("yfinance"):
                     if not is_fmp_configured():
-                        st.caption(f"📊 Earnings data: Yahoo Finance ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). Add FMP_API_KEY to secrets for 5+ years of history with surprises.")
+                        st.warning(f"📊 Using Yahoo Finance fallback ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). **Add FMP_API_KEY to Streamlit secrets** for 5-10 years of real quarterly history.")
+                    elif fmp_error_msg:
+                        st.error(f"📊 FMP failed, using Yahoo Finance ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). **FMP error:** {fmp_error_msg}")
                     else:
-                        st.caption(f"📊 Earnings data: Yahoo Finance fallback ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). FMP unavailable.")
+                        st.warning(f"📊 FMP returned no data, using Yahoo Finance ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters).")
 
                 # ── Earnings summary ──
                 if quarterly_eps is None or quarterly_eps.empty:
@@ -1754,4 +1780,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.8.3 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.8.4 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
