@@ -8,19 +8,23 @@ GETTING_STARTED = """
 
 **Quick Start:**
 
-1. **Home Tab** -- Get a market overview and your portfolio snapshot.
-2. **Screener Tab** -- Browse the universe of scored stocks. Filter by sector, market cap, or rating.
+1. **Home Tab** -- Market overview, your portfolio snapshot, and the Stock Screener for browsing the universe.
+2. **Advanced Screener Tab** -- Multi-filter screening with preset strategies (Foundational Stocks, GARP, Aggressive Growth, etc.).
 3. **Stock Detail Tab** -- Deep-dive into any stock: fair value, buy point, earnings history, AI analysis.
-4. **Portfolio Tab** -- Upload a Fidelity CSV or enter holdings manually. Save unlimited portfolios. Get prescriptive recommendations.
-5. **Doppelganger Tab** -- See which historical stock setups your current picks resemble.
-6. **Swing Trader Tab** -- Find short-term technical setups (3-10 day trades).
+4. **Pro Charts Tab** -- Professional candlestick charts with VWAP, EMAs, RSI. Live monitor for tracking quotes during market hours.
+5. **Portfolio Tab** -- Upload Fidelity CSV or enter manually. Save unlimited portfolios. Get prescriptive recommendations. Watchlist included as expandable section.
+6. **Doppelganger Tab** -- See which historical stock setups your current picks resemble.
+7. **Swing Trader Tab** -- Find short-term technical setups (3-10 day trades).
+8. **ETF Center Tab** -- Pre-built portfolio templates by risk level, ETF comparison tool, and sector/theme ETF maps.
 
 **Recommended workflow:**
 
-- Start at Home for the daily snapshot.
-- Use Screener or Advanced Screener to find candidates.
-- Click into Stock Detail for any name you want to research.
+- Start at Home for the daily snapshot and screener.
+- Use Advanced Screener to find candidates with specific filters.
+- Click into Stock Detail for any name you want to research deeply.
+- Open Pro Charts for technical analysis.
 - Use Portfolio tab to track and optimize your actual positions.
+- Check Doppelganger for historical context on big positions.
 """
 
 PILLAR_METHODOLOGY = """
@@ -185,6 +189,76 @@ Inspired by Motley Fool's framework. Measures the ratio of money market fund ass
 Historical range: 8-20%. Spiked to 47% during the 2009 crisis.
 
 **Note:** Money market figure is updated manually (~$6.7T as of early 2026). Update sentiment.py when ICI releases new data.
+"""
+
+
+PRO_CHARTS = """
+**Pro Charts**
+
+Professional candlestick charting with three modes:
+
+**1. Chart Mode**
+- Interactive Plotly candlestick chart with green/red OHLC candles
+- Toggleable indicators: VWAP, EMAs (9, 21), SMAs (50, 200), Bollinger Bands
+- Volume subplot with color-coded bars (matching candle direction)
+- RSI subplot with overbought (70) / oversold (30) lines
+- Period selector: 1mo to 5y
+- Interval selector: daily, hourly, 30m, 15m (intraday limited to 60-day periods)
+- Live quote summary below chart with VWAP comparison and quant score
+
+**2. Live Monitor Mode**
+- Multi-ticker live quote dashboard (up to 20 tickers)
+- Shows: price, change, day range position, volume, relative volume vs average, VWAP, vs VWAP %
+- Color-coded percentage changes (green up, red down)
+- Manual refresh button (yfinance has rate limits)
+- Auto-populated with your portfolio holdings on first load
+
+**3. Today's Movers Mode**
+- Top 15 gainers and losers from the scored universe
+- Ranked by 1-month momentum (proxy for recent performance)
+- Includes quant score and rating for each mover
+
+**Note on data:** Quotes use yfinance which has 15-20 minute delays during market hours. This is fine for monitoring but not for true real-time day trading.
+"""
+
+
+ETF_CENTER = """
+**ETF Center**
+
+Three integrated sections for ETF-based investing:
+
+**1. Portfolio Builder**
+Pre-built ETF allocations across five risk profiles:
+
+| Profile | Risk | Expected Return | Max Drawdown |
+|---|---|---|---|
+| Cautious | 3/10 | 5-7% | 15-20% |
+| Moderate | 6/10 | 7-9% | 25-35% |
+| Aggressive | 9/10 | 9-12% | 40-55% |
+| Tech Concentrated | 10/10 | 10-15% | 50-70% |
+| Income Focused | 4/10 | 4-6% | 15-25% |
+
+Enter your investment amount and the tool calculates dollar allocations for each ETF position. Each row shows a primary ETF plus an alternative substitute.
+
+**2. ETF Comparison Tool**
+Side-by-side comparison of 2-5 ETFs showing:
+- Expense ratio (lower is better long-term)
+- AUM (higher means tighter spreads)
+- Yield %
+- Returns across multiple timeframes (1M, 3M, 6M, 12M, YTD)
+- Beta (volatility vs market)
+- Visual returns comparison chart
+
+Useful for deciding between similar ETFs (VTI vs ITOT, VOO vs IVV, QQQ vs QQQM, etc.).
+
+**3. Sector & Theme Map**
+Quick reference tables showing:
+- Which ETF to use for each of 11 sector tilts (Technology, Healthcare, Financials, etc.)
+- Which ETF to use for each thematic bet (AI, Cybersecurity, Nuclear, Bitcoin, etc.)
+- Use case description for each ETF
+- Primary plus alternative tickers
+
+Helps when you want to overweight a specific sector or capture an emerging theme without picking individual stocks.
 """
 
 GLOSSARY = [

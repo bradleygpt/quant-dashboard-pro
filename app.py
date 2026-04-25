@@ -33,7 +33,9 @@ from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, 
 from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
 from auth import is_logged_in, is_auth_configured, render_login_page, render_user_sidebar, get_current_user, get_user_tier, can_use_ai
 from portfolio_persistence import save_portfolio, load_portfolios, delete_portfolio, get_portfolio_by_id
-from help_content import GETTING_STARTED, PILLAR_METHODOLOGY, RATING_SYSTEM, FAIR_VALUE, BUY_POINT, SWING_TRADER, DOPPELGANGER, MONTE_CARLO, PGI, GLOSSARY, BEST_PRACTICES, DATA_SOURCES, DISCLAIMER
+from help_content import GETTING_STARTED, PILLAR_METHODOLOGY, RATING_SYSTEM, FAIR_VALUE, BUY_POINT, SWING_TRADER, DOPPELGANGER, MONTE_CARLO, PGI, PRO_CHARTS, ETF_CENTER, GLOSSARY, BEST_PRACTICES, DATA_SOURCES, DISCLAIMER
+from pro_charts import fetch_chart_data, compute_indicators, build_candlestick_chart, get_quick_quote, get_watchlist_quotes, get_market_movers
+from etf_center import PORTFOLIO_TEMPLATES, get_portfolio_template, list_templates, calculate_template_metrics, compare_etfs, get_sector_etf_map, get_theme_etf_map, load_raw_cache, get_etf_universe
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
@@ -116,8 +118,8 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Screener","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","Doppelganger","Portfolio","Monte Carlo","ETF Screener","Watchlist","Compare","📖 Help"])
-tab_home,tab_macro,tab_sentiment,tab_screener,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_doppel,tab_portfolio,tab_mc,tab_etfs,tab_watchlist,tab_compare,tab_help=tabs
+tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","📈 Pro Charts","Doppelganger","Portfolio","Monte Carlo","ETF Center","📖 Help"])
+tab_home,tab_macro,tab_sentiment,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_portfolio,tab_mc,tab_etfs,tab_help=tabs
 
 @st.cache_data(ttl=43200,show_spinner=False)
 def load_and_score(mcap,wt,sr):
@@ -208,6 +210,30 @@ with tab_home:
                 st.markdown(f"**{tk}**")
                 st.caption(rw.get("shortName",""))
                 st.metric("Score",f"{rw.get('composite_score',0):.1f}",rw.get("sector","")[:12])
+
+    # ═══ Stock Screener ═══
+    st.markdown("---")
+    st.markdown("#### Stock Screener")
+    st.caption("Browse and filter the scored universe.")
+    sc1,sc2,sc3=st.columns(3)
+    with sc1: home_sec=st.selectbox("Sector",["All"]+sorted(scored_df["sector"].dropna().unique().tolist()),key="home_screen_sec")
+    with sc2: home_rat=st.selectbox("Rating",["All","Strong Buy","Buy","Hold","Sell","Strong Sell"],key="home_screen_rat")
+    with sc3: home_top=st.selectbox("Show Top",[50,100,250,500],index=1,key="home_screen_top")
+    home_filtered=get_top_stocks(scored_df,home_top,home_sec,home_rat)
+    if not home_filtered.empty:
+        hs1,hs2,hs3,hs4,hs5,hs6=st.columns(6)
+        with hs1: st.metric("Universe",f"{len(scored_df):,}")
+        with hs2: st.metric("Strong Buys",len(scored_df[scored_df["overall_rating"]=="Strong Buy"]))
+        with hs3: st.metric("Buys",len(scored_df[scored_df["overall_rating"]=="Buy"]))
+        with hs4: st.metric("Holds",len(scored_df[scored_df["overall_rating"]=="Hold"]))
+        with hs5: st.metric("Sells",len(scored_df[scored_df["overall_rating"]=="Sell"]))
+        with hs6: st.metric("Strong Sells",len(scored_df[scored_df["overall_rating"]=="Strong Sell"]))
+        hdc=["shortName","sector","marketCapB","currentPrice"]
+        for p in PILLAR_METRICS: hdc.append(f"{p}_grade")
+        hdc+=["composite_score","overall_rating"]
+        hdd=home_filtered[hdc].copy()
+        hdd.columns=["Company","Sector","Mkt Cap ($B)","Price","Valuation","Growth","Profit","Momentum","EPS Rev","Score","Rating"]
+        st.dataframe(hdd,use_container_width=True,height=500)
 
     # AI Status Diagnostic
     st.markdown("---")
@@ -352,28 +378,7 @@ with tab_sentiment:
         for ind in COMING_SOON_INDICATORS:
             st.markdown(f"**{ind['name']}** -- *{ind.get('status','Planned')}*");st.caption(ind["description"])
 
-# ═══ TAB 3: SCREENER ══════════════════════════════════════════════
-with tab_screener:
-    c1,c2,c3=st.columns(3)
-    with c1: sel_sec=st.selectbox("Sector",["All"]+sorted(scored_df["sector"].dropna().unique().tolist()))
-    with c2: sel_rat=st.selectbox("Rating",["All","Strong Buy","Buy","Hold","Sell","Strong Sell"])
-    with c3: top_n=st.selectbox("Show Top",[50,100,250,500],index=3)
-    filtered=get_top_stocks(scored_df,top_n,sel_sec,sel_rat)
-    if not filtered.empty:
-        s1,s2,s3,s4,s5,s6=st.columns(6)
-        with s1: st.metric("Universe",f"{len(scored_df):,}")
-        with s2: st.metric("Strong Buys",len(scored_df[scored_df["overall_rating"]=="Strong Buy"]))
-        with s3: st.metric("Buys",len(scored_df[scored_df["overall_rating"]=="Buy"]))
-        with s4: st.metric("Holds",len(scored_df[scored_df["overall_rating"]=="Hold"]))
-        with s5: st.metric("Sells",len(scored_df[scored_df["overall_rating"]=="Sell"]))
-        with s6: st.metric("Strong Sells",len(scored_df[scored_df["overall_rating"]=="Strong Sell"]))
-        dc=["shortName","sector","marketCapB","currentPrice"]
-        for p in PILLAR_METRICS: dc.append(f"{p}_grade")
-        dc+=["composite_score","overall_rating"]
-        dd=filtered[dc].copy();dd.columns=["Company","Sector","Mkt Cap ($B)","Price","Valuation","Growth","Profit","Momentum","EPS Rev","Score","Rating"]
-        st.dataframe(dd,use_container_width=True,height=700)
-
-# ═══ TAB 4: ADVANCED SCREENER ═════════════════════════════════════
+# ═══ TAB: ADVANCED SCREENER ═════════════════════════════════════
 with tab_advanced:
     st.markdown("### Advanced Screener")
     st.caption("Combine rating, fair value, and custom metric filters. Results include Fair Value and Buy Point.")
@@ -900,6 +905,169 @@ with tab_detail:
                         with mc5: st.markdown(m["sector_avg"])
                         with mc6: st.markdown(f'**{m["a_threshold"]}**')
 
+# ═══ TAB: PRO CHARTS ════════════════════════════════════════════════
+with tab_procharts:
+    st.markdown("### Pro Charts")
+    st.caption("Professional candlestick charts with indicators (VWAP, EMAs, RSI, Bollinger Bands) and a live monitoring dashboard.")
+
+    pc_section=st.radio("",["📈 Chart","👁 Live Monitor","🔥 Today's Movers"],horizontal=True,key="pc_section",label_visibility="collapsed")
+    st.markdown("---")
+
+    # ── Section 1: Candlestick Chart ──
+    if pc_section=="📈 Chart":
+        all_tickers=sorted(scored_df.index.tolist())
+        pc_default=0
+        if st.session_state.selected_ticker in all_tickers:
+            pc_default=all_tickers.index(st.session_state.selected_ticker)
+
+        pc1,pc2,pc3=st.columns([2,1,1])
+        with pc1: pc_ticker=st.selectbox("Ticker",all_tickers,index=pc_default,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="pc_ticker")
+        with pc2: pc_period=st.selectbox("Period",["1mo","3mo","6mo","1y","2y","5y"],index=2,key="pc_period")
+        with pc3: pc_interval=st.selectbox("Interval",["1d","1h","30m","15m"],index=0,key="pc_interval",help="Intraday intervals (1h, 30m, 15m) only available for periods up to 60 days.")
+
+        # Indicators toggles
+        st.markdown("**Indicators:**")
+        ic1,ic2,ic3,ic4,ic5=st.columns(5)
+        with ic1: show_vwap=st.checkbox("VWAP",value=True,key="pc_vwap")
+        with ic2: show_emas=st.checkbox("EMAs / SMAs",value=True,key="pc_emas")
+        with ic3: show_bb=st.checkbox("Bollinger",value=False,key="pc_bb")
+        with ic4: show_volume=st.checkbox("Volume",value=True,key="pc_vol")
+        with ic5: show_rsi=st.checkbox("RSI",value=True,key="pc_rsi")
+
+        if pc_ticker:
+            with st.spinner(f"Loading {pc_ticker} chart..."):
+                df=fetch_chart_data(pc_ticker,period=pc_period,interval=pc_interval)
+                if df is not None:
+                    df=compute_indicators(df)
+                    fig=build_candlestick_chart(df,pc_ticker,show_vwap=show_vwap,show_emas=show_emas,show_bb=show_bb,show_volume=show_volume,show_rsi=show_rsi)
+                    if fig:
+                        st.plotly_chart(fig,use_container_width=True,key="pc_chart",config={"displaylogo":False,"displayModeBar":True})
+                    else:
+                        st.warning("Could not build chart.")
+
+                    # Quote summary
+                    quote=get_quick_quote(pc_ticker)
+                    if quote:
+                        st.markdown("##### Current Quote")
+                        q1,q2,q3,q4,q5,q6=st.columns(6)
+                        with q1: st.metric("Price",f"${quote['price']}",f"{quote['change']:+.2f} ({quote['change_pct']:+.2f}%)")
+                        with q2: st.metric("Day Range",f"${quote['day_low']} - ${quote['day_high']}")
+                        with q3: st.metric("Range Position",f"{quote['day_range_pos']:.0f}%",help="0=at low, 100=at high")
+                        with q4: st.metric("Volume",f"{quote['volume']/1e6:.1f}M",f"{quote['rel_volume_pct']-100:+.0f}% vs avg")
+                        with q5:
+                            if quote.get("vwap"):
+                                st.metric("VWAP",f"${quote['vwap']}",f"{quote['vs_vwap_pct']:+.2f}%")
+                            else:
+                                st.metric("VWAP","N/A")
+                        with q6:
+                            if pc_ticker in scored_df.index:
+                                st.metric("Quant Score",f"{scored_df.loc[pc_ticker,'composite_score']:.1f}/12",scored_df.loc[pc_ticker,"overall_rating"])
+                else:
+                    st.error(f"Could not load chart data for {pc_ticker}.")
+
+    # ── Section 2: Live Monitor ──
+    elif pc_section=="👁 Live Monitor":
+        st.markdown("#### Live Monitor")
+        st.caption("Real-time-ish quotes for tickers you're watching. Use this for monitoring during market hours.")
+
+        # Pull from saved monitor list
+        if "monitor_tickers" not in st.session_state:
+            # Default to portfolio tickers
+            default_monitor=[h["ticker"] for h in st.session_state.portfolio_holdings] if st.session_state.portfolio_holdings else ["AAPL","NVDA","MSFT","GOOG","SPY"]
+            st.session_state.monitor_tickers=default_monitor[:15]
+
+        mon_tickers=st.multiselect(
+            "Tickers to monitor (max 20)",
+            sorted(scored_df.index.tolist()),
+            default=[t for t in st.session_state.monitor_tickers if t in scored_df.index][:20],
+            max_selections=20,
+            format_func=lambda x: f"{x} -- {scored_df.loc[x,'shortName'][:30]}" if x in scored_df.index else x,
+            key="mon_select"
+        )
+        st.session_state.monitor_tickers=mon_tickers
+
+        if st.button("🔄 Refresh Quotes",key="mon_refresh"):
+            st.cache_data.clear()
+            st.rerun()
+
+        if mon_tickers:
+            with st.spinner(f"Fetching {len(mon_tickers)} quotes..."):
+                quotes=get_watchlist_quotes(mon_tickers)
+            if quotes:
+                # Build display table
+                rows=[]
+                for q in quotes:
+                    score_data=scored_df.loc[q["ticker"]] if q["ticker"] in scored_df.index else None
+                    rows.append({
+                        "Ticker": q["ticker"],
+                        "Company": q["name"][:25],
+                        "Price": f"${q['price']}",
+                        "Change": f"{q['change']:+.2f}",
+                        "% Change": q["change_pct"],
+                        "Day Range %": q["day_range_pos"],
+                        "Volume": f"{q['volume']/1e6:.1f}M",
+                        "Rel Vol": f"{q['rel_volume_pct']:.0f}%",
+                        "VWAP": f"${q['vwap']}" if q.get("vwap") else "N/A",
+                        "vs VWAP": f"{q['vs_vwap_pct']:+.2f}%" if q.get("vs_vwap_pct") is not None else "N/A",
+                        "Score": f"{score_data['composite_score']:.1f}" if score_data is not None else "N/A",
+                        "Rating": score_data["overall_rating"] if score_data is not None else "N/A",
+                    })
+                mon_df=pd.DataFrame(rows)
+                # Color code % change
+                def highlight_change(val):
+                    if isinstance(val,(int,float)):
+                        return f"color: {'#22C55E' if val>0 else '#EF4444' if val<0 else '#888'}"
+                    return ""
+                styled_df=mon_df.style.applymap(highlight_change,subset=["% Change"]).format({"% Change":"{:+.2f}%","Day Range %":"{:.0f}%"})
+                st.dataframe(styled_df,use_container_width=True,hide_index=True,height=min(700,40+len(rows)*36))
+
+                st.caption(f"Last updated: {datetime.now().strftime('%H:%M:%S')} | Click Refresh to update.")
+            else:
+                st.warning("Could not fetch quotes. yfinance may be rate-limited.")
+        else:
+            st.info("Select tickers above to monitor.")
+
+    # ── Section 3: Today's Movers ──
+    else:
+        st.markdown("#### Today's Top Movers")
+        st.caption("Biggest gainers and losers from the scored universe (based on 1-month momentum as a proxy since intraday data isn't cached).")
+
+        movers=get_market_movers(scored_df,top_n=15)
+        mvc1,mvc2=st.columns(2)
+        with mvc1:
+            st.markdown("##### 🟢 Top Gainers")
+            if movers["gainers"]:
+                gn_rows=[]
+                for m in movers["gainers"]:
+                    gn_rows.append({
+                        "Ticker": m.get("ticker") or m.get("index",""),
+                        "Company": (m.get("shortName") or "")[:25],
+                        "Sector": m.get("sector",""),
+                        "1M %": f"{m['m_1m_pct']:+.1f}%",
+                        "Score": f"{m.get('composite_score',0):.1f}",
+                        "Rating": m.get("overall_rating",""),
+                    })
+                st.dataframe(pd.DataFrame(gn_rows),use_container_width=True,hide_index=True)
+            else:
+                st.info("No gainer data available.")
+
+        with mvc2:
+            st.markdown("##### 🔴 Top Losers")
+            if movers["losers"]:
+                ls_rows=[]
+                for m in movers["losers"]:
+                    ls_rows.append({
+                        "Ticker": m.get("ticker") or m.get("index",""),
+                        "Company": (m.get("shortName") or "")[:25],
+                        "Sector": m.get("sector",""),
+                        "1M %": f"{m['m_1m_pct']:+.1f}%",
+                        "Score": f"{m.get('composite_score',0):.1f}",
+                        "Rating": m.get("overall_rating",""),
+                    })
+                st.dataframe(pd.DataFrame(ls_rows),use_container_width=True,hide_index=True)
+            else:
+                st.info("No loser data available.")
+
 # ═══ TAB: DOPPELGANGER ANALYSIS ════════════════════════════════════
 with tab_doppel:
     st.markdown("### Doppelganger Analysis")
@@ -986,7 +1154,7 @@ with tab_doppel:
                                 st.markdown(ai_result["text"])
                                 st.caption(f"Powered by {ai_result.get('provider','AI')}")
 
-# ═══ TAB 7: PORTFOLIO ═════════════════════════════════════════════
+# ═══ TAB: PORTFOLIO ═══════════════════════════════════════════════
 with tab_portfolio:
     st.markdown("### Portfolio Analyzer")
 
@@ -1164,6 +1332,59 @@ with tab_portfolio:
             else:
                 st.caption("💡 Configure AI provider (Gemini free tier) in .streamlit/secrets.toml for AI-powered portfolio optimization.")
 
+    # ═══ Watchlist (expandable section) ═══
+    st.markdown("---")
+    with st.expander("⭐ Watchlist - Stocks You're Researching"):
+        st.caption("Track stocks you're researching but don't own yet. Separate from your portfolio.")
+        wl=load_watchlist()
+
+        wlc1,wlc2=st.columns([3,1])
+        with wlc1:
+            wl_options=[""]+sorted([t for t in scored_df.index.tolist() if t not in [w["ticker"] for w in wl]])
+            wl_new=st.selectbox(
+                "Add ticker to watchlist",
+                wl_options,
+                format_func=lambda x: f"{x} -- {scored_df.loc[x,'shortName']}" if x and x in scored_df.index else x,
+                key="wl_add_select"
+            )
+        with wlc2:
+            st.markdown("&nbsp;")  # spacer
+            if wl_new and st.button("➕ Add to Watchlist",key="wl_add_btn",use_container_width=True):
+                add_to_watchlist(wl_new)
+                st.success(f"Added {wl_new}")
+                st.rerun()
+
+        if not wl:
+            st.info("Watchlist is empty. Add tickers above.")
+        else:
+            st.markdown(f"**{len(wl)} stocks watched**")
+            wl_rows=[]
+            for entry in wl:
+                t3=entry["ticker"]
+                if t3 in scored_df.index:
+                    r=scored_df.loc[t3]
+                    wl_rows.append({
+                        "Ticker": t3,
+                        "Company": r.get("shortName","")[:30],
+                        "Sector": r.get("sector",""),
+                        "Price": f"${r.get('currentPrice',0):.2f}",
+                        "Score": f"{r.get('composite_score',0):.1f}",
+                        "Rating": r.get("overall_rating","N/A"),
+                        "1M": f"{r.get('momentum_1m',0)*100:+.1f}%" if pd.notna(r.get('momentum_1m')) else "N/A",
+                        "12M": f"{r.get('momentum_12m',0)*100:+.1f}%" if pd.notna(r.get('momentum_12m')) else "N/A",
+                    })
+            if wl_rows:
+                st.dataframe(pd.DataFrame(wl_rows),use_container_width=True,hide_index=True)
+
+            st.markdown("**Remove from watchlist:**")
+            n_cols=min(len(wl),5)
+            rm_cols=st.columns(n_cols)
+            for i,entry in enumerate(wl):
+                with rm_cols[i%n_cols]:
+                    if st.button(f"❌ {entry['ticker']}",key=f"wl_rm_{entry['ticker']}",use_container_width=True):
+                        remove_from_watchlist(entry["ticker"])
+                        st.rerun()
+
 # ═══ TAB 8: MONTE CARLO v2 ════════════════════════════════════════
 with tab_mc:
     st.markdown("### Monte Carlo Simulation")
@@ -1226,86 +1447,180 @@ with tab_mc:
                         st.caption(f"Avg cross-correlation: {mp.get('avg_correlation',0):.2f}")
                         st.caption(f"Scenario adjustment: {mp.get('scenario_adjustment',0):+.1f}%")
 
-# ═══ TAB: ETF SCREENER ════════════════════════════════════════════
+# ═══ TAB: ETF CENTER ══════════════════════════════════════════════
 with tab_etfs:
-    st.markdown("### ETF Screener")
-    etf_df=load_etf_data()
-    if etf_df.empty: st.info("No ETF data. Re-run build_cache.py.")
+    st.markdown("### ETF Center")
+    st.caption("Build portfolios with ETFs, compare options, and find the right ETF for your sector or theme tilt.")
+
+    etf_section=st.radio("",["📊 Portfolio Builder","🔍 ETF Comparison","🗺️ Sector & Theme Map"],horizontal=True,key="etf_section",label_visibility="collapsed")
+    st.markdown("---")
+
+    raw_cache_data=load_raw_cache()
+
+    # ── Section 1: Portfolio Builder ──
+    if etf_section=="📊 Portfolio Builder":
+        st.markdown("#### Portfolio Builder")
+        st.caption("Pre-built ETF allocations across risk profiles. Inspired by Motley Fool's Cautious/Moderate/Aggressive framework.")
+
+        pb1,pb2=st.columns([1,1])
+        with pb1: pb_template=st.selectbox("Risk Profile",list_templates(),key="pb_template")
+        with pb2: pb_amount=st.number_input("Total Investment ($)",min_value=1000,max_value=10000000,value=100000,step=10000,key="pb_amount")
+
+        result=calculate_template_metrics(pb_template,pb_amount)
+        if result:
+            tmpl=result["template"]
+            pmA,pmB,pmC=st.columns(3)
+            with pmA: st.metric("Risk Score",f"{tmpl['risk_score']}/10")
+            with pmB: st.metric("Expected Return",tmpl["expected_annual_return"])
+            with pmC: st.metric("Max Drawdown Est.",tmpl["max_drawdown_estimate"])
+
+            st.info(tmpl["description"])
+
+            # Allocation table
+            alloc_df=pd.DataFrame(result["rows"])
+            alloc_df["Amount"]=alloc_df["Amount"].apply(lambda x: f"${x:,.0f}")
+            alloc_df["Weight %"]=alloc_df["Weight %"].apply(lambda x: f"{x}%")
+            st.dataframe(alloc_df,use_container_width=True,hide_index=True)
+
+            # Donut chart
+            chart_data=pd.DataFrame(result["rows"])
+            fig_alloc=go.Figure(go.Pie(
+                labels=chart_data["Category"],
+                values=chart_data["Weight %"] if "Weight %" not in chart_data.columns or chart_data["Weight %"].dtype!=object else [r["weight"] for r in tmpl["allocations"]],
+                hole=0.5,
+                marker=dict(colors=["#00D4AA","#00A3FF","#A855F7","#FBBF24","#F97316","#EF4444","#22C55E","#6366F1"]),
+                textinfo="label+percent",
+            ))
+            fig_alloc.update_layout(height=400,paper_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),margin=dict(l=20,r=20,t=20,b=20),showlegend=False)
+            st.plotly_chart(fig_alloc,use_container_width=True,key="pb_donut")
+
+            with st.expander("How to use this allocation"):
+                st.markdown(f"""
+                **Implementation steps:**
+                1. Open a brokerage account if you don't have one (Fidelity, Schwab, Vanguard recommended for low fees).
+                2. For each row above, place a buy order for the listed ETF using the dollar amount shown.
+                3. Rebalance quarterly or when any position drifts more than 5% from target.
+                4. The "Alternative" column shows substitute ETFs from different providers if your broker doesn't offer the primary.
+
+                **Notes:**
+                - Expected returns are based on historical averages and are not guaranteed.
+                - Max drawdown estimates reflect what historically happens in market crashes.
+                - Tax-efficient placement: hold bonds/REITs in retirement accounts (IRA, 401k) and equities in taxable accounts when possible.
+                - This is informational only, not financial advice.
+                """)
+
+    # ── Section 2: ETF Comparison ──
+    elif etf_section=="🔍 ETF Comparison":
+        st.markdown("#### ETF Comparison Tool")
+        st.caption("Compare 2-5 ETFs side-by-side: expense ratios, returns across timeframes, AUM, yield, and beta.")
+
+        etf_universe=get_etf_universe(raw_cache_data)
+        if not etf_universe:
+            st.warning("No ETF data in cache. Run build_cache.py to populate.")
+        else:
+            cmp_etfs=st.multiselect(
+                "Select 2-5 ETFs",
+                etf_universe,
+                default=etf_universe[:3] if len(etf_universe)>=3 else etf_universe,
+                max_selections=5,
+                format_func=lambda x: f"{x} -- {raw_cache_data.get(x,{}).get('shortName','')[:40]}",
+                key="etf_cmp"
+            )
+
+            if len(cmp_etfs)>=2:
+                cmp_df=compare_etfs(cmp_etfs,raw_cache_data)
+                if cmp_df is not None and not cmp_df.empty:
+                    # Format the dataframe for display
+                    disp_df=cmp_df.copy()
+                    disp_df["Expense Ratio"]=disp_df["Expense Ratio"].apply(lambda x: f"{x*100:.2f}%" if pd.notna(x) and x else "N/A")
+                    disp_df["AUM ($B)"]=disp_df["AUM ($B)"].apply(lambda x: f"${x:.1f}B" if x>0 else "N/A")
+                    disp_df["Yield %"]=disp_df["Yield %"].apply(lambda x: f"{x:.2f}%" if x>0 else "N/A")
+                    for col in ["1M %","3M %","6M %","12M %","YTD %"]:
+                        disp_df[col]=disp_df[col].apply(lambda x: f"{x:+.1f}%")
+                    disp_df["Beta (3Y)"]=disp_df["Beta (3Y)"].apply(lambda x: f"{x:.2f}" if pd.notna(x) and x else "N/A")
+                    disp_df["Price"]=disp_df["Price"].apply(lambda x: f"${x:.2f}" if x>0 else "N/A")
+                    st.dataframe(disp_df,use_container_width=True,hide_index=True)
+
+                    # Returns visualization
+                    st.markdown("##### Returns Comparison")
+                    ret_data=[]
+                    for _,row in cmp_df.iterrows():
+                        for period in ["1M %","3M %","6M %","12M %","YTD %"]:
+                            ret_data.append({"ETF":row["Ticker"],"Period":period.replace(" %",""),"Return":row[period]})
+                    ret_df=pd.DataFrame(ret_data)
+                    fig_ret=px.bar(ret_df,x="Period",y="Return",color="ETF",barmode="group",
+                        color_discrete_sequence=["#00D4AA","#00A3FF","#A855F7","#FBBF24","#F97316"])
+                    fig_ret.update_layout(height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),yaxis=dict(title="Return %",gridcolor="#2a2f3e"),xaxis=dict(gridcolor="#2a2f3e"))
+                    st.plotly_chart(fig_ret,use_container_width=True,key="etf_cmp_returns")
+
+                    with st.expander("Comparison guide"):
+                        st.markdown("""
+                        **What to look for:**
+                        - **Lower expense ratio** is better (saves money long-term).
+                        - **Higher AUM** means more liquidity, tighter bid/ask spreads.
+                        - **Yield** matters for income-focused investors.
+                        - **Returns** show recent performance, but past performance doesn't predict future.
+                        - **Beta** measures volatility vs. the market (1.0 = market, >1 more volatile, <1 less).
+
+                        **Common comparisons:**
+                        - VTI vs ITOT vs SPTM: Three near-identical broad market ETFs. Pick the one with lowest expense ratio at your broker.
+                        - VOO vs IVV vs SPY: Three S&P 500 ETFs. SPY has highest liquidity for trading; VOO/IVV are best for buy-and-hold.
+                        - QQQ vs QQQM: QQQM is cheaper expense ratio but slightly less liquid.
+                        """)
+            else:
+                st.info("Select at least 2 ETFs to compare.")
+
+    # ── Section 3: Sector & Theme Map ──
     else:
-        st.metric("ETFs",len(etf_df))
-        ec1,ec2,ec3=st.columns(3)
-        with ec1: etf_cat=st.selectbox("Category",["All"]+get_etf_categories(etf_df),key="etf_cat")
-        with ec2: etf_sort=st.selectbox("Sort",["momentum_score","momentum_1m","momentum_3m","momentum_12m"],key="etf_sort",format_func=lambda x:{"momentum_score":"Score","momentum_1m":"1M","momentum_3m":"3M","momentum_12m":"12M"}.get(x,x))
-        with ec3: max_er=st.slider("Max Expense %",0.0,2.0,2.0,0.05,key="etf_er")
-        fe=filter_etfs(etf_df,category=etf_cat if etf_cat!="All" else None,max_expense_ratio=max_er,sort_by=etf_sort)
-        if not fe.empty:
-            dcols=["shortName","industry","currentPrice","aum_b","momentum_1m","momentum_3m","momentum_6m","momentum_12m"]
-            avail=[c for c in dcols if c in fe.columns];ed=fe[avail].copy()
-            for mc in ["momentum_1m","momentum_3m","momentum_6m","momentum_12m"]:
-                if mc in ed.columns: ed[mc]=pd.to_numeric(ed[mc],errors="coerce").apply(lambda x:f"{x*100:+.1f}%" if pd.notna(x) else "N/A")
-            ed=ed.rename(columns={"shortName":"Name","industry":"Category","currentPrice":"Price","aum_b":"AUM ($B)","momentum_1m":"1M","momentum_3m":"3M","momentum_6m":"6M","momentum_12m":"12M"})
-            st.dataframe(ed,use_container_width=True,height=500)
+        st.markdown("#### Sector & Theme ETF Map")
+        st.caption("Quick reference for which ETF to use when tilting your portfolio toward a specific sector or theme.")
+
+        st.markdown("##### Sector ETFs")
+        sector_map=get_sector_etf_map()
+        sm_rows=[]
+        for s in sector_map:
+            sm_rows.append({
+                "Sector": s["sector"],
+                "Primary ETF": s["ticker"],
+                "Alternative": s["alternative"] or "",
+                "Use Case": s["use_case"],
+            })
+        st.dataframe(pd.DataFrame(sm_rows),use_container_width=True,hide_index=True)
+
         st.markdown("---")
-        if not etf_df.empty:
-            etf_sel=st.selectbox("ETF Detail",etf_df.index.tolist(),format_func=lambda x:f"{x} -- {etf_df.loc[x,'shortName']}" if x in etf_df.index else x,key="etf_det")
-            if etf_sel:
-                edt=get_etf_detail(etf_sel,etf_df)
-                if edt:
-                    e1,e2,e3,e4=st.columns(4)
-                    with e1: st.metric("Price",f"${edt['price']:.2f}" if edt['price'] else "N/A")
-                    with e2: st.metric("AUM",f"${edt['aum_b']:.1f}B" if edt['aum_b'] else "N/A")
-                    with e3: st.metric("Expense",f"{edt['expense_ratio']*100:.2f}%" if edt['expense_ratio'] else "N/A")
-                    with e4: st.markdown(f"**{edt['category']}**")
-                    mom=edt["momentum_summary"];mc1,mc2,mc3,mc4,mc5,mc6=st.columns(6)
-                    with mc1: st.metric("1M",mom["1 Month"])
-                    with mc2: st.metric("3M",mom["3 Month"])
-                    with mc3: st.metric("6M",mom["6 Month"])
-                    with mc4: st.metric("12M",mom["12 Month"])
-                    with mc5: st.metric("vs 50-SMA",mom["vs 50-SMA"])
-                    with mc6: st.metric("vs 200-SMA",mom["vs 200-SMA"])
+        st.markdown("##### Thematic ETFs")
+        theme_map=get_theme_etf_map()
+        tm_rows=[]
+        for t in theme_map:
+            tm_rows.append({
+                "Theme": t["theme"],
+                "Primary ETF": t["ticker"],
+                "Alternative": t["alternative"] or "",
+                "Use Case": t["use_case"],
+            })
+        st.dataframe(pd.DataFrame(tm_rows),use_container_width=True,hide_index=True)
 
-# ═══ TAB 11: WATCHLIST ════════════════════════════════════════════
-with tab_watchlist:
-    wl=load_watchlist()
-    if not wl: st.info("Watchlist empty.")
-    else:
-        st.markdown(f"### Watchlist ({len(wl)})")
-        for entry in wl:
-            t3=entry["ticker"]
-            if t3 in scored_df.index:
-                r=scored_df.loc[t3];rat=r.get("overall_rating","N/A");rc=RATING_COLORS.get(rat,"#666")
-                c1,c2,c3,c4,c5=st.columns([1.5,2.5,1.5,1.5,0.8])
-                with c1: st.markdown(f"**{t3}**")
-                with c2: st.markdown(r.get("shortName",""))
-                with c3: st.markdown(f'<span style="background:{rc};padding:2px 10px;border-radius:4px;font-weight:700;color:#111;">{rat}</span>',unsafe_allow_html=True)
-                with c4: st.markdown(f"Score: **{r.get('composite_score',0):.1f}**")
-                with c5:
-                    if st.button("X",key=f"wl_{t3}"): remove_from_watchlist(t3);st.rerun()
-            st.markdown("---")
+        with st.expander("How to use sector and theme tilts"):
+            st.markdown("""
+            **Sector tilting** means deviating from market-cap-weighted exposure to bet on a specific sector.
 
-# ═══ TAB 12: COMPARE ══════════════════════════════════════════════
-with tab_compare:
-    sel_cmp=st.multiselect("Select 2-5",sorted(scored_df.index.tolist()),default=st.session_state.compare_tickers[:5],max_selections=5,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="cmp_ms")
-    st.session_state.compare_tickers=sel_cmp
-    if len(sel_cmp)>=2:
-        td={};
-        for t4 in sel_cmp:
-            d=get_pillar_detail(t4,scored_df,sector_stats)
-            if d: td[t4]={p:v["pillar_score"] for p,v in d.items()}
-        if td: st.plotly_chart(multi_radar(td),use_container_width=True,key="cmp_radar")
-        rows=[]
-        for t4 in sel_cmp:
-            if t4 in scored_df.index:
-                r=scored_df.loc[t4];rd={"Ticker":t4,"Company":r.get("shortName","")}
-                for p in PILLAR_METRICS: rd[p]=f"{r.get(f'{p}_grade','N/A')} ({r.get(f'{p}_score',0):.1f})"
-                rd["Composite"]=f"{r.get('composite_score',0):.1f}";rd["Rating"]=r.get("overall_rating","N/A");rows.append(rd)
-        if rows: st.dataframe(pd.DataFrame(rows),use_container_width=True,hide_index=True)
+            **Example:** Standard S&P 500 has ~30% in Technology. If you believe tech will outperform, you might:
+            1. Hold VTI as your core (40% of portfolio).
+            2. Add 10-15% in XLK to boost tech exposure to ~35-40% of portfolio.
+
+            **Thematic ETFs** are concentrated bets on long-term trends:
+            - Higher conviction needed (these can be volatile)
+            - Generally allocate 2-5% per theme, max 10-15% combined
+            - Examples: AI (BAI), cybersecurity (CIBR), space (ARKX), nuclear (NLR)
+
+            **Risk:** Sector and theme ETFs reduce diversification. The narrower the focus, the higher the volatility and the more your returns depend on being right about a specific narrative.
+            """)
 
 # ═══ TAB: HELP & GLOSSARY ═══════════════════════════════════════════
 with tab_help:
     help_section=st.radio(
         "Topic",
-        ["Getting Started","Best Practices","5-Pillar Methodology","Rating System","Fair Value","Buy Point","Swing Trader","Doppelganger","Monte Carlo","PGI","Glossary","Data Sources","Disclaimer"],
+        ["Getting Started","Best Practices","5-Pillar Methodology","Rating System","Fair Value","Buy Point","Pro Charts","ETF Center","Swing Trader","Doppelganger","Monte Carlo","PGI","Glossary","Data Sources","Disclaimer"],
         horizontal=True,
         key="help_section"
     )
@@ -1328,6 +1643,12 @@ with tab_help:
     elif help_section=="Buy Point":
         st.markdown("# Buy Point Analysis")
         st.markdown(BUY_POINT)
+    elif help_section=="Pro Charts":
+        st.markdown("# Pro Charts")
+        st.markdown(PRO_CHARTS)
+    elif help_section=="ETF Center":
+        st.markdown("# ETF Center")
+        st.markdown(ETF_CENTER)
     elif help_section=="Swing Trader":
         st.markdown("# IBD-Inspired Swing Trader")
         st.markdown(SWING_TRADER)
@@ -1361,4 +1682,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.7.1 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.8 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
