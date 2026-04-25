@@ -32,6 +32,7 @@ from ai_assistant import generate_stock_research_note, interpret_thesis, generat
 from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, HISTORICAL_ANALOGS
 from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
 from auth import is_logged_in, is_auth_configured, render_login_page, render_user_sidebar, get_current_user, get_user_tier, can_use_ai
+from portfolio_persistence import save_portfolio, load_portfolios, delete_portfolio, get_portfolio_by_id
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
@@ -50,8 +51,18 @@ if not is_logged_in():
 # AUTHENTICATED APP BELOW
 # ═══════════════════════════════════════════════════════════════════
 
-for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("sector_relative",True),("portfolio_holdings",[])]:
+for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("sector_relative",True),("portfolio_holdings",[]),("current_portfolio_id",None),("current_portfolio_name",None),("portfolio_autoloaded",False)]:
     if k not in st.session_state: st.session_state[k]=v
+
+# Auto-load most recent saved portfolio on first login (one-time per session)
+if not st.session_state.portfolio_autoloaded and not st.session_state.portfolio_holdings:
+    _saved=load_portfolios()
+    if _saved:
+        most_recent=_saved[0]
+        st.session_state.portfolio_holdings=most_recent["holdings"]
+        st.session_state.current_portfolio_id=most_recent["id"]
+        st.session_state.current_portfolio_name=most_recent["name"]
+    st.session_state.portfolio_autoloaded=True
 
 def fmt_mcap(b): return f"${b/1000:.1f}T" if b>=1000 else f"${b:.1f}B"
 
@@ -494,15 +505,71 @@ with tab_sectors:
     st.markdown("### Sector Overview")
     overview=get_sector_overview(scored_df)
     if not overview.empty:
+        # ── Sector Aggregates: Market Cap + Earnings combo chart ──
+        st.markdown("#### Sector Aggregates: Market Cap & Earnings")
+        st.caption("Combined market cap (line) and aggregate trailing 12-month earnings (bars) per sector. Shows scale and profitability of each sector population.")
+        non_etf_universe=scored_df[scored_df["sector"]!="ETF"].copy()
+        sec_agg=non_etf_universe.groupby("sector").agg(
+            total_mcap=("marketCapB","sum"),
+            stock_count=("composite_score","count"),
+            avg_score=("composite_score","mean"),
+            median_score=("composite_score","median"),
+            std_score=("composite_score","std"),
+        ).reset_index()
+        # Compute aggregate earnings: market cap * (1/PE) gives net income
+        non_etf_universe["est_earnings"]=non_etf_universe.apply(
+            lambda r: (r["marketCapB"]/r["trailingPE"]) if pd.notna(r.get("trailingPE")) and r.get("trailingPE",0)>0 else 0,
+            axis=1
+        )
+        sec_earnings=non_etf_universe.groupby("sector")["est_earnings"].sum().reset_index()
+        sec_combo=sec_agg.merge(sec_earnings,on="sector").sort_values("total_mcap",ascending=False)
+
+        from plotly.subplots import make_subplots
+        fig_sa=make_subplots(specs=[[{"secondary_y":True}]])
+        fig_sa.add_trace(go.Bar(x=sec_combo["sector"],y=sec_combo["est_earnings"],name="Aggregate TTM Earnings ($B)",marker_color="#FFC107",opacity=0.7,hovertemplate="<b>%{x}</b><br>Earnings: $%{y:.0f}B<extra></extra>"),secondary_y=False)
+        fig_sa.add_trace(go.Scatter(x=sec_combo["sector"],y=sec_combo["total_mcap"],name="Total Market Cap ($B)",mode="lines+markers",line=dict(color="#00D4AA",width=3),marker=dict(size=10),hovertemplate="<b>%{x}</b><br>Market Cap: $%{y:,.0f}B<extra></extra>"),secondary_y=True)
+        fig_sa.update_layout(height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),legend=dict(orientation="h",yanchor="bottom",y=-0.3,xanchor="center",x=0.5,bgcolor="rgba(0,0,0,0)"),margin=dict(l=60,r=60,t=20,b=80),hovermode="x unified")
+        fig_sa.update_xaxes(gridcolor="#2a2f3e",tickangle=-30)
+        fig_sa.update_yaxes(title_text="Earnings ($B)",tickformat="$,.0f",gridcolor="#2a2f3e",secondary_y=False)
+        fig_sa.update_yaxes(title_text="Market Cap ($B)",tickformat="$,.0f",showgrid=False,secondary_y=True)
+        st.plotly_chart(fig_sa,use_container_width=True,key="sec_agg_combo")
+
+        # ── Sector P/E quick view ──
+        sec_combo["agg_pe"]=sec_combo["total_mcap"]/sec_combo["est_earnings"].replace(0,float("nan"))
+        st.markdown("#### Sector Valuation Snapshot")
+        st.caption("Aggregate P/E = total market cap / total earnings across the sector population.")
+        snap_df=sec_combo[["sector","stock_count","total_mcap","est_earnings","agg_pe","avg_score","std_score"]].copy()
+        snap_df.columns=["Sector","Stocks","Mkt Cap ($B)","Earnings ($B)","Agg P/E","Avg Score","Score Dispersion"]
+        snap_df["Mkt Cap ($B)"]=snap_df["Mkt Cap ($B)"].apply(lambda x: f"${x:,.0f}B")
+        snap_df["Earnings ($B)"]=snap_df["Earnings ($B)"].apply(lambda x: f"${x:,.0f}B")
+        snap_df["Agg P/E"]=snap_df["Agg P/E"].apply(lambda x: f"{x:.1f}x" if pd.notna(x) else "N/A")
+        snap_df["Avg Score"]=snap_df["Avg Score"].apply(lambda x: f"{x:.1f}")
+        snap_df["Score Dispersion"]=snap_df["Score Dispersion"].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "N/A")
+        st.dataframe(snap_df,use_container_width=True,hide_index=True)
+
+        st.markdown("---")
+        st.markdown("#### Sector Quality Distribution")
+        st.caption("Percentage of A-rated stocks (Strong Buy + Buy) by sector. This shows where the highest-conviction opportunities are concentrated.")
+        # % of strong buy + buy per sector
+        rating_dist=non_etf_universe.groupby(["sector","overall_rating"]).size().unstack(fill_value=0)
+        for col in ["Strong Buy","Buy","Hold","Sell","Strong Sell"]:
+            if col not in rating_dist.columns: rating_dist[col]=0
+        rating_dist["Total"]=rating_dist.sum(axis=1)
+        rating_dist["A-rated %"]=(rating_dist["Strong Buy"]+rating_dist["Buy"])/rating_dist["Total"]*100
+        rating_dist=rating_dist.sort_values("A-rated %",ascending=False).reset_index()
+        fig_q=go.Figure()
+        fig_q.add_trace(go.Bar(x=rating_dist["sector"],y=rating_dist["A-rated %"],marker=dict(color=rating_dist["A-rated %"],colorscale=[[0,"#D32F2F"],[0.5,"#FFC107"],[1,"#00C805"]],cmin=0,cmax=50),text=rating_dist["A-rated %"].apply(lambda x: f"{x:.0f}%"),textposition="outside",hovertemplate="<b>%{x}</b><br>A-rated: %{y:.1f}%<extra></extra>"))
+        fig_q.update_layout(height=350,yaxis=dict(title="% A-rated (Strong Buy + Buy)",gridcolor="#2a2f3e"),xaxis=dict(gridcolor="#2a2f3e",tickangle=-30),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),showlegend=False,margin=dict(l=60,r=20,t=20,b=80))
+        st.plotly_chart(fig_q,use_container_width=True,key="sec_qual")
+
+        st.markdown("---")
+        st.markdown("#### Full Sector Detail")
         rc=["Rank","Sector","Stocks","composite_avg","Strong Buy","Buy","Hold","Sell","Strong Sell"]
         for p in PILLAR_METRICS: rc.append(f"{p}_grade")
         rc+=["best_stock","worst_stock"];ac=[c for c in rc if c in overview.columns]
         rn2={"composite_avg":"Avg Score","best_stock":"Best","worst_stock":"Worst"}
         for p in PILLAR_METRICS: rn2[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
         st.dataframe(overview[ac].rename(columns=rn2),use_container_width=True,hide_index=True)
-        fig_s=px.bar(overview,x="Sector",y="composite_avg",color="composite_avg",color_continuous_scale=["#D32F2F","#FFC107","#00C805"],range_color=[4,9])
-        fig_s.update_layout(yaxis=dict(range=[0,12],title="Avg Score"),height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),coloraxis_showscale=False)
-        st.plotly_chart(fig_s,use_container_width=True,key="sec_bar")
         st.markdown("#### Sector Deep Dive")
         ss2=st.selectbox("Select sector",overview["Sector"].tolist(),key="sec_drill")
         if ss2:
@@ -864,6 +931,33 @@ with tab_doppel:
 # ═══ TAB 7: PORTFOLIO ═════════════════════════════════════════════
 with tab_portfolio:
     st.markdown("### Portfolio Analyzer")
+
+    # ── Saved Portfolios (Supabase) ──
+    saved_portfolios=load_portfolios()
+    if saved_portfolios:
+        st.markdown("#### Your Saved Portfolios")
+        sp_cols=st.columns([3,1,1])
+        with sp_cols[0]:
+            sp_options=["-- Select --"]+[f"{p['name']} ({len(p['holdings'])} holdings)" for p in saved_portfolios]
+            sp_choice=st.selectbox("Load saved portfolio",sp_options,key="sp_choice")
+        with sp_cols[1]:
+            if sp_choice!="-- Select --" and st.button("Load",key="sp_load"):
+                idx=sp_options.index(sp_choice)-1
+                p=saved_portfolios[idx]
+                st.session_state.portfolio_holdings=p["holdings"]
+                st.session_state.current_portfolio_id=p["id"]
+                st.session_state.current_portfolio_name=p["name"]
+                st.success(f"Loaded: {p['name']}")
+                st.rerun()
+        with sp_cols[2]:
+            if sp_choice!="-- Select --" and st.button("Delete",key="sp_del"):
+                idx=sp_options.index(sp_choice)-1
+                p=saved_portfolios[idx]
+                result=delete_portfolio(p["id"])
+                if "error" in result: st.error(result["error"])
+                else: st.success(f"Deleted: {p['name']}");st.rerun()
+        st.markdown("---")
+
     inp=st.radio("Input",["Manual Entry","CSV Upload (Fidelity)"],horizontal=True)
     if inp=="CSV Upload (Fidelity)":
         up=st.file_uploader("Upload CSV",type=["csv"])
@@ -884,6 +978,32 @@ with tab_portfolio:
             if t and s>0: holdings.append({"ticker":t,"shares":s,"cost_basis":cb if cb>0 else None})
         if st.button("Analyze",key="ab"): st.session_state.portfolio_holdings=holdings
     if st.session_state.portfolio_holdings:
+        # ── Save to Supabase ──
+        st.markdown("---")
+        sv1,sv2,sv3=st.columns([2,1,1])
+        with sv1:
+            default_name=st.session_state.get("current_portfolio_name","Main Portfolio")
+            save_name=st.text_input("Portfolio name",value=default_name,key="save_name")
+        with sv2:
+            current_id=st.session_state.get("current_portfolio_id")
+            save_label="Update" if current_id else "Save"
+            if st.button(save_label,key="save_pf",use_container_width=True):
+                result=save_portfolio(save_name,st.session_state.portfolio_holdings,portfolio_id=current_id)
+                if "error" in result: st.error(result["error"])
+                else:
+                    st.session_state.current_portfolio_id=result["portfolio_id"]
+                    st.session_state.current_portfolio_name=save_name
+                    st.success(f"{save_label}d!")
+                    st.rerun()
+        with sv3:
+            if current_id and st.button("Save as New",key="save_new",use_container_width=True):
+                result=save_portfolio(save_name,st.session_state.portfolio_holdings,portfolio_id=None)
+                if "error" in result: st.error(result["error"])
+                else:
+                    st.session_state.current_portfolio_id=result["portfolio_id"]
+                    st.success("Saved as new portfolio!")
+                    st.rerun()
+
         analysis=analyze_portfolio(st.session_state.portfolio_holdings,scored_df,sector_stats)
         if "error" in analysis: st.error(analysis["error"])
         elif analysis:
