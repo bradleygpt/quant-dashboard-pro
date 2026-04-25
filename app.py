@@ -1061,9 +1061,16 @@ with tab_doppel:
             sector_f="any"
     with dc2: dop_tag=st.selectbox("Filter by theme (optional)",["All"]+db_stats["tags"],key="dop_tag")
 
+    dop_dedupe=st.checkbox(
+        "Deduplicate by era (recommended)",
+        value=True,
+        key="dop_dedupe",
+        help="When enabled, only the single highest-similarity match per historical era is shown. Prevents the aggregate forecast from being skewed by over-representation of any one period (e.g., multiple dot-com stocks). Disable to see all individual matches."
+    )
+
     if dop_sel:
         tag_f=dop_tag if dop_tag!="All" else None
-        matches=find_doppelgangers(dop_sel,scored_df,top_n=5,sector_filter=sector_f,tag_filter=tag_f)
+        matches=find_doppelgangers(dop_sel,scored_df,top_n=5,sector_filter=sector_f,tag_filter=tag_f,dedupe_eras=dop_dedupe)
 
         if not matches:
             cur_sector=scored_df.loc[dop_sel,"sector"]
@@ -1199,9 +1206,13 @@ with tab_doppel:
                 with st.expander("Contributing Analogs Detail"):
                     contrib_rows=[]
                     for c in agg["contributing"]:
+                        # Find the original match to get era_bucket
+                        orig_match=next((m for m in matches if m["match_key"]==c["key"]),None)
+                        bucket=orig_match["era_bucket"] if orig_match else c["era"]
                         contrib_rows.append({
                             "Company": c["company"],
                             "Era": c["era"],
+                            "Era Bucket": bucket,
                             "Similarity": f"{c['similarity']*100:.0f}%",
                             "1Y Return": f"{c['ret_1yr']:+.0f}%",
                             "3Y Return": f"{c['ret_3yr']:+.0f}%",
@@ -1210,6 +1221,8 @@ with tab_doppel:
                     st.dataframe(pd.DataFrame(contrib_rows),use_container_width=True,hide_index=True)
                     if agg["missing_count"]>0:
                         st.caption(f"Note: {agg['missing_count']} analog(s) had no forward return data and were excluded from the aggregate.")
+                    if dop_dedupe:
+                        st.caption(f"✓ Era deduplication active: only the highest-similarity match per historical period is shown.")
 
                 st.warning("⚠️ This is descriptive of past outcomes for similar setups, not a prediction. Each stock's future depends on factors not captured in financial fingerprints (management, competition, regulation, macro). Use this as one of many inputs to your investment thesis.")
 
@@ -1741,4 +1754,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.8.2 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.8.3 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")

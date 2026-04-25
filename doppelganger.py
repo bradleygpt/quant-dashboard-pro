@@ -122,7 +122,48 @@ def compute_similarity(fp1, fp2):
     return similarity * confidence_factor
 
 
-def find_doppelgangers(ticker, scored_df, top_n=5, sector_filter="same", tag_filter=None):
+def _era_bucket(era_str):
+    """
+    Group similar eras together to avoid over-representing one historical period.
+
+    Returns a bucket key. Eras within the same 2-3 year period are grouped.
+
+    Examples:
+    - "1999 (dot-com peak)" -> "1999-2001"
+    - "2000 (dot-com peak)" -> "1999-2001"
+    - "2008-2009 (financial crisis)" -> "2008-2009"
+    - "2020 (COVID peak)" -> "2020-2022"
+    - "2022 (post-ATT crisis)" -> "2020-2022"
+    """
+    import re
+    # Extract the first 4-digit year
+    match = re.search(r"(\d{4})", era_str or "")
+    if not match:
+        return era_str or "unknown"
+    year = int(match.group(1))
+
+    # Define bucket windows (overlapping eras share a bucket)
+    if 1999 <= year <= 2001:
+        return "1999-2001 (dot-com peak)"
+    elif 2008 <= year <= 2009:
+        return "2008-2009 (financial crisis)"
+    elif 2010 <= year <= 2012:
+        return "2010-2012 (post-crisis recovery)"
+    elif 2013 <= year <= 2015:
+        return "2013-2015 (mid-cycle expansion)"
+    elif 2016 <= year <= 2018:
+        return "2016-2018 (late-cycle growth)"
+    elif 2019 <= year <= 2020:
+        return "2019-2020 (pre-COVID / COVID)"
+    elif 2021 <= year <= 2022:
+        return "2021-2022 (post-COVID + correction)"
+    elif 2023 <= year <= 2024:
+        return "2023-2024 (AI era)"
+    else:
+        return f"{year} (other)"
+
+
+def find_doppelgangers(ticker, scored_df, top_n=5, sector_filter="same", tag_filter=None, dedupe_eras=True):
     """
     Find historical analogues for a current stock.
 
@@ -130,6 +171,11 @@ def find_doppelgangers(ticker, scored_df, top_n=5, sector_filter="same", tag_fil
     - "same" (default): only match same-sector analogs. Best practice.
     - "any": match across all sectors
     - [sector string]: match within a specific sector
+
+    dedupe_eras (default True): If multiple analogs match from the same historical era
+    (e.g., 3 different stocks from 1999-2001 dot-com peak), keep only the highest-
+    similarity one. Prevents the aggregate forecast from being skewed by over-
+    representation of one period.
     """
     if ticker not in scored_df.index:
         return []
@@ -161,6 +207,7 @@ def find_doppelgangers(ticker, scored_df, top_n=5, sector_filter="same", tag_fil
                 "match_key": key,
                 "company": analog["company"],
                 "era": analog["era"],
+                "era_bucket": _era_bucket(analog.get("era", "")),
                 "similarity": round(similarity, 3),
                 "data": analog,
                 "sector": analog.get("sector", "N/A"),
@@ -173,6 +220,19 @@ def find_doppelgangers(ticker, scored_df, top_n=5, sector_filter="same", tag_fil
             })
 
     matches.sort(key=lambda x: x["similarity"], reverse=True)
+
+    # ── ERA DEDUPLICATION ──
+    # Keep only the highest-similarity match per era bucket.
+    # This prevents over-representation of any one historical period (e.g. 3 dot-com era stocks).
+    if dedupe_eras:
+        seen_buckets = set()
+        deduped = []
+        for m in matches:
+            bucket = m["era_bucket"]
+            if bucket not in seen_buckets:
+                seen_buckets.add(bucket)
+                deduped.append(m)
+        matches = deduped
 
     # If same-sector requested but no matches found, fall back to showing a warning
     if sector_filter == "same" and not matches:
