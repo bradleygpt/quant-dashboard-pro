@@ -1,8 +1,15 @@
 """
 Financial Modeling Prep (FMP) Data Fetcher
-Pulls 5+ years of quarterly EPS data with reported vs estimated and surprise %.
+Pulls 5+ years of quarterly EPS via the income statement endpoint.
 
-Free tier: 250 requests/day. Cache aggressively to stay under limit.
+NOTE: FMP free tier ("Basic" plan) does NOT include the historical earnings calendar
+endpoint (returns 403). However, the quarterly income statement endpoint IS included
+and contains diluted EPS going back ~5 years.
+
+Trade-off: We get full EPS history but no analyst-estimate-vs-actual surprise data.
+We color bars by EPS direction (growing green / declining red) instead.
+
+Free tier: 250 requests/day. Cache aggressively.
 """
 
 import os
@@ -31,70 +38,62 @@ def is_fmp_configured():
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def fetch_fmp_earnings_history(ticker, limit=40):
+def fetch_fmp_quarterly_financials(ticker, limit=40):
     """
-    Fetch quarterly earnings history from FMP.
-    Returns up to ~10 years of quarterly EPS with surprise data.
+    Fetch quarterly income statement from FMP.
+    Free tier compatible. Returns ~5 years of quarterly diluted EPS + revenue.
 
     Args:
         ticker: Stock ticker
-        limit: Max number of quarters (default 40 = ~10 years)
+        limit: Max number of quarters (default 40 = ~10 years, free tier capped at ~20)
 
     Returns:
-        DataFrame with columns: date, reported_eps, estimated_eps, surprise_pct, revenue
+        DataFrame indexed by date with: eps_diluted, eps_basic, revenue,
+        net_income, gross_profit, operating_income
         OR dict with "error" key if failed
     """
     api_key = _get_fmp_key()
     if not api_key:
         return {"error": "FMP_API_KEY not configured. Get a free key at https://site.financialmodelingprep.com/"}
 
-    # Endpoint: historical-earnings-calendar gives EPS + revenue with surprises
-    url = f"https://financialmodelingprep.com/api/v3/historical/earning_calendar/{ticker}"
-    params = {"limit": limit, "apikey": api_key}
+    url = f"https://financialmodelingprep.com/api/v3/income-statement/{ticker}"
+    params = {"period": "quarter", "limit": limit, "apikey": api_key}
 
     try:
         resp = requests.get(url, params=params, timeout=15)
         if resp.status_code == 401:
             return {"error": "FMP API key invalid or expired"}
+        if resp.status_code == 403:
+            return {"error": "FMP 403: Income statement endpoint not available on your plan. Free tier should include this — check your account at financialmodelingprep.com/dashboard"}
         if resp.status_code == 429:
             return {"error": "FMP daily quota exceeded (250/day on free tier)"}
         resp.raise_for_status()
         data = resp.json()
 
         if not isinstance(data, list) or len(data) == 0:
-            return {"error": f"No earnings data returned for {ticker}"}
+            return {"error": f"No financial data returned for {ticker}"}
 
-        # Normalize into DataFrame
         rows = []
         for entry in data:
-            reported = entry.get("eps")
-            estimated = entry.get("epsEstimated")
             date_str = entry.get("date")
-            if not date_str or reported is None:
+            if not date_str:
                 continue
             try:
                 date = pd.to_datetime(date_str)
             except Exception:
                 continue
-            # Skip future-dated entries
-            if date > pd.Timestamp.now():
-                continue
-
-            surprise_pct = None
-            if estimated and estimated != 0:
-                surprise_pct = ((reported - estimated) / abs(estimated)) * 100
-
             rows.append({
                 "date": date,
-                "reported_eps": float(reported),
-                "estimated_eps": float(estimated) if estimated is not None else None,
-                "surprise_pct": round(surprise_pct, 1) if surprise_pct is not None else None,
-                "revenue": entry.get("revenue"),
-                "revenue_estimated": entry.get("revenueEstimated"),
+                "eps_diluted": float(entry.get("epsdiluted")) if entry.get("epsdiluted") is not None else None,
+                "eps_basic": float(entry.get("eps")) if entry.get("eps") is not None else None,
+                "revenue": float(entry.get("revenue")) if entry.get("revenue") is not None else None,
+                "net_income": float(entry.get("netIncome")) if entry.get("netIncome") is not None else None,
+                "gross_profit": float(entry.get("grossProfit")) if entry.get("grossProfit") is not None else None,
+                "operating_income": float(entry.get("operatingIncome")) if entry.get("operatingIncome") is not None else None,
             })
 
         if not rows:
-            return {"error": f"No usable earnings data for {ticker}"}
+            return {"error": f"No usable data rows for {ticker}"}
 
         df = pd.DataFrame(rows)
         df = df.sort_values("date").reset_index(drop=True)
@@ -106,94 +105,61 @@ def fetch_fmp_earnings_history(ticker, limit=40):
         return {"error": f"FMP fetch failed: {str(e)[:200]}"}
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
-def fetch_fmp_revenue_history(ticker, limit=40):
-    """
-    Fetch quarterly revenue history from FMP income statement.
-    Returns up to ~10 years of quarterly revenue.
-    """
-    api_key = _get_fmp_key()
-    if not api_key:
-        return {"error": "FMP_API_KEY not configured"}
-
-    url = f"https://financialmodelingprep.com/api/v3/income-statement/{ticker}"
-    params = {"period": "quarter", "limit": limit, "apikey": api_key}
-
-    try:
-        resp = requests.get(url, params=params, timeout=15)
-        if resp.status_code == 401:
-            return {"error": "FMP API key invalid"}
-        if resp.status_code == 429:
-            return {"error": "FMP daily quota exceeded"}
-        resp.raise_for_status()
-        data = resp.json()
-
-        if not isinstance(data, list) or len(data) == 0:
-            return {"error": f"No revenue data for {ticker}"}
-
-        rows = []
-        for entry in data:
-            date_str = entry.get("date")
-            revenue = entry.get("revenue")
-            if not date_str or revenue is None:
-                continue
-            try:
-                date = pd.to_datetime(date_str)
-            except Exception:
-                continue
-            rows.append({
-                "date": date,
-                "revenue": float(revenue),
-                "net_income": float(entry.get("netIncome", 0) or 0),
-                "eps_diluted": float(entry.get("epsdiluted", 0) or 0),
-                "gross_profit": float(entry.get("grossProfit", 0) or 0),
-                "operating_income": float(entry.get("operatingIncome", 0) or 0),
-            })
-
-        if not rows:
-            return {"error": f"No revenue rows for {ticker}"}
-
-        df = pd.DataFrame(rows)
-        df = df.sort_values("date").reset_index(drop=True)
-        df.set_index("date", inplace=True)
-        return df
-    except Exception as e:
-        return {"error": f"FMP revenue fetch failed: {str(e)[:200]}"}
-
-
 def get_combined_earnings_data(ticker, period_start=None):
     """
-    Get the best available earnings data, combining FMP earnings calendar (with surprises)
-    and FMP income statement (with revenue/full financials).
+    Get earnings + revenue data via the free-tier-compatible income statement endpoint.
 
     Args:
         ticker: Stock ticker
         period_start: Optional pd.Timestamp to filter from
 
     Returns:
-        Dict with 'earnings_df' (EPS+surprises), 'revenue_df' (financials), 'error' if any
+        Dict with:
+            - earnings_df: DataFrame indexed by date with reported_eps column
+            - revenue_df: same DataFrame for revenue display
+            - earnings_error / revenue_error: Error message if failed
     """
-    earnings = fetch_fmp_earnings_history(ticker, limit=40)
-    revenue = fetch_fmp_revenue_history(ticker, limit=40)
+    fin = fetch_fmp_quarterly_financials(ticker, limit=40)
 
     result = {"ticker": ticker}
 
-    if isinstance(earnings, dict) and "error" in earnings:
-        result["earnings_error"] = earnings["error"]
+    if isinstance(fin, dict) and "error" in fin:
+        result["earnings_error"] = fin["error"]
+        result["revenue_error"] = fin["error"]
         result["earnings_df"] = None
-    else:
-        df = earnings
-        if period_start is not None:
-            df = df[df.index >= period_start]
-        result["earnings_df"] = df
-
-    if isinstance(revenue, dict) and "error" in revenue:
-        result["revenue_error"] = revenue["error"]
         result["revenue_df"] = None
+        return result
+
+    df = fin
+    if period_start is not None:
+        df = df[df.index >= period_start]
+
+    # Build earnings_df (with reported_eps for chart)
+    if "eps_diluted" in df.columns:
+        eps_data = df["eps_diluted"].dropna()
+        if not eps_data.empty:
+            earnings_df = pd.DataFrame({"reported_eps": eps_data})
+            # No surprise data on free tier - column omitted
+            result["earnings_df"] = earnings_df
+        else:
+            # Fall back to basic EPS if diluted unavailable
+            eps_basic = df["eps_basic"].dropna() if "eps_basic" in df.columns else pd.Series()
+            if not eps_basic.empty:
+                result["earnings_df"] = pd.DataFrame({"reported_eps": eps_basic})
+            else:
+                result["earnings_df"] = None
+                result["earnings_error"] = "No EPS data in returned rows"
     else:
-        df = revenue
-        if period_start is not None:
-            df = df[df.index >= period_start]
-        result["revenue_df"] = df
+        result["earnings_df"] = None
+
+    # Build revenue_df
+    if "revenue" in df.columns:
+        rev_data = df["revenue"].dropna()
+        if not rev_data.empty:
+            result["revenue_df"] = pd.DataFrame({"revenue": rev_data})
+        else:
+            result["revenue_df"] = None
+    else:
+        result["revenue_df"] = None
 
     return result

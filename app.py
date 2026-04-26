@@ -628,7 +628,7 @@ with tab_detail:
         # ═══ Combined Price + Quarterly Earnings Chart ═══
         st.markdown("---")
         st.markdown("### Price & Quarterly Earnings")
-        st.caption("Stock price line with quarterly EPS bars overlaid. Green bars = beat estimates, red = missed, gray = no estimate available.")
+        st.caption("Stock price line with quarterly EPS bars overlaid. Bars colored green when EPS grew vs prior quarter, red when EPS declined. (FMP paid tier adds beat/miss vs analyst estimates.)")
         chart_period=st.selectbox("Period",["1y","2y","3y","5y","10y","max"],index=3,key="price_period")
         try:
             t_obj=yf.Ticker(sel)
@@ -761,7 +761,10 @@ with tab_detail:
 
                 # Source badge - explicit diagnostics
                 if eps_source=="fmp":
-                    st.success(f"📊 Earnings data: Financial Modeling Prep ({len(quarterly_eps)} quarters of real data with surprises)")
+                    if surprises_series is not None:
+                        st.success(f"📊 Earnings data: FMP ({len(quarterly_eps)} quarters with beat/miss surprises)")
+                    else:
+                        st.success(f"📊 Earnings data: FMP ({len(quarterly_eps)} quarters - bars colored by EPS direction since surprise data requires paid FMP plan)")
                 elif eps_source.startswith("yfinance"):
                     if not is_fmp_configured():
                         st.warning(f"📊 Using Yahoo Finance fallback ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). **Add FMP_API_KEY to Streamlit secrets** for 5-10 years of real quarterly history.")
@@ -1780,4 +1783,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.8.4 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.8.5 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
