@@ -31,7 +31,9 @@ from swing_trader import scan_swing_candidates, get_swing_methodology, compute_s
 from ai_assistant import generate_stock_research_note, interpret_thesis, generate_doppelganger_narrative, generate_portfolio_optimization, is_ai_available, get_provider_status
 from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, HISTORICAL_ANALOGS
 from doppelganger_returns import get_forward_returns, aggregate_forward_returns
-from fmp_data import is_fmp_configured, get_combined_earnings_data
+from earnings_data import get_earnings_data, test_earnings_sources
+from finnhub_data import is_finnhub_configured
+from edgar_data import is_edgar_available
 from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
 from auth import is_logged_in, is_auth_configured, render_login_page, render_user_sidebar, get_current_user, get_user_tier, can_use_ai
 from portfolio_persistence import save_portfolio, load_portfolios, delete_portfolio, get_portfolio_by_id
@@ -265,22 +267,27 @@ with tab_home:
     # Row 2: Data sources
     ds_c1,ds_c2,ds_c3=st.columns(3)
     with ds_c1:
-        if is_fmp_configured():
-            st.success("✓ FMP Earnings Data")
-            st.caption("5-10 years of quarterly EPS available")
-            if st.button("Test FMP API",key="fmp_test_btn"):
-                with st.spinner("Testing FMP endpoints..."):
-                    test_result=get_combined_earnings_data("AAPL")
-                if test_result.get("earnings_df") is not None and not test_result["earnings_df"].empty:
-                    n_quarters=len(test_result["earnings_df"])
-                    endpoint_used=test_result["earnings_df"].attrs.get("fmp_endpoint","unknown")
-                    st.success(f"✓ FMP working! Got {n_quarters} quarters of AAPL data via {endpoint_used.split('//')[1].split('?')[0]}")
-                else:
-                    err_msg=test_result.get("earnings_error","unknown error")
-                    st.error(f"✗ FMP test failed: {err_msg}")
+        # Earnings data sources status
+        finnhub_ok=is_finnhub_configured()
+        edgar_ok=is_edgar_available()
+        if finnhub_ok or edgar_ok:
+            label_parts=[]
+            if finnhub_ok: label_parts.append("Finnhub")
+            if edgar_ok: label_parts.append("SEC EDGAR")
+            st.success(f"✓ Earnings Data: {' + '.join(label_parts)}")
+            st.caption("5+ years of quarterly EPS with surprise data" if finnhub_ok else "5+ years from SEC filings")
+            if st.button("Test Earnings APIs",key="earnings_test_btn"):
+                with st.spinner("Testing earnings sources with AAPL..."):
+                    src_results=test_earnings_sources("AAPL")
+                for src_name,(success,msg) in src_results.items():
+                    label={"finnhub":"Finnhub","sec_edgar":"SEC EDGAR"}.get(src_name,src_name)
+                    if success:
+                        st.success(f"✓ {label}: {msg}")
+                    else:
+                        st.error(f"✗ {label}: {msg}")
         else:
-            st.warning("⚠ FMP not configured")
-            st.caption("Add FMP_API_KEY to secrets for full earnings history. Falls back to Yahoo Finance (~5 quarters).")
+            st.warning("⚠ No earnings data source configured")
+            st.caption("Add FINNHUB_API_KEY to secrets, or SEC EDGAR will be used as fallback (always free).")
     with ds_c2:
         if is_auth_configured():
             st.success("✓ Supabase Auth & Storage")
@@ -638,7 +645,7 @@ with tab_detail:
         # ═══ Combined Price + Quarterly Earnings Chart ═══
         st.markdown("---")
         st.markdown("### Price & Quarterly Earnings")
-        st.caption("Stock price line with quarterly EPS bars overlaid. Bars colored green when EPS grew vs prior quarter, red when EPS declined. (FMP paid tier adds beat/miss vs analyst estimates.)")
+        st.caption("Stock price line with quarterly EPS bars overlaid. Bars colored green when EPS beat estimates (or grew vs prior quarter when no estimate available), red when missed/declined.")
         chart_period=st.selectbox("Period",["1y","2y","3y","5y","10y","max"],index=3,key="price_period")
         try:
             t_obj=yf.Ticker(sel)
@@ -650,29 +657,27 @@ with tab_detail:
 
                 chart_start=price_hist.index.min().tz_localize(None) if price_hist.index.tz is not None else price_hist.index.min()
 
-                # ── Get quarterly EPS - FMP first, yfinance fallback ──
+                # ── Get quarterly EPS via unified orchestrator (Finnhub > EDGAR > yfinance) ──
                 quarterly_eps=None
                 surprises_series=None
                 eps_source=""
-                fmp_revenue_df=None
-                fmp_error_msg=None  # Capture FMP error to display
+                source_label=""
+                fmp_revenue_df=None  # Reused as "external_revenue_df" for downstream code
+                fetch_errors={}
 
-                # PRIMARY SOURCE: FMP (5+ years of real quarterly EPS with surprises)
-                if is_fmp_configured():
-                    fmp_data=get_combined_earnings_data(sel,period_start=chart_start)
-                    fmp_earnings=fmp_data.get("earnings_df")
-                    if fmp_earnings is not None and not fmp_earnings.empty:
-                        quarterly_eps=fmp_earnings["reported_eps"]
-                        if "surprise_pct" in fmp_earnings.columns:
-                            surprises_series=fmp_earnings["surprise_pct"]
-                        eps_source="fmp"
-                    elif fmp_data.get("earnings_error"):
-                        fmp_error_msg=fmp_data["earnings_error"]
-                    fmp_revenue_df=fmp_data.get("revenue_df")
-                    if isinstance(fmp_revenue_df,dict):
-                        fmp_revenue_df=None
+                # PRIMARY: Try Finnhub + EDGAR via unified orchestrator
+                ed_result=get_earnings_data(sel,period_start=chart_start)
+                if ed_result["earnings_df"] is not None and not ed_result["earnings_df"].empty:
+                    quarterly_eps=ed_result["earnings_df"]["reported_eps"]
+                    if "surprise_pct" in ed_result["earnings_df"].columns:
+                        surprises_series=ed_result["earnings_df"]["surprise_pct"]
+                    eps_source=ed_result["source"]
+                    source_label=ed_result["source_label"]
+                fetch_errors=ed_result.get("errors_by_source",{})
+                if ed_result["revenue_df"] is not None and not ed_result["revenue_df"].empty:
+                    fmp_revenue_df=ed_result["revenue_df"]
 
-                # FALLBACK 1: yfinance earnings_dates
+                # FINAL FALLBACK: yfinance if both Finnhub and EDGAR fail
                 if quarterly_eps is None or (hasattr(quarterly_eps,'empty') and quarterly_eps.empty):
                     try:
                         ed=t_obj.earnings_dates
@@ -687,13 +692,14 @@ with tab_detail:
                                 eps_series=ed_past[eps_col].dropna()
                                 if not eps_series.empty:
                                     quarterly_eps=eps_series
-                                    eps_source="yfinance_earnings_dates"
+                                    eps_source="yfinance"
+                                    source_label="Yahoo Finance"
                                     if "Surprise(%)" in ed_past.columns:
                                         surprises_series=ed_past.loc[eps_series.index,"Surprise(%)"]
                     except Exception:
                         pass
 
-                # FALLBACK 2: yfinance quarterly income statement
+                # FALLBACK 2: yfinance quarterly income statement (last resort)
                 if quarterly_eps is None or (hasattr(quarterly_eps,'empty') and quarterly_eps.empty):
                     try:
                         qis=t_obj.quarterly_income_stmt
@@ -703,7 +709,8 @@ with tab_detail:
                                     eps_from_stmt=qis.loc[row_name].dropna()
                                     if not eps_from_stmt.empty:
                                         quarterly_eps=eps_from_stmt.sort_index()
-                                        eps_source="yfinance_income_stmt"
+                                        eps_source="yfinance"
+                                        source_label="Yahoo Finance (income statement)"
                                         break
                     except Exception:
                         pass
@@ -769,19 +776,23 @@ with tab_detail:
 
                 st.plotly_chart(fig_combo,use_container_width=True,key="price_earnings_combo")
 
-                # Source badge - explicit diagnostics
-                if eps_source=="fmp":
-                    if surprises_series is not None:
-                        st.success(f"📊 Earnings data: FMP ({len(quarterly_eps)} quarters with beat/miss surprises)")
+                # Source badge
+                if eps_source=="finnhub":
+                    if surprises_series is not None and not (surprises_series.dropna() if hasattr(surprises_series,'dropna') else pd.Series([])).empty:
+                        st.success(f"📊 Earnings data: Finnhub ({len(quarterly_eps)} quarters with beat/miss surprises)")
                     else:
-                        st.success(f"📊 Earnings data: FMP ({len(quarterly_eps)} quarters - bars colored by EPS direction since surprise data requires paid FMP plan)")
-                elif eps_source.startswith("yfinance"):
-                    if not is_fmp_configured():
-                        st.warning(f"📊 Using Yahoo Finance fallback ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). **Add FMP_API_KEY to Streamlit secrets** for 5-10 years of real quarterly history.")
-                    elif fmp_error_msg:
-                        st.error(f"📊 FMP failed, using Yahoo Finance ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters). **FMP error:** {fmp_error_msg}")
-                    else:
-                        st.warning(f"📊 FMP returned no data, using Yahoo Finance ({len(quarterly_eps) if quarterly_eps is not None else 0} quarters).")
+                        st.success(f"📊 Earnings data: Finnhub ({len(quarterly_eps)} quarters)")
+                elif eps_source=="sec_edgar":
+                    st.success(f"📊 Earnings data: SEC EDGAR ({len(quarterly_eps)} quarters from XBRL filings)")
+                elif eps_source=="yfinance":
+                    err_summary=""
+                    if fetch_errors:
+                        err_pieces=[f"{k}: {v[:60]}" for k,v in fetch_errors.items() if v]
+                        if err_pieces:
+                            err_summary=" | Failures: " + "; ".join(err_pieces[:2])
+                    st.warning(f"📊 Using Yahoo Finance ({len(quarterly_eps)} quarters). Primary sources unavailable.{err_summary}")
+                else:
+                    st.error("No earnings data available.")
 
                 # ── Earnings summary ──
                 if quarterly_eps is None or quarterly_eps.empty:
@@ -1793,4 +1804,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.8.6 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.9 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
