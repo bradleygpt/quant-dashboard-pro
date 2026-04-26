@@ -268,6 +268,16 @@ with tab_home:
         if is_fmp_configured():
             st.success("✓ FMP Earnings Data")
             st.caption("5-10 years of quarterly EPS available")
+            if st.button("Test FMP API",key="fmp_test_btn"):
+                with st.spinner("Testing FMP endpoints..."):
+                    test_result=get_combined_earnings_data("AAPL")
+                if test_result.get("earnings_df") is not None and not test_result["earnings_df"].empty:
+                    n_quarters=len(test_result["earnings_df"])
+                    endpoint_used=test_result["earnings_df"].attrs.get("fmp_endpoint","unknown")
+                    st.success(f"✓ FMP working! Got {n_quarters} quarters of AAPL data via {endpoint_used.split('//')[1].split('?')[0]}")
+                else:
+                    err_msg=test_result.get("earnings_error","unknown error")
+                    st.error(f"✗ FMP test failed: {err_msg}")
         else:
             st.warning("⚠ FMP not configured")
             st.caption("Add FMP_API_KEY to secrets for full earnings history. Falls back to Yahoo Finance (~5 quarters).")
@@ -1783,4 +1793,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.8.5 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.8.6 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")

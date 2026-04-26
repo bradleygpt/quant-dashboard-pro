@@ -1,22 +1,18 @@
 """
 Financial Modeling Prep (FMP) Data Fetcher
-Pulls 5+ years of quarterly EPS via the income statement endpoint.
+Uses /stable endpoint for free-tier access. Falls through multiple endpoint patterns
+since FMP's free tier coverage has shifted over time.
 
-NOTE: FMP free tier ("Basic" plan) does NOT include the historical earnings calendar
-endpoint (returns 403). However, the quarterly income statement endpoint IS included
-and contains diluted EPS going back ~5 years.
-
-Trade-off: We get full EPS history but no analyst-estimate-vs-actual surprise data.
-We color bars by EPS direction (growing green / declining red) instead.
-
-Free tier: 250 requests/day. Cache aggressively.
+Strategy:
+1. Try /stable/income-statement (current free-tier endpoint as of 2026)
+2. Try /api/v3/income-statement (legacy, may be paid-only now)
+3. Each call's exact URL is exposed in error messages for debugging.
 """
 
 import os
 import requests
 import pandas as pd
 import streamlit as st
-from datetime import datetime
 
 
 def _get_fmp_key():
@@ -33,91 +29,99 @@ def _get_fmp_key():
 
 
 def is_fmp_configured():
-    """Check if FMP is set up."""
     return bool(_get_fmp_key())
+
+
+def _try_endpoint(url, params, timeout=15):
+    """Try a single endpoint and return (data, error_msg). Data is None on error."""
+    try:
+        resp = requests.get(url, params=params, timeout=timeout)
+        if resp.status_code == 200:
+            data = resp.json()
+            if isinstance(data, list) and len(data) > 0:
+                return data, None
+            return None, f"Empty response from {url.split('?')[0]}"
+        elif resp.status_code == 401:
+            return None, f"401 Unauthorized: API key invalid"
+        elif resp.status_code == 403:
+            return None, f"403 Forbidden: endpoint not on free plan ({url.split('?')[0]})"
+        elif resp.status_code == 429:
+            return None, f"429: daily quota exceeded"
+        else:
+            return None, f"HTTP {resp.status_code} from {url.split('?')[0]}"
+    except requests.Timeout:
+        return None, "FMP request timeout"
+    except Exception as e:
+        return None, f"FMP error: {str(e)[:120]}"
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def fetch_fmp_quarterly_financials(ticker, limit=40):
     """
-    Fetch quarterly income statement from FMP.
-    Free tier compatible. Returns ~5 years of quarterly diluted EPS + revenue.
+    Fetch quarterly income statement.
 
-    Args:
-        ticker: Stock ticker
-        limit: Max number of quarters (default 40 = ~10 years, free tier capped at ~20)
-
-    Returns:
-        DataFrame indexed by date with: eps_diluted, eps_basic, revenue,
-        net_income, gross_profit, operating_income
-        OR dict with "error" key if failed
+    Tries /stable/ endpoint first (current free tier), falls back to /api/v3/
+    if needed. Returns DataFrame or {"error": msg}.
     """
     api_key = _get_fmp_key()
     if not api_key:
-        return {"error": "FMP_API_KEY not configured. Get a free key at https://site.financialmodelingprep.com/"}
+        return {"error": "FMP_API_KEY not configured"}
 
-    url = f"https://financialmodelingprep.com/api/v3/income-statement/{ticker}"
-    params = {"period": "quarter", "limit": limit, "apikey": api_key}
+    # Try /stable endpoint first - current FMP free tier path
+    endpoints_to_try = [
+        ("https://financialmodelingprep.com/stable/income-statement",
+         {"symbol": ticker, "period": "quarter", "limit": limit, "apikey": api_key}),
+        ("https://financialmodelingprep.com/api/v3/income-statement/" + ticker,
+         {"period": "quarter", "limit": limit, "apikey": api_key}),
+    ]
 
-    try:
-        resp = requests.get(url, params=params, timeout=15)
-        if resp.status_code == 401:
-            return {"error": "FMP API key invalid or expired"}
-        if resp.status_code == 403:
-            return {"error": "FMP 403: Income statement endpoint not available on your plan. Free tier should include this — check your account at financialmodelingprep.com/dashboard"}
-        if resp.status_code == 429:
-            return {"error": "FMP daily quota exceeded (250/day on free tier)"}
-        resp.raise_for_status()
-        data = resp.json()
+    last_error = None
+    data = None
+    successful_endpoint = None
 
-        if not isinstance(data, list) or len(data) == 0:
-            return {"error": f"No financial data returned for {ticker}"}
+    for url, params in endpoints_to_try:
+        data, err = _try_endpoint(url, params)
+        if data is not None:
+            successful_endpoint = url
+            break
+        last_error = err
 
-        rows = []
-        for entry in data:
-            date_str = entry.get("date")
-            if not date_str:
-                continue
-            try:
-                date = pd.to_datetime(date_str)
-            except Exception:
-                continue
-            rows.append({
-                "date": date,
-                "eps_diluted": float(entry.get("epsdiluted")) if entry.get("epsdiluted") is not None else None,
-                "eps_basic": float(entry.get("eps")) if entry.get("eps") is not None else None,
-                "revenue": float(entry.get("revenue")) if entry.get("revenue") is not None else None,
-                "net_income": float(entry.get("netIncome")) if entry.get("netIncome") is not None else None,
-                "gross_profit": float(entry.get("grossProfit")) if entry.get("grossProfit") is not None else None,
-                "operating_income": float(entry.get("operatingIncome")) if entry.get("operatingIncome") is not None else None,
-            })
+    if data is None:
+        return {"error": last_error or "All FMP endpoints failed"}
 
-        if not rows:
-            return {"error": f"No usable data rows for {ticker}"}
+    # Parse the data
+    rows = []
+    for entry in data:
+        date_str = entry.get("date") or entry.get("fillingDate") or entry.get("acceptedDate")
+        if not date_str:
+            continue
+        try:
+            date = pd.to_datetime(date_str)
+        except Exception:
+            continue
+        rows.append({
+            "date": date,
+            "eps_diluted": float(entry.get("epsdiluted")) if entry.get("epsdiluted") not in (None, "") else None,
+            "eps_basic": float(entry.get("eps")) if entry.get("eps") not in (None, "") else None,
+            "revenue": float(entry.get("revenue")) if entry.get("revenue") not in (None, "") else None,
+            "net_income": float(entry.get("netIncome")) if entry.get("netIncome") not in (None, "") else None,
+            "gross_profit": float(entry.get("grossProfit")) if entry.get("grossProfit") not in (None, "") else None,
+            "operating_income": float(entry.get("operatingIncome")) if entry.get("operatingIncome") not in (None, "") else None,
+        })
 
-        df = pd.DataFrame(rows)
-        df = df.sort_values("date").reset_index(drop=True)
-        df.set_index("date", inplace=True)
-        return df
-    except requests.HTTPError as e:
-        return {"error": f"FMP HTTP error: {e.response.status_code}"}
-    except Exception as e:
-        return {"error": f"FMP fetch failed: {str(e)[:200]}"}
+    if not rows:
+        return {"error": f"No usable rows in FMP response for {ticker}"}
+
+    df = pd.DataFrame(rows)
+    df = df.sort_values("date").reset_index(drop=True)
+    df.set_index("date", inplace=True)
+    df.attrs["fmp_endpoint"] = successful_endpoint
+    return df
 
 
 def get_combined_earnings_data(ticker, period_start=None):
     """
-    Get earnings + revenue data via the free-tier-compatible income statement endpoint.
-
-    Args:
-        ticker: Stock ticker
-        period_start: Optional pd.Timestamp to filter from
-
-    Returns:
-        Dict with:
-            - earnings_df: DataFrame indexed by date with reported_eps column
-            - revenue_df: same DataFrame for revenue display
-            - earnings_error / revenue_error: Error message if failed
+    Get earnings + revenue data via FMP. Returns dict with earnings_df, revenue_df.
     """
     fin = fetch_fmp_quarterly_financials(ticker, limit=40)
 
@@ -131,21 +135,23 @@ def get_combined_earnings_data(ticker, period_start=None):
         return result
 
     df = fin
+    fmp_endpoint = df.attrs.get("fmp_endpoint", "unknown") if hasattr(df, 'attrs') else "unknown"
     if period_start is not None:
         df = df[df.index >= period_start]
 
-    # Build earnings_df (with reported_eps for chart)
+    # Build earnings_df
     if "eps_diluted" in df.columns:
         eps_data = df["eps_diluted"].dropna()
         if not eps_data.empty:
-            earnings_df = pd.DataFrame({"reported_eps": eps_data})
-            # No surprise data on free tier - column omitted
-            result["earnings_df"] = earnings_df
+            edf = pd.DataFrame({"reported_eps": eps_data})
+            edf.attrs["fmp_endpoint"] = fmp_endpoint
+            result["earnings_df"] = edf
         else:
-            # Fall back to basic EPS if diluted unavailable
             eps_basic = df["eps_basic"].dropna() if "eps_basic" in df.columns else pd.Series()
             if not eps_basic.empty:
-                result["earnings_df"] = pd.DataFrame({"reported_eps": eps_basic})
+                edf = pd.DataFrame({"reported_eps": eps_basic})
+                edf.attrs["fmp_endpoint"] = fmp_endpoint
+                result["earnings_df"] = edf
             else:
                 result["earnings_df"] = None
                 result["earnings_error"] = "No EPS data in returned rows"
