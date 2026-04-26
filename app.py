@@ -721,26 +721,32 @@ with tab_detail:
 
                 # Earnings bars FIRST (so they render behind the price line)
                 if quarterly_eps is not None and not quarterly_eps.empty:
+                    eps_sorted=quarterly_eps.sort_index()
                     bar_colors=[]
-                    if surprises_series is not None:
-                        for idx in quarterly_eps.index:
-                            s=surprises_series.get(idx) if hasattr(surprises_series,"get") else None
-                            if s is None or pd.isna(s): bar_colors.append("#888")
-                            elif s>0: bar_colors.append("#22C55E")
+                    # Per-bar coloring: prefer surprise %, fall back to QoQ direction
+                    eps_values=eps_sorted.values
+                    eps_index=eps_sorted.index
+                    for i,idx in enumerate(eps_index):
+                        # Try surprise first
+                        s=None
+                        if surprises_series is not None and hasattr(surprises_series,"get"):
+                            s=surprises_series.get(idx)
+                        if s is not None and not pd.isna(s):
+                            if s>0: bar_colors.append("#22C55E")
                             else: bar_colors.append("#EF4444")
-                    else:
-                        # Color by EPS direction (growing = green, declining = red)
-                        eps_sorted=quarterly_eps.sort_index()
-                        prev=None
-                        for v in eps_sorted.values:
-                            if prev is None or v>=prev: bar_colors.append("#22C55E")
-                            else: bar_colors.append("#EF4444")
-                            prev=v
+                        else:
+                            # Fall back to direction vs prior quarter
+                            v=eps_values[i]
+                            if i==0: bar_colors.append("#888")  # First bar - no prior to compare
+                            else:
+                                prev=eps_values[i-1]
+                                if v>=prev: bar_colors.append("#22C55E")
+                                else: bar_colors.append("#EF4444")
 
                     fig_combo.add_trace(
                         go.Bar(
-                            x=quarterly_eps.index,
-                            y=quarterly_eps.values,
+                            x=eps_index,
+                            y=eps_values,
                             name="Quarterly EPS",
                             marker_color=bar_colors,
                             opacity=0.55,
@@ -1804,4 +1810,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.9 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.9.1 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")

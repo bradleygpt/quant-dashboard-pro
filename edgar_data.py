@@ -86,11 +86,10 @@ def _extract_concept_quarterly(facts, concept_name, units_preference=None):
     """
     Extract quarterly values for a specific XBRL concept.
 
-    SEC XBRL concepts come in many "units" (USD, USD/shares, etc.).
-    For EPS we want USD/shares. For revenue we want USD.
+    Companies file 10-Q for Q1/Q2/Q3 only; Q4 is reported in the 10-K (annual).
+    To get Q4: take the annual value and subtract Q1+Q2+Q3 of the same fiscal year.
 
-    Returns DataFrame indexed by period end date with 'value' column,
-    or None if concept not found.
+    Returns DataFrame indexed by period end date with 'value' column.
     """
     us_gaap = facts.get("facts", {}).get("us-gaap", {})
     concept_data = us_gaap.get(concept_name)
@@ -99,11 +98,9 @@ def _extract_concept_quarterly(facts, concept_name, units_preference=None):
 
     units_dict = concept_data.get("units", {})
 
-    # Choose the right units
     if units_preference:
         unit_key = next((u for u in units_preference if u in units_dict), None)
     else:
-        # Auto-pick: prefer USD/shares for EPS, USD for monetary
         unit_key = "USD/shares" if "USD/shares" in units_dict else ("USD" if "USD" in units_dict else None)
 
     if not unit_key:
@@ -113,15 +110,17 @@ def _extract_concept_quarterly(facts, concept_name, units_preference=None):
     if not entries:
         return None
 
-    # Filter to 10-Q filings (quarterly) - these have 'fp' starting with 'Q' typically
-    # Or filter to entries where the period (start to end) is ~3 months
-    rows = []
+    # Separate quarterly (Q1/Q2/Q3 from 10-Q) and annual (FY from 10-K) entries
+    quarterly_rows = []
+    annual_rows = []
+
     for entry in entries:
         end = entry.get("end")
         start = entry.get("start")
         val = entry.get("val")
         form = entry.get("form", "")
-        fp = entry.get("fp", "")  # Q1, Q2, Q3, FY
+        fp = entry.get("fp", "")
+        fy = entry.get("fy")  # Fiscal year integer
 
         if not end or val is None:
             continue
@@ -132,31 +131,77 @@ def _extract_concept_quarterly(facts, concept_name, units_preference=None):
         except Exception:
             continue
 
-        # Quarterly filter: period length 80-100 days
-        # OR fp explicitly Q1/Q2/Q3 (excludes FY which is annual)
-        is_quarterly = False
-        if start_date is not None:
-            duration_days = (end_date - start_date).days
-            if 80 <= duration_days <= 100:
-                is_quarterly = True
-        elif fp in ("Q1", "Q2", "Q3"):
-            is_quarterly = True
-
-        if not is_quarterly:
+        if start_date is None:
             continue
 
-        rows.append({
-            "date": end_date,
-            "value": float(val),
-            "form": form,
-            "fp": fp,
-        })
+        duration_days = (end_date - start_date).days
+
+        # Quarterly: 80-100 day period
+        if 80 <= duration_days <= 100:
+            quarterly_rows.append({
+                "date": end_date,
+                "start": start_date,
+                "value": float(val),
+                "form": form,
+                "fp": fp,
+                "fy": fy,
+            })
+        # Annual: 350-380 day period
+        elif 350 <= duration_days <= 380:
+            annual_rows.append({
+                "date": end_date,
+                "start": start_date,
+                "value": float(val),
+                "form": form,
+                "fp": fp,
+                "fy": fy,
+            })
+
+    if not quarterly_rows and not annual_rows:
+        return None
+
+    # Build quarterly DataFrame with deduplication
+    rows = []
+    if quarterly_rows:
+        qdf = pd.DataFrame(quarterly_rows)
+        qdf = qdf.sort_values("date").drop_duplicates(subset=["date"], keep="last")
+        for _, r in qdf.iterrows():
+            rows.append({"date": r["date"], "value": r["value"], "is_q4_derived": False})
+
+    # Derive Q4 by subtracting Q1+Q2+Q3 from annual for each fiscal year
+    if annual_rows and quarterly_rows:
+        adf = pd.DataFrame(annual_rows)
+        adf = adf.sort_values("date").drop_duplicates(subset=["date"], keep="last")
+        qdf_full = pd.DataFrame(quarterly_rows)
+
+        for _, annual_row in adf.iterrows():
+            annual_end = annual_row["date"]
+            annual_start = annual_row["start"]
+            annual_value = annual_row["value"]
+
+            # Find the 3 quarterly entries within this fiscal year
+            q_in_year = qdf_full[
+                (qdf_full["start"] >= annual_start) &
+                (qdf_full["date"] <= annual_end) &
+                (qdf_full["date"] != annual_end)  # Exclude same-end-date entries
+            ]
+            # Take the most recent value per date (handles restatements)
+            q_in_year = q_in_year.sort_values("date").drop_duplicates(subset=["date"], keep="last")
+
+            if len(q_in_year) == 3:
+                q123_sum = q_in_year["value"].sum()
+                q4_value = annual_value - q123_sum
+                # Skip if math suggests Q4 is implausible (e.g., wildly negative for a typically profitable company)
+                rows.append({
+                    "date": annual_end,
+                    "value": q4_value,
+                    "is_q4_derived": True,
+                })
 
     if not rows:
         return None
 
     df = pd.DataFrame(rows)
-    # Deduplicate by date - keep the latest filed value for each period (handles restatements)
     df = df.sort_values("date").drop_duplicates(subset=["date"], keep="last").reset_index(drop=True)
     df.set_index("date", inplace=True)
     return df[["value"]]
