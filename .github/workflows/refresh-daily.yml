@@ -4,7 +4,7 @@ name: Daily Fundamentals Refresh
 # Refreshes fundamentals_cache.json with latest prices, momentum, fundamentals
 on:
   schedule:
-    - cron: '0 3 * * 2-6'  # Tue-Sat at 3 AM UTC = Mon-Fri 10 PM ET
+    - cron: '0 3 * * 1-6'  # Mon-Sat at 3 AM UTC = Sun-Fri 11 PM ET (covers all 5 trading day closes)
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 jobs:
