@@ -1,14 +1,15 @@
-name: Daily Fundamentals Refresh - Evening
+name: Daily Fundamentals Refresh - Morning
 
-# Runs at 11:00 PM ET (Sun-Fri during EDT) - captures end-of-day data
-# Coverage: Mon-Sat at 3 AM UTC = Sun-Fri 11 PM ET
+# Runs at 10:00 AM ET weekdays (after market open chaos has settled)
+# Captures overnight gaps and early morning trading action
+# Complements the evening 11 PM ET run with a morning snapshot
 on:
   schedule:
-    - cron: '0 3 * * 1-6'  # Mon-Sat at 3 AM UTC = Sun-Fri 11 PM ET (covers all 5 trading day closes)
+    - cron: '0 14 * * 1-5'  # 14:00 UTC = 10:00 AM ET weekdays (during EDT)
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 jobs:
-  refresh-cache-evening:
+  refresh-cache-morning:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -31,7 +32,7 @@ jobs:
 
       - name: Run fundamentals cache builder
         run: |
-          echo "Starting fundamentals cache refresh at $(date)"
+          echo "Starting morning fundamentals cache refresh at $(date)"
           python build_cache.py
           echo "Completed at $(date)"
 
@@ -48,13 +49,13 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
-          # Pull first to avoid conflicts with morning run
+          # Pull first to avoid conflicts if evening run pushed something we don't have
           git pull --rebase origin main || true
           git add fundamentals_cache.json
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: evening fundamentals refresh $(date -u +%Y-%m-%d)"
+            git commit -m "chore: morning fundamentals refresh $(date -u +%Y-%m-%d)"
             git push
             echo "Pushed updated cache. Streamlit Cloud will redeploy automatically."
           fi
