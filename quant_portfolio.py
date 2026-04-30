@@ -52,34 +52,65 @@ PRESETS = {
 
 # ── Core Construction ──────────────────────────────────────────────
 
-def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_dollars=200):
+def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_dollars=200, return_diagnostics=False):
     """
     Build the optimal score-weighted portfolio from current scored universe.
 
     Returns DataFrame with: ticker, sector, score, rating, price, weight_pct, dollars, shares, market_cap_b
+
+    If return_diagnostics=True, returns tuple (DataFrame, diagnostics_dict).
     """
+    diag = {
+        "input_total": 0,
+        "after_score_filter": 0,
+        "after_mcap_filter": 0,
+        "after_price_filter": 0,
+        "after_sector_cap": 0,
+        "after_min_position": 0,
+        "score_floor": 0,
+        "mcap_floor_b": 0,
+    }
+
     if scored_df.empty:
-        return pd.DataFrame()
+        diag["error"] = "scored_df is empty"
+        return (pd.DataFrame(), diag) if return_diagnostics else pd.DataFrame()
 
     settings = PRESETS.get(preset, PRESETS["Balanced"])
+    diag["score_floor"] = settings["score_floor"]
+    diag["mcap_floor_b"] = settings["min_market_cap_b"]
 
     # Step 1: Filter by quality
-    # scored_df has ticker as INDEX, columns are: marketCap, currentPrice, sector, composite_score, overall_rating, etc.
     candidates = scored_df.copy()
-    # Reset index so ticker becomes a column
     if candidates.index.name == "ticker":
         candidates = candidates.reset_index()
 
+    diag["input_total"] = len(candidates)
+
+    # Drop rows with missing required columns
+    required = ["composite_score", "marketCap", "currentPrice", "sector"]
+    missing_cols = [c for c in required if c not in candidates.columns]
+    if missing_cols:
+        diag["error"] = f"Missing columns: {missing_cols}"
+        return (pd.DataFrame(), diag) if return_diagnostics else pd.DataFrame()
+
+    candidates = candidates.dropna(subset=required)
+    diag["after_dropna"] = len(candidates)
+
     candidates = candidates[candidates["composite_score"] >= settings["score_floor"]]
+    diag["after_score_filter"] = len(candidates)
+
     candidates = candidates[candidates["marketCap"] >= settings["min_market_cap_b"] * 1e9]
+    diag["after_mcap_filter"] = len(candidates)
+
     candidates = candidates[candidates["currentPrice"] > 0]
+    diag["after_price_filter"] = len(candidates)
 
     if candidates.empty:
-        return pd.DataFrame()
+        return (pd.DataFrame(), diag) if return_diagnostics else pd.DataFrame()
 
     # Step 2: Sort by score and take top N
     candidates = candidates.sort_values("composite_score", ascending=False)
-    candidates = candidates.head(settings["max_positions"] * 2)  # Take 2x to allow sector culling
+    candidates = candidates.head(settings["max_positions"] * 2)
 
     # Step 3: Apply sector cap iteratively
     selected = _select_with_sector_cap(
@@ -88,9 +119,10 @@ def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_
         sector_cap=settings["sector_cap"],
         weight_power=settings["weight_power"],
     )
+    diag["after_sector_cap"] = len(selected) if not selected.empty else 0
 
     if selected.empty:
-        return pd.DataFrame()
+        return (pd.DataFrame(), diag) if return_diagnostics else pd.DataFrame()
 
     # Step 4: Compute weights using score^power
     selected = selected.copy()
@@ -99,10 +131,7 @@ def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_
     # Step 5: Normalize and apply ceiling
     total_raw = selected["raw_weight"].sum()
     selected["weight_pct"] = selected["raw_weight"] / total_raw
-
-    # Cap individual positions
     selected["weight_pct"] = selected["weight_pct"].clip(upper=settings["position_ceiling"])
-    # Renormalize after capping
     selected["weight_pct"] = selected["weight_pct"] / selected["weight_pct"].sum()
 
     # Step 6: Compute dollar amounts
@@ -110,10 +139,12 @@ def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_
 
     # Step 7: Filter out positions below minimum
     selected = selected[selected["dollars"] >= min_position_dollars]
-    if selected.empty:
-        return pd.DataFrame()
+    diag["after_min_position"] = len(selected)
 
-    # Renormalize one more time after dropping small positions
+    if selected.empty:
+        return (pd.DataFrame(), diag) if return_diagnostics else pd.DataFrame()
+
+    # Renormalize after dropping small positions
     selected["weight_pct"] = selected["weight_pct"] / selected["weight_pct"].sum()
     selected["dollars"] = (selected["weight_pct"] * capital).round(2)
 
@@ -129,7 +160,9 @@ def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_
     cols = ["ticker", "sector", "rating", "composite_score", "price",
             "weight_pct", "dollars", "shares", "market_cap_b"]
     available_cols = [c for c in cols if c in selected.columns]
-    return selected[available_cols].reset_index(drop=True).sort_values("weight_pct", ascending=False).reset_index(drop=True)
+    result = selected[available_cols].reset_index(drop=True).sort_values("weight_pct", ascending=False).reset_index(drop=True)
+
+    return (result, diag) if return_diagnostics else result
 
 
 def _select_with_sector_cap(candidates, max_positions, sector_cap, weight_power):

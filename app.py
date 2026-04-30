@@ -1460,10 +1460,23 @@ with tab_quantport:
                 effective_capital = qp_capital
                 held_back = 0
 
-            optimal = build_optimal_portfolio(scored_df, effective_capital, preset=qp_preset, min_position_dollars=200)
+            optimal, diag = build_optimal_portfolio(scored_df, effective_capital, preset=qp_preset, min_position_dollars=200, return_diagnostics=True)
 
             if optimal.empty:
-                st.error("No qualifying stocks found at current preset settings. Try lowering aggressiveness or check that scored data is loaded.")
+                st.error("No qualifying stocks found at current preset settings.")
+                with st.expander("📊 Diagnostic info — what got filtered out?", expanded=True):
+                    st.markdown(f"**Score floor:** {diag.get('score_floor')}")
+                    st.markdown(f"**Market cap floor:** ${diag.get('mcap_floor_b')}B")
+                    st.markdown("**Pipeline:**")
+                    st.markdown(f"- Input universe: **{diag.get('input_total', 0)}** stocks")
+                    st.markdown(f"- After dropping NaN rows: **{diag.get('after_dropna', 0)}**")
+                    st.markdown(f"- After score filter (≥ {diag.get('score_floor')}): **{diag.get('after_score_filter', 0)}**")
+                    st.markdown(f"- After market cap filter (≥ ${diag.get('mcap_floor_b')}B): **{diag.get('after_mcap_filter', 0)}**")
+                    st.markdown(f"- After price filter (> 0): **{diag.get('after_price_filter', 0)}**")
+                    st.markdown(f"- After sector cap selection: **{diag.get('after_sector_cap', 0)}**")
+                    st.markdown(f"- After min position $200 filter: **{diag.get('after_min_position', 0)}**")
+                    if "error" in diag:
+                        st.error(f"Error: {diag['error']}")
             else:
                 st.session_state["qp_optimal"] = optimal
                 st.session_state["qp_capital_used"] = effective_capital
