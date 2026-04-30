@@ -126,20 +126,21 @@ def compute_pullback_pressure(scored_df=None):
     breadth_pct_value = None
     try:
         if scored_df is not None and not scored_df.empty:
-            # Use existing dist_50d or trend if available
-            if "dist_50d" in scored_df.columns:
-                above = (scored_df["dist_50d"] > 0).sum()
-                total = len(scored_df.dropna(subset=["dist_50d"]))
-                if total > 0:
-                    breadth_pct_value = (above / total) * 100
-                    # Score: 50% breadth = 50, 70%+ = 70 (bullish but stretched), <40% = 25 (weak)
-                    # Inverted: high breadth that's "too high" suggests overheated
+            # Field is momentum_vs_sma50 (decimal, e.g., 0.05 = 5% above)
+            if "momentum_vs_sma50" in scored_df.columns:
+                col = scored_df["momentum_vs_sma50"].dropna()
+                if len(col) > 0:
+                    above = (col > 0).sum()
+                    breadth_pct_value = (above / len(col)) * 100
+                    # Score: 50% breadth = 50 (neutral)
+                    # 75%+ = 70 (extended/overheated)
+                    # <35% = 30 (often a buy zone)
                     if breadth_pct_value > 75:
-                        breadth_score = 70  # extended
+                        breadth_score = 70
                     elif breadth_pct_value > 65:
                         breadth_score = 60
                     elif breadth_pct_value < 35:
-                        breadth_score = 30  # weak market = often a buy zone
+                        breadth_score = 30
                     else:
                         breadth_score = 50
     except Exception:
