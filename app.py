@@ -122,8 +122,8 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","📈 Pro Charts","Doppelganger","Portfolio","Monte Carlo","ETF Center","📖 Help"])
-tab_home,tab_macro,tab_sentiment,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_portfolio,tab_mc,tab_etfs,tab_help=tabs
+tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","📈 Pro Charts","Doppelganger","💎 Quant Portfolio","Portfolio","Monte Carlo","ETF Center","📖 Help"])
+tab_home,tab_macro,tab_sentiment,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_quantport,tab_portfolio,tab_mc,tab_etfs,tab_help=tabs
 
 def _cache_file_mtime():
     """Get modification time of the cache file. Used as a cache-buster so Streamlit
@@ -1292,6 +1292,277 @@ with tab_doppel:
 
                 st.warning("⚠️ This is descriptive of past outcomes for similar setups, not a prediction. Each stock's future depends on factors not captured in financial fingerprints (management, competition, regulation, macro). Use this as one of many inputs to your investment thesis.")
 
+# ═══ TAB: QUANT PORTFOLIO ═════════════════════════════════════════
+with tab_quantport:
+    st.markdown("### 💎 Quant Perfect Portfolio")
+    st.caption("Score-tiered portfolio construction with sector caps and position floors. Two modes: Fresh build or Rebalance from existing.")
+
+    from quant_portfolio import (
+        build_optimal_portfolio, compute_rebalance_deltas,
+        compute_diversification_stats, compare_to_spy_overlap, PRESETS
+    )
+
+    # ── Mode toggle ──
+    qp_mode = st.radio(
+        "Mode",
+        ["Fresh Portfolio", "Rebalance from Existing"],
+        horizontal=True,
+        key="qp_mode",
+        help="Fresh: Build a portfolio assuming all cash. Rebalance: Compare your current holdings to optimal and show actions to take."
+    )
+
+    qp_col1, qp_col2 = st.columns([1, 1])
+    with qp_col1:
+        if qp_mode == "Fresh Portfolio":
+            qp_capital = st.number_input("Capital to deploy ($)", min_value=500, max_value=10_000_000, value=7700, step=100, key="qp_capital_fresh")
+        else:
+            qp_new_cash = st.number_input("New cash to add ($)", min_value=0, max_value=10_000_000, value=7700, step=100, key="qp_new_cash")
+    with qp_col2:
+        qp_preset = st.selectbox(
+            "Aggressiveness",
+            ["Conservative", "Balanced", "Aggressive"],
+            index=1,
+            key="qp_preset",
+            help="Conservative: 30 stocks, 25% sector cap. Balanced: 20 stocks, 35% sector cap. Aggressive: 12 stocks, 50% sector cap."
+        )
+
+    # Show preset details
+    p = PRESETS[qp_preset]
+    st.caption(f"📐 Preset: max **{p['max_positions']} stocks** | sector cap **{p['sector_cap']*100:.0f}%** | min score **{p['score_floor']:.1f}** | min mcap **${p['min_market_cap_b']:.0f}B** | weight = score^{p['weight_power']:.1f}")
+
+    # ── REBALANCE MODE: Load current holdings ──
+    qp_current_holdings = []
+    qp_current_total = 0
+    if qp_mode == "Rebalance from Existing":
+        st.markdown("#### Your Current Holdings")
+        if saved_portfolios := load_portfolios():
+            sel_options = ["(Manual entry below)"] + [p_dict["name"] for p_dict in saved_portfolios]
+            sel = st.selectbox("Load saved portfolio", sel_options, key="qp_load_saved")
+            if sel != "(Manual entry below)":
+                chosen = next((p for p in saved_portfolios if p["name"] == sel), None)
+                if chosen:
+                    qp_current_holdings = chosen.get("holdings", [])
+
+        if not qp_current_holdings:
+            st.info("Enter your current positions below (one per row). Add empty row to add more.")
+            qp_holdings_input = st.session_state.get("qp_holdings_input", [{"ticker": "", "shares": 0.0}])
+            qp_edited = st.data_editor(
+                pd.DataFrame(qp_holdings_input),
+                num_rows="dynamic",
+                use_container_width=True,
+                key="qp_editor",
+                column_config={
+                    "ticker": st.column_config.TextColumn("Ticker", required=False),
+                    "shares": st.column_config.NumberColumn("Shares", min_value=0, step=0.001, format="%.3f"),
+                }
+            )
+            if not qp_edited.empty:
+                for _, r in qp_edited.iterrows():
+                    t = str(r.get("ticker", "")).strip().upper()
+                    s = float(r.get("shares", 0) or 0)
+                    if t and s > 0:
+                        # Look up current price from scored_df or fetch
+                        price_row = scored_df[scored_df["ticker"] == t]
+                        if not price_row.empty:
+                            price = float(price_row["price"].iloc[0])
+                            qp_current_holdings.append({"ticker": t, "shares": s, "current_price": price})
+                        else:
+                            st.warning(f"{t} not found in scored universe — skipping")
+        else:
+            # Display loaded holdings, look up prices
+            holdings_with_prices = []
+            for h in qp_current_holdings:
+                t = h.get("ticker", "").upper()
+                s = float(h.get("shares", 0) or 0)
+                price_row = scored_df[scored_df["ticker"] == t]
+                if not price_row.empty and s > 0:
+                    price = float(price_row["price"].iloc[0])
+                    holdings_with_prices.append({"ticker": t, "shares": s, "current_price": price, "value": s * price})
+            qp_current_holdings = holdings_with_prices
+            if holdings_with_prices:
+                hold_df = pd.DataFrame(holdings_with_prices)
+                hold_df["value"] = hold_df["value"].round(2)
+                st.dataframe(hold_df, use_container_width=True, hide_index=True)
+
+        qp_current_total = sum(h.get("shares", 0) * h.get("current_price", 0) for h in qp_current_holdings)
+        qp_capital = qp_current_total + qp_new_cash
+
+        if qp_current_total > 0:
+            st.metric("Current portfolio value", f"${qp_current_total:,.2f}")
+            st.metric("Total after new cash", f"${qp_capital:,.2f}")
+        else:
+            st.warning("Add holdings above to use rebalance mode.")
+
+    # ── Build the portfolio ──
+    if st.button("🎯 Build Optimal Portfolio", type="primary", use_container_width=True, key="qp_build_btn"):
+        with st.spinner("Building..."):
+            optimal = build_optimal_portfolio(scored_df, qp_capital, preset=qp_preset, min_position_dollars=200)
+
+            if optimal.empty:
+                st.error("No qualifying stocks found at current preset settings. Try lowering aggressiveness or check that scored data is loaded.")
+            else:
+                st.session_state["qp_optimal"] = optimal
+                st.session_state["qp_capital_used"] = qp_capital
+                st.session_state["qp_preset_used"] = qp_preset
+                st.session_state["qp_holdings_used"] = qp_current_holdings.copy()
+                st.session_state["qp_mode_used"] = qp_mode
+
+    # ── Display results if built ──
+    if "qp_optimal" in st.session_state:
+        optimal = st.session_state["qp_optimal"]
+        cap_used = st.session_state.get("qp_capital_used", qp_capital)
+        mode_used = st.session_state.get("qp_mode_used", qp_mode)
+        holdings_used = st.session_state.get("qp_holdings_used", [])
+
+        st.markdown("---")
+        st.markdown(f"### Optimal Portfolio — ${cap_used:,.0f}")
+
+        # ── Allocation table ──
+        display_df = optimal.copy()
+        display_df["dollars"] = display_df["dollars"].apply(lambda x: f"${x:,.2f}")
+        display_df["price"] = display_df["price"].apply(lambda x: f"${x:.2f}")
+        display_df["weight_pct"] = display_df["weight_pct"].apply(lambda x: f"{x:.2f}%")
+        display_df["composite_score"] = display_df["composite_score"].apply(lambda x: f"{x:.1f}")
+        display_df["market_cap_b"] = display_df["market_cap_b"].apply(lambda x: f"${x:,.1f}B")
+        display_df["shares"] = display_df["shares"].apply(lambda x: f"{x:.3f}")
+
+        col_rename = {
+            "ticker": "Ticker", "sector": "Sector", "rating": "Rating",
+            "composite_score": "Score", "price": "Price", "weight_pct": "Weight",
+            "dollars": "$ Amount", "shares": "Shares", "market_cap_b": "Market Cap"
+        }
+        display_df = display_df.rename(columns=col_rename)
+        st.dataframe(display_df, use_container_width=True, hide_index=True)
+
+        # ── Diversification stats ──
+        st.markdown("#### Portfolio Stats")
+        stats = compute_diversification_stats(optimal)
+        stat_cols = st.columns(5)
+        with stat_cols[0]: st.metric("Positions", stats["num_positions"])
+        with stat_cols[1]: st.metric("Avg Score", f"{stats['avg_score']:.2f}")
+        with stat_cols[2]: st.metric("Sectors", stats["num_sectors"])
+        with stat_cols[3]: st.metric("Largest", f"{stats['largest_position_pct']:.1f}% ({stats['largest_position_ticker']})")
+        with stat_cols[4]: st.metric("Top Sector", f"{stats['top_sector']} ({stats['top_sector_pct']:.0f}%)")
+
+        # ── Sector breakdown ──
+        col_sec, col_spy = st.columns([2, 1])
+        with col_sec:
+            st.markdown("##### Sector Allocation")
+            sector_df = pd.DataFrame([
+                {"Sector": s, "Weight %": w} for s, w in stats["sector_breakdown"].items()
+            ])
+            import plotly.graph_objects as go
+            fig_sec = go.Figure(data=[go.Pie(
+                labels=sector_df["Sector"],
+                values=sector_df["Weight %"],
+                hole=0.4,
+                textinfo="label+percent",
+            )])
+            fig_sec.update_layout(height=350, margin=dict(t=20, b=20, l=20, r=20), showlegend=False)
+            st.plotly_chart(fig_sec, use_container_width=True)
+
+        with col_spy:
+            st.markdown("##### vs SPY Top 30")
+            spy_overlap = compare_to_spy_overlap(optimal)
+            st.metric("Overlap with SPY", f"{spy_overlap['overlap_count']} stocks")
+            st.metric("Weight in SPY top names", f"{spy_overlap['overlap_pct']:.0f}%")
+            if spy_overlap["overlap_tickers"]:
+                st.caption(f"Shared: {', '.join(spy_overlap['overlap_tickers'])}")
+            non_spy_count = stats["num_positions"] - spy_overlap["overlap_count"]
+            st.caption(f"**{non_spy_count} differentiated picks** vs index")
+
+        # ── REBALANCE: Show actions ──
+        if mode_used == "Rebalance from Existing" and holdings_used:
+            st.markdown("---")
+            st.markdown("### 🎯 Action Items")
+            actions = compute_rebalance_deltas(optimal, holdings_used, scored_df, cap_used)
+
+            if not actions:
+                st.success("Portfolio matches optimal — no actions needed.")
+            else:
+                # Group actions by type
+                inits = [a for a in actions if a["action"] == "INITIATE"]
+                adds = [a for a in actions if a["action"] == "ADD"]
+                trims = [a for a in actions if a["action"] == "TRIM"]
+                exits = [a for a in actions if a["action"] == "EXIT"]
+                holds = [a for a in actions if a["action"] == "HOLD"]
+
+                # Summary metrics
+                buy_total = sum(a["delta_dollars"] for a in inits + adds)
+                sell_total = sum(-a["delta_dollars"] for a in trims + exits)
+                act_cols = st.columns(4)
+                with act_cols[0]: st.metric("New positions", len(inits))
+                with act_cols[1]: st.metric("To buy", f"${buy_total:,.0f}")
+                with act_cols[2]: st.metric("To sell", f"${sell_total:,.0f}")
+                with act_cols[3]: st.metric("Net cash", f"${buy_total - sell_total:,.0f}")
+
+                # Action sections
+                if inits:
+                    st.markdown("#### 🆕 INITIATE — New positions to open")
+                    init_df = pd.DataFrame(inits)[["ticker", "rating", "score", "target_pct", "target_dollars", "reason"]]
+                    init_df["target_pct"] = init_df["target_pct"].apply(lambda x: f"{x:.1f}%")
+                    init_df["target_dollars"] = init_df["target_dollars"].apply(lambda x: f"${x:,.0f}")
+                    init_df["score"] = init_df["score"].apply(lambda x: f"{x:.1f}" if x else "")
+                    init_df.columns = ["Ticker", "Rating", "Score", "Target %", "$ to Buy", "Why"]
+                    st.dataframe(init_df, use_container_width=True, hide_index=True)
+
+                if adds:
+                    st.markdown("#### ➕ ADD — Increase existing positions")
+                    add_df = pd.DataFrame(adds)[["ticker", "current_pct", "target_pct", "delta_dollars", "reason"]]
+                    add_df["current_pct"] = add_df["current_pct"].apply(lambda x: f"{x:.1f}%")
+                    add_df["target_pct"] = add_df["target_pct"].apply(lambda x: f"{x:.1f}%")
+                    add_df["delta_dollars"] = add_df["delta_dollars"].apply(lambda x: f"+${x:,.0f}")
+                    add_df.columns = ["Ticker", "Current %", "Target %", "Add $", "Why"]
+                    st.dataframe(add_df, use_container_width=True, hide_index=True)
+
+                if trims:
+                    st.markdown("#### ✂️ TRIM — Reduce existing positions")
+                    trim_df = pd.DataFrame(trims)[["ticker", "current_pct", "target_pct", "delta_dollars", "reason"]]
+                    trim_df["current_pct"] = trim_df["current_pct"].apply(lambda x: f"{x:.1f}%")
+                    trim_df["target_pct"] = trim_df["target_pct"].apply(lambda x: f"{x:.1f}%")
+                    trim_df["delta_dollars"] = trim_df["delta_dollars"].apply(lambda x: f"-${-x:,.0f}")
+                    trim_df.columns = ["Ticker", "Current %", "Target %", "Trim $", "Why"]
+                    st.dataframe(trim_df, use_container_width=True, hide_index=True)
+
+                if exits:
+                    st.markdown("#### 🚪 EXIT — Close positions")
+                    exit_df = pd.DataFrame(exits)[["ticker", "rating", "score", "current_dollars", "reason"]]
+                    exit_df["current_dollars"] = exit_df["current_dollars"].apply(lambda x: f"${x:,.0f}")
+                    exit_df["score"] = exit_df["score"].apply(lambda x: f"{x:.1f}" if x else "N/A")
+                    exit_df.columns = ["Ticker", "Rating", "Score", "Sell $", "Why"]
+                    st.dataframe(exit_df, use_container_width=True, hide_index=True)
+
+                if holds:
+                    with st.expander(f"✓ HOLD — {len(holds)} positions in target range (no action needed)"):
+                        hold_df = pd.DataFrame(holds)[["ticker", "current_pct", "target_pct", "reason"]]
+                        hold_df["current_pct"] = hold_df["current_pct"].apply(lambda x: f"{x:.1f}%")
+                        hold_df["target_pct"] = hold_df["target_pct"].apply(lambda x: f"{x:.1f}%")
+                        hold_df.columns = ["Ticker", "Current %", "Target %", "Note"]
+                        st.dataframe(hold_df, use_container_width=True, hide_index=True)
+
+        # ── Methodology ──
+        with st.expander("📐 How the Quant Portfolio is constructed"):
+            st.markdown(f"""
+            **Universe:** Stocks with composite score ≥ {PRESETS[qp_preset]['score_floor']:.1f} and market cap ≥ ${PRESETS[qp_preset]['min_market_cap_b']:.0f}B
+
+            **Weighting formula:** `weight ∝ score^{PRESETS[qp_preset]['weight_power']:.1f}`
+            This gives heavy emphasis to top scorers. A stock scoring 9.5 gets ~3-4x the weight of one scoring 8.0.
+
+            **Position constraints:**
+            - Max **{PRESETS[qp_preset]['max_positions']}** positions
+            - Max **{PRESETS[qp_preset]['sector_cap']*100:.0f}%** in any single sector
+            - Max **{PRESETS[qp_preset]['position_ceiling']*100:.0f}%** in any single position
+            - Min **$200** per position (otherwise dropped)
+
+            **Differentiation from SPY:** SPY weights by market cap regardless of quality. This portfolio weights by quality (score) regardless of size. Names that score well but aren't mega-cap (e.g., your portfolio names) get meaningful allocations.
+
+            **Important caveats:**
+            - Scores reflect ~3-12 month outlook; recommend rebalancing monthly
+            - Concentrated portfolios have higher variance than SPY
+            - Tax implications NOT considered — rebalancing creates capital gains
+            - Past performance ≠ future returns
+            """)
+
 # ═══ TAB: PORTFOLIO ═══════════════════════════════════════════════
 with tab_portfolio:
     st.markdown("### Portfolio Analyzer")
@@ -1820,4 +2091,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.9.2 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.10 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
