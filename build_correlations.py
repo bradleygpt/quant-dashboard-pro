@@ -281,7 +281,9 @@ def main():
         traceback.print_exc()
         print(f"\nPlease share this error output.")
 
-    input("\nPress Enter to close...")
+    # Only prompt for "Press Enter" if running interactively (not in CI/CD)
+    if sys.stdin and sys.stdin.isatty():
+        input("\nPress Enter to close...")
 
 
 if __name__ == "__main__":

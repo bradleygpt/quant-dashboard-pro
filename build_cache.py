@@ -8,6 +8,7 @@ import json
 import time
 import random
 import os
+import sys
 import traceback
 from datetime import datetime
 
@@ -18,7 +19,8 @@ try:
 except ImportError as e:
     print(f"ERROR: Missing library: {e}")
     print("Run: pip install numpy pandas yfinance")
-    input("Press Enter to close...")
+    if sys.stdin and sys.stdin.isatty():
+        input("Press Enter to close...")
     exit(1)
 
 # ── Ticker Universe ────────────────────────────────────────────────
@@ -426,7 +428,8 @@ def main():
         for j in range(0, len(failures), 15):
             print(f"  {', '.join(sorted(set(failures))[j:j+15])}")
 
-    input("\nPress Enter to close...")
+    if sys.stdin and sys.stdin.isatty():
+        input("\nPress Enter to close...")
 
 
 if __name__ == "__main__":
@@ -434,4 +437,5 @@ if __name__ == "__main__":
         main()
     except Exception:
         traceback.print_exc()
-        input("\nPress Enter to close...")
+        if sys.stdin and sys.stdin.isatty():
+            input("\nPress Enter to close...")
