@@ -118,7 +118,7 @@ SP600_EXTRA = [
     "CNMD", "CNR", "CNS", "CNXN", "COCO", "COHU", "COLL", "CON", "CORT", "CPF",
     "CPK", "CPRX", "CRC", "CRGY", "CRI", "CRK", "CRSR", "CRVL", "CSGS", "CSR",
     "CSW", "CTKB", "CTS", "CUBI", "CURB", "CVBF", "CVCO", "CVI", "CVSA", "CWEN",
-    "CWENA", "CWK", "CWST", "CWT", "CXM", "CXW", "DAN", "DBD", "DCH", "DCOM",
+    "CWEN-A", "CWK", "CWST", "CWT", "CXM", "CXW", "DAN", "DBD", "DCH", "DCOM",
     "DEA", "DEI", "DFH", "DFIN", "DGII", "DIOD", "DLX", "DNOW", "DORM", "DRH",
     "DV", "DXC", "DXPE", "EAT", "ECG", "ECPG", "EFC", "EGBN", "EIG", "EMBC",
     "ENOV", "ENR", "ENVA", "EPAC", "EPC", "ESE", "ETD", "EVTC", "EXPI", "EXTR",
@@ -166,7 +166,7 @@ SP600_EXTRA = [
 SUPPLEMENTAL = [
     "TSM","BABA","JD","PDD","BIDU","NIO","LI","XPEV",
     "SHOP","TD","RY","CNQ","SU","BN","BAM","SE","MELI","NU","GRAB",
-    "BX","KKR","APO","OWL","SPOT","SQ","MSTR","CELH","CAVA",
+    "BX","KKR","APO","OWL","SPOT","XYZ","MSTR","CELH","CAVA",
     "RIVN","LCID","JOBY","BILL","PATH","SNAP","U","PINS",
 ]
 
