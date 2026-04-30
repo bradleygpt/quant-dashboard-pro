@@ -64,10 +64,15 @@ def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_
     settings = PRESETS.get(preset, PRESETS["Balanced"])
 
     # Step 1: Filter by quality
+    # scored_df has ticker as INDEX, columns are: marketCap, currentPrice, sector, composite_score, overall_rating, etc.
     candidates = scored_df.copy()
+    # Reset index so ticker becomes a column
+    if candidates.index.name == "ticker":
+        candidates = candidates.reset_index()
+
     candidates = candidates[candidates["composite_score"] >= settings["score_floor"]]
-    candidates = candidates[candidates["market_cap"] >= settings["min_market_cap_b"] * 1e9]
-    candidates = candidates[candidates["price"] > 0]
+    candidates = candidates[candidates["marketCap"] >= settings["min_market_cap_b"] * 1e9]
+    candidates = candidates[candidates["currentPrice"] > 0]
 
     if candidates.empty:
         return pd.DataFrame()
@@ -113,10 +118,12 @@ def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_
     selected["dollars"] = (selected["weight_pct"] * capital).round(2)
 
     # Step 8: Compute share counts
-    selected["shares"] = (selected["dollars"] / selected["price"]).round(3)
+    selected["shares"] = (selected["dollars"] / selected["currentPrice"]).round(3)
 
-    # Final cleanup
-    selected["market_cap_b"] = (selected["market_cap"] / 1e9).round(2)
+    # Step 9: Rename columns to friendly names for display
+    selected["price"] = selected["currentPrice"]
+    selected["rating"] = selected["overall_rating"]
+    selected["market_cap_b"] = (selected["marketCap"] / 1e9).round(2)
     selected["weight_pct"] = (selected["weight_pct"] * 100).round(2)
 
     cols = ["ticker", "sector", "rating", "composite_score", "price",
@@ -301,19 +308,18 @@ def compute_rebalance_deltas(optimal_df, current_holdings, scored_df, total_capi
 def _get_score(ticker, scored_df):
     if scored_df.empty:
         return None
-    row = scored_df[scored_df["ticker"] == ticker]
-    if row.empty:
-        return None
-    return float(row["composite_score"].iloc[0])
+    if ticker in scored_df.index:
+        return float(scored_df.loc[ticker, "composite_score"])
+    return None
 
 
 def _get_rating(ticker, scored_df):
     if scored_df.empty:
         return None
-    row = scored_df[scored_df["ticker"] == ticker]
-    if row.empty:
-        return None
-    return row["rating"].iloc[0]
+    if ticker in scored_df.index:
+        val = scored_df.loc[ticker, "overall_rating"]
+        return val if isinstance(val, str) else None
+    return None
 
 
 def _explain_exit(ticker, scored_df):

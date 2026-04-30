@@ -1404,10 +1404,9 @@ with tab_quantport:
                             # Treat as cash at $1 NAV
                             qp_existing_cash += s
                             continue
-                        # Look up current price from scored_df or fetch
-                        price_row = scored_df[scored_df["ticker"] == t]
-                        if not price_row.empty:
-                            price = float(price_row["price"].iloc[0])
+                        # Look up current price from scored_df (ticker is index)
+                        if t in scored_df.index:
+                            price = float(scored_df.loc[t, "currentPrice"])
                             qp_current_holdings.append({"ticker": t, "shares": s, "current_price": price})
                         else:
                             st.warning(f"{t} not found in scored universe — skipping")
@@ -1420,9 +1419,8 @@ with tab_quantport:
                 if t in CASH_TICKERS:
                     qp_existing_cash += s
                     continue
-                price_row = scored_df[scored_df["ticker"] == t]
-                if not price_row.empty and s > 0:
-                    price = float(price_row["price"].iloc[0])
+                if t in scored_df.index and s > 0:
+                    price = float(scored_df.loc[t, "currentPrice"])
                     holdings_with_prices.append({"ticker": t, "shares": s, "current_price": price, "value": s * price})
             qp_current_holdings = holdings_with_prices
             if holdings_with_prices:
@@ -1457,7 +1455,7 @@ with tab_quantport:
                     deployable_cash = (qp_existing_cash + qp_new_cash) * (suggested_deploy_pct / 100.0)
                     held_back = (qp_existing_cash + qp_new_cash) - deployable_cash
                     effective_capital = qp_current_total + deployable_cash
-                st.info(f"📊 Phased deployment: building portfolio with **${effective_capital:,.0f}** ({suggested_deploy_pct}% of total). **${held_back:,.0f}** held in reserve for opportunistic adds.")
+                st.info(f"📊 Phased deployment: deploying ${effective_capital:,.0f} ({suggested_deploy_pct}% of total). ${held_back:,.0f} held in reserve for opportunistic adds on weakness.")
             else:
                 effective_capital = qp_capital
                 held_back = 0
