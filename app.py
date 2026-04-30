@@ -151,6 +151,11 @@ with tab_home:
     st.markdown("### Dashboard Overview")
     st.caption("Your portfolio and market at a glance")
 
+    # Pullback Pressure Index (compact)
+    from pullback_pressure import render_pullback_panel
+    render_pullback_panel(scored_df=scored_df, compact=True)
+    st.markdown("---")
+
     # Top-line market metrics
     with st.spinner("Loading market overview..."):
         hm_index=fetch_index_data();hm_vix=fetch_vix_data();hm_breadth=compute_market_breadth(scored_df);hm_buffett=fetch_buffett_indicator()
@@ -388,6 +393,12 @@ with tab_macro:
 # ═══ TAB 2: MARKET SENTIMENT ══════════════════════════════════════
 with tab_sentiment:
     st.markdown("### Market Sentiment Dashboard")
+
+    # Pullback Pressure Index (full version)
+    from pullback_pressure import render_pullback_panel
+    render_pullback_panel(scored_df=scored_df, compact=False)
+    st.markdown("---")
+
     with st.spinner("Fetching live market data..."):
         index_data=fetch_index_data();vix_data=fetch_vix_data();breadth_data=compute_market_breadth(scored_df);buffett_data=fetch_buffett_indicator()
         fear_greed=compute_fear_greed(vix_data,breadth_data,index_data,buffett_data)
@@ -1301,8 +1312,14 @@ with tab_quantport:
         build_optimal_portfolio, compute_rebalance_deltas,
         compute_diversification_stats, compare_to_spy_overlap, PRESETS
     )
+    from pullback_pressure import render_pullback_panel
 
-    # ── Mode toggle ──
+    # ── Market timing context ──
+    qp_pp = render_pullback_panel(scored_df=scored_df, compact=False)
+    suggested_deploy_pct = qp_pp["deploy_pct"]
+
+    st.markdown("---")
+
     qp_mode = st.radio(
         "Mode",
         ["Fresh Portfolio", "Rebalance from Existing"],
@@ -1326,15 +1343,37 @@ with tab_quantport:
             help="Conservative: 30 stocks, 25% sector cap. Balanced: 20 stocks, 35% sector cap. Aggressive: 12 stocks, 50% sector cap."
         )
 
+    # Phased deployment toggle (driven by pullback pressure)
+    if suggested_deploy_pct < 100:
+        qp_apply_phased = st.checkbox(
+            f"🌡️ Apply suggested phased deployment ({suggested_deploy_pct}% now, hold rest for pullback)",
+            value=False,
+            key="qp_apply_phased",
+            help=f"Pullback pressure suggests deploying only {suggested_deploy_pct}% of new capital now. The remaining {100-suggested_deploy_pct}% should be held for opportunistic adds on weakness."
+        )
+    else:
+        qp_apply_phased = False
+        st.caption("✓ Pullback pressure suggests full deployment — no phased adjustment needed.")
+
     # Show preset details
     p = PRESETS[qp_preset]
     st.caption(f"📐 Preset: max **{p['max_positions']} stocks** | sector cap **{p['sector_cap']*100:.0f}%** | min score **{p['score_floor']:.1f}** | min mcap **${p['min_market_cap_b']:.0f}B** | weight = score^{p['weight_power']:.1f}")
 
     # ── REBALANCE MODE: Load current holdings ──
+    # Recognized cash / money market tickers (treated as $1 NAV, deployable cash)
+    CASH_TICKERS = {
+        "SPAXX", "FDRXX", "FZFXX",      # Fidelity
+        "SWVXX", "SNAXX", "SNVXX",       # Schwab
+        "VMFXX", "VUSXX", "VMRXX",       # Vanguard
+        "ESCXX",                          # E*TRADE
+        "CASH", "$", "USD",               # Generic
+    }
     qp_current_holdings = []
     qp_current_total = 0
+    qp_existing_cash = 0  # Cash value from money-market positions, treated as deployable
     if qp_mode == "Rebalance from Existing":
         st.markdown("#### Your Current Holdings")
+        st.caption("💡 Cash positions: enter your money market ticker (SPAXX, SWVXX, VMFXX, etc.) with the dollar amount as 'shares'. They will be treated as deployable cash at $1 NAV.")
         if saved_portfolios := load_portfolios():
             sel_options = ["(Manual entry below)"] + [p_dict["name"] for p_dict in saved_portfolios]
             sel = st.selectbox("Load saved portfolio", sel_options, key="qp_load_saved")
@@ -1361,6 +1400,10 @@ with tab_quantport:
                     t = str(r.get("ticker", "")).strip().upper()
                     s = float(r.get("shares", 0) or 0)
                     if t and s > 0:
+                        if t in CASH_TICKERS:
+                            # Treat as cash at $1 NAV
+                            qp_existing_cash += s
+                            continue
                         # Look up current price from scored_df or fetch
                         price_row = scored_df[scored_df["ticker"] == t]
                         if not price_row.empty:
@@ -1374,6 +1417,9 @@ with tab_quantport:
             for h in qp_current_holdings:
                 t = h.get("ticker", "").upper()
                 s = float(h.get("shares", 0) or 0)
+                if t in CASH_TICKERS:
+                    qp_existing_cash += s
+                    continue
                 price_row = scored_df[scored_df["ticker"] == t]
                 if not price_row.empty and s > 0:
                     price = float(price_row["price"].iloc[0])
@@ -1385,24 +1431,45 @@ with tab_quantport:
                 st.dataframe(hold_df, use_container_width=True, hide_index=True)
 
         qp_current_total = sum(h.get("shares", 0) * h.get("current_price", 0) for h in qp_current_holdings)
-        qp_capital = qp_current_total + qp_new_cash
+        # Total deployable: existing stock value + existing cash position + new cash to add
+        qp_capital = qp_current_total + qp_existing_cash + qp_new_cash
 
-        if qp_current_total > 0:
-            st.metric("Current portfolio value", f"${qp_current_total:,.2f}")
-            st.metric("Total after new cash", f"${qp_capital:,.2f}")
+        if qp_current_total > 0 or qp_existing_cash > 0:
+            metric_cols = st.columns(3)
+            with metric_cols[0]: st.metric("Current stock value", f"${qp_current_total:,.2f}")
+            with metric_cols[1]: st.metric("Existing cash (MM funds)", f"${qp_existing_cash:,.2f}")
+            with metric_cols[2]: st.metric("Total to deploy", f"${qp_capital:,.2f}", delta=f"+${qp_new_cash:,.0f} new")
         else:
             st.warning("Add holdings above to use rebalance mode.")
 
     # ── Build the portfolio ──
     if st.button("🎯 Build Optimal Portfolio", type="primary", use_container_width=True, key="qp_build_btn"):
         with st.spinner("Building..."):
-            optimal = build_optimal_portfolio(scored_df, qp_capital, preset=qp_preset, min_position_dollars=200)
+            # Apply phased deployment if toggle is on
+            # In Fresh mode: scale entire capital
+            # In Rebalance mode: scale only the new cash portion (existing positions stay)
+            if qp_apply_phased:
+                if qp_mode == "Fresh Portfolio":
+                    effective_capital = qp_capital * (suggested_deploy_pct / 100.0)
+                    held_back = qp_capital - effective_capital
+                else:
+                    # Rebalance: existing stays at full, only scale new cash + existing cash deployment
+                    deployable_cash = (qp_existing_cash + qp_new_cash) * (suggested_deploy_pct / 100.0)
+                    held_back = (qp_existing_cash + qp_new_cash) - deployable_cash
+                    effective_capital = qp_current_total + deployable_cash
+                st.info(f"📊 Phased deployment: building portfolio with **${effective_capital:,.0f}** ({suggested_deploy_pct}% of total). **${held_back:,.0f}** held in reserve for opportunistic adds.")
+            else:
+                effective_capital = qp_capital
+                held_back = 0
+
+            optimal = build_optimal_portfolio(scored_df, effective_capital, preset=qp_preset, min_position_dollars=200)
 
             if optimal.empty:
                 st.error("No qualifying stocks found at current preset settings. Try lowering aggressiveness or check that scored data is loaded.")
             else:
                 st.session_state["qp_optimal"] = optimal
-                st.session_state["qp_capital_used"] = qp_capital
+                st.session_state["qp_capital_used"] = effective_capital
+                st.session_state["qp_held_back"] = held_back
                 st.session_state["qp_preset_used"] = qp_preset
                 st.session_state["qp_holdings_used"] = qp_current_holdings.copy()
                 st.session_state["qp_mode_used"] = qp_mode
@@ -1415,7 +1482,11 @@ with tab_quantport:
         holdings_used = st.session_state.get("qp_holdings_used", [])
 
         st.markdown("---")
-        st.markdown(f"### Optimal Portfolio — ${cap_used:,.0f}")
+        held_back = st.session_state.get("qp_held_back", 0)
+        if held_back > 0:
+            st.markdown(f"### Optimal Portfolio — ${cap_used:,.0f} deployed | ${held_back:,.0f} reserved")
+        else:
+            st.markdown(f"### Optimal Portfolio — ${cap_used:,.0f}")
 
         # ── Allocation table ──
         display_df = optimal.copy()
@@ -2091,4 +2162,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.10 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.11 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
