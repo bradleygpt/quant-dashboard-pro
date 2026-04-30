@@ -73,13 +73,29 @@ def _load_cache() -> dict:
 # ── Ticker Universe ────────────────────────────────────────────────
 
 
+def _get_cache_mtime():
+    """Return modification time of the cache file. Used as cache-buster argument."""
+    if os.path.exists(BUNDLED_CACHE_FILE):
+        return os.path.getmtime(BUNDLED_CACHE_FILE)
+    rt_path = _cache_path(FUNDAMENTALS_CACHE_FILE)
+    if os.path.exists(rt_path):
+        return os.path.getmtime(rt_path)
+    return 0
+
+
 @st.cache_data(ttl=86400, show_spinner=False)
-def get_broad_universe(min_market_cap_b: float = 10.0) -> list[str]:
-    """Return the ticker universe. Derived from the bundled cache keys."""
+def _get_broad_universe_cached(min_market_cap_b: float, _mtime: float) -> list[str]:
+    """Internal cached version. _mtime invalidates cache when file updates."""
     data = _load_cache()
     if data:
         return sorted(data.keys())
     return []
+
+
+def get_broad_universe(min_market_cap_b: float = 10.0) -> list[str]:
+    """Return the ticker universe. Derived from the bundled cache keys.
+    Auto-invalidates when fundamentals_cache.json is updated."""
+    return _get_broad_universe_cached(min_market_cap_b, _get_cache_mtime())
 
 
 # ── Main Data Loader ──────────────────────────────────────────────
@@ -110,8 +126,6 @@ def _filter_by_market_cap(data: dict, min_cap_b: float) -> dict:
     return {
         k: v for k, v in data.items()
         if v.get("marketCap", 0) >= min_cap
-        and v.get("type") != "etf"
-        and v.get("sector") != "ETF"
     }
 
 
@@ -200,12 +214,18 @@ def _fetch_single_live(ticker: str) -> dict | None:
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
-def fetch_single_ticker(ticker: str) -> dict | None:
-    """Fetch a single ticker. Checks cache first, then live."""
+def _fetch_single_ticker_cached(ticker: str, _mtime: float) -> dict | None:
+    """Internal cached version. _mtime invalidates cache when file updates."""
     data = _load_cache()
     if ticker in data:
         return data[ticker]
     return _fetch_single_live(ticker)
+
+
+def fetch_single_ticker(ticker: str) -> dict | None:
+    """Fetch a single ticker. Checks cache first, then live.
+    Auto-invalidates when fundamentals_cache.json is updated."""
+    return _fetch_single_ticker_cached(ticker, _get_cache_mtime())
 
 
 # ── Watchlist Management ───────────────────────────────────────────

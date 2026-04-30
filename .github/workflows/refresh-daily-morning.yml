@@ -49,13 +49,16 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
-          # Pull first to avoid conflicts if evening run pushed something we don't have
-          git pull --rebase origin main || true
           git add fundamentals_cache.json
+          echo "=== Status before commit ==="
+          git status
           if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: morning fundamentals refresh $(date -u +%Y-%m-%d)"
-            git push
-            echo "Pushed updated cache. Streamlit Cloud will redeploy automatically."
+            echo "No changes detected. Nothing to commit."
+            exit 0
           fi
+          git commit -m "chore: morning fundamentals refresh $(date -u +%Y-%m-%d)"
+          git fetch origin main
+          git rebase origin/main || (echo "Rebase failed, attempting force-with-lease push"; git rebase --abort 2>/dev/null || true)
+          echo "=== Pushing ==="
+          git push origin main
+          echo "=== Done ==="

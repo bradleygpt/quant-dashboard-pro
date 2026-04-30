@@ -125,14 +125,24 @@ st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_
 tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","📈 Pro Charts","Doppelganger","Portfolio","Monte Carlo","ETF Center","📖 Help"])
 tab_home,tab_macro,tab_sentiment,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_portfolio,tab_mc,tab_etfs,tab_help=tabs
 
+def _cache_file_mtime():
+    """Get modification time of the cache file. Used as a cache-buster so Streamlit
+    invalidates load_and_score when GitHub Actions pushes a new fundamentals_cache.json."""
+    import os
+    cache_paths = ["fundamentals_cache.json", os.path.join("data_cache", "fundamentals_cache.json")]
+    for p in cache_paths:
+        if os.path.exists(p):
+            return os.path.getmtime(p)
+    return 0
+
 @st.cache_data(ttl=43200,show_spinner=False)
-def load_and_score(mcap,wt,sr):
+def load_and_score(mcap,wt,sr,_file_mtime):
     w=dict(zip(DEFAULT_PILLAR_WEIGHTS.keys(),wt));tickers=get_broad_universe(mcap)
     progress=st.progress(0,text="Loading...");raw=fetch_universe_data(tickers,mcap,lambda p,m:progress.progress(p,text=m));progress.empty()
     scored=score_universe(raw,w,sector_relative=sr);ss=get_sector_stats(scored) if not scored.empty else {}
     return raw,scored,ss
 
-try: raw_data,scored_df,sector_stats=load_and_score(market_cap_floor,tuple(st.session_state.weights.values()),st.session_state.sector_relative)
+try: raw_data,scored_df,sector_stats=load_and_score(market_cap_floor,tuple(st.session_state.weights.values()),st.session_state.sector_relative,_cache_file_mtime())
 except Exception as e: st.error(f"Error: {e}");st.stop()
 if scored_df is None or scored_df.empty: st.warning("No data.");st.stop()
 
@@ -1810,4 +1820,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.9.1 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.9.2 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
