@@ -1,0 +1,57 @@
+name: Weekly Correlations Refresh
+
+# Runs Sundays at 4:00 AM UTC (Saturday 11 PM ET / Sunday 12 AM CT)
+# Refreshes correlations_cache.json with latest sector correlation data
+on:
+  schedule:
+    - cron: '0 4 * * 0'  # Sundays at 4 AM UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  refresh-correlations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas yfinance requests
+
+      - name: Run correlations builder
+        run: |
+          echo "Starting correlations refresh at $(date)"
+          python build_correlations.py
+          echo "Completed at $(date)"
+
+      - name: Verify correlations file was created
+        run: |
+          if [ ! -f "correlations_cache.json" ]; then
+            echo "ERROR: correlations_cache.json was not created"
+            exit 1
+          fi
+          ls -lh correlations_cache.json
+
+      - name: Commit and push updated correlations
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add correlations_cache.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: weekly correlations refresh $(date -u +%Y-%m-%d)"
+            git push
+            echo "Pushed updated correlations. Streamlit Cloud will redeploy automatically."
+          fi

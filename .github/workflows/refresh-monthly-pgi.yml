@@ -1,0 +1,58 @@
+name: Monthly PGI Refresh
+
+# Runs on the 1st of each month at 5:00 AM UTC (12:00 AM ET)
+# Auto-updates the MONEY_MARKET_ASSETS_TRILLIONS constant in sentiment.py
+# by scraping ICI's public money market data page
+on:
+  schedule:
+    - cron: '0 5 1 * *'  # 1st of month at 5 AM UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  refresh-pgi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run PGI updater
+        id: pgi
+        continue-on-error: true  # Don't fail workflow if scraping doesn't find new value
+        run: |
+          echo "Running PGI updater at $(date)"
+          python update_pgi.py
+
+      - name: Commit and push if changed
+        if: steps.pgi.outcome == 'success'
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add sentiment.py
+          if git diff --staged --quiet; then
+            echo "No changes to commit (PGI value unchanged)"
+          else
+            git commit -m "chore: monthly PGI refresh $(date -u +%Y-%m)"
+            git push
+            echo "Pushed updated PGI. Streamlit Cloud will redeploy automatically."
+          fi
+
+      - name: Notify on scrape failure
+        if: steps.pgi.outcome == 'failure'
+        run: |
+          echo "::warning::PGI auto-update failed - ICI page format may have changed."
+          echo "Manual update needed: visit https://www.ici.org/research/stats/mmf"
+          echo "Then update MONEY_MARKET_ASSETS_TRILLIONS in sentiment.py"
