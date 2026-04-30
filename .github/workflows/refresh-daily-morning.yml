@@ -11,7 +11,7 @@ on:
 jobs:
   refresh-cache-morning:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
