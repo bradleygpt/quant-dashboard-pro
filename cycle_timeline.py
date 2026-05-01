@@ -330,19 +330,17 @@ def render_cycle_countdown():
 
 def render_cycle_timeline():
     """
-    Horizontal visual timeline showing past + projected future markers.
+    Visual timeline showing BTC price history with all cycle events as markers
+    plotted at their actual price levels. Plus projected next-cycle events.
 
-    Shows:
-    - All halvings (past)
-    - Takeoff dates (past + projected)
-    - Peaks (past + projected)
-    - Bottoms (past + projected)
-    - ETF launch dates (BTC Jan 2024, ETH Jul 2024, BTC Options Sep 2024) — cycle disruption events
-    - "YOU ARE HERE" marker for today
-    - Next halving + projected next cycle events
+    X-axis: Date (time)
+    Y-axis: BTC price (USD, log scale) — events shown at their actual prices
     """
     st.markdown("### 📊 Bitcoin Cycle Timeline")
-    st.caption("Visual map of past Bitcoin cycles with current position, ETF events, and projected next-cycle dates.")
+    st.caption(
+        "Time on x-axis. BTC price on y-axis (log scale). Each event marked at its actual price level. "
+        "Hollow markers indicate projections."
+    )
 
     # Toggles for what to display
     tc1, tc2, tc3 = st.columns(3)
@@ -364,75 +362,122 @@ def render_cycle_timeline():
     if not show_2012:
         cycles_to_show = [c for c in HISTORICAL_CYCLES if c["halving"] >= datetime(2016, 1, 1)]
 
-    # Build the timeline events
-    events = []
+    # Fetch BTC price history for the background line
+    try:
+        import yfinance as yf
+        btc = yf.Ticker("BTC-USD")
+        btc_hist = btc.history(period="max")
+    except Exception:
+        btc_hist = None
 
-    # Past cycles
+    # Build figure
+    fig = go.Figure()
+
+    # Background: actual BTC price line (subtle orange)
+    if btc_hist is not None and not btc_hist.empty:
+        fig.add_trace(go.Scatter(
+            x=btc_hist.index,
+            y=btc_hist["Close"],
+            mode="lines",
+            line=dict(color="rgba(247,147,26,0.45)", width=1.5),
+            name="BTC price",
+            hovertemplate="<b>BTC</b><br>%{x|%b %Y}<br>$%{y:,.0f}<extra></extra>",
+        ))
+
+    # Plot cycle event markers AT THEIR ACTUAL PRICE LEVELS
+    event_types = {
+        "halving": {"symbol": "triangle-up", "size": 14, "name": "Halvings"},
+        "takeoff": {"symbol": "triangle-up-open", "size": 12, "name": "Takeoffs"},
+        "peak": {"symbol": "star", "size": 17, "name": "Peaks"},
+        "bottom": {"symbol": "triangle-down", "size": 14, "name": "Bottoms"},
+    }
+    type_colors = {"halving": "#9B59B6", "takeoff": "#3498DB", "peak": "#27AE60", "bottom": "#E74C3C"}
+
+    by_type = {t: [] for t in event_types}
     for c in cycles_to_show:
-        events.append({"date": c["halving"], "label": "Halving", "cycle": c["label"], "type": "halving", "color": c["color"]})
-        if c.get("takeoff"):
-            events.append({"date": c["takeoff"], "label": "Takeoff", "cycle": c["label"], "type": "takeoff", "color": c["color"]})
-        if c.get("peak"):
-            events.append({
-                "date": c["peak"], "label": f"Peak (${c['peak_price']:,})",
-                "cycle": c["label"], "type": "peak", "color": c["color"]
-            })
-        if c.get("bottom"):
-            events.append({
-                "date": c["bottom"], "label": f"Bottom (${c['bottom_price']:,})",
-                "cycle": c["label"], "type": "bottom", "color": c["color"]
-            })
+        for event_type in event_types:
+            if c.get(event_type):
+                price_key = f"{event_type}_price"
+                price = c.get(price_key)
+                if price:
+                    by_type[event_type].append({
+                        "date": c[event_type],
+                        "price": price,
+                        "label": f"{c['label']}",
+                        "color": c["color"],
+                    })
 
-    # Project future events for current cycle
-    current_peak = HISTORICAL_CYCLES[-1].get("peak")
-    if current_peak and not HISTORICAL_CYCLES[-1].get("bottom"):
-        projected_bottom = current_peak + timedelta(days=averages["avg_days_peak_to_bottom"])
-        events.append({
-            "date": projected_bottom, "label": "Projected bottom",
-            "cycle": "Cycle 4 (projected)", "type": "projected_bottom", "color": "#F7931A"
-        })
+    for event_type, events in by_type.items():
+        if not events:
+            continue
+        cfg = event_types[event_type]
+        fig.add_trace(go.Scatter(
+            x=[e["date"] for e in events],
+            y=[e["price"] for e in events],
+            mode="markers",
+            marker=dict(
+                size=cfg["size"],
+                color=type_colors[event_type],
+                symbol=cfg["symbol"],
+                line=dict(color="white", width=1.5),
+            ),
+            name=cfg["name"],
+            text=[e["label"] for e in events],
+            hovertemplate="<b>%{text}</b><br>" + cfg["name"][:-1] + "<br>%{x|%b %d, %Y}<br>$%{y:,.0f}<extra></extra>",
+        ))
 
-    # Project next cycle
+    # Project current cycle bottom
+    current_peak_date = HISTORICAL_CYCLES[-1].get("peak")
+    current_peak_price = HISTORICAL_CYCLES[-1].get("peak_price", 126198)
+    if current_peak_date:
+        projected_bottom_date = current_peak_date + timedelta(days=averages["avg_days_peak_to_bottom"])
+        # ~50% drawdown estimate (vs ~80% historical, ETFs softening drawdowns)
+        projected_bottom_price = current_peak_price * 0.5
+
+        fig.add_trace(go.Scatter(
+            x=[projected_bottom_date],
+            y=[projected_bottom_price],
+            mode="markers",
+            marker=dict(
+                size=14, color="rgba(231,76,60,0.6)",
+                symbol="triangle-down-open",
+                line=dict(color="#E74C3C", width=2),
+            ),
+            name="Projected bottom (current cycle)",
+            hovertemplate=f"<b>Projected current cycle bottom</b><br>{projected_bottom_date.strftime('%b %Y')}<br>~${projected_bottom_price:,.0f} (rough estimate)<extra></extra>",
+        ))
+
+    # Next cycle projections
     next_halving = datetime(2028, 4, 1)
     next_takeoff = next_halving + timedelta(days=averages["avg_days_to_takeoff"])
     next_peak = next_halving + timedelta(days=averages["avg_days_to_peak"])
 
-    events.append({"date": next_halving, "label": "Next halving (est)", "cycle": "Cycle 5 (projected)", "type": "halving_proj", "color": "#9B59B6"})
-    events.append({"date": next_takeoff, "label": "Projected takeoff", "cycle": "Cycle 5 (projected)", "type": "takeoff_proj", "color": "#9B59B6"})
-    events.append({"date": next_peak, "label": "Projected peak", "cycle": "Cycle 5 (projected)", "type": "peak_proj", "color": "#9B59B6"})
+    # Rough price estimates for projected next cycle
+    projected_next_halving_price = current_peak_price * 0.55
+    projected_next_takeoff_price = current_peak_price * 0.7
+    projected_next_peak_price = current_peak_price * 2.5
 
-    # Sort events
-    events.sort(key=lambda e: e["date"])
+    proj_events = [
+        {"date": next_halving, "price": projected_next_halving_price, "name": "Next halving (est)"},
+        {"date": next_takeoff, "price": projected_next_takeoff_price, "name": "Projected takeoff"},
+        {"date": next_peak, "price": projected_next_peak_price, "name": "Projected peak"},
+    ]
 
-    # Build the Plotly figure
-    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=[e["date"] for e in proj_events],
+        y=[e["price"] for e in proj_events],
+        mode="markers",
+        marker=dict(
+            size=15, color="rgba(155,89,182,0.7)",
+            symbol="diamond-open",
+            line=dict(color="#9B59B6", width=2),
+        ),
+        name="Projected next cycle",
+        text=[e["name"] for e in proj_events],
+        hovertemplate="<b>%{text}</b><br>%{x|%b %Y}<br>~$%{y:,.0f} (rough estimate)<extra></extra>",
+    ))
 
-    # Plot each event as a marker
-    for e in events:
-        # Map event types to vertical positions (so overlapping cycles stack)
-        type_y_map = {
-            "halving": 1, "takeoff": 0.7, "peak": 0.4, "bottom": 0.1,
-            "halving_proj": 1, "takeoff_proj": 0.7, "peak_proj": 0.4, "projected_bottom": 0.1,
-        }
-        y = type_y_map.get(e["type"], 0.5)
-
-        is_projected = "proj" in e["type"]
-        marker_symbol = "diamond" if is_projected else "circle"
-        marker_size = 14 if e["type"] in ["peak", "peak_proj"] else 11
-
-        fig.add_trace(go.Scatter(
-            x=[e["date"]], y=[y],
-            mode="markers+text",
-            marker=dict(size=marker_size, color=e["color"], symbol=marker_symbol,
-                       line=dict(color="white", width=1.5)),
-            text=[e["label"]],
-            textposition="top center",
-            textfont=dict(size=10, color=e["color"]),
-            hovertemplate=f"<b>{e['cycle']}</b><br>{e['label']}<br>{e['date'].strftime('%b %d, %Y')}<extra></extra>",
-            showlegend=False,
-        ))
-
-    # ETF event markers — these are BIG: vertical lines spanning the chart
+    # ETF event vertical lines
     if show_etf:
         for etf in ETF_EVENTS:
             fig.add_vline(
@@ -440,91 +485,88 @@ def render_cycle_timeline():
                 line_dash="dashdot",
                 line_color=etf["color"],
                 line_width=2,
-                opacity=0.6,
+                opacity=0.5,
                 annotation_text=etf["short_label"],
-                annotation_position="bottom",
+                annotation_position="top",
                 annotation_font=dict(size=10, color=etf["color"]),
             )
 
-    # Add horizontal lines for each "lane"
-    # X-axis range starts based on earliest cycle shown
-    earliest_date = min(c["halving"] for c in cycles_to_show)
-    annotation_x = (earliest_date - timedelta(days=120)).timestamp() * 1000
-    for y, label in [(1, "Halvings"), (0.7, "Takeoffs"), (0.4, "Peaks"), (0.1, "Bottoms")]:
-        fig.add_hline(y=y, line_dash="dot", line_color="rgba(128,128,128,0.3)", line_width=1)
-        fig.add_annotation(
-            x=annotation_x, y=y,
-            text=label, showarrow=False,
-            font=dict(size=11, color="gray"),
-            xanchor="left",
-        )
-
-    # YOU ARE HERE marker
+    # TODAY vertical line
     fig.add_vline(
-        x=today.timestamp() * 1000, line_dash="solid", line_color="red", line_width=3,
+        x=today.timestamp() * 1000,
+        line_dash="solid", line_color="red", line_width=3,
         annotation_text="<b>TODAY</b>", annotation_position="top",
         annotation_font=dict(size=14, color="red"),
     )
 
-    # Highlight projected cycle window
+    # Highlight projected next cycle window
     fig.add_vrect(
         x0=next_halving.timestamp() * 1000,
         x1=(next_peak + timedelta(days=60)).timestamp() * 1000,
-        fillcolor="purple", opacity=0.1,
+        fillcolor="purple", opacity=0.08,
         annotation_text="Projected next cycle window",
-        annotation_position="top left",
+        annotation_position="bottom left",
         line_width=0,
     )
 
     fig.update_layout(
-        height=550,
+        height=600,
         xaxis_title="Date",
-        yaxis=dict(visible=False, range=[-0.1, 1.25]),
+        yaxis_title="BTC Price (USD, log scale)",
+        yaxis_type="log",
         hovermode="closest",
-        showlegend=False,
-        margin=dict(l=80, r=20, t=40, b=60),
+        showlegend=True,
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01, bgcolor="rgba(0,0,0,0.4)"),
     )
     st.plotly_chart(fig, use_container_width=True)
 
     # ETF context section
     if show_etf:
-        st.markdown("#### 🏦 ETF Disruption Events")
-        st.caption("These dates fundamentally changed BTC market structure by introducing institutional-scale supply absorption.")
-        for etf in ETF_EVENTS:
-            with st.expander(f"**{etf['date'].strftime('%b %d, %Y')}** — {etf['label']}"):
-                st.markdown(f"**What happened:** {etf['description']}")
-                st.markdown(f"**Why it matters:** {etf['impact']}")
+        with st.expander("🏦 ETF Disruption Events"):
+            st.caption("These dates fundamentally changed BTC market structure by introducing institutional-scale supply absorption.")
+            for etf in ETF_EVENTS:
+                st.markdown(f"**{etf['date'].strftime('%b %d, %Y')}** — {etf['label']}")
+                st.markdown(f"  - {etf['description']}")
+                st.markdown(f"  - **Why it matters:** {etf['impact']}")
 
     # Below-chart context
     days_to_next_takeoff = (next_takeoff - today).days
     days_to_next_peak = (next_peak - today).days
 
-    st.markdown("---")
     st.markdown(f"""
     **Reading the chart:**
-    - **Solid circles** = actual historical events
-    - **Diamonds** = projected future events
+    - **Orange line** = actual BTC price history (yfinance)
+    - **Filled triangles up** = Halvings (at actual price)
+    - **Hollow triangles up** = Takeoffs (sustained breakouts)
+    - **Stars** = Peaks
+    - **Filled triangles down** = Bottoms
+    - **Hollow markers** = projected future events (price estimates rough)
     - **Red line** = today's position
-    - **Dashdot lines** = ETF disruption events (purple = BTC, blue = ETH)
-    - **Purple shaded region** = projected next-cycle takeoff-to-peak window
+    - **Dashdot lines** = ETF disruption events
 
     **From today, projected next cycle key dates:**
-    - Next takeoff (sustained breakout): **~{next_takeoff.strftime('%b %Y')}** (~{days_to_next_takeoff} days from today)
-    - Next peak: **~{next_peak.strftime('%b %Y')}** (~{days_to_next_peak} days from today)
+    - Next takeoff: **~{next_takeoff.strftime('%b %Y')}** ({days_to_next_takeoff} days)
+    - Next peak: **~{next_peak.strftime('%b %Y')}** ({days_to_next_peak} days)
     """)
 
-    with st.expander("⚠️ Important caveats"):
+    with st.expander("⚠️ Important caveats about projected prices"):
         st.markdown(f"""
-        - Projections use averages of **{averages['n_cycles_used']} completed cycle{'s' if averages['n_cycles_used'] != 1 else ''}** ({', '.join(averages['cycles_used'])})
-        - The 2024 cycle is still in progress — its bottom is not yet known
-        - **ETF flows have fundamentally altered cycle dynamics:**
-          - Spot BTC ETFs (Jan 11, 2024) launched 3 months BEFORE the 2024 halving
-          - This created an institutional bid that pre-absorbed supply unlike any prior cycle
-          - The "21M coin scarcity" assumed retail/miner-driven flows; ETFs broke that
-          - Post-peak drawdown has been milder this cycle (~40%) than 2018 (~83%) or 2022 (~78%)
-        - **±3 months error on projected dates is reasonable**
-        - Macro conditions in 2028-2029 are unknowable from today
-        - Cycle theory has held up remarkably well so far this cycle (peak hit at day 535, very close to historical average), but past performance does not guarantee future outcomes
+        **Projected prices are ROUGH estimates and should not be taken as forecasts:**
+        - Projected current-cycle bottom assumes a 50% drawdown from peak (vs ~80% in 2018 and 2022)
+          — this assumes ETF flows soften the bear market, which is unproven
+        - Projected next-cycle peak assumes ~2.5x the current cycle's peak ($126k → $315k)
+          — consistent with diminishing-returns pattern but could be wildly off
+        - Date projections use averages of **{averages['n_cycles_used']} completed cycles**
+          ({', '.join(averages['cycles_used'])})
+        - **±3 months error on dates and ±50% error on prices is reasonable**
+
+        **Why this cycle has been different:**
+        - Spot BTC ETFs (Jan 11, 2024) launched 3 months BEFORE the halving — first time ever
+        - Institutional bid pre-absorbed supply, fundamentally changing dynamics
+        - Post-peak drawdown so far (~40%) is milder than 2018 (~83%) or 2022 (~78%)
+        - The ETF era may extend cycle length, soften drawdowns, or break the pattern entirely
+
+        Treat projections as one input among many, not a forecast.
         """)
 
 

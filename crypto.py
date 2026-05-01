@@ -464,62 +464,74 @@ def compute_eth_btc_ratio(eth_history, btc_history):
 
 def build_cycle_overlay_data(btc_history):
     """
-    Build a normalized comparison of price action across the 3 most recent halving cycles.
+    Build current-cycle-with-projection-band data.
 
-    Returns DataFrame with columns: days_since_halving, cycle_2016, cycle_2020, cycle_2024
-    Where each cycle column is price normalized to 100 at halving date.
+    Returns DataFrame with columns:
+      - days_since_halving: int (the x-axis)
+      - current_price: actual BTC price in current cycle (USD), only for past days (NaN forward)
+      - projected_low: low end of historical range scaled to current cycle
+      - projected_median: median of historical paths scaled to current cycle
+      - projected_high: high end of historical range scaled to current cycle
 
-    NOTE: Cycle 1 (2012) is intentionally excluded from THIS PRICE-BASED overlay chart
-    because yfinance does not have reliable BTC price history before 2014. The 2012 cycle
-    IS still included in date-based timing analyses (cycle_timeline.py).
+    The historical reference is computed from cycles 2 (2016) and 3 (2020), each
+    scaled so day-0 price matches the current cycle's halving price ($64,000).
+    This makes the band directly comparable to current-cycle prices.
+
+    Note: Cycle 1 (2012) is excluded because yfinance lacks reliable pre-2014 BTC data.
     """
     if btc_history is None or btc_history.empty:
         return None
 
-    cycles = {}
-    for halving_idx, halving in enumerate(HALVINGS[:-1]):  # Skip estimated future halving
-        if halving_idx < 1:
-            # Skip 2012 cycle for price overlay (yfinance lacks pre-2014 BTC data).
-            # Date-based components still use it via cycle_timeline.HISTORICAL_CYCLES.
-            continue
+    # Reference cycle starts (using halving dates and prices)
+    cycles_data = [
+        {"halving": datetime(2016, 7, 9), "halving_price": 650},
+        {"halving": datetime(2020, 5, 11), "halving_price": 8800},
+    ]
+    current_cycle_halving = datetime(2024, 4, 19)
+    current_cycle_halving_price = 64000
 
-        halving_date = halving["date"]
-        # Get price action from halving forward
+    # Build historical scaled paths
+    historical_paths = []
+    for cd in cycles_data:
+        halving_date = cd["halving"]
+        halving_price = cd["halving_price"]
+
+        # Get price action from halving forward (4 years)
         cycle_data = btc_history[btc_history.index >= pd.Timestamp(halving_date, tz=btc_history.index.tz)]
-
-        if cycle_data.empty:
-            continue
-
-        # Limit to next 4 years (1460 days) max
         cycle_end = pd.Timestamp(halving_date + timedelta(days=1460), tz=btc_history.index.tz)
         cycle_data = cycle_data[cycle_data.index <= cycle_end]
-
         if cycle_data.empty:
             continue
 
-        # Normalize to 100 at halving
-        first_price = cycle_data["Close"].iloc[0]
-        normalized = (cycle_data["Close"] / first_price) * 100
+        # Scale to current cycle's halving price
+        scale_factor = current_cycle_halving_price / halving_price
+        scaled_prices = cycle_data["Close"] * scale_factor
 
         # Days since halving
-        days_since = (cycle_data.index - pd.Timestamp(halving_date, tz=btc_history.index.tz)).days
+        days = (cycle_data.index - pd.Timestamp(halving_date, tz=btc_history.index.tz)).days
+        path_df = pd.DataFrame({"days": days, "price": scaled_prices.values})
+        historical_paths.append(path_df)
 
-        cycle_label = f"cycle_{halving_date.year}"
-        cycle_df = pd.DataFrame({
-            "days_since_halving": days_since,
-            cycle_label: normalized.values,
-        })
-        cycles[cycle_label] = cycle_df
-
-    if not cycles:
+    if not historical_paths:
         return None
 
-    # Merge all cycles on days_since_halving
-    result = None
-    for label, df in cycles.items():
-        if result is None:
-            result = df
-        else:
-            result = result.merge(df, on="days_since_halving", how="outer")
+    # For each day-since-halving, compute min/median/max across historical paths
+    combined = pd.concat(historical_paths)
+    daily_stats = combined.groupby("days")["price"].agg(["min", "median", "max"]).reset_index()
+    daily_stats.columns = ["days_since_halving", "projected_low", "projected_median", "projected_high"]
 
-    return result.sort_values("days_since_halving").reset_index(drop=True) if result is not None else None
+    # Get current cycle's actual price by day-since-halving
+    current_data = btc_history[btc_history.index >= pd.Timestamp(current_cycle_halving, tz=btc_history.index.tz)]
+    if current_data.empty:
+        return None
+    current_days = (current_data.index - pd.Timestamp(current_cycle_halving, tz=btc_history.index.tz)).days
+    current_df = pd.DataFrame({
+        "days_since_halving": current_days,
+        "current_price": current_data["Close"].values,
+    })
+
+    # Merge — outer join so we have all days
+    result = current_df.merge(daily_stats, on="days_since_halving", how="outer")
+    result = result.sort_values("days_since_halving").reset_index(drop=True)
+
+    return result

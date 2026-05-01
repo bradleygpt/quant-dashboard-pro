@@ -50,22 +50,57 @@ def compute_pullback_pressure(scored_df=None):
     components_detail = []
 
     # ── 1. VIX level (40% weight) ──
+    vix_fetched = False
+    vix_now = None
+
+    # Try ^VIX first
     try:
         vix = yf.Ticker("^VIX").history(period="5d")
-        if not vix.empty:
-            vix_now = float(vix["Close"].iloc[-1])
-            # VIX scoring: <12 extreme low (90), 14 (75), 18 (50), 22 (25), >28 (10)
-            vix_score = float(np.clip(100 - ((vix_now - 10) * 5), 0, 100))
-            components["vix"] = vix_score
-            components_detail.append({
-                "name": "VIX",
-                "value": f"{vix_now:.1f}",
-                "score": vix_score,
-                "interp": _vix_interp(vix_now),
-            })
+        if not vix.empty and not vix["Close"].dropna().empty:
+            vix_now = float(vix["Close"].dropna().iloc[-1])
+            vix_fetched = True
     except Exception:
+        pass
+
+    # Fallback: try VIXY ETF (loosely tracks VIX) and convert
+    if not vix_fetched:
+        try:
+            vixy = yf.Ticker("VIXY").history(period="5d")
+            if not vixy.empty and not vixy["Close"].dropna().empty:
+                # VIXY price doesn't equal VIX directly; this is a rough fallback
+                # If we can't get VIX itself, mark it n/a but set a neutral score
+                pass
+        except Exception:
+            pass
+
+    # Fallback 2: try a longer period for ^VIX
+    if not vix_fetched:
+        try:
+            vix = yf.Ticker("^VIX").history(period="1mo")
+            if not vix.empty and not vix["Close"].dropna().empty:
+                vix_now = float(vix["Close"].dropna().iloc[-1])
+                vix_fetched = True
+        except Exception:
+            pass
+
+    if vix_fetched and vix_now is not None:
+        # VIX scoring: <12 extreme low (90), 14 (75), 18 (50), 22 (25), >28 (10)
+        vix_score = float(np.clip(100 - ((vix_now - 10) * 5), 0, 100))
+        components["vix"] = vix_score
+        components_detail.append({
+            "name": "VIX",
+            "value": f"{vix_now:.1f}",
+            "score": vix_score,
+            "interp": _vix_interp(vix_now),
+        })
+    else:
         components["vix"] = 50  # neutral fallback
-        components_detail.append({"name": "VIX", "value": "n/a", "score": 50, "interp": "Could not fetch"})
+        components_detail.append({
+            "name": "VIX",
+            "value": "n/a",
+            "score": 50,
+            "interp": "Could not fetch — using neutral score",
+        })
 
     # ── 2. SPY vs 50-SMA (20% weight) ──
     try:

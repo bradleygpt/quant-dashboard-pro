@@ -167,44 +167,116 @@ def render_bitcoin_section():
     from cycle_timeline import render_cycle_timing_section
     render_cycle_timing_section()
 
-    # Historical cycle overlay chart
+    # Current cycle with historical projection band
     st.markdown("---")
-    st.markdown("### Historical Cycle Comparison")
-    st.caption("Each cycle's price action normalized to 100 at halving date. Shows whether the current cycle is tracking, exceeding, or lagging prior cycles. Cycle 1 (2012) is omitted from this chart because yfinance lacks reliable pre-2014 BTC price data — but it is included in the timing analysis above.")
+    st.markdown("### Current Cycle vs Historical Projection")
+    st.caption(
+        "Solid orange line is the actual current cycle (April 2024 halving onward). "
+        "The shaded gray band shows where past cycles (2016 and 2020) traded at the same days-since-halving, "
+        "scaled to the current cycle's halving price ($64,000). "
+        "Where the orange line is INSIDE the band, current cycle is tracking history. "
+        "Where it's BELOW, current cycle is underperforming. ABOVE means outperforming."
+    )
 
     overlay = build_cycle_overlay_data(btc_history)
     if overlay is not None and not overlay.empty:
-        fig = go.Figure()
-        cycle_colors = {"cycle_2016": "#888", "cycle_2020": "#5DADE2", "cycle_2024": "#F7931A"}
-        cycle_labels = {"cycle_2016": "2016-2020 cycle", "cycle_2020": "2020-2024 cycle", "cycle_2024": "2024-2028 cycle (current)"}
+        # Get today's days-since-halving
+        from datetime import datetime as dt
+        current_halving = dt(2024, 4, 19)
+        today_days = (dt.now() - current_halving).days
 
-        for col in overlay.columns:
-            if col == "days_since_halving":
-                continue
-            data = overlay[["days_since_halving", col]].dropna()
-            if data.empty:
-                continue
+        fig = go.Figure()
+
+        # Add the projection band (shaded area between low and high)
+        band_data = overlay[["days_since_halving", "projected_low", "projected_high", "projected_median"]].dropna()
+        if not band_data.empty:
+            # Upper bound (invisible, for fill anchor)
             fig.add_trace(go.Scatter(
-                x=data["days_since_halving"],
-                y=data[col],
-                name=cycle_labels.get(col, col),
-                line=dict(color=cycle_colors.get(col, "#666"), width=3 if col == "cycle_2024" else 2),
+                x=band_data["days_since_halving"],
+                y=band_data["projected_high"],
+                mode="lines",
+                line=dict(color="rgba(150,150,150,0.0)", width=0),
+                hoverinfo="skip",
+                showlegend=False,
+                name="High",
+            ))
+            # Lower bound, fill to upper
+            fig.add_trace(go.Scatter(
+                x=band_data["days_since_halving"],
+                y=band_data["projected_low"],
+                mode="lines",
+                line=dict(color="rgba(150,150,150,0.0)", width=0),
+                fill="tonexty",
+                fillcolor="rgba(150,150,150,0.25)",
+                hoverinfo="skip",
+                showlegend=True,
+                name="Historical range (cycles 2 & 3)",
+            ))
+            # Median line
+            fig.add_trace(go.Scatter(
+                x=band_data["days_since_halving"],
+                y=band_data["projected_median"],
+                mode="lines",
+                line=dict(color="rgba(150,150,150,0.8)", width=1, dash="dot"),
+                name="Historical median",
             ))
 
-        # Add halving date marker
-        fig.add_vline(x=0, line_dash="dash", line_color="red", annotation_text="Halving")
+        # Add the current cycle line (orange, prominent)
+        cycle_data = overlay[["days_since_halving", "current_price"]].dropna()
+        if not cycle_data.empty:
+            fig.add_trace(go.Scatter(
+                x=cycle_data["days_since_halving"],
+                y=cycle_data["current_price"],
+                mode="lines",
+                line=dict(color="#F7931A", width=3),
+                name="Current cycle (2024-)",
+            ))
 
-        # Add typical peak window
-        fig.add_vrect(x0=400, x1=550, fillcolor="green", opacity=0.1, annotation_text="Typical peak window")
+        # Add today marker
+        fig.add_vline(
+            x=today_days, line_dash="solid", line_color="red", line_width=2,
+            annotation_text="<b>TODAY</b>", annotation_position="top",
+        )
+
+        # Add halving marker at day 0
+        fig.add_vline(x=0, line_dash="dash", line_color="gray", annotation_text="Halving")
+
+        # Typical peak window highlight
+        fig.add_vrect(
+            x0=520, x1=550, fillcolor="green", opacity=0.15,
+            annotation_text="Historical peak window",
+            annotation_position="top left",
+            line_width=0,
+        )
 
         fig.update_layout(
-            xaxis_title="Days since halving",
-            yaxis_title="Price (normalized to 100 at halving)",
+            xaxis_title="Days since April 2024 halving",
+            yaxis_title="BTC Price (USD)",
             yaxis_type="log",
-            height=500,
+            height=520,
             hovermode="x unified",
         )
         st.plotly_chart(fig, use_container_width=True)
+
+        # Reading guide
+        with st.expander("📖 How to read this chart"):
+            st.markdown("""
+            **The orange line** is what BTC has actually done this cycle. It stops at today.
+
+            **The gray band** is where prior cycles (2016 and 2020) traded at the same days-since-halving,
+            with prices scaled so day 0 = $64,000 (the current cycle's halving price). Forward of today,
+            the band shows the range where BTC HISTORICALLY went next from this point in the cycle.
+
+            **The dotted gray line** is the median of historical paths.
+
+            **Where the orange is below the band today:** current cycle is underperforming history.
+            **Where the orange went above the band:** current cycle exceeded history at that point.
+            **Past day 741 (today):** only the band is shown — that's the historical-range projection.
+
+            **Important:** This is NOT a price forecast. It's saying "at this point in past cycles, prices
+            were in this range." The actual future price could be anywhere — historical patterns may not
+            repeat, especially given ETF-driven structural changes to the market.
+            """)
 
     # BTC long-term price chart
     st.markdown("---")
