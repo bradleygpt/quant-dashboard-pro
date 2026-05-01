@@ -118,30 +118,68 @@ MAX_FETCH_ATTEMPTS_PER_GROUP = 8
 # Fetch logic
 # ════════════════════════════════════════════════════════════════════
 
+def _get_current_crypto_prices():
+    """Fetch current BTC and ETH prices for context in pundit prompts."""
+    try:
+        import yfinance as yf
+        btc = yf.Ticker("BTC-USD").history(period="5d")
+        eth = yf.Ticker("ETH-USD").history(period="5d")
+        btc_price = float(btc["Close"].iloc[-1]) if not btc.empty else None
+        eth_price = float(eth["Close"].iloc[-1]) if not eth.empty else None
+        return btc_price, eth_price
+    except Exception:
+        return None, None
+
+
 def get_crypto_pundit_prompt(pundit_name, firm):
     """Build the prompt for fetching one crypto pundit's recent view."""
-    return f"""Search the web for {pundit_name} ({firm})'s most recent (last 4 weeks) public statements about Bitcoin, Ethereum, or the broader cryptocurrency market.
+    btc_price, eth_price = _get_current_crypto_prices()
 
-Return ONLY a JSON object in this exact format, no other text:
+    if btc_price and eth_price:
+        market_context = (
+            f"\n\nIMPORTANT MARKET CONTEXT (use to validate response):\n"
+            f"- Current BTC price: ~${btc_price:,.0f}\n"
+            f"- Current ETH price: ~${eth_price:,.0f}\n"
+            f"- Today's date: {__import__('datetime').datetime.now().strftime('%B %d, %Y')}\n"
+        )
+        directional_rule = (
+            f"   - BTC price targets ABOVE ~${btc_price:,.0f} = bullish direction\n"
+            f"   - BTC price targets BELOW ~${btc_price:,.0f} = bearish direction\n"
+            f"   - Same logic for ETH (current ~${eth_price:,.0f})"
+        )
+    else:
+        market_context = ""
+        directional_rule = "   - Stance must match the directional language used"
+
+    return f"""Search the web for {pundit_name} ({firm})'s most recent (within the last 4 weeks ONLY) public statements about Bitcoin, Ethereum, or cryptocurrency markets.{market_context}
+
+CRITICAL ACCURACY REQUIREMENTS:
+1. ONLY use statements made within the last 4 weeks.
+2. If you cannot verify recent statements, return the error response.
+3. Stance must match price targets directionally:
+{directional_rule}
+4. Do not fabricate dates, sources, or quotes.
+5. Returning the error is better than misclassifying.
+
+Return ONLY a JSON object:
 {{
   "name": "{pundit_name}",
   "current_stance": "Very Bullish" | "Bullish" | "Cautiously Bullish" | "Neutral" | "Cautious" | "Bearish" | "Very Bearish",
-  "key_quote": "A direct quote of 15-25 words from their recent statement about crypto",
-  "quote_source": "The publication or platform (e.g., X/Twitter, CNBC, podcast name)",
-  "quote_date_approx": "Approximate date or 'Last 2 weeks'",
-  "key_views": ["Bullet 1 about their crypto view", "Bullet 2", "Bullet 3"],
-  "btc_stance": "Their specific BTC view if mentioned, or 'Not specified'",
-  "eth_stance": "Their specific ETH view if mentioned, or 'Not specified'",
-  "price_target": "Specific BTC or ETH price target if mentioned, or directional view"
+  "key_quote": "Direct quote of 15-25 words from recent statement",
+  "quote_source": "Publication or platform (e.g., X/Twitter, CNBC, podcast name)",
+  "quote_date_approx": "Specific recent date",
+  "key_views": ["Bullet 1", "Bullet 2", "Bullet 3"],
+  "btc_stance": "Their BTC view if mentioned, or 'Not specified'",
+  "eth_stance": "Their ETH view if mentioned, or 'Not specified'",
+  "price_target": "Specific target with implied % move from current price, or directional view"
 }}
 
-If you cannot find recent statements (within last 6 weeks), return:
+If no verifiable recent statements OR if quote conflicts with stance, return:
 {{
   "name": "{pundit_name}",
-  "error": "No recent public statements found"
+  "error": "No recent verifiable statements found"
 }}
 
-Be accurate. Do not fabricate quotes or stances. If unsure, return the error message.
 Focus on cryptocurrency views, not equities or general economics."""
 
 

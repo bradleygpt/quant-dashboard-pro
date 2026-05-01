@@ -145,9 +145,57 @@ MAX_DISPLAYED_PER_GROUP = 5  # Display up to this many per group
 MAX_FETCH_ATTEMPTS_PER_GROUP = 8  # Hard cap to control API cost
 
 
+def _get_current_spy_price():
+    """Fetch current SPY price for context in pundit prompts."""
+    try:
+        import yfinance as yf
+        spy = yf.Ticker("SPY")
+        hist = spy.history(period="5d")
+        if not hist.empty:
+            spy_price = float(hist["Close"].iloc[-1])
+            # SPY * 10 = approximate S&P 500 index level
+            sp500_level = spy_price * 10
+            return spy_price, sp500_level
+    except Exception:
+        pass
+    return None, None
+
+
 def get_pundit_prompt(pundit_name, firm):
     """Build the prompt for fetching one pundit's recent view."""
-    return f"""Search the web for {pundit_name} ({firm})'s most recent (last 4 weeks) public statements about the US stock market outlook.
+    spy_price, sp500_level = _get_current_spy_price()
+
+    # Build context strings (avoid complex f-string conditionals)
+    if sp500_level:
+        sp500_str = f"{sp500_level:,.0f}"
+        spy_str = f"${spy_price:,.2f}"
+        market_context = (
+            f"\n\nIMPORTANT MARKET CONTEXT (use this to validate your response):\n"
+            f"- Current S&P 500 level: approximately {sp500_str}\n"
+            f"- Current SPY price: approximately {spy_str}\n"
+            f"- Today's date: {__import__('datetime').datetime.now().strftime('%B %d, %Y')}\n"
+        )
+        rule_3 = (
+            f"   - If S&P 500 target is ABOVE current level (~{sp500_str}), stance is Bullish/Cautiously Bullish\n"
+            f"   - If target is BELOW current level (~{sp500_str}), stance is Bearish/Cautious (NOT Bullish)\n"
+            f"   - If no target or unclear, use language tone to determine stance"
+        )
+    else:
+        market_context = ""
+        rule_3 = (
+            "   - Stance must match directional language used by the commentator\n"
+            "   - Bullish requires positive forward language; bearish requires negative"
+        )
+
+    return f"""Search the web for {pundit_name} ({firm})'s most recent (within the last 4 weeks ONLY) public statements about the US stock market outlook.{market_context}
+
+CRITICAL ACCURACY REQUIREMENTS:
+1. ONLY use statements made within the last 4 weeks. Do not use older quotes even if they appear in recent articles.
+2. If you cannot verify the quote was made recently, return the error response below.
+3. The stance MUST match the price target directionally:
+{rule_3}
+4. Verify the price target makes sense given the current S&P 500 level. Targets below current price imply DOWNSIDE.
+5. Do not fabricate dates, sources, or quotes. If unsure, return the error.
 
 Return ONLY a JSON object in this exact format, no other text:
 {{
@@ -155,18 +203,18 @@ Return ONLY a JSON object in this exact format, no other text:
   "current_stance": "Bullish" | "Cautiously Bullish" | "Neutral" | "Cautious" | "Bearish",
   "key_quote": "A direct quote of 15-25 words from their recent statement",
   "quote_source": "The publication or platform (e.g., CNBC, X/Twitter, Bloomberg)",
-  "quote_date_approx": "Approximate date or 'Last 2 weeks'",
+  "quote_date_approx": "Specific date or 'Last 2 weeks' — must be recent",
   "key_views": ["Bullet 1 about their view", "Bullet 2", "Bullet 3"],
-  "price_target_or_view": "Specific S&P 500 target if mentioned, or directional view"
+  "price_target_or_view": "Specific S&P 500 target if mentioned, with implied % move from current level (e.g., 'Target 7,200 = +5% upside') or directional view"
 }}
 
-If you cannot find recent statements (within last 6 weeks), return:
+If you cannot find statements from the last 4-6 weeks, OR if the quote conflicts with the stance directionally, return:
 {{
   "name": "{pundit_name}",
-  "error": "No recent public statements found"
+  "error": "No recent verifiable statements found"
 }}
 
-Be accurate. Do not fabricate quotes or stances. If unsure, return the error message."""
+Accuracy is more important than coverage. Returning the error is better than fabricating or misclassifying."""
 
 
 @st.cache_data(ttl=86400, show_spinner=False)  # 24-hour cache
