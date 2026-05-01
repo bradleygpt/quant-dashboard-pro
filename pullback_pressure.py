@@ -50,40 +50,19 @@ def compute_pullback_pressure(scored_df=None):
     components_detail = []
 
     # ── 1. VIX level (40% weight) ──
-    vix_fetched = False
+    # Use sentiment.fetch_vix_data() since it's already proven to work elsewhere.
+    # (Direct yf.Ticker("^VIX").history() with short periods sometimes returns empty
+    # on Streamlit Cloud — fetch_vix_data uses period="2y" which is reliable.)
     vix_now = None
-
-    # Try ^VIX first
     try:
-        vix = yf.Ticker("^VIX").history(period="5d")
-        if not vix.empty and not vix["Close"].dropna().empty:
-            vix_now = float(vix["Close"].dropna().iloc[-1])
-            vix_fetched = True
+        from sentiment import fetch_vix_data
+        vix_data = fetch_vix_data()
+        if vix_data and "current" in vix_data:
+            vix_now = float(vix_data["current"])
     except Exception:
         pass
 
-    # Fallback: try VIXY ETF (loosely tracks VIX) and convert
-    if not vix_fetched:
-        try:
-            vixy = yf.Ticker("VIXY").history(period="5d")
-            if not vixy.empty and not vixy["Close"].dropna().empty:
-                # VIXY price doesn't equal VIX directly; this is a rough fallback
-                # If we can't get VIX itself, mark it n/a but set a neutral score
-                pass
-        except Exception:
-            pass
-
-    # Fallback 2: try a longer period for ^VIX
-    if not vix_fetched:
-        try:
-            vix = yf.Ticker("^VIX").history(period="1mo")
-            if not vix.empty and not vix["Close"].dropna().empty:
-                vix_now = float(vix["Close"].dropna().iloc[-1])
-                vix_fetched = True
-        except Exception:
-            pass
-
-    if vix_fetched and vix_now is not None:
+    if vix_now is not None:
         # VIX scoring: <12 extreme low (90), 14 (75), 18 (50), 22 (25), >28 (10)
         vix_score = float(np.clip(100 - ((vix_now - 10) * 5), 0, 100))
         components["vix"] = vix_score
