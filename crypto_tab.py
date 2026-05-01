@@ -222,7 +222,7 @@ def render_bitcoin_section():
     for h in HALVINGS:
         if h["date"] <= datetime.now():
             fig_price.add_vline(
-                x=h["date"], line_dash="dash", line_color="red", opacity=0.5,
+                x=h["date"].timestamp() * 1000, line_dash="dash", line_color="red", opacity=0.5,
                 annotation_text=f"Halving {h['date'].year}",
                 annotation_position="top right",
             )
@@ -343,7 +343,7 @@ def render_ethereum_section():
     # The Merge marker
     merge_date = ETH_SUPPLY_REFERENCES["merge_date"]
     fig.add_vline(
-        x=merge_date, line_dash="dash", line_color="green", opacity=0.7,
+        x=merge_date.timestamp() * 1000, line_dash="dash", line_color="green", opacity=0.7,
         annotation_text="The Merge (PoS)", annotation_position="top right",
     )
 

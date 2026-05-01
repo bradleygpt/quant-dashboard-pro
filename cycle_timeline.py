@@ -436,7 +436,7 @@ def render_cycle_timeline():
     if show_etf:
         for etf in ETF_EVENTS:
             fig.add_vline(
-                x=etf["date"],
+                x=etf["date"].timestamp() * 1000,
                 line_dash="dashdot",
                 line_color=etf["color"],
                 line_width=2,
@@ -449,7 +449,7 @@ def render_cycle_timeline():
     # Add horizontal lines for each "lane"
     # X-axis range starts based on earliest cycle shown
     earliest_date = min(c["halving"] for c in cycles_to_show)
-    annotation_x = earliest_date - timedelta(days=120)
+    annotation_x = (earliest_date - timedelta(days=120)).timestamp() * 1000
     for y, label in [(1, "Halvings"), (0.7, "Takeoffs"), (0.4, "Peaks"), (0.1, "Bottoms")]:
         fig.add_hline(y=y, line_dash="dot", line_color="rgba(128,128,128,0.3)", line_width=1)
         fig.add_annotation(
@@ -461,14 +461,15 @@ def render_cycle_timeline():
 
     # YOU ARE HERE marker
     fig.add_vline(
-        x=today, line_dash="solid", line_color="red", line_width=3,
+        x=today.timestamp() * 1000, line_dash="solid", line_color="red", line_width=3,
         annotation_text="<b>TODAY</b>", annotation_position="top",
         annotation_font=dict(size=14, color="red"),
     )
 
     # Highlight projected cycle window
     fig.add_vrect(
-        x0=next_halving, x1=next_peak + timedelta(days=60),
+        x0=next_halving.timestamp() * 1000,
+        x1=(next_peak + timedelta(days=60)).timestamp() * 1000,
         fillcolor="purple", opacity=0.1,
         annotation_text="Projected next cycle window",
         annotation_position="top left",
