@@ -165,37 +165,29 @@ def get_pundit_prompt(pundit_name, firm):
     """Build the prompt for fetching one pundit's recent view."""
     spy_price, sp500_level = _get_current_spy_price()
 
-    # Build context strings (avoid complex f-string conditionals)
+    # Build context strings
     if sp500_level:
         sp500_str = f"{sp500_level:,.0f}"
         spy_str = f"${spy_price:,.2f}"
         market_context = (
-            f"\n\nIMPORTANT MARKET CONTEXT (use this to validate your response):\n"
+            f"\n\nCURRENT MARKET CONTEXT (use to validate response):\n"
+            f"- Today's date: {__import__('datetime').datetime.now().strftime('%B %d, %Y')}\n"
             f"- Current S&P 500 level: approximately {sp500_str}\n"
             f"- Current SPY price: approximately {spy_str}\n"
-            f"- Today's date: {__import__('datetime').datetime.now().strftime('%B %d, %Y')}\n"
         )
-        rule_3 = (
-            f"   - If S&P 500 target is ABOVE current level (~{sp500_str}), stance is Bullish/Cautiously Bullish\n"
-            f"   - If target is BELOW current level (~{sp500_str}), stance is Bearish/Cautious (NOT Bullish)\n"
-            f"   - If no target or unclear, use language tone to determine stance"
+        directional_warning = (
+            f"IMPORTANT: The S&P 500 is currently at ~{sp500_str}. "
+            f"If you find a target like 5,200 or other number BELOW current level, "
+            f"that implies DOWNSIDE — stance should be Bearish or Cautious, not Bullish. "
+            f"Check directionally: bullish targets must be ABOVE current level."
         )
     else:
         market_context = ""
-        rule_3 = (
-            "   - Stance must match directional language used by the commentator\n"
-            "   - Bullish requires positive forward language; bearish requires negative"
-        )
+        directional_warning = "Ensure stance matches the directional language used by the commentator."
 
-    return f"""Search the web for {pundit_name} ({firm})'s most recent (within the last 4 weeks ONLY) public statements about the US stock market outlook.{market_context}
+    return f"""Search the web for {pundit_name} ({firm})'s recent (last 4-6 weeks) public statements about the US stock market outlook.{market_context}
 
-CRITICAL ACCURACY REQUIREMENTS:
-1. ONLY use statements made within the last 4 weeks. Do not use older quotes even if they appear in recent articles.
-2. If you cannot verify the quote was made recently, return the error response below.
-3. The stance MUST match the price target directionally:
-{rule_3}
-4. Verify the price target makes sense given the current S&P 500 level. Targets below current price imply DOWNSIDE.
-5. Do not fabricate dates, sources, or quotes. If unsure, return the error.
+{directional_warning}
 
 Return ONLY a JSON object in this exact format, no other text:
 {{
@@ -203,18 +195,81 @@ Return ONLY a JSON object in this exact format, no other text:
   "current_stance": "Bullish" | "Cautiously Bullish" | "Neutral" | "Cautious" | "Bearish",
   "key_quote": "A direct quote of 15-25 words from their recent statement",
   "quote_source": "The publication or platform (e.g., CNBC, X/Twitter, Bloomberg)",
-  "quote_date_approx": "Specific date or 'Last 2 weeks' — must be recent",
+  "quote_date_approx": "Approximate date or 'Last 2 weeks'",
   "key_views": ["Bullet 1 about their view", "Bullet 2", "Bullet 3"],
-  "price_target_or_view": "Specific S&P 500 target if mentioned, with implied % move from current level (e.g., 'Target 7,200 = +5% upside') or directional view"
+  "price_target_or_view": "Specific S&P 500 target if mentioned (with implied direction from current level), or qualitative view"
 }}
 
-If you cannot find statements from the last 4-6 weeks, OR if the quote conflicts with the stance directionally, return:
+If you genuinely cannot find any recent statements (within last 6 weeks), return:
 {{
   "name": "{pundit_name}",
-  "error": "No recent verifiable statements found"
+  "error": "No recent public statements found"
 }}
 
-Accuracy is more important than coverage. Returning the error is better than fabricating or misclassifying."""
+Be accurate. Do not fabricate quotes. If a price target is mentioned, verify it makes directional sense given the current S&P 500 level."""
+
+
+def _validate_and_correct_view(view, current_sp500=None):
+    """
+    Post-fetch validation: catch Tom Lee-style errors where the stance doesn't
+    match the price target directionally.
+
+    If a price target is found in the response and it's below current S&P 500
+    level by >5%, but stance is Bullish, downgrade the stance and add a note.
+    """
+    if "error" in view or not current_sp500:
+        return view
+
+    target_text = view.get("price_target_or_view", "")
+    stance = view.get("current_stance", "")
+
+    if not target_text or not stance:
+        return view
+
+    # Try to extract a numeric target from the text (e.g., "5,200" or "7200")
+    import re
+    # Look for numbers between 3,000-15,000 (reasonable S&P 500 range)
+    matches = re.findall(r'\b(\d[\d,]*\d|\d)\b', target_text.replace(",", ""))
+    candidate_targets = []
+    for m in matches:
+        try:
+            n = int(m.replace(",", ""))
+            if 3000 <= n <= 15000:
+                candidate_targets.append(n)
+        except ValueError:
+            pass
+
+    if not candidate_targets:
+        return view  # No specific number found, skip validation
+
+    # Use the first reasonable target found
+    target = candidate_targets[0]
+    pct_move = ((target - current_sp500) / current_sp500) * 100
+
+    # If target implies meaningful downside (>5%), the stance should not be bullish
+    is_bullish_stance = stance in ("Bullish", "Cautiously Bullish")
+    is_bearish_stance = stance in ("Bearish", "Cautious")
+
+    if pct_move <= -5 and is_bullish_stance:
+        # Directional mismatch detected — override stance and flag
+        view["_validation_warning"] = (
+            f"Stance auto-corrected: target {target:,} implies {pct_move:.1f}% downside "
+            f"from current ~{current_sp500:,.0f}, which conflicts with '{stance}' stance."
+        )
+        view["current_stance"] = "Bearish" if pct_move <= -10 else "Cautious"
+    elif pct_move >= 5 and is_bearish_stance:
+        # Reverse mismatch (rare): target implies upside but stance is bearish
+        view["_validation_warning"] = (
+            f"Stance auto-corrected: target {target:,} implies {pct_move:+.1f}% upside "
+            f"from current ~{current_sp500:,.0f}, which conflicts with '{stance}' stance."
+        )
+        view["current_stance"] = "Bullish" if pct_move >= 10 else "Cautiously Bullish"
+
+    # Always annotate the price target with the implied move so users can see it
+    if pct_move and "price_target_or_view" in view:
+        view["price_target_or_view"] = f"{view['price_target_or_view']} (implies {pct_move:+.1f}% from current ~{current_sp500:,.0f})"
+
+    return view
 
 
 @st.cache_data(ttl=86400, show_spinner=False)  # 24-hour cache
@@ -224,6 +279,7 @@ def fetch_pundit_view(pundit_name, firm):
         return {"name": pundit_name, "error": "AI not configured"}
 
     prompt = get_pundit_prompt(pundit_name, firm)
+    spy_price, sp500_level = _get_current_spy_price()
 
     try:
         result = _call_gemini(prompt, max_tokens=600, temperature=0.3)
@@ -238,23 +294,30 @@ def fetch_pundit_view(pundit_name, firm):
             text = "\n".join(lines[1:-1] if lines[-1].startswith("```") else lines[1:])
 
         import json
+        parsed = None
         try:
             parsed = json.loads(text)
-            return parsed
         except json.JSONDecodeError:
             # Try to extract JSON from response
             import re
             match = re.search(r'\{.*\}', text, re.DOTALL)
             if match:
                 try:
-                    return json.loads(match.group(0))
+                    parsed = json.loads(match.group(0))
                 except Exception:
                     pass
+
+        if parsed is None:
             return {
                 "name": pundit_name,
                 "error": "Could not parse AI response as JSON",
                 "raw_response": text[:200],
             }
+
+        # Post-fetch validation: catch directional mismatches
+        parsed = _validate_and_correct_view(parsed, current_sp500=sp500_level)
+        return parsed
+
     except Exception as e:
         return {"name": pundit_name, "error": f"Fetch failed: {str(e)[:120]}"}
 
@@ -443,6 +506,9 @@ def render_pundit_outlook_panel():
                     expanded=False,
                 ):
                     st.markdown(f"**Firm:** {v.get('firm', 'n/a')} | **Focus:** {v.get('specialty', 'n/a')}")
+
+                    if v.get("_validation_warning"):
+                        st.warning(f"⚠️ {v['_validation_warning']}")
 
                     if v.get("key_quote"):
                         st.markdown(f'> "{v["key_quote"]}"')

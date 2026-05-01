@@ -137,29 +137,23 @@ def get_crypto_pundit_prompt(pundit_name, firm):
 
     if btc_price and eth_price:
         market_context = (
-            f"\n\nIMPORTANT MARKET CONTEXT (use to validate response):\n"
+            f"\n\nCURRENT MARKET CONTEXT (use to validate response):\n"
+            f"- Today's date: {__import__('datetime').datetime.now().strftime('%B %d, %Y')}\n"
             f"- Current BTC price: ~${btc_price:,.0f}\n"
             f"- Current ETH price: ~${eth_price:,.0f}\n"
-            f"- Today's date: {__import__('datetime').datetime.now().strftime('%B %d, %Y')}\n"
         )
-        directional_rule = (
-            f"   - BTC price targets ABOVE ~${btc_price:,.0f} = bullish direction\n"
-            f"   - BTC price targets BELOW ~${btc_price:,.0f} = bearish direction\n"
-            f"   - Same logic for ETH (current ~${eth_price:,.0f})"
+        directional_warning = (
+            f"IMPORTANT: BTC is at ~${btc_price:,.0f}, ETH is at ~${eth_price:,.0f}. "
+            f"Price targets BELOW current levels imply DOWNSIDE — stance should be Bearish/Cautious. "
+            f"Targets ABOVE current levels imply UPSIDE — stance should be Bullish."
         )
     else:
         market_context = ""
-        directional_rule = "   - Stance must match the directional language used"
+        directional_warning = "Stance must match the directional language used."
 
-    return f"""Search the web for {pundit_name} ({firm})'s most recent (within the last 4 weeks ONLY) public statements about Bitcoin, Ethereum, or cryptocurrency markets.{market_context}
+    return f"""Search the web for {pundit_name} ({firm})'s recent (last 4-6 weeks) public statements about Bitcoin, Ethereum, or cryptocurrency markets.{market_context}
 
-CRITICAL ACCURACY REQUIREMENTS:
-1. ONLY use statements made within the last 4 weeks.
-2. If you cannot verify recent statements, return the error response.
-3. Stance must match price targets directionally:
-{directional_rule}
-4. Do not fabricate dates, sources, or quotes.
-5. Returning the error is better than misclassifying.
+{directional_warning}
 
 Return ONLY a JSON object:
 {{
@@ -167,19 +161,20 @@ Return ONLY a JSON object:
   "current_stance": "Very Bullish" | "Bullish" | "Cautiously Bullish" | "Neutral" | "Cautious" | "Bearish" | "Very Bearish",
   "key_quote": "Direct quote of 15-25 words from recent statement",
   "quote_source": "Publication or platform (e.g., X/Twitter, CNBC, podcast name)",
-  "quote_date_approx": "Specific recent date",
+  "quote_date_approx": "Approximate date or 'Last 2 weeks'",
   "key_views": ["Bullet 1", "Bullet 2", "Bullet 3"],
   "btc_stance": "Their BTC view if mentioned, or 'Not specified'",
   "eth_stance": "Their ETH view if mentioned, or 'Not specified'",
-  "price_target": "Specific target with implied % move from current price, or directional view"
+  "price_target": "Specific target with implied direction from current price, or qualitative view"
 }}
 
-If no verifiable recent statements OR if quote conflicts with stance, return:
+If you genuinely cannot find recent statements, return:
 {{
   "name": "{pundit_name}",
-  "error": "No recent verifiable statements found"
+  "error": "No recent public statements found"
 }}
 
+Be accurate. If a price target is mentioned, verify it makes directional sense given the current price.
 Focus on cryptocurrency views, not equities or general economics."""
 
 
