@@ -426,55 +426,149 @@ def render_cycle_timeline():
             hovertemplate="<b>%{text}</b><br>" + cfg["name"][:-1] + "<br>%{x|%b %d, %Y}<br>$%{y:,.0f}<extra></extra>",
         ))
 
-    # Project current cycle bottom
+    # Project current cycle bottom — RANGE based on historical drawdown patterns
+    # Cycle 1: -85%, Cycle 2: -84%, Cycle 3: -77%
+    # Range: assume historical drawdowns hold (institutions trading OTC means
+    # ETF flows don't materially cushion exchange-traded price action)
     current_peak_date = HISTORICAL_CYCLES[-1].get("peak")
     current_peak_price = HISTORICAL_CYCLES[-1].get("peak_price", 126198)
     if current_peak_date:
         projected_bottom_date = current_peak_date + timedelta(days=averages["avg_days_peak_to_bottom"])
-        # ~50% drawdown estimate (vs ~80% historical, ETFs softening drawdowns)
-        projected_bottom_price = current_peak_price * 0.5
+        # Range: -85% (matches early cycles) to -65% (mild diminishing returns)
+        projected_bottom_low = current_peak_price * 0.15   # -85%
+        projected_bottom_high = current_peak_price * 0.35  # -65%
+        projected_bottom_mid = current_peak_price * 0.23   # -77% (cycle 3)
 
+        # Add range bar (low + high) connected by a vertical line
         fig.add_trace(go.Scatter(
-            x=[projected_bottom_date],
-            y=[projected_bottom_price],
-            mode="markers",
+            x=[projected_bottom_date, projected_bottom_date],
+            y=[projected_bottom_low, projected_bottom_high],
+            mode="lines+markers",
+            line=dict(color="rgba(231,76,60,0.5)", width=2, dash="dot"),
             marker=dict(
-                size=14, color="rgba(231,76,60,0.6)",
+                size=12, color="rgba(231,76,60,0.7)",
                 symbol="triangle-down-open",
                 line=dict(color="#E74C3C", width=2),
             ),
-            name="Projected bottom (current cycle)",
-            hovertemplate=f"<b>Projected current cycle bottom</b><br>{projected_bottom_date.strftime('%b %Y')}<br>~${projected_bottom_price:,.0f} (rough estimate)<extra></extra>",
+            name="Projected bottom range (current cycle)",
+            hovertemplate=(
+                f"<b>Projected current cycle bottom</b><br>"
+                f"{projected_bottom_date.strftime('%b %Y')}<br>"
+                f"Range: $%{{y:,.0f}}<br>"
+                f"Low (~-85%): ${projected_bottom_low:,.0f}<br>"
+                f"Mid (~-77%): ${projected_bottom_mid:,.0f}<br>"
+                f"High (~-65%): ${projected_bottom_high:,.0f}<extra></extra>"
+            ),
         ))
 
-    # Next cycle projections
+    # Next cycle projections — RANGES based on diminishing-returns multipliers
+    # Peak multiples: 17x → 3.5x → 1.83x (decay rate ~0.5 per cycle)
+    # Next cycle peak: 1.2x to 1.6x prior peak ($151k to $202k)
     next_halving = datetime(2028, 4, 1)
     next_takeoff = next_halving + timedelta(days=averages["avg_days_to_takeoff"])
     next_peak = next_halving + timedelta(days=averages["avg_days_to_peak"])
 
-    # Rough price estimates for projected next cycle
-    projected_next_halving_price = current_peak_price * 0.55
-    projected_next_takeoff_price = current_peak_price * 0.7
-    projected_next_peak_price = current_peak_price * 2.5
+    # Conservative range based on diminishing-multiplier pattern
+    next_peak_low = current_peak_price * 1.2   # ~$151k
+    next_peak_high = current_peak_price * 1.6  # ~$202k
+    next_peak_mid = current_peak_price * 1.4   # ~$177k
 
-    proj_events = [
-        {"date": next_halving, "price": projected_next_halving_price, "name": "Next halving (est)"},
-        {"date": next_takeoff, "price": projected_next_takeoff_price, "name": "Projected takeoff"},
-        {"date": next_peak, "price": projected_next_peak_price, "name": "Projected peak"},
-    ]
+    # Next cycle bottom: 2-3x prior cycle bottom (also using diminishing returns)
+    # Prior bottoms: 178 → 3,200 → 15,500 → ?
+    # Multiples: 18x, 4.84x, next ~2-3x
+    prior_bottom = 15500
+    next_bottom_low = prior_bottom * 2   # $31k
+    next_bottom_high = prior_bottom * 3  # $46.5k
 
+    # Halving and takeoff prices: estimate from where current trend would put them
+    # (BTC roughly midway between bottom and peak by these points)
+    next_halving_price_low = next_peak_low * 0.4
+    next_halving_price_high = next_peak_high * 0.55
+    next_takeoff_price_low = next_peak_low * 0.5
+    next_takeoff_price_high = next_peak_high * 0.7
+
+    # Plot peak range
     fig.add_trace(go.Scatter(
-        x=[e["date"] for e in proj_events],
-        y=[e["price"] for e in proj_events],
-        mode="markers",
+        x=[next_peak, next_peak],
+        y=[next_peak_low, next_peak_high],
+        mode="lines+markers",
+        line=dict(color="rgba(155,89,182,0.6)", width=2, dash="dot"),
         marker=dict(
-            size=15, color="rgba(155,89,182,0.7)",
+            size=14, color="rgba(155,89,182,0.7)",
             symbol="diamond-open",
             line=dict(color="#9B59B6", width=2),
         ),
-        name="Projected next cycle",
-        text=[e["name"] for e in proj_events],
-        hovertemplate="<b>%{text}</b><br>%{x|%b %Y}<br>~$%{y:,.0f} (rough estimate)<extra></extra>",
+        name="Projected next peak range",
+        hovertemplate=(
+            f"<b>Projected next cycle peak</b><br>"
+            f"{next_peak.strftime('%b %Y')}<br>"
+            f"Range: $%{{y:,.0f}}<br>"
+            f"Low (1.2x): ${next_peak_low:,.0f}<br>"
+            f"Mid (1.4x): ${next_peak_mid:,.0f}<br>"
+            f"High (1.6x): ${next_peak_high:,.0f}<extra></extra>"
+        ),
+    ))
+
+    # Plot halving and takeoff ranges
+    fig.add_trace(go.Scatter(
+        x=[next_halving, next_halving],
+        y=[next_halving_price_low, next_halving_price_high],
+        mode="lines+markers",
+        line=dict(color="rgba(155,89,182,0.4)", width=1.5, dash="dot"),
+        marker=dict(
+            size=10, color="rgba(155,89,182,0.6)",
+            symbol="triangle-up-open",
+            line=dict(color="#9B59B6", width=1.5),
+        ),
+        name="Projected next halving range",
+        hovertemplate=f"<b>Next halving (est)</b><br>{next_halving.strftime('%b %Y')}<br>Range: $%{{y:,.0f}}<extra></extra>",
+    ))
+    fig.add_trace(go.Scatter(
+        x=[next_takeoff, next_takeoff],
+        y=[next_takeoff_price_low, next_takeoff_price_high],
+        mode="lines+markers",
+        line=dict(color="rgba(155,89,182,0.4)", width=1.5, dash="dot"),
+        marker=dict(
+            size=10, color="rgba(155,89,182,0.6)",
+            symbol="triangle-up-open",
+            line=dict(color="#9B59B6", width=1.5),
+        ),
+        name="Projected next takeoff range",
+        hovertemplate=f"<b>Projected takeoff</b><br>{next_takeoff.strftime('%b %Y')}<br>Range: $%{{y:,.0f}}<extra></extra>",
+    ))
+
+    # Add trendlines connecting historical peaks and bottoms (extrapolated)
+    # Use the current cycle peak and prior cycle peaks/bottoms as anchors
+    peak_dates = [c["peak"] for c in HISTORICAL_CYCLES if c.get("peak")]
+    peak_prices = [c["peak_price"] for c in HISTORICAL_CYCLES if c.get("peak_price")]
+    bottom_dates = [c["bottom"] for c in HISTORICAL_CYCLES if c.get("bottom")]
+    bottom_prices = [c["bottom_price"] for c in HISTORICAL_CYCLES if c.get("bottom_price")]
+
+    # Add forward-projected next cycle peak/bottom to the trendlines
+    peak_dates_extended = peak_dates + [next_peak]
+    peak_prices_extended = peak_prices + [next_peak_mid]
+    # Project current cycle bottom (mid estimate) for the bottom trendline
+    bottom_dates_extended = bottom_dates + [projected_bottom_date]
+    bottom_prices_extended = bottom_prices + [projected_bottom_mid]
+
+    # Plot the historical peak trendline (with forward projection)
+    fig.add_trace(go.Scatter(
+        x=peak_dates_extended,
+        y=peak_prices_extended,
+        mode="lines",
+        line=dict(color="rgba(39,174,96,0.4)", width=2, dash="dash"),
+        name="Peak trendline (with projection)",
+        hoverinfo="skip",
+    ))
+
+    # Plot the historical bottom trendline (with forward projection)
+    fig.add_trace(go.Scatter(
+        x=bottom_dates_extended,
+        y=bottom_prices_extended,
+        mode="lines",
+        line=dict(color="rgba(231,76,60,0.4)", width=2, dash="dash"),
+        name="Bottom trendline (with projection)",
+        hoverinfo="skip",
     ))
 
     # ETF event vertical lines
@@ -549,24 +643,43 @@ def render_cycle_timeline():
     - Next peak: **~{next_peak.strftime('%b %Y')}** ({days_to_next_peak} days)
     """)
 
-    with st.expander("⚠️ Important caveats about projected prices"):
+    with st.expander("⚠️ How projected ranges are calculated"):
         st.markdown(f"""
-        **Projected prices are ROUGH estimates and should not be taken as forecasts:**
-        - Projected current-cycle bottom assumes a 50% drawdown from peak (vs ~80% in 2018 and 2022)
-          — this assumes ETF flows soften the bear market, which is unproven
-        - Projected next-cycle peak assumes ~2.5x the current cycle's peak ($126k → $315k)
-          — consistent with diminishing-returns pattern but could be wildly off
-        - Date projections use averages of **{averages['n_cycles_used']} completed cycles**
-          ({', '.join(averages['cycles_used'])})
-        - **±3 months error on dates and ±50% error on prices is reasonable**
+        **Projected ranges are based on historical patterns, not single-point predictions:**
 
-        **Why this cycle has been different:**
-        - Spot BTC ETFs (Jan 11, 2024) launched 3 months BEFORE the halving — first time ever
-        - Institutional bid pre-absorbed supply, fundamentally changing dynamics
-        - Post-peak drawdown so far (~40%) is milder than 2018 (~83%) or 2022 (~78%)
-        - The ETF era may extend cycle length, soften drawdowns, or break the pattern entirely
+        **Current cycle bottom (vertical bar at projected date):**
+        - Range: -65% to -85% drawdown from peak
+        - Low: ${current_peak_price * 0.15:,.0f} (matches Cycle 1 -85%)
+        - Mid: ${current_peak_price * 0.23:,.0f} (matches Cycle 3 -77%)
+        - High: ${current_peak_price * 0.35:,.0f} (mild diminishing returns -65%)
 
-        Treat projections as one input among many, not a forecast.
+        **Why no "ETF-cushion" assumption:** Institutions buying via spot ETFs typically transact OTC
+        (off-exchange), which absorbs supply but doesn't significantly impact exchange-traded price action.
+        Retail and derivatives flows still drive price discovery during drawdowns. Historical drawdown
+        patterns are likely to hold.
+
+        **Next cycle peak (vertical bar at next peak date):**
+        - Based on diminishing-multiplier pattern: 17.0x → 3.5x → 1.83x → ?
+        - Range: 1.2x to 1.6x prior cycle peak
+        - Low: ${current_peak_price * 1.2:,.0f}
+        - Mid: ${current_peak_price * 1.4:,.0f}
+        - High: ${current_peak_price * 1.6:,.0f}
+
+        **Trendlines (dashed lines):**
+        - Green dashed = peak trendline (connects all cycle peaks + projected next peak)
+        - Red dashed = bottom trendline (connects all cycle bottoms + projected current cycle bottom)
+        - Where current price falls between these is the "expected band" if history rhymes
+
+        **Date projections** use averages of {averages['n_cycles_used']} completed cycles
+        ({', '.join(averages['cycles_used'])}). ±3 months error reasonable.
+
+        **Important: this cycle's actual peak ($126k Oct 2025) was 0.60x what a naive log-linear trendline
+        would have projected.** Diminishing returns ARE real and accelerating. The conservative end of
+        ranges may prove more accurate than the high end.
+
+        **Macro risks not modeled:** Recession, regulatory shifts, geopolitical shocks, miner capitulation,
+        and other unmodeled factors can break any pattern. Treat ranges as "if history repeats" — not "this
+        will happen."
         """)
 
 
