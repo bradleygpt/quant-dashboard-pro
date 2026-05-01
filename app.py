@@ -122,8 +122,8 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","📈 Pro Charts","Doppelganger","💎 Quant Portfolio","Portfolio","Monte Carlo","ETF Center","📖 Help"])
-tab_home,tab_macro,tab_sentiment,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_quantport,tab_portfolio,tab_mc,tab_etfs,tab_help=tabs
+tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","🎤 Pundit Views","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","📈 Pro Charts","Doppelganger","💎 Quant Portfolio","Portfolio","Monte Carlo","ETF Center","₿ Crypto","📖 Help"])
+tab_home,tab_macro,tab_sentiment,tab_pundits,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_quantport,tab_portfolio,tab_mc,tab_etfs,tab_crypto,tab_help=tabs
 
 def _cache_file_mtime():
     """Get modification time of the cache file. Used as a cache-buster so Streamlit
@@ -438,6 +438,11 @@ with tab_sentiment:
     with st.expander("Coming Soon"):
         for ind in COMING_SOON_INDICATORS:
             st.markdown(f"**{ind['name']}** -- *{ind.get('status','Planned')}*");st.caption(ind["description"])
+
+# ═══ TAB: PUNDIT VIEWS ════════════════════════════════════════════
+with tab_pundits:
+    from ai_pundit_outlook import render_pundit_outlook_panel
+    render_pundit_outlook_panel()
 
 # ═══ TAB: ADVANCED SCREENER ═════════════════════════════════════
 with tab_advanced:
@@ -1318,6 +1323,26 @@ with tab_quantport:
     qp_pp = render_pullback_panel(scored_df=scored_df, compact=False)
     suggested_deploy_pct = qp_pp["deploy_pct"]
 
+    # Ideal allocation panel based on pullback pressure
+    from ideal_allocation import compute_ideal_allocation
+    ideal = compute_ideal_allocation(pullback_score=qp_pp["score"])
+
+    st.markdown("### 🎯 Ideal Portfolio Allocation")
+    ic1, ic2, ic3 = st.columns(3)
+    with ic1:
+        st.metric("Target Stock %", f"{ideal['target_stock_pct']}%")
+    with ic2:
+        st.metric("Target Cash %", f"{ideal['target_cash_pct']}%")
+    with ic3:
+        st.metric("Regime", ideal['regime_label'])
+
+    st.caption(ideal['rationale'])
+
+    if ideal.get('warnings'):
+        with st.expander("⚠️ Important caveats"):
+            for w in ideal['warnings']:
+                st.markdown(f"- {w}")
+
     st.markdown("---")
 
     qp_mode = st.radio(
@@ -2107,6 +2132,11 @@ with tab_etfs:
             **Risk:** Sector and theme ETFs reduce diversification. The narrower the focus, the higher the volatility and the more your returns depend on being right about a specific narrative.
             """)
 
+# ═══ TAB: CRYPTO ═══════════════════════════════════════════════════
+with tab_crypto:
+    from crypto_tab import render_crypto_tab
+    render_crypto_tab()
+
 # ═══ TAB: HELP & GLOSSARY ═══════════════════════════════════════════
 with tab_help:
     help_section=st.radio(
@@ -2173,4 +2203,4 @@ with tab_help:
         st.markdown(DISCLAIMER)
 
 st.markdown("---")
-st.caption(f"Quant Strategy Dashboard Pro v3.11 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
+st.caption(f"Quant Strategy Dashboard Pro v3.13 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
