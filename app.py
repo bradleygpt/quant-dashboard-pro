@@ -332,6 +332,36 @@ with tab_home:
 with tab_macro:
     st.markdown("### Macroeconomic Dashboard")
     st.caption("3-factor earnings model (CPI + Unemployment + ISM) | Based on BMO & Federal Reserve research")
+
+    # Show Fear & Greed with snapshot at top of macro tab
+    from snapshots import get_snapshot, render_snapshot_metric
+
+    # Compute Fear & Greed for snapshot context
+    macro_fg_data = compute_fear_greed(
+        fetch_vix_data(),
+        compute_market_breadth(scored_df) if scored_df is not None else None,
+        fetch_index_data(),
+        fetch_buffett_indicator(),
+    )
+
+    macro_top_cols = st.columns(4)
+    with macro_top_cols[0]:
+        if macro_fg_data:
+            fg_snap = get_snapshot("fear_greed", current_value=macro_fg_data["score"])
+            render_snapshot_metric("Fear & Greed", fg_snap, format_str="{:.0f}", suffix=f"  ({macro_fg_data['classification']})")
+    with macro_top_cols[1]:
+        vix_snap = get_snapshot("vix")
+        render_snapshot_metric("VIX", vix_snap, format_str="{:.1f}")
+    with macro_top_cols[2]:
+        tnx_snap = get_snapshot("tnx")
+        render_snapshot_metric("10Y Treasury", tnx_snap, format_str="{:.2f}", suffix="%")
+    with macro_top_cols[3]:
+        dxy_snap = get_snapshot("dxy")
+        render_snapshot_metric("Dollar Index", dxy_snap, format_str="{:.2f}")
+
+    st.caption("📊 For full 1W/1M/ATH comparisons across all indexes/commodities/currencies/rates, see Markets at a Glance on the Home tab.")
+    st.markdown("---")
+
     macro=get_macro_summary()
     health=macro["health_score"]
     earnings=macro["earnings_forecast"]
@@ -1838,7 +1868,13 @@ with tab_portfolio:
                 ai_obj=st.selectbox("Investment objective",["growth","income","balanced","defensive"],key="ai_obj")
                 if st.button("Get AI Optimization",key="ai_opt"):
                     with st.spinner("AI analyzing your portfolio..."):
-                        port_summary=f"Total: ${analysis['total_value']:,.0f} across {analysis['num_holdings']} positions. Top positions: " + ", ".join([f"{r['ticker']} ({r['weight']*100:.0f}%)" for _,r in analysis["holdings_df"].nlargest(5,"weight").iterrows()])
+                        # Pass ALL holdings to AI, not just top 5 — otherwise AI may suggest adding stocks already held
+                        all_holdings = analysis["holdings_df"].sort_values("weight", ascending=False)
+                        holdings_list = ", ".join([f"{r['ticker']} ({r['weight']*100:.1f}%)" for _,r in all_holdings.iterrows()])
+                        port_summary = (
+                            f"Total: ${analysis['total_value']:,.0f} across {analysis['num_holdings']} positions. "
+                            f"ALL CURRENT HOLDINGS (do NOT recommend adding any of these — they are already owned): {holdings_list}"
+                        )
                         available=scored_df[(~scored_df.index.isin([h["ticker"] for h in st.session_state.portfolio_holdings]))&(scored_df["overall_rating"]=="Strong Buy")&(scored_df["sector"]!="ETF")].nlargest(10,"composite_score")
                         univ_summary="; ".join([f"{t}({scored_df.loc[t,'sector'][:5]},Score {scored_df.loc[t,'composite_score']:.1f})" for t in available.index[:10]])
                         ai_opt=generate_portfolio_optimization(port_summary,univ_summary,ai_obj)

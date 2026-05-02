@@ -288,12 +288,33 @@ def render_pullback_panel(scored_df=None, compact=False):
         # Compact version: just key metrics
         c1, c2, c3 = st.columns([1, 2, 2])
         with c1:
+            # Get 1W/1M snapshot if available
+            try:
+                from snapshots import get_snapshot
+                pp_snap = get_snapshot("pullback_pressure", current_value=pp["score"])
+            except Exception:
+                pp_snap = None
+
+            # Build delta string from snapshot
+            delta_html = ""
+            if pp_snap and pp_snap.get("wk_change_pct") is not None:
+                wk = pp_snap["wk_change_pct"]
+                delta_html = f'<div style="font-size: 0.75rem; opacity: 0.7; margin-top: 4px;">1W: {wk:+.1f}%'
+                if pp_snap.get("mo_change_pct") is not None:
+                    mo = pp_snap["mo_change_pct"]
+                    delta_html += f' | 1M: {mo:+.1f}%'
+                delta_html += '</div>'
+            elif pp_snap and pp_snap.get("_status") == "no_history":
+                days = pp_snap.get("_history_days", 0)
+                delta_html = f'<div style="font-size: 0.75rem; opacity: 0.5; margin-top: 4px;">Building history ({days}d)</div>'
+
             st.markdown(
                 f'<div style="text-align: center; padding: 10px; border-radius: 8px; '
                 f'background: {pp["level_color"]}22; border: 2px solid {pp["level_color"]};">'
                 f'<div style="font-size: 0.85rem; opacity: 0.7;">Pullback Pressure</div>'
                 f'<div style="font-size: 2rem; font-weight: 700; color: {pp["level_color"]};">{pp["score"]:.0f}</div>'
                 f'<div style="font-size: 0.9rem; color: {pp["level_color"]};">{pp["level"]}</div>'
+                f'{delta_html}'
                 f'</div>',
                 unsafe_allow_html=True
             )
