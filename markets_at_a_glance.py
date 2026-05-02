@@ -208,44 +208,66 @@ def render_markets_at_a_glance():
         st.error("Could not load market data. Try refreshing.")
         return
 
-    # ── Top-level sentiment indicators ──
+    # ── Top-level sentiment indicators with 1W/1M comparisons where available ──
     st.markdown("#### Sentiment & Allocation")
+
+    from snapshots import get_snapshot, render_snapshot_metric
+
     sc1, sc2, sc3, sc4, sc5 = st.columns(5)
+
     with sc1:
+        # Fear & Greed with 1W/1M from snapshot history
         if "fear_greed_score" in sentiment:
-            st.metric(
+            fg_snap = get_snapshot("fear_greed", current_value=sentiment["fear_greed_score"])
+            render_snapshot_metric(
                 "Fear & Greed",
-                f"{sentiment['fear_greed_score']:.0f}/100",
-                sentiment.get("fear_greed_classification", "")
+                fg_snap,
+                format_str="{:.0f}",
+                suffix=f"  ({sentiment.get('fear_greed_classification', '')})"
             )
+
     with sc2:
         if "pgi" in sentiment:
-            st.metric(
+            pgi_snap = get_snapshot("pgi", current_value=sentiment["pgi"])
+            render_snapshot_metric(
                 "PGI (cash %)",
-                f"{sentiment['pgi']:.2f}%",
-                sentiment.get("pgi_level", "")
+                pgi_snap,
+                format_str="{:.2f}",
+                suffix="%"
             )
+
     with sc3:
         if "money_market_t" in sentiment:
-            st.metric(
+            mm_snap = get_snapshot("money_market_t", current_value=sentiment["money_market_t"])
+            render_snapshot_metric(
                 "Money Market Assets",
-                f"${sentiment['money_market_t']:.2f}T",
-                "ICI estimate"
+                mm_snap,
+                format_str="${:.2f}T",
             )
+
     with sc4:
         if "total_mkt_cap_t" in sentiment:
-            st.metric(
+            mkt_snap = get_snapshot("total_mkt_cap_t", current_value=sentiment["total_mkt_cap_t"])
+            render_snapshot_metric(
                 "US Total Market Cap",
-                f"${sentiment['total_mkt_cap_t']:,.1f}T",
-                "Wilshire 5000"
+                mkt_snap,
+                format_str="${:,.1f}T",
             )
+
     with sc5:
         if "buffett_ratio" in sentiment:
-            st.metric(
+            buffett_snap = get_snapshot("buffett_indicator", current_value=sentiment["buffett_ratio"])
+            render_snapshot_metric(
                 "Buffett Indicator",
-                f"{sentiment['buffett_ratio']:.0f}%",
-                sentiment.get("buffett_level", "")
+                buffett_snap,
+                format_str="{:.0f}",
+                suffix="%"
             )
+
+    st.caption(
+        "📊 1W/1M comparisons for derived indicators (Fear & Greed, Buffett, etc.) are accumulating "
+        "from daily snapshots. Full 1-month comparisons available after 30 days of capture."
+    )
 
     st.markdown("---")
 

@@ -167,19 +167,29 @@ with tab_home:
         hm_fg=compute_fear_greed(hm_vix,hm_breadth,hm_index,hm_buffett)
 
     st.markdown("#### Market Health")
+    from snapshots import get_snapshot, render_snapshot_metric
+
     mh1,mh2,mh3,mh4,mh5=st.columns(5)
-    with mh1: st.metric("Fear & Greed",f"{hm_fg['score']:.0f}/100",hm_fg["classification"])
+    with mh1:
+        fg_snap = get_snapshot("fear_greed", current_value=hm_fg["score"])
+        render_snapshot_metric("Fear & Greed", fg_snap, format_str="{:.0f}", suffix=f"  ({hm_fg['classification']})")
     with mh2:
         sp_dist=0
         for idx in hm_index:
             if idx["name"]=="S&P 500": sp_dist=idx["distance_from_ath_pct"];break
         st.metric("S&P vs ATH",f"{sp_dist:+.1f}%")
     with mh3:
-        if hm_vix: st.metric("VIX",f"{hm_vix['current']:.1f}",hm_vix.get("level","N/A"))
+        if hm_vix:
+            vix_snap = get_snapshot("vix")  # price-based, fetches from yfinance
+            render_snapshot_metric("VIX", vix_snap, format_str="{:.1f}")
     with mh4:
-        if hm_breadth: st.metric("Above 200-SMA",f"{hm_breadth['pct_above_200sma']:.0f}%")
+        if hm_breadth:
+            breadth_snap = get_snapshot("breadth_above_200sma", current_value=hm_breadth['pct_above_200sma'])
+            render_snapshot_metric("Above 200-SMA", breadth_snap, format_str="{:.0f}", suffix="%")
     with mh5:
-        if hm_buffett: st.metric("Buffett Ind.",f"{hm_buffett['ratio']:.0f}%",hm_buffett.get("level","N/A"))
+        if hm_buffett:
+            buffett_snap = get_snapshot("buffett_indicator", current_value=hm_buffett['ratio'])
+            render_snapshot_metric("Buffett Ind.", buffett_snap, format_str="{:.0f}", suffix="%")
 
     st.markdown("---")
 
@@ -676,7 +686,7 @@ with tab_detail:
         # ═══ Combined Price + Quarterly Earnings Chart ═══
         st.markdown("---")
         st.markdown("### Price & Quarterly Earnings")
-        st.caption("Stock price line with quarterly EPS bars overlaid. Bars colored green when EPS beat estimates (or grew vs prior quarter when no estimate available), red when missed/declined.")
+        st.caption("Stock price line with quarterly EPS bars overlaid. Bars colored green when EPS beat analyst estimates, red when missed, gray when no estimate available. (Bar height already shows growth/decline visually.)")
         chart_period=st.selectbox("Period",["1y","2y","3y","5y","10y","max"],index=3,key="price_period")
         try:
             t_obj=yf.Ticker(sel)
@@ -754,25 +764,20 @@ with tab_detail:
                 if quarterly_eps is not None and not quarterly_eps.empty:
                     eps_sorted=quarterly_eps.sort_index()
                     bar_colors=[]
-                    # Per-bar coloring: prefer surprise %, fall back to QoQ direction
+                    # Per-bar coloring: ONLY based on beat/miss vs analyst estimates
+                    # Gray when no estimate available (don't fall back to QoQ direction —
+                    # the bar height already shows growth/decline visually)
                     eps_values=eps_sorted.values
                     eps_index=eps_sorted.index
                     for i,idx in enumerate(eps_index):
-                        # Try surprise first
                         s=None
                         if surprises_series is not None and hasattr(surprises_series,"get"):
                             s=surprises_series.get(idx)
                         if s is not None and not pd.isna(s):
-                            if s>0: bar_colors.append("#22C55E")
-                            else: bar_colors.append("#EF4444")
+                            if s>0: bar_colors.append("#22C55E")  # Beat
+                            else: bar_colors.append("#EF4444")     # Miss
                         else:
-                            # Fall back to direction vs prior quarter
-                            v=eps_values[i]
-                            if i==0: bar_colors.append("#888")  # First bar - no prior to compare
-                            else:
-                                prev=eps_values[i-1]
-                                if v>=prev: bar_colors.append("#22C55E")
-                                else: bar_colors.append("#EF4444")
+                            bar_colors.append("#888888")           # No estimate available
 
                     fig_combo.add_trace(
                         go.Bar(

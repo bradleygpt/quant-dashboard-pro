@@ -342,6 +342,22 @@ def render_cycle_timeline():
         "Hollow markers indicate projections."
     )
 
+    with st.expander("ℹ️ What is a Bitcoin halving? (click to expand)"):
+        st.markdown("""
+        A **Bitcoin halving** is a protocol event — NOT a cycle midpoint or price low — that occurs roughly every 4 years (every 210,000 blocks).
+        Each halving cuts the rate of new BTC issuance to miners by 50%:
+
+        - 2012 halving: rewards dropped from 50 → 25 BTC per block
+        - 2016 halving: 25 → 12.5 BTC per block
+        - 2020 halving: 12.5 → 6.25 BTC per block
+        - 2024 halving: 6.25 → 3.125 BTC per block (current era)
+        - 2028 halving (estimated): 3.125 → 1.5625 BTC per block
+
+        This creates a programmed supply shock. Historically, in each of the prior 3 cycles, BTC has rallied dramatically 12-18 months after the halving.
+
+        **On this chart, halving markers (purple triangles) are plotted at the BTC price on the day each halving occurred — NOT at cycle lows.** Halvings happen mid-cycle from the prior bottom, after BTC has already partially recovered. So the 2020 halving marker at ~$8,800 sits ABOVE the 2018 cycle bottom at $3,200, because BTC had bounced from $3,200 → $8,800 in the 17 months between those events.
+        """)
+
     # Toggles for what to display
     tc1, tc2, tc3 = st.columns(3)
     with tc1:

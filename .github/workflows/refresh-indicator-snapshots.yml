@@ -1,0 +1,59 @@
+name: Daily Indicator Snapshots
+# Runs at 5 PM ET (22 UTC) on weekdays — after market close
+# Captures derived indicators (Fear & Greed, Buffett, breadth, VIX) for trend tracking
+
+on:
+  schedule:
+    - cron: '0 22 * * 1-5'  # 22 UTC = 5 PM EDT, Mon-Fri
+  workflow_dispatch:
+
+jobs:
+  capture-snapshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests yfinance pandas
+
+      - name: Run indicator snapshot builder
+        run: |
+          echo "Starting indicator snapshot capture at $(date)"
+          python build_indicator_snapshots.py
+          echo "Completed at $(date)"
+
+      - name: Verify snapshot file
+        run: |
+          if [ ! -f "indicator_snapshots.json" ]; then
+            echo "ERROR: indicator_snapshots.json was not created"
+            exit 1
+          fi
+          ls -lh indicator_snapshots.json
+
+      - name: Commit and push snapshot
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add indicator_snapshots.json
+          if git diff --staged --quiet; then
+            echo "No changes detected. Nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore: indicator snapshot $(date -u +%Y-%m-%d)"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          echo "=== Pushing ==="
+          git push origin main
+          echo "=== Done ==="
