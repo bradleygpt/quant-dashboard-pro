@@ -793,6 +793,13 @@ with tab_detail:
                 # Earnings bars FIRST (so they render behind the price line)
                 if quarterly_eps is not None and not quarterly_eps.empty:
                     eps_sorted=quarterly_eps.sort_index()
+
+                    # DIAGNOSTIC: show what we actually have
+                    n_total = len(eps_sorted)
+                    n_with_surprise = 0
+                    if surprises_series is not None:
+                        n_with_surprise = surprises_series.dropna().shape[0] if hasattr(surprises_series, 'dropna') else 0
+
                     bar_colors=[]
                     # Per-bar coloring: ONLY based on beat/miss vs analyst estimates
                     # Gray when no estimate available (don't fall back to QoQ direction —
@@ -816,8 +823,8 @@ with tab_detail:
                             name="Quarterly EPS",
                             marker_color=bar_colors,
                             opacity=0.55,
-                            width=86400000*60,
-                            hovertemplate="<b>%{x|%b %Y}</b><br>EPS: $%{y:.2f}<extra></extra>",
+                            width=86400000*45,  # 45-day-wide bars (was 60, causing overlap with close-spaced earnings)
+                            hovertemplate="<b>%{x|%b %d, %Y}</b><br>EPS: $%{y:.2f}<br>Source: " + source_label + "<extra></extra>",
                         ),
                         secondary_y=True,
                     )
@@ -847,6 +854,31 @@ with tab_detail:
                 fig_combo.update_yaxes(title_text="EPS ($)",tickformat="$,.2f",showgrid=False,secondary_y=True)
 
                 st.plotly_chart(fig_combo,use_container_width=True,key="price_earnings_combo")
+
+                # ── Diagnostic: show actual earnings dates and source detail ──
+                if quarterly_eps is not None and not quarterly_eps.empty:
+                    with st.expander(f"🔍 Earnings data details ({len(quarterly_eps)} quarters fetched)"):
+                        earnings_table_rows = []
+                        for idx in eps_sorted.index:
+                            eps_val = float(eps_sorted.loc[idx])
+                            surprise_val = None
+                            if surprises_series is not None and hasattr(surprises_series, "get"):
+                                s = surprises_series.get(idx)
+                                if s is not None and not pd.isna(s):
+                                    surprise_val = float(s)
+                            earnings_table_rows.append({
+                                "Quarter Date": idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx),
+                                "EPS ($)": f"${eps_val:.2f}",
+                                "Surprise %": f"{surprise_val:+.1f}%" if surprise_val is not None else "n/a",
+                                "Color": "🟢 Beat" if surprise_val is not None and surprise_val > 0 else ("🔴 Miss" if surprise_val is not None else "⚪ No estimate"),
+                            })
+                        st.dataframe(pd.DataFrame(earnings_table_rows), use_container_width=True, hide_index=True)
+                        st.caption(f"Source: {source_label}. If you see fewer rows than expected, the data source returned incomplete data — try a different `chart_period` (e.g., '10y' for older data) or check fetch errors below.")
+                        if fetch_errors:
+                            st.markdown("**Fetch errors by source:**")
+                            for k, v in fetch_errors.items():
+                                if v:
+                                    st.caption(f"- {k}: {v[:200]}")
 
                 # Source badge
                 if eps_source=="finnhub":

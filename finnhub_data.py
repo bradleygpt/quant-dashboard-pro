@@ -34,7 +34,7 @@ def is_finnhub_configured():
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
-def fetch_finnhub_earnings(ticker, limit=20):
+def fetch_finnhub_earnings(ticker, limit=50):
     """
     Fetch quarterly earnings from Finnhub.
 
@@ -219,8 +219,8 @@ def get_finnhub_earnings_data(ticker, period_start=None):
     """
     result = {"ticker": ticker, "source": "finnhub"}
 
-    # Primary: /stock/earnings (clean EPS + surprise data, ~4 years)
-    earnings = fetch_finnhub_earnings(ticker, limit=20)
+    # Primary: /stock/earnings (clean EPS + surprise data, ~12 years with limit=50)
+    earnings = fetch_finnhub_earnings(ticker, limit=50)
 
     # Secondary: /stock/financials-reported (revenue + extended history)
     financials = fetch_finnhub_financials(ticker)
