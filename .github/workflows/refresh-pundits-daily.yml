@@ -1,0 +1,64 @@
+name: Daily Pundits Refresh
+# Runs at 6 AM ET on weekdays (10 AM UTC during EDT)
+# Single Gemini call per section (equity + crypto) = 2 API calls/day total
+
+on:
+  schedule:
+    - cron: '0 10 * * 1-5'  # 10 AM UTC = 6 AM EDT, Mon-Fri
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  refresh-pundits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests yfinance pandas
+
+      - name: Run pundits cache builder
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "Starting pundits cache refresh at $(date)"
+          python build_pundits_cache.py
+          echo "Completed at $(date)"
+
+      - name: Verify cache file
+        run: |
+          if [ ! -f "pundits_cache.json" ]; then
+            echo "ERROR: pundits_cache.json was not created"
+            exit 1
+          fi
+          ls -lh pundits_cache.json
+          echo "Cache size: $(wc -c < pundits_cache.json) bytes"
+
+      - name: Commit and push updated cache
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add pundits_cache.json
+          echo "=== Status before commit ==="
+          git status
+          if git diff --staged --quiet; then
+            echo "No changes detected. Nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore: pundits refresh $(date -u +%Y-%m-%d)"
+          git fetch origin main
+          git rebase origin/main || (echo "Rebase failed"; git rebase --abort 2>/dev/null || true)
+          echo "=== Pushing ==="
+          git push origin main
+          echo "=== Done ==="

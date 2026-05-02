@@ -156,6 +156,11 @@ with tab_home:
     render_pullback_panel(scored_df=scored_df, compact=True)
     st.markdown("---")
 
+    # Markets at a glance — every index, commodity, currency, rate
+    from markets_at_a_glance import render_markets_at_a_glance
+    render_markets_at_a_glance()
+    st.markdown("---")
+
     # Top-line market metrics
     with st.spinner("Loading market overview..."):
         hm_index=fetch_index_data();hm_vix=fetch_vix_data();hm_breadth=compute_market_breadth(scored_df);hm_buffett=fetch_buffett_indicator()
@@ -441,8 +446,8 @@ with tab_sentiment:
 
 # ═══ TAB: PUNDIT VIEWS ════════════════════════════════════════════
 with tab_pundits:
-    from ai_pundit_outlook import render_pundit_outlook_panel
-    render_pundit_outlook_panel()
+    from pundit_views import render_equity_pundit_panel
+    render_equity_pundit_panel()
 
 # ═══ TAB: ADVANCED SCREENER ═════════════════════════════════════
 with tab_advanced:

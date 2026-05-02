@@ -51,7 +51,7 @@ def render_crypto_tab():
         render_onchain_section()
 
     with sub_tabs[4]:
-        from crypto_pundits import render_crypto_pundit_panel
+        from pundit_views import render_crypto_pundit_panel
         render_crypto_pundit_panel()
 
 
