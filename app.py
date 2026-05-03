@@ -168,9 +168,9 @@ with tab_home:
     render_markets_at_a_glance()
     st.markdown("---")
 
-    # Earnings + IPO calendar
+    # Earnings + IPO calendar (filtered to tracked universe)
     from earnings_calendar import render_combined_calendar_panel
-    render_combined_calendar_panel(compact=True)
+    render_combined_calendar_panel(compact=True, universe_tickers=set(scored_df.index))
     st.markdown("---")
 
     # Top-line market metrics
@@ -374,9 +374,9 @@ with tab_macro:
     st.caption("📊 For full 1W/1M/ATH comparisons across all indexes/commodities/currencies/rates, see Markets at a Glance on the Home tab.")
     st.markdown("---")
 
-    # Earnings + IPO calendar
+    # Earnings + IPO calendar (earnings filtered to tracked universe)
     from earnings_calendar import render_earnings_calendar_panel, render_ipo_calendar_panel
-    render_earnings_calendar_panel(compact=False)
+    render_earnings_calendar_panel(compact=False, universe_tickers=set(scored_df.index))
     st.markdown("")
     render_ipo_calendar_panel(compact=False, days_out=21)
     st.markdown("---")
@@ -562,9 +562,9 @@ with tab_advanced:
             dc2+=["composite_score","overall_rating","ma_target_score"]
             avail=[c for c in dc2 if c in results.columns];dd2=results[avail].copy()
 
-            # Add earnings emoji to ticker index
+            # Add earnings emoji to ticker index (filtered to universe)
             from earnings_calendar import get_tickers_reporting_within
-            upcoming_set = get_tickers_reporting_within(days=7)
+            upcoming_set = get_tickers_reporting_within(days=7, universe_tickers=set(scored_df.index))
             new_index = []
             for ticker in dd2.index:
                 if ticker.upper() in upcoming_set:
@@ -617,7 +617,7 @@ with tab_swing:
             st.markdown(f"**Strong+ setups:** {a_setups} | **Avg R/R:** {avg_rr:.1f}:1")
             # Results table
             from earnings_calendar import get_tickers_reporting_within
-            upcoming_set = get_tickers_reporting_within(days=7)
+            upcoming_set = get_tickers_reporting_within(days=7, universe_tickers=set(scored_df.index))
             sw_rows=[]
             for s in swing_results:
                 ticker = s["ticker"]

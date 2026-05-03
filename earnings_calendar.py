@@ -83,12 +83,17 @@ def fetch_earnings_calendar(start_date=None, end_date=None):
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
-def get_tickers_reporting_within(days=7):
+def get_tickers_reporting_within(days=7, universe_tickers=None):
     """
     Returns a SET of ticker symbols reporting earnings within the next N days.
 
     Used by screeners and stock detail to mark tickers with the 📅 emoji.
     Cached for 1 hour.
+
+    Args:
+        days: Window in days
+        universe_tickers: Optional iterable - if provided, only returns
+                         tickers that are also in this universe.
     """
     df = fetch_earnings_calendar()
     if df.empty or "symbol" not in df.columns or "date" not in df.columns:
@@ -97,7 +102,14 @@ def get_tickers_reporting_within(days=7):
     cutoff = datetime.now() + timedelta(days=days)
     today = datetime.now()
     upcoming = df[(df["date"] >= today) & (df["date"] <= cutoff)]
-    return set(upcoming["symbol"].dropna().str.upper().tolist())
+    result = set(upcoming["symbol"].dropna().str.upper().tolist())
+
+    # Filter to universe if provided
+    if universe_tickers is not None:
+        universe_upper = {t.upper() for t in universe_tickers}
+        result = result & universe_upper
+
+    return result
 
 
 def earnings_emoji(ticker, days=7):
@@ -123,17 +135,29 @@ def _format_hour(hour_code):
     }.get(hour_code, "")
 
 
-def render_earnings_calendar_panel(compact=False):
+def render_earnings_calendar_panel(compact=False, universe_tickers=None):
     """
     Render the upcoming earnings calendar panel.
 
-    Shows the next 7 days of earnings, sortable by date and time.
+    Args:
+        compact: If True, shows day-counts only with expandable detail.
+        universe_tickers: Optional iterable of ticker symbols. If provided,
+                         only earnings from companies in this universe are shown.
     """
     st.markdown("### 📅 Earnings This Week")
 
     df = fetch_earnings_calendar()
     if df.empty:
         st.info("No earnings calendar data available right now. Check back in an hour.")
+        return
+
+    # Filter to universe if provided
+    if universe_tickers is not None and "symbol" in df.columns:
+        universe_upper = {t.upper() for t in universe_tickers}
+        df = df[df["symbol"].str.upper().isin(universe_upper)]
+
+    if df.empty:
+        st.info("No tracked universe companies reporting earnings in the next 7 days.")
         return
 
     # Filter to upcoming only
@@ -143,7 +167,7 @@ def render_earnings_calendar_panel(compact=False):
     upcoming = df[(df["date"] >= today) & (df["date"] <= cutoff)].copy()
 
     if upcoming.empty:
-        st.info("No earnings reports scheduled in the next 7 days.")
+        st.info("No earnings reports scheduled in the next 7 days for tracked universe.")
         return
 
     # Sort by date, then by hour priority (bmo < dmh < amc)
@@ -153,7 +177,8 @@ def render_earnings_calendar_panel(compact=False):
 
     # Build display
     n = len(upcoming)
-    st.caption(f"{n} companies reporting earnings in the next 7 days. Times: BMO = before market open, AMC = after close.")
+    universe_note = " from tracked universe" if universe_tickers else ""
+    st.caption(f"{n} companies{universe_note} reporting earnings in the next 7 days. Times: BMO = before market open, AMC = after close.")
 
     if compact:
         # Compact: just show count by day
@@ -171,8 +196,22 @@ def render_earnings_calendar_panel(compact=False):
         _render_table(upcoming)
 
 
-def _render_table(upcoming):
-    """Render the full earnings table."""
+def _render_table(upcoming, universe_tickers=None):
+    """Render the full earnings table.
+
+    Args:
+        upcoming: DataFrame of upcoming earnings
+        universe_tickers: Optional set of ticker symbols to filter to. If provided,
+                         only earnings for tickers in this set will be shown.
+    """
+    # Filter to universe if provided
+    if universe_tickers is not None and "symbol" in upcoming.columns:
+        universe_upper = {t.upper() for t in universe_tickers}
+        upcoming = upcoming[upcoming["symbol"].str.upper().isin(universe_upper)]
+        if upcoming.empty:
+            st.info("No earnings in the next window for tickers in your universe.")
+            return
+
     display_rows = []
     for _, row in upcoming.iterrows():
         symbol = row.get("symbol", "")
@@ -182,23 +221,42 @@ def _render_table(upcoming):
         date_str = date.strftime("%a %b %d") if pd.notna(date) else ""
         hour_str = _format_hour(hour)
 
+        # Keep numeric values for sorting - Streamlit will format via NumberColumn
         eps_est = row.get("epsEstimate")
-        eps_est_str = f"${eps_est:.2f}" if pd.notna(eps_est) else "—"
+        eps_est_num = float(eps_est) if pd.notna(eps_est) else None
 
         rev_est = row.get("revenueEstimate")
-        rev_est_str = f"${rev_est/1e9:.2f}B" if pd.notna(rev_est) and rev_est > 1e9 else (f"${rev_est/1e6:.1f}M" if pd.notna(rev_est) else "—")
+        rev_est_num = float(rev_est) if pd.notna(rev_est) and rev_est else None
 
         display_rows.append({
             "Ticker": symbol,
             "Date": date_str,
             "Time": hour_str,
-            "EPS Est": eps_est_str,
-            "Revenue Est": rev_est_str,
+            "EPS Est ($)": eps_est_num,
+            "Revenue Est ($M)": rev_est_num / 1e6 if rev_est_num is not None else None,
         })
 
     if display_rows:
         df_display = pd.DataFrame(display_rows)
-        st.dataframe(df_display, use_container_width=True, hide_index=True, height=min(400, 35 * len(display_rows) + 50))
+
+        # Use NumberColumn config for proper numeric sorting
+        st.dataframe(
+            df_display,
+            use_container_width=True,
+            hide_index=True,
+            height=min(400, 35 * len(display_rows) + 50),
+            column_config={
+                "EPS Est ($)": st.column_config.NumberColumn(
+                    "EPS Est",
+                    format="$%.2f",
+                ),
+                "Revenue Est ($M)": st.column_config.NumberColumn(
+                    "Revenue Est",
+                    format="$%.1fM",
+                    help="In millions. Sortable numerically.",
+                ),
+            },
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -262,13 +320,15 @@ def fetch_ipo_calendar(start_date=None, end_date=None):
         return pd.DataFrame()
 
 
-def render_ipo_calendar_panel(compact=False, days_out=14):
+def render_ipo_calendar_panel(compact=False, days_out=14, universe_tickers=None):
     """
     Render the upcoming IPO calendar panel.
 
     Args:
         compact: If True, shows day-counts only with expandable detail.
         days_out: How many days forward to show (default 14 = 2 weeks).
+        universe_tickers: Unused for IPOs (they aren't in universe yet).
+                         Parameter kept for API consistency.
     """
     st.markdown("### 🚀 IPOs Coming Up")
 
@@ -301,8 +361,17 @@ def render_ipo_calendar_panel(compact=False, days_out=14):
         _render_ipo_table(upcoming)
 
 
-def _render_ipo_table(upcoming):
-    """Render the IPO table."""
+def _render_ipo_table(upcoming, universe_tickers=None):
+    """Render the IPO table.
+
+    Args:
+        upcoming: DataFrame of upcoming IPOs
+        universe_tickers: Optional set to filter (IPOs typically aren't in universe yet,
+                         so this is rarely used)
+    """
+    # IPOs typically aren't in the existing universe yet (they haven't IPO'd!)
+    # so we don't filter by default - but the option exists for symmetry
+
     display_rows = []
     for _, row in upcoming.iterrows():
         symbol = row.get("symbol", "")
@@ -315,38 +384,58 @@ def _render_ipo_table(upcoming):
         status = row.get("status", "")
 
         date_str = date.strftime("%a %b %d") if pd.notna(date) else ""
-        shares_str = f"{shares/1e6:.1f}M" if pd.notna(shares) and shares else "—"
-        total_str = f"${total_value/1e6:.1f}M" if pd.notna(total_value) and total_value else "—"
-        price_str = price if price else "—"
+        shares_num = float(shares) / 1e6 if pd.notna(shares) and shares else None
+        total_num = float(total_value) / 1e6 if pd.notna(total_value) and total_value else None
 
         display_rows.append({
             "Ticker": symbol if symbol else "—",
             "Company": (name[:40] + "...") if name and len(name) > 40 else (name if name else "—"),
             "Date": date_str,
             "Exchange": exchange if exchange else "—",
-            "Price Range": price_str,
-            "Shares": shares_str,
-            "Est. Proceeds": total_str,
+            "Price Range": price if price else "—",
+            "Shares (M)": shares_num,
+            "Est. Proceeds ($M)": total_num,
             "Status": status if status else "—",
         })
 
     if display_rows:
         df_display = pd.DataFrame(display_rows)
-        st.dataframe(df_display, use_container_width=True, hide_index=True, height=min(400, 35 * len(display_rows) + 50))
+        st.dataframe(
+            df_display,
+            use_container_width=True,
+            hide_index=True,
+            height=min(400, 35 * len(display_rows) + 50),
+            column_config={
+                "Shares (M)": st.column_config.NumberColumn(
+                    "Shares Offered",
+                    format="%.1fM",
+                ),
+                "Est. Proceeds ($M)": st.column_config.NumberColumn(
+                    "Est. Proceeds",
+                    format="$%.1fM",
+                ),
+            },
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════
 # COMBINED PANEL: Earnings + IPOs side by side
 # ═══════════════════════════════════════════════════════════════════
 
-def render_combined_calendar_panel(compact=False):
+def render_combined_calendar_panel(compact=False, universe_tickers=None):
     """
     Render both Earnings and IPO calendars side-by-side or stacked.
 
     Used on Home tab for at-a-glance view.
+
+    Args:
+        compact: If True, more compact display
+        universe_tickers: Optional set to filter earnings to tracked universe only.
+                         IPOs are not filtered (they aren't in universe yet).
     """
     st.markdown("### 📅 This Week's Calendar")
-    st.caption("Companies reporting earnings + IPOs coming up. Earnings within 7 days, IPOs within 14 days.")
+    universe_note = " · Earnings filtered to tracked universe" if universe_tickers else ""
+    st.caption(f"Companies reporting earnings + IPOs coming up. Earnings within 7 days, IPOs within 14 days.{universe_note}")
 
     # Two columns side by side
     earnings_col, ipo_col = st.columns(2)
@@ -357,29 +446,37 @@ def render_combined_calendar_panel(compact=False):
         if df_e.empty:
             st.info("No earnings data available.")
         else:
-            today = pd.Timestamp(datetime.now().date())
-            cutoff = today + timedelta(days=7)
-            upcoming_e = df_e[(df_e["date"] >= today) & (df_e["date"] <= cutoff)] if "date" in df_e.columns else df_e
-            if upcoming_e.empty:
-                st.info("No earnings scheduled in the next 7 days.")
+            # Filter to universe
+            if universe_tickers is not None and "symbol" in df_e.columns:
+                universe_upper = {t.upper() for t in universe_tickers}
+                df_e = df_e[df_e["symbol"].str.upper().isin(universe_upper)]
+
+            if df_e.empty:
+                st.info("No tracked universe companies reporting earnings.")
             else:
-                # Quick day-count display
-                upcoming_e = upcoming_e.copy()
-                upcoming_e["day_str"] = upcoming_e["date"].dt.strftime("%a %b %d")
-                day_counts = upcoming_e.groupby("day_str").size().reset_index(name="count")
-                day_counts = day_counts.sort_values("day_str")
+                today = pd.Timestamp(datetime.now().date())
+                cutoff = today + timedelta(days=7)
+                upcoming_e = df_e[(df_e["date"] >= today) & (df_e["date"] <= cutoff)] if "date" in df_e.columns else df_e
+                if upcoming_e.empty:
+                    st.info("No earnings scheduled in the next 7 days.")
+                else:
+                    # Quick day-count display
+                    upcoming_e = upcoming_e.copy()
+                    upcoming_e["day_str"] = upcoming_e["date"].dt.strftime("%a %b %d")
+                    day_counts = upcoming_e.groupby("day_str").size().reset_index(name="count")
+                    day_counts = day_counts.sort_values("day_str")
 
-                day_metrics = st.columns(min(7, max(1, len(day_counts))))
-                for i, (_, row) in enumerate(day_counts.iterrows()):
-                    if i < len(day_metrics):
-                        with day_metrics[i]:
-                            st.metric(row["day_str"][:6], f"{row['count']}")
+                    day_metrics = st.columns(min(7, max(1, len(day_counts))))
+                    for i, (_, row) in enumerate(day_counts.iterrows()):
+                        if i < len(day_metrics):
+                            with day_metrics[i]:
+                                st.metric(row["day_str"][:6], f"{row['count']}")
 
-                with st.expander(f"View all {len(upcoming_e)} earnings"):
-                    hour_priority = {"bmo": 0, "dmh": 1, "amc": 2}
-                    upcoming_e["hour_sort"] = upcoming_e["hour"].map(hour_priority).fillna(3)
-                    upcoming_e = upcoming_e.sort_values(["date", "hour_sort"])
-                    _render_table(upcoming_e)
+                    with st.expander(f"View all {len(upcoming_e)} earnings"):
+                        hour_priority = {"bmo": 0, "dmh": 1, "amc": 2}
+                        upcoming_e["hour_sort"] = upcoming_e["hour"].map(hour_priority).fillna(3)
+                        upcoming_e = upcoming_e.sort_values(["date", "hour_sort"])
+                        _render_table(upcoming_e)
 
     with ipo_col:
         st.markdown("#### 🚀 Upcoming IPOs")
