@@ -413,14 +413,17 @@ def _show_calendar_diagnostics(df_full, today, cutoff, universe_tickers, exclude
     ).strip().upper()
 
     if search_ticker:
-        # Search in the full unfiltered API response
+        # Search in the full dataframe (which may include yfinance-backed entries)
         match = df_full[df_full["symbol"].str.upper() == search_ticker] if "symbol" in df_full.columns else pd.DataFrame()
         if not match.empty:
-            st.success(f"✓ Found {len(match)} entries for {search_ticker} in Finnhub data")
+            sources = match["_source"].dropna().unique().tolist() if "_source" in match.columns else ["finnhub"]
+            sources_str = ", ".join(sources) if sources else "finnhub (default)"
+            st.success(f"✓ Found {len(match)} entries for {search_ticker} (source: {sources_str})")
             for _, row in match.iterrows():
                 date = row.get("date")
                 hour = row.get("hour", "?")
                 date_str = date.strftime("%Y-%m-%d (%A)") if pd.notna(date) else "unknown"
+                source = row.get("_source", "finnhub")
 
                 # Check if in window
                 in_window_status = "✅ within 7-day window" if (
@@ -434,24 +437,27 @@ def _show_calendar_diagnostics(df_full, today, cutoff, universe_tickers, exclude
                 else:
                     in_universe_status = "(no universe filter active)"
 
+                eps_str = f"${row.get('epsEstimate'):.2f}" if pd.notna(row.get('epsEstimate')) else "n/a"
                 st.markdown(f"""
                 - **Date:** {date_str}
                 - **Time:** {_format_hour(hour) if hour else 'unknown'}
-                - **EPS Estimate:** ${row.get('epsEstimate', '—'):.2f}" if pd.notna(row.get('epsEstimate')) else 'n/a'
+                - **EPS Estimate:** {eps_str}
+                - **Source:** {source}
                 - **Date filter:** {in_window_status}
                 - **Universe filter:** {in_universe_status}
                 """)
         else:
-            st.warning(f"❌ {search_ticker} NOT found in Finnhub's earnings calendar response.")
+            st.warning(f"❌ {search_ticker} NOT found in earnings data (Finnhub or yfinance).")
             st.markdown(f"""
             **Possible reasons:**
             - {search_ticker}'s next earnings is more than 7 days away (Finnhub returns dates within ~30 days)
             - {search_ticker} doesn't have earnings scheduled
-            - The ticker symbol on Finnhub differs from yours (e.g., '{search_ticker}.US' or other variant)
-            - Finnhub's free tier doesn't cover this ticker
+            - Neither Finnhub nor yfinance has this ticker's calendar data
+            - The ticker symbol differs between sources
 
-            **Check directly on Finnhub:** https://finnhub.io/dashboard
-            **Check earnings on Yahoo Finance:** https://finance.yahoo.com/calendar/earnings?symbol={search_ticker}
+            **Verify directly:**
+            - Finnhub dashboard: https://finnhub.io/dashboard
+            - Yahoo Finance calendar: https://finance.yahoo.com/calendar/earnings?symbol={search_ticker}
             """)
 
 
