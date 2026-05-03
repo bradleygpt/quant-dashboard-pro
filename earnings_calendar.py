@@ -82,8 +82,118 @@ def fetch_earnings_calendar(start_date=None, end_date=None):
         return pd.DataFrame()
 
 
+@st.cache_data(ttl=86400, show_spinner=False)  # 24 hour cache - earnings dates are stable
+def fetch_yfinance_earnings_date(ticker):
+    """
+    Fetch the next earnings date for a ticker from yfinance.
+
+    Used as backup for tickers missing from Finnhub's calendar response.
+    Returns dict with date, eps_estimate, revenue_estimate, or None.
+    """
+    try:
+        import yfinance as yf
+        t = yf.Ticker(ticker)
+        # yfinance has multiple ways to get earnings date - try each
+        cal = t.calendar
+        if cal is not None and not cal.empty if hasattr(cal, 'empty') else cal:
+            # cal may be DataFrame or dict depending on yfinance version
+            if isinstance(cal, dict):
+                # Newer yfinance returns dict
+                earnings_date = cal.get("Earnings Date")
+                if earnings_date:
+                    if isinstance(earnings_date, list) and earnings_date:
+                        earnings_date = earnings_date[0]
+                    return {
+                        "symbol": ticker.upper(),
+                        "date": pd.Timestamp(earnings_date),
+                        "hour": "amc",  # yfinance doesn't reliably tell us, default to AMC
+                        "epsEstimate": cal.get("Earnings Average", None),
+                        "revenueEstimate": cal.get("Revenue Average", None),
+                        "_source": "yfinance",
+                    }
+            else:
+                # Older yfinance returned DataFrame
+                if "Earnings Date" in cal.index:
+                    earnings_date = cal.loc["Earnings Date"].iloc[0] if hasattr(cal.loc["Earnings Date"], 'iloc') else cal.loc["Earnings Date"]
+                    return {
+                        "symbol": ticker.upper(),
+                        "date": pd.Timestamp(earnings_date),
+                        "hour": "amc",
+                        "epsEstimate": None,
+                        "revenueEstimate": None,
+                        "_source": "yfinance",
+                    }
+
+        # Try info dict as fallback
+        try:
+            info = t.info
+            ts = info.get("earningsTimestamp") or info.get("earningsTimestampStart")
+            if ts:
+                return {
+                    "symbol": ticker.upper(),
+                    "date": pd.Timestamp(ts, unit="s") if ts > 1e9 else pd.Timestamp(ts),
+                    "hour": "amc",
+                    "epsEstimate": info.get("epsForward"),
+                    "revenueEstimate": info.get("revenueEstimate"),
+                    "_source": "yfinance",
+                }
+        except Exception:
+            pass
+
+        return None
+    except Exception:
+        return None
+
+
 @st.cache_data(ttl=3600, show_spinner=False)
-def get_tickers_reporting_within(days=7, universe_tickers=None):
+def get_merged_earnings_calendar(universe_tickers, days_ahead=7):
+    """
+    Get a unified earnings calendar combining Finnhub batch + yfinance per-ticker fill-in.
+
+    For each ticker in universe:
+    - Check if Finnhub returned it (fast, single API call)
+    - For tickers Finnhub missed, query yfinance individually
+
+    Args:
+        universe_tickers: iterable of tickers to check
+        days_ahead: lookforward window in days
+
+    Returns DataFrame with merged earnings.
+    """
+    # First get Finnhub batch results
+    finnhub_df = fetch_earnings_calendar()
+    if finnhub_df is None or finnhub_df.empty:
+        finnhub_df = pd.DataFrame(columns=["symbol", "date", "hour", "epsEstimate", "revenueEstimate"])
+
+    # Identify which tickers from our universe are missing from Finnhub
+    universe_upper = {t.upper() for t in universe_tickers}
+    finnhub_tickers = set(finnhub_df["symbol"].str.upper().tolist()) if "symbol" in finnhub_df.columns else set()
+    missing_from_finnhub = universe_upper - finnhub_tickers
+
+    # For each missing ticker, query yfinance
+    today = pd.Timestamp(datetime.now().date())
+    cutoff = today + timedelta(days=days_ahead)
+
+    yf_rows = []
+    for ticker in missing_from_finnhub:
+        result = fetch_yfinance_earnings_date(ticker)
+        if result and result.get("date"):
+            edate = pd.Timestamp(result["date"])
+            # Only include if within window
+            if today <= edate <= cutoff:
+                yf_rows.append(result)
+
+    # Merge
+    if yf_rows:
+        yf_df = pd.DataFrame(yf_rows)
+        merged = pd.concat([finnhub_df, yf_df], ignore_index=True)
+    else:
+        merged = finnhub_df
+
+    return merged
+
+
+
     """
     Returns a SET of ticker symbols reporting earnings within the next N days.
 
@@ -126,6 +236,39 @@ def earnings_emoji(ticker, days=7):
     return ""
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_tickers_reporting_within(days=7, universe_tickers=None):
+    """
+    Returns a SET of ticker symbols reporting earnings within the next N days.
+
+    Used by screeners and stock detail to mark tickers with the 📅 emoji.
+    Cached for 1 hour.
+
+    If universe_tickers is provided, also queries yfinance for any tickers in
+    the universe missing from Finnhub's response.
+    """
+    if universe_tickers is not None:
+        # Use merged calendar (Finnhub + yfinance for missing tickers)
+        df = get_merged_earnings_calendar(universe_tickers, days_ahead=days)
+    else:
+        df = fetch_earnings_calendar()
+
+    if df.empty or "symbol" not in df.columns or "date" not in df.columns:
+        return set()
+
+    cutoff = datetime.now() + timedelta(days=days)
+    today = datetime.now()
+    upcoming = df[(df["date"] >= today) & (df["date"] <= cutoff)]
+    result = set(upcoming["symbol"].dropna().str.upper().tolist())
+
+    # Filter to universe if provided
+    if universe_tickers is not None:
+        universe_upper = {t.upper() for t in universe_tickers}
+        result = result & universe_upper
+
+    return result
+
+
 def _format_hour(hour_code):
     """Convert Finnhub's hour codes to readable labels."""
     return {
@@ -142,11 +285,18 @@ def render_earnings_calendar_panel(compact=False, universe_tickers=None):
     Args:
         compact: If True, shows day-counts only with expandable detail.
         universe_tickers: Optional iterable of ticker symbols. If provided,
-                         only earnings from companies in this universe are shown.
+                         only earnings from companies in this universe are shown,
+                         AND yfinance is used as backup for tickers missing from Finnhub.
     """
     st.markdown("### 📅 Earnings This Week")
 
-    df = fetch_earnings_calendar()
+    # Use merged calendar (Finnhub + yfinance backup) if universe provided
+    if universe_tickers is not None:
+        with st.spinner("Loading earnings calendar (querying yfinance for any missing tickers)..."):
+            df = get_merged_earnings_calendar(universe_tickers, days_ahead=7)
+    else:
+        df = fetch_earnings_calendar()
+
     if df.empty:
         st.info("No earnings calendar data available right now. Check back in an hour.")
         return
@@ -191,10 +341,13 @@ def render_earnings_calendar_panel(compact=False, universe_tickers=None):
     st.caption(f"{n} companies{universe_note} reporting earnings in the next 7 days. Times: BMO = before market open, AMC = after close.")
 
     if compact:
-        # Compact: show count by day
+        # Compact: show count by day - sort by actual date, not by string
         upcoming["day_str"] = upcoming["date"].dt.strftime("%a %b %d")
-        day_counts = upcoming.groupby("day_str").size().reset_index(name="count")
-        day_counts = day_counts.sort_values("day_str")
+        upcoming["day_sort_date"] = upcoming["date"].dt.date  # For chronological sort
+
+        day_counts = upcoming.groupby(["day_sort_date", "day_str"]).size().reset_index(name="count")
+        day_counts = day_counts.sort_values("day_sort_date")  # Sort by actual date
+
         cols = st.columns(min(7, len(day_counts)))
         for i, (_, row) in enumerate(day_counts.iterrows()):
             if i < len(cols):
@@ -548,7 +701,11 @@ def render_combined_calendar_panel(compact=False, universe_tickers=None):
 
     with earnings_col:
         st.markdown("#### 📊 Earnings This Week")
-        df_e = fetch_earnings_calendar()
+        # Use merged calendar (Finnhub + yfinance backup) if universe provided
+        if universe_tickers is not None:
+            df_e = get_merged_earnings_calendar(universe_tickers, days_ahead=7)
+        else:
+            df_e = fetch_earnings_calendar()
         if df_e.empty:
             st.info("No earnings data available.")
         else:
@@ -566,11 +723,13 @@ def render_combined_calendar_panel(compact=False, universe_tickers=None):
                 if upcoming_e.empty:
                     st.info("No earnings scheduled in the next 7 days.")
                 else:
-                    # Quick day-count display
+                    # Quick day-count display - sort by actual date, not string
                     upcoming_e = upcoming_e.copy()
                     upcoming_e["day_str"] = upcoming_e["date"].dt.strftime("%a %b %d")
-                    day_counts = upcoming_e.groupby("day_str").size().reset_index(name="count")
-                    day_counts = day_counts.sort_values("day_str")
+                    upcoming_e["day_sort_date"] = upcoming_e["date"].dt.date
+
+                    day_counts = upcoming_e.groupby(["day_sort_date", "day_str"]).size().reset_index(name="count")
+                    day_counts = day_counts.sort_values("day_sort_date")  # Chronological
 
                     day_metrics = st.columns(min(7, max(1, len(day_counts))))
                     for i, (_, row) in enumerate(day_counts.iterrows()):
