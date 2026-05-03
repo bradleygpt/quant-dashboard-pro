@@ -161,6 +161,11 @@ with tab_home:
     render_markets_at_a_glance()
     st.markdown("---")
 
+    # Earnings calendar — companies reporting in the next 7 days
+    from earnings_calendar import render_earnings_calendar_panel
+    render_earnings_calendar_panel(compact=True)
+    st.markdown("---")
+
     # Top-line market metrics
     with st.spinner("Loading market overview..."):
         hm_index=fetch_index_data();hm_vix=fetch_vix_data();hm_breadth=compute_market_breadth(scored_df);hm_buffett=fetch_buffett_indicator()
@@ -362,6 +367,11 @@ with tab_macro:
     st.caption("📊 For full 1W/1M/ATH comparisons across all indexes/commodities/currencies/rates, see Markets at a Glance on the Home tab.")
     st.markdown("---")
 
+    # Earnings calendar
+    from earnings_calendar import render_earnings_calendar_panel
+    render_earnings_calendar_panel(compact=False)
+    st.markdown("---")
+
     macro=get_macro_summary()
     health=macro["health_score"]
     earnings=macro["earnings_forecast"]
@@ -542,9 +552,22 @@ with tab_advanced:
             for p in PILLAR_METRICS: dc2.append(f"{p}_grade")
             dc2+=["composite_score","overall_rating"]
             avail=[c for c in dc2 if c in results.columns];dd2=results[avail].copy()
+
+            # Add earnings emoji to ticker index
+            from earnings_calendar import get_tickers_reporting_within
+            upcoming_set = get_tickers_reporting_within(days=7)
+            new_index = []
+            for ticker in dd2.index:
+                if ticker.upper() in upcoming_set:
+                    new_index.append(f"{ticker} 📅")
+                else:
+                    new_index.append(ticker)
+            dd2.index = new_index
+
             rn={"shortName":"Company","sector":"Sector","currentPrice":"Price","fv_price":"Fair Value","fv_verdict":"FV Verdict","fv_premium":"Prem/Disc %","bp_price":"Buy Point","bp_distance":"BP Dist %","bp_signal":"BP Signal","composite_score":"Score","overall_rating":"Rating"}
             for p in PILLAR_METRICS: rn[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
             dd2=dd2.rename(columns={c:rn.get(c,c) for c in dd2.columns})
+            st.caption("📅 = Reporting earnings within 7 days")
             st.dataframe(dd2,use_container_width=True,height=600)
 
 # ═══ TAB 5: SWING TRADER ═══════════════════════════════════════════
@@ -578,10 +601,14 @@ with tab_swing:
             avg_rr=np.mean([s["risk_reward"] for s in swing_results])
             st.markdown(f"**Strong+ setups:** {a_setups} | **Avg R/R:** {avg_rr:.1f}:1")
             # Results table
+            from earnings_calendar import get_tickers_reporting_within
+            upcoming_set = get_tickers_reporting_within(days=7)
             sw_rows=[]
             for s in swing_results:
+                ticker = s["ticker"]
+                ticker_display = f"{ticker} 📅" if ticker.upper() in upcoming_set else ticker
                 sw_rows.append({
-                    "Ticker":s["ticker"],"Company":s.get("shortName","")[:25],
+                    "Ticker":ticker_display,"Company":s.get("shortName","")[:25],
                     "Sector":s["sector"],"Price":f"${s['price']:.2f}",
                     "Setup":s["setup"],"Swing":s["swing_score"],
                     "Quant":f"{s['composite_score']:.1f}","Combined":s["combined_score"],
@@ -593,6 +620,7 @@ with tab_swing:
                     "Trend":s["trend"],
                 })
             sw_df=pd.DataFrame(sw_rows)
+            st.caption("📅 = Reporting earnings within 7 days")
             st.dataframe(sw_df,use_container_width=True,height=500,hide_index=True)
             # Detail view for top pick
             if swing_results:
@@ -707,8 +735,15 @@ with tab_detail:
     sel=st.selectbox("Ticker",all_t,index=di,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="det_sel")
     if sel and sel in scored_df.index:
         row=scored_df.loc[sel];detail=get_pillar_detail(sel,scored_df,sector_stats)
+        from earnings_calendar import earnings_emoji
+        emoji = earnings_emoji(sel, days=7)
         h1,h2,h3,h4=st.columns(4)
-        with h1: st.markdown(f"## {sel}");st.caption(row.get("shortName",""))
+        with h1:
+            st.markdown(f"## {sel} {emoji}")
+            caption = row.get("shortName","")
+            if emoji:
+                caption = f"📅 Reporting earnings within 7 days · {caption}"
+            st.caption(caption)
         with h2: st.metric("Price",f"${row.get('currentPrice',0):.2f}")
         with h3: st.metric("Mkt Cap",fmt_mcap(row.get("marketCapB",0)))
         with h4: rat=row.get("overall_rating","Hold");st.metric("Score",f"{row.get('composite_score',0):.1f}/12");st.markdown(f'<span style="background:{RATING_COLORS.get(rat,"#666")};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{rat}</span>',unsafe_allow_html=True)
