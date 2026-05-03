@@ -888,6 +888,8 @@ with tab_detail:
                         st.success(f"📊 Earnings data: Finnhub ({len(quarterly_eps)} quarters)")
                 elif eps_source=="sec_edgar":
                     st.success(f"📊 Earnings data: SEC EDGAR ({len(quarterly_eps)} quarters from XBRL filings)")
+                elif eps_source=="merged":
+                    st.success(f"📊 Earnings data: {source_label}")
                 elif eps_source=="yfinance":
                     err_summary=""
                     if fetch_errors:
@@ -897,6 +899,11 @@ with tab_detail:
                     st.warning(f"📊 Using Yahoo Finance ({len(quarterly_eps)} quarters). Primary sources unavailable.{err_summary}")
                 else:
                     st.error("No earnings data available.")
+
+                # ── Forward Outlook: analyst consensus estimates + 8-K guidance extraction ──
+                st.markdown("---")
+                from forward_outlook import render_forward_outlook
+                render_forward_outlook(sel)
 
                 # ── Earnings summary ──
                 if quarterly_eps is None or quarterly_eps.empty:
