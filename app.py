@@ -583,6 +583,12 @@ with tab_advanced:
 with tab_swing:
     st.markdown("### IBD-Inspired Swing Trader")
     st.caption("Combines fundamental quality (5-pillar score) with technical swing setups. Targets 5-10% gains over 3-10 trading days.")
+
+    # Show backtest results at top of swing tab
+    with st.expander("📈 View Backtest Performance (20-year validation)", expanded=False):
+        from swing_backtest_panel import render_backtest_panel
+        render_backtest_panel()
+
     methodology=get_swing_methodology()
     with st.expander("Methodology"):
         for comp in methodology["components"]:
@@ -1445,6 +1451,11 @@ with tab_doppel:
 with tab_quantport:
     st.markdown("### 💎 Quant Perfect Portfolio")
     st.caption("Score-tiered portfolio construction with sector caps and position floors. Two modes: Fresh build or Rebalance from existing.")
+
+    # Show backtest validation at top
+    with st.expander("📊 View Backtest Performance (20-year validation)", expanded=False):
+        from quant_backtest_panel import render_quant_backtest_panel
+        render_quant_backtest_panel()
 
     from quant_portfolio import (
         build_optimal_portfolio, compute_rebalance_deltas,

@@ -1,0 +1,57 @@
+name: Quant Backtest
+# Runs Sunday at 11 AM UTC (7 AM ET) — after swing backtest completes
+# Heavy compute: pulls historical fundamentals + prices, 3-6 hour runtime expected
+
+on:
+  schedule:
+    - cron: '0 11 * * 0'  # Sunday 11 AM UTC
+  workflow_dispatch:
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 hour max
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy
+
+      - name: Run quant backtest
+        run: |
+          echo "Starting quant backtest at $(date)"
+          python build_quant_backtest.py
+          echo "Completed at $(date)"
+
+      - name: Verify output
+        run: |
+          if [ ! -f "quant_backtest_results.json" ]; then
+            echo "ERROR: quant_backtest_results.json was not created"
+            exit 1
+          fi
+          ls -lh quant_backtest_results.json
+
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add quant_backtest_results.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "chore: quant backtest results $(date -u +%Y-%m-%d)"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
