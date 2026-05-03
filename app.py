@@ -146,6 +146,13 @@ try: raw_data,scored_df,sector_stats=load_and_score(market_cap_floor,tuple(st.se
 except Exception as e: st.error(f"Error: {e}");st.stop()
 if scored_df is None or scored_df.empty: st.warning("No data.");st.stop()
 
+# Add M&A target scores
+try:
+    from ma_analysis import add_ma_target_scores_to_universe
+    scored_df = add_ma_target_scores_to_universe(scored_df, sector_stats)
+except Exception as e:
+    pass  # Non-critical, scoring can continue without M&A column
+
 # ═══ TAB 0: HOME DASHBOARD ════════════════════════════════════════
 with tab_home:
     st.markdown("### Dashboard Overview")
@@ -161,9 +168,9 @@ with tab_home:
     render_markets_at_a_glance()
     st.markdown("---")
 
-    # Earnings calendar — companies reporting in the next 7 days
-    from earnings_calendar import render_earnings_calendar_panel
-    render_earnings_calendar_panel(compact=True)
+    # Earnings + IPO calendar
+    from earnings_calendar import render_combined_calendar_panel
+    render_combined_calendar_panel(compact=True)
     st.markdown("---")
 
     # Top-line market metrics
@@ -367,9 +374,11 @@ with tab_macro:
     st.caption("📊 For full 1W/1M/ATH comparisons across all indexes/commodities/currencies/rates, see Markets at a Glance on the Home tab.")
     st.markdown("---")
 
-    # Earnings calendar
-    from earnings_calendar import render_earnings_calendar_panel
+    # Earnings + IPO calendar
+    from earnings_calendar import render_earnings_calendar_panel, render_ipo_calendar_panel
     render_earnings_calendar_panel(compact=False)
+    st.markdown("")
+    render_ipo_calendar_panel(compact=False, days_out=21)
     st.markdown("---")
 
     macro=get_macro_summary()
@@ -550,7 +559,7 @@ with tab_advanced:
             st.metric("Results",len(results))
             dc2=["shortName","sector","currentPrice","fv_price","fv_verdict","fv_premium","bp_price","bp_distance","bp_signal"]
             for p in PILLAR_METRICS: dc2.append(f"{p}_grade")
-            dc2+=["composite_score","overall_rating"]
+            dc2+=["composite_score","overall_rating","ma_target_score"]
             avail=[c for c in dc2 if c in results.columns];dd2=results[avail].copy()
 
             # Add earnings emoji to ticker index
@@ -564,10 +573,10 @@ with tab_advanced:
                     new_index.append(ticker)
             dd2.index = new_index
 
-            rn={"shortName":"Company","sector":"Sector","currentPrice":"Price","fv_price":"Fair Value","fv_verdict":"FV Verdict","fv_premium":"Prem/Disc %","bp_price":"Buy Point","bp_distance":"BP Dist %","bp_signal":"BP Signal","composite_score":"Score","overall_rating":"Rating"}
+            rn={"shortName":"Company","sector":"Sector","currentPrice":"Price","fv_price":"Fair Value","fv_verdict":"FV Verdict","fv_premium":"Prem/Disc %","bp_price":"Buy Point","bp_distance":"BP Dist %","bp_signal":"BP Signal","composite_score":"Score","overall_rating":"Rating","ma_target_score":"M&A Score"}
             for p in PILLAR_METRICS: rn[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
             dd2=dd2.rename(columns={c:rn.get(c,c) for c in dd2.columns})
-            st.caption("📅 = Reporting earnings within 7 days")
+            st.caption("📅 = Reporting earnings within 7 days · M&A Score (0-100) shows fit to historical acquisition target patterns")
             st.dataframe(dd2,use_container_width=True,height=600)
 
 # ═══ TAB 5: SWING TRADER ═══════════════════════════════════════════
@@ -939,6 +948,16 @@ with tab_detail:
                 st.markdown("---")
                 from forward_outlook import render_forward_outlook
                 render_forward_outlook(sel)
+
+                # ── M&A Analysis: target profile + historical filings ──
+                st.markdown("---")
+                try:
+                    from ma_analysis import render_ma_target_panel, render_ma_history_panel
+                    render_ma_target_panel(sel, row.to_dict() if hasattr(row, 'to_dict') else dict(row), sector_stats)
+                    st.markdown("")
+                    render_ma_history_panel(sel)
+                except Exception as e:
+                    st.caption(f"M&A analysis unavailable: {str(e)[:120]}")
 
                 # ── Earnings summary ──
                 if quarterly_eps is None or quarterly_eps.empty:
