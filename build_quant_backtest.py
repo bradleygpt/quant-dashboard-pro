@@ -49,12 +49,44 @@ RESULTS_FILE = "quant_backtest_results.json"
 
 
 def get_universe_tickers():
-    """Load universe from same source as dashboard."""
+    """Load universe with multiple fallback strategies."""
     if os.path.exists("fundamentals_cache.json"):
         with open("fundamentals_cache.json") as f:
             cache = json.load(f)
-            return list(cache.get("tickers", {}).keys())
-    return []
+            tickers = list(cache.get("tickers", {}).keys())
+            if tickers:
+                return tickers
+
+    if os.path.exists("data_cache/fundamentals_cache.json"):
+        with open("data_cache/fundamentals_cache.json") as f:
+            cache = json.load(f)
+            tickers = list(cache.get("tickers", {}).keys())
+            if tickers:
+                return tickers
+
+    # Fallback: hardcoded liquid universe
+    print("WARNING: No fundamentals cache found, using hardcoded liquid universe", flush=True)
+    return [
+        "AAPL", "MSFT", "GOOGL", "GOOG", "AMZN", "META", "TSLA", "NVDA", "BRK-B", "UNH",
+        "JPM", "JNJ", "V", "PG", "XOM", "MA", "HD", "CVX", "MRK", "LLY",
+        "ABBV", "PEP", "KO", "AVGO", "WMT", "BAC", "PFE", "TMO", "COST", "DIS",
+        "CSCO", "ABT", "MCD", "ACN", "ADBE", "DHR", "VZ", "WFC", "CRM", "TXN",
+        "NFLX", "PM", "NEE", "RTX", "BMY", "QCOM", "AMD", "T", "HON", "UPS",
+        "INTC", "ORCL", "LIN", "LOW", "AMGN", "IBM", "INTU", "GE", "CAT", "BA",
+        "GS", "DE", "BLK", "MMM", "SPGI", "AMT", "AXP", "MDLZ", "PLD", "ISRG",
+        "GILD", "SYK", "TJX", "MO", "CVS", "ZTS", "C", "ELV", "TMUS", "BKNG",
+        "SO", "DUK", "ADI", "REGN", "VRTX", "LMT", "BDX", "PYPL", "TGT", "MS",
+        "EOG", "CI", "AON", "EQIX", "CME", "PGR", "FISV", "USB", "PNC", "KLAC",
+        "SHW", "PSA", "ITW", "BSX", "AEP", "FCX", "CSX", "WM", "DG", "ICE",
+        "NSC", "EMR", "EW", "ROP", "GIS", "FDX", "MAR", "F", "HUM", "ETN",
+        "AIG", "ECL", "TRV", "TFC", "ATVI", "AFL", "APD", "DLR", "PSX", "BIIB",
+        "MET", "MNST", "AZO", "WELL", "WMB", "ALL", "MSCI", "MCK", "STZ", "TT",
+        "JCI", "ADP", "DOW", "ROST", "FIS", "TEL", "AJG", "ORLY", "CTSH", "PRU",
+        "ANET", "VLO", "CMG", "DD", "RSG", "CARR", "CRWD", "MRNA", "PXD",
+        "PANW", "PAYX", "OXY", "EXC", "AIZ", "STT", "AME", "EBAY", "OTIS", "FAST",
+        "NOC", "BKR", "AVB", "ED", "ARE", "MTD", "ETR", "AMP", "GLW", "BAX",
+        "ZBH", "FTV",
+    ]
 
 
 def get_first_of_months(start_year=2005, end_year=None):
