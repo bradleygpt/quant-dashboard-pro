@@ -151,26 +151,36 @@ def render_earnings_calendar_panel(compact=False, universe_tickers=None):
         st.info("No earnings calendar data available right now. Check back in an hour.")
         return
 
-    # Filter to universe if provided
-    if universe_tickers is not None and "symbol" in df.columns:
-        universe_upper = {t.upper() for t in universe_tickers}
-        df = df[df["symbol"].str.upper().isin(universe_upper)]
+    # Capture diagnostics BEFORE filtering for debug expander
+    n_total_from_api = len(df)
+    n_excluded_by_universe = 0
+    excluded_tickers = []
 
-    if df.empty:
-        st.info("No tracked universe companies reporting earnings in the next 7 days.")
-        return
-
-    # Filter to upcoming only
-    today = datetime.now().normalize() if hasattr(datetime.now(), 'normalize') else datetime.now()
+    # Filter to upcoming first (date window)
     today = pd.Timestamp(datetime.now().date())
     cutoff = today + timedelta(days=7)
-    upcoming = df[(df["date"] >= today) & (df["date"] <= cutoff)].copy()
+    in_window = df[(df["date"] >= today) & (df["date"] <= cutoff)].copy() if "date" in df.columns else df.copy()
+    n_in_window = len(in_window)
+
+    # Then filter to universe
+    if universe_tickers is not None and "symbol" in in_window.columns:
+        universe_upper = {t.upper() for t in universe_tickers}
+        before_count = len(in_window)
+        excluded = in_window[~in_window["symbol"].str.upper().isin(universe_upper)]
+        excluded_tickers = sorted(excluded["symbol"].dropna().unique().tolist())
+        in_window = in_window[in_window["symbol"].str.upper().isin(universe_upper)]
+        n_excluded_by_universe = before_count - len(in_window)
+
+    upcoming = in_window
 
     if upcoming.empty:
         st.info("No earnings reports scheduled in the next 7 days for tracked universe.")
+        # Show diagnostic
+        with st.expander("🔍 Why might companies be missing? (debug)"):
+            _show_calendar_diagnostics(df, today, cutoff, universe_tickers, excluded_tickers, n_excluded_by_universe)
         return
 
-    # Sort by date, then by hour priority (bmo < dmh < amc)
+    # Sort by date, then by hour priority
     hour_priority = {"bmo": 0, "dmh": 1, "amc": 2}
     upcoming["hour_sort"] = upcoming["hour"].map(hour_priority).fillna(3)
     upcoming = upcoming.sort_values(["date", "hour_sort"])
@@ -181,7 +191,7 @@ def render_earnings_calendar_panel(compact=False, universe_tickers=None):
     st.caption(f"{n} companies{universe_note} reporting earnings in the next 7 days. Times: BMO = before market open, AMC = after close.")
 
     if compact:
-        # Compact: just show count by day
+        # Compact: show count by day
         upcoming["day_str"] = upcoming["date"].dt.strftime("%a %b %d")
         day_counts = upcoming.groupby("day_str").size().reset_index(name="count")
         day_counts = day_counts.sort_values("day_str")
@@ -194,6 +204,102 @@ def render_earnings_calendar_panel(compact=False, universe_tickers=None):
             _render_table(upcoming)
     else:
         _render_table(upcoming)
+
+    # Always offer diagnostic expander (collapsed by default)
+    if universe_tickers is not None and n_excluded_by_universe > 0:
+        with st.expander(f"🔍 {n_excluded_by_universe} companies excluded (not in tracked universe). Click to investigate."):
+            _show_calendar_diagnostics(df, today, cutoff, universe_tickers, excluded_tickers, n_excluded_by_universe)
+
+
+def _show_calendar_diagnostics(df_full, today, cutoff, universe_tickers, excluded_tickers, n_excluded):
+    """
+    Diagnostic panel for investigating why companies might be missing.
+
+    Shows:
+    - Total earnings returned by Finnhub API (any date)
+    - Earnings within window but excluded by universe filter
+    - Search for specific ticker
+    - Universe stats
+    """
+    st.markdown("**Diagnostic Information**")
+
+    diag_cols = st.columns(4)
+    with diag_cols[0]:
+        st.metric("Total from Finnhub API", len(df_full))
+    with diag_cols[1]:
+        st.metric("In 7-day window", len(df_full[(df_full["date"] >= today) & (df_full["date"] <= cutoff)]) if "date" in df_full.columns else 0)
+    with diag_cols[2]:
+        st.metric("Excluded (not in universe)", n_excluded)
+    with diag_cols[3]:
+        if universe_tickers:
+            st.metric("Universe size", len(universe_tickers))
+        else:
+            st.metric("Universe filter", "None")
+
+    # Show excluded tickers in window
+    if excluded_tickers:
+        st.markdown(f"**Excluded by universe filter ({len(excluded_tickers)}):**")
+        # Show in a compact wrap
+        cols_per_row = 8
+        for i in range(0, min(len(excluded_tickers), 80), cols_per_row):
+            chunk = excluded_tickers[i:i+cols_per_row]
+            cols = st.columns(cols_per_row)
+            for c, ticker in zip(cols, chunk):
+                with c:
+                    st.caption(f"`{ticker}`")
+        if len(excluded_tickers) > 80:
+            st.caption(f"...and {len(excluded_tickers) - 80} more")
+
+    # Search for a specific ticker
+    st.markdown("---")
+    st.markdown("**🔍 Search for a specific ticker:**")
+    search_ticker = st.text_input(
+        "Enter ticker (e.g. PLTR):",
+        key="earnings_search_ticker",
+        placeholder="PLTR"
+    ).strip().upper()
+
+    if search_ticker:
+        # Search in the full unfiltered API response
+        match = df_full[df_full["symbol"].str.upper() == search_ticker] if "symbol" in df_full.columns else pd.DataFrame()
+        if not match.empty:
+            st.success(f"✓ Found {len(match)} entries for {search_ticker} in Finnhub data")
+            for _, row in match.iterrows():
+                date = row.get("date")
+                hour = row.get("hour", "?")
+                date_str = date.strftime("%Y-%m-%d (%A)") if pd.notna(date) else "unknown"
+
+                # Check if in window
+                in_window_status = "✅ within 7-day window" if (
+                    pd.notna(date) and date >= today and date <= cutoff
+                ) else f"❌ outside 7-day window (today: {today.date()}, cutoff: {cutoff.date()})"
+
+                # Check if in universe
+                if universe_tickers:
+                    universe_upper = {t.upper() for t in universe_tickers}
+                    in_universe_status = "✅ in tracked universe" if search_ticker in universe_upper else "❌ NOT in tracked universe"
+                else:
+                    in_universe_status = "(no universe filter active)"
+
+                st.markdown(f"""
+                - **Date:** {date_str}
+                - **Time:** {_format_hour(hour) if hour else 'unknown'}
+                - **EPS Estimate:** ${row.get('epsEstimate', '—'):.2f}" if pd.notna(row.get('epsEstimate')) else 'n/a'
+                - **Date filter:** {in_window_status}
+                - **Universe filter:** {in_universe_status}
+                """)
+        else:
+            st.warning(f"❌ {search_ticker} NOT found in Finnhub's earnings calendar response.")
+            st.markdown(f"""
+            **Possible reasons:**
+            - {search_ticker}'s next earnings is more than 7 days away (Finnhub returns dates within ~30 days)
+            - {search_ticker} doesn't have earnings scheduled
+            - The ticker symbol on Finnhub differs from yours (e.g., '{search_ticker}.US' or other variant)
+            - Finnhub's free tier doesn't cover this ticker
+
+            **Check directly on Finnhub:** https://finnhub.io/dashboard
+            **Check earnings on Yahoo Finance:** https://finance.yahoo.com/calendar/earnings?symbol={search_ticker}
+            """)
 
 
 def _render_table(upcoming, universe_tickers=None):
