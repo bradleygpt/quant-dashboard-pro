@@ -41,28 +41,47 @@ import pandas as pd
 import numpy as np
 
 
-START_YEAR = 2005
+START_YEAR = int(os.environ.get("START_YEAR", "2005"))
 HOLD_DAYS_TRADING = 21  # ~1 month of trading days
 TOP_N_PICKS = 10
 MAX_UNIVERSE_SIZE = 200  # Sample to keep runtime manageable
-RESULTS_FILE = "quant_backtest_results.json"
+VARIANT_NAME = os.environ.get("VARIANT_NAME", "")
+RESULTS_FILE = f"quant_backtest_results{('_' + VARIANT_NAME) if VARIANT_NAME else ''}.json"
 
 
 def get_universe_tickers():
     """Load universe with multiple fallback strategies."""
     if os.path.exists("fundamentals_cache.json"):
-        with open("fundamentals_cache.json") as f:
-            cache = json.load(f)
-            tickers = list(cache.get("tickers", {}).keys())
-            if tickers:
-                return tickers
+        try:
+            with open("fundamentals_cache.json") as f:
+                cache = json.load(f)
+                # Try wrapped format: {"tickers": {...}}
+                if "tickers" in cache and isinstance(cache["tickers"], dict):
+                    tickers = list(cache["tickers"].keys())
+                    if tickers:
+                        return tickers
+                # Try flat format: {"AAPL": {...}, "MSFT": {...}}
+                tickers = [k for k in cache.keys()
+                           if isinstance(k, str) and k.isupper() and 1 <= len(k) <= 6]
+                if tickers:
+                    return tickers
+        except Exception as e:
+            print(f"WARNING: Failed to load fundamentals_cache.json: {e}", flush=True)
 
     if os.path.exists("data_cache/fundamentals_cache.json"):
-        with open("data_cache/fundamentals_cache.json") as f:
-            cache = json.load(f)
-            tickers = list(cache.get("tickers", {}).keys())
-            if tickers:
-                return tickers
+        try:
+            with open("data_cache/fundamentals_cache.json") as f:
+                cache = json.load(f)
+                if "tickers" in cache and isinstance(cache["tickers"], dict):
+                    tickers = list(cache["tickers"].keys())
+                    if tickers:
+                        return tickers
+                tickers = [k for k in cache.keys()
+                           if isinstance(k, str) and k.isupper() and 1 <= len(k) <= 6]
+                if tickers:
+                    return tickers
+        except Exception:
+            pass
 
     # Fallback: hardcoded liquid universe
     print("WARNING: No fundamentals cache found, using hardcoded liquid universe", flush=True)
@@ -106,6 +125,16 @@ def get_first_of_months(start_year=2005, end_year=None):
 
 
 def fetch_price_history(ticker, start_date, end_date):
+    """Get historical prices using parquet cache (fast) with yfinance fallback."""
+    try:
+        from price_cache import get_prices
+        hist = get_prices(ticker, start_date, end_date)
+        if hist is not None and not hist.empty:
+            return hist
+    except ImportError:
+        pass
+
+    # Fallback: hit yfinance directly
     try:
         t = yf.Ticker(ticker)
         hist = t.history(start=start_date, end=end_date, auto_adjust=False)

@@ -121,6 +121,16 @@ def get_first_of_months(start_year=2005, end_year=None):
 
 
 def fetch_historical_prices(ticker, start_date, end_date):
+    """Get historical prices using parquet cache (fast) with yfinance fallback."""
+    try:
+        from price_cache import get_prices
+        hist = get_prices(ticker, start_date, end_date)
+        if hist is not None and not hist.empty:
+            return hist
+    except ImportError:
+        pass
+
+    # Fallback
     try:
         df = yf.download(ticker, start=start_date, end=end_date, progress=False, auto_adjust=False)
         if df is None or df.empty:
