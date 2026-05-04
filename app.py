@@ -94,7 +94,9 @@ def multi_radar(td):
     fig.update_layout(polar=dict(radialaxis=dict(visible=True,range=[0,12],tickvals=[3,6,9,12],ticktext=["D","C","B","A+"],gridcolor="#2a2f3e"),angularaxis=dict(gridcolor="#2a2f3e"),bgcolor="rgba(0,0,0,0)"),margin=dict(l=60,r=60,t=40,b=40),height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),legend=dict(orientation="h",yanchor="bottom",y=-0.15,xanchor="center",x=0.5))
     return fig
 
-render_user_sidebar()
+# Premium gating system - shows auth UI in sidebar (sign in/up if anonymous, account info if signed in)
+from premium_gate import render_auth_sidebar, premium_banner, is_premium
+render_auth_sidebar()
 
 with st.sidebar:
     st.markdown("## Settings")
@@ -122,7 +124,7 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","🎤 Pundit Views","Advanced Screener","Swing Trader","Sector Overview","Stock Detail","📈 Pro Charts","Doppelganger","💎 Quant Portfolio","Portfolio","Monte Carlo","ETF Center","₿ Crypto","📖 Help"])
+tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","✨ 🎤 Pundit Views","Advanced Screener","✨ Swing Trader","Sector Overview","Stock Detail","✨ 📈 Pro Charts","✨ Doppelganger","✨ 💎 Quant Portfolio","Portfolio","✨ Monte Carlo","ETF Center","₿ Crypto","📖 Help"])
 tab_home,tab_macro,tab_sentiment,tab_pundits,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_quantport,tab_portfolio,tab_mc,tab_etfs,tab_crypto,tab_help=tabs
 
 def _cache_file_mtime():
@@ -501,6 +503,7 @@ with tab_sentiment:
 
 # ═══ TAB: PUNDIT VIEWS ════════════════════════════════════════════
 with tab_pundits:
+    premium_banner("Pundit Views")
     from pundit_views import render_equity_pundit_panel
     render_equity_pundit_panel()
 
@@ -577,6 +580,7 @@ with tab_advanced:
 
 # ═══ TAB 5: SWING TRADER ═══════════════════════════════════════════
 with tab_swing:
+    premium_banner("Swing Trader")
     st.markdown("### IBD-Inspired Swing Trader")
     st.caption("Combines fundamental quality (5-pillar score) with technical swing setups. Targets 5-10% gains over 3-10 trading days.")
 
@@ -1113,6 +1117,7 @@ with tab_detail:
 
 # ═══ TAB: PRO CHARTS ════════════════════════════════════════════════
 with tab_procharts:
+    premium_banner("Pro Charts")
     st.markdown("### Pro Charts")
     st.caption("Professional candlestick charts with indicators (VWAP, EMAs, RSI, Bollinger Bands) and a live monitoring dashboard.")
 
@@ -1273,6 +1278,7 @@ with tab_procharts:
 
 # ═══ TAB: DOPPELGANGER ANALYSIS ════════════════════════════════════
 with tab_doppel:
+    premium_banner("Doppelganger")
     st.markdown("### Doppelganger Analysis")
     st.caption("Find historical stock setups that resemble current companies. Learn from history.")
 
@@ -1464,6 +1470,7 @@ with tab_doppel:
 
 # ═══ TAB: QUANT PORTFOLIO ═════════════════════════════════════════
 with tab_quantport:
+    premium_banner("Quant Portfolio")
     st.markdown("### 💎 Quant Perfect Portfolio")
     st.caption("Score-tiered portfolio construction with sector caps and position floors. Two modes: Fresh build or Rebalance from existing.")
 
@@ -2085,6 +2092,7 @@ with tab_portfolio:
 
 # ═══ TAB 8: MONTE CARLO v2 ════════════════════════════════════════
 with tab_mc:
+    premium_banner("Monte Carlo Simulation")
     st.markdown("### Monte Carlo Simulation")
     st.caption("Geometric Brownian Motion with mean reversion, return caps, and macro scenario adjustment.")
     if not st.session_state.portfolio_holdings: st.info("Enter holdings in Portfolio tab first.")
