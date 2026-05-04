@@ -118,15 +118,29 @@ def fetch_price_history(ticker, start_date, end_date):
 
 def get_historical_fundamentals(ticker, target_date):
     """
-    Get fundamentals as of target_date. Best-effort using yfinance.
+    Get fundamentals as of target_date.
+
+    Uses SEC EDGAR XBRL data for true point-in-time fundamentals.
+    Falls back to yfinance only if EDGAR returns nothing (e.g., non-US listed).
 
     Returns dict with available metrics, plus quality_score (0-100)
     indicating how much data was available.
     """
+    # Primary: EDGAR XBRL (true point-in-time, free, comprehensive 2009+)
+    try:
+        from edgar_fundamentals import get_fundamentals_at_date
+        result = get_fundamentals_at_date(ticker, target_date)
+        if result and result.get("data_quality_score", 0) >= 20:
+            return result
+    except Exception as e:
+        print(f"  EDGAR fetch failed for {ticker}: {e}", flush=True)
+
+    # Fallback: yfinance (less reliable for historical, but better than nothing)
     result = {
         "ticker": ticker,
         "as_of_date": target_date.strftime("%Y-%m-%d"),
         "data_quality_score": 0,
+        "_source": "yfinance_fallback",
     }
 
     try:
@@ -136,15 +150,12 @@ def get_historical_fundamentals(ticker, target_date):
         try:
             income = t.quarterly_income_stmt
             if income is not None and not income.empty:
-                # Filter to columns BEFORE target_date
                 cols_before = [c for c in income.columns
                                if hasattr(c, 'date') and c.date() <= target_date.date()]
                 if cols_before:
                     most_recent = cols_before[0]
-                    # Last 4 quarters of TTM if available
                     ttm_cols = cols_before[:4]
 
-                    # Revenue
                     if "Total Revenue" in income.index:
                         revenues = [income.loc["Total Revenue", c]
                                    for c in ttm_cols if pd.notna(income.loc["Total Revenue", c])]
@@ -153,7 +164,6 @@ def get_historical_fundamentals(ticker, target_date):
                             result["ttm_revenue"] = float(ttm_revenue)
                             result["data_quality_score"] += 20
 
-                            # YoY growth (compare TTM to prior TTM)
                             if len(cols_before) >= 8:
                                 prior_revenues = [income.loc["Total Revenue", c]
                                                  for c in cols_before[4:8]
@@ -164,7 +174,6 @@ def get_historical_fundamentals(ticker, target_date):
                                         result["revenue_growth_yoy"] = ((ttm_revenue / prior_ttm) - 1) * 100
                                         result["data_quality_score"] += 15
 
-                    # Net income
                     if "Net Income" in income.index:
                         nis = [income.loc["Net Income", c]
                               for c in ttm_cols if pd.notna(income.loc["Net Income", c])]
@@ -173,7 +182,6 @@ def get_historical_fundamentals(ticker, target_date):
                             result["ttm_net_income"] = float(ttm_ni)
                             result["data_quality_score"] += 10
 
-                    # Operating margin
                     if "Operating Income" in income.index and "Total Revenue" in income.index:
                         op_inc = income.loc["Operating Income", most_recent]
                         rev = income.loc["Total Revenue", most_recent]
@@ -214,7 +222,6 @@ def get_historical_fundamentals(ticker, target_date):
         # ── EPS for valuation ──
         try:
             if "ttm_net_income" in result:
-                # Need shares outstanding
                 shares = t.info.get("sharesOutstanding")
                 if shares and shares > 0:
                     result["ttm_eps"] = result["ttm_net_income"] / shares

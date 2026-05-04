@@ -1,0 +1,101 @@
+name: Quant Backtest - Dual Window
+# Runs two quant backtests in parallel:
+# - Full: 2009-present (covers EDGAR XBRL mandate period)
+# - Short: 2018-present (where data quality is highest, matches modern market structure)
+#
+# Both use EDGAR XBRL for point-in-time fundamentals.
+# We can present whichever produces the stronger validated result.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  quant-full:
+    name: Full window 2009-2026
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests
+      - name: Run full quant backtest
+        env:
+          START_YEAR: "2009"
+          VARIANT_NAME: "full_2009"
+        run: |
+          echo "Starting full quant backtest at $(date)"
+          python build_quant_backtest.py
+          echo "Completed at $(date)"
+      - name: Verify output
+        run: |
+          if [ ! -f "quant_backtest_results_full_2009.json" ]; then
+            echo "ERROR: output not created"
+            exit 1
+          fi
+          ls -lh quant_backtest_results_full_2009.json
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add quant_backtest_results_full_2009.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "chore: quant backtest full window (2009-present, EDGAR XBRL)"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
+
+  quant-short:
+    name: Short window 2018-2026
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests
+      - name: Run short quant backtest
+        env:
+          START_YEAR: "2018"
+          VARIANT_NAME: "short_2018"
+        run: |
+          echo "Starting short quant backtest at $(date)"
+          python build_quant_backtest.py
+          echo "Completed at $(date)"
+      - name: Verify output
+        run: |
+          if [ ! -f "quant_backtest_results_short_2018.json" ]; then
+            echo "ERROR: output not created"
+            exit 1
+          fi
+          ls -lh quant_backtest_results_short_2018.json
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add quant_backtest_results_short_2018.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "chore: quant backtest short window (2018-present, EDGAR XBRL)"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
