@@ -82,61 +82,91 @@ def fetch_earnings_calendar(start_date=None, end_date=None):
         return pd.DataFrame()
 
 
-@st.cache_data(ttl=86400, show_spinner=False)  # 24 hour cache - earnings dates are stable
+@st.cache_data(ttl=86400, show_spinner=False)
 def fetch_yfinance_earnings_date(ticker):
     """
     Fetch the next earnings date for a ticker from yfinance.
 
-    Used as backup for tickers missing from Finnhub's calendar response.
-    Returns dict with date, eps_estimate, revenue_estimate, or None.
+    Tries multiple methods because yfinance scraping is unreliable:
+    1. ticker.calendar (most direct, often broken in 2024+)
+    2. ticker.info.earningsTimestamp (sometimes works when calendar fails)
+    3. ticker.get_earnings_dates() (newest method, may have data)
+
+    Returns dict with date, eps_estimate, etc., or None if all methods fail.
     """
     try:
         import yfinance as yf
         t = yf.Ticker(ticker)
-        # yfinance has multiple ways to get earnings date - try each
-        cal = t.calendar
-        if cal is not None and not cal.empty if hasattr(cal, 'empty') else cal:
-            # cal may be DataFrame or dict depending on yfinance version
-            if isinstance(cal, dict):
-                # Newer yfinance returns dict
-                earnings_date = cal.get("Earnings Date")
-                if earnings_date:
-                    if isinstance(earnings_date, list) and earnings_date:
-                        earnings_date = earnings_date[0]
-                    return {
-                        "symbol": ticker.upper(),
-                        "date": pd.Timestamp(earnings_date),
-                        "hour": "amc",  # yfinance doesn't reliably tell us, default to AMC
-                        "epsEstimate": cal.get("Earnings Average", None),
-                        "revenueEstimate": cal.get("Revenue Average", None),
-                        "_source": "yfinance",
-                    }
-            else:
-                # Older yfinance returned DataFrame
-                if "Earnings Date" in cal.index:
-                    earnings_date = cal.loc["Earnings Date"].iloc[0] if hasattr(cal.loc["Earnings Date"], 'iloc') else cal.loc["Earnings Date"]
-                    return {
-                        "symbol": ticker.upper(),
-                        "date": pd.Timestamp(earnings_date),
-                        "hour": "amc",
-                        "epsEstimate": None,
-                        "revenueEstimate": None,
-                        "_source": "yfinance",
-                    }
 
-        # Try info dict as fallback
+        # Method 1: ticker.calendar
+        try:
+            cal = t.calendar
+            if cal is not None:
+                if isinstance(cal, dict) and cal:
+                    earnings_date = cal.get("Earnings Date")
+                    if earnings_date:
+                        if isinstance(earnings_date, list) and earnings_date:
+                            earnings_date = earnings_date[0]
+                        return {
+                            "symbol": ticker.upper(),
+                            "date": pd.Timestamp(earnings_date),
+                            "hour": "amc",
+                            "epsEstimate": cal.get("Earnings Average"),
+                            "revenueEstimate": cal.get("Revenue Average"),
+                            "_source": "yfinance_calendar",
+                        }
+                elif hasattr(cal, "empty") and not cal.empty:
+                    if "Earnings Date" in cal.index:
+                        ed = cal.loc["Earnings Date"]
+                        if hasattr(ed, "iloc"):
+                            ed = ed.iloc[0]
+                        return {
+                            "symbol": ticker.upper(),
+                            "date": pd.Timestamp(ed),
+                            "hour": "amc",
+                            "epsEstimate": None,
+                            "revenueEstimate": None,
+                            "_source": "yfinance_calendar",
+                        }
+        except Exception:
+            pass
+
+        # Method 2: ticker.info earningsTimestamp
         try:
             info = t.info
             ts = info.get("earningsTimestamp") or info.get("earningsTimestampStart")
             if ts:
-                return {
-                    "symbol": ticker.upper(),
-                    "date": pd.Timestamp(ts, unit="s") if ts > 1e9 else pd.Timestamp(ts),
-                    "hour": "amc",
-                    "epsEstimate": info.get("epsForward"),
-                    "revenueEstimate": info.get("revenueEstimate"),
-                    "_source": "yfinance",
-                }
+                date = pd.Timestamp(ts, unit="s") if ts > 1e9 else pd.Timestamp(ts)
+                # Only return future dates
+                if date >= pd.Timestamp.now():
+                    return {
+                        "symbol": ticker.upper(),
+                        "date": date,
+                        "hour": "amc",
+                        "epsEstimate": info.get("epsForward"),
+                        "revenueEstimate": info.get("revenueEstimate"),
+                        "_source": "yfinance_info",
+                    }
+        except Exception:
+            pass
+
+        # Method 3: get_earnings_dates() - newest yfinance method
+        try:
+            dates = t.get_earnings_dates(limit=4) if hasattr(t, "get_earnings_dates") else None
+            if dates is not None and not dates.empty:
+                # Find first future date
+                now = pd.Timestamp.now(tz=dates.index.tz) if dates.index.tz else pd.Timestamp.now()
+                future = dates[dates.index >= now]
+                if not future.empty:
+                    earliest = future.iloc[0]
+                    return {
+                        "symbol": ticker.upper(),
+                        "date": future.index[0].to_pydatetime() if hasattr(future.index[0], 'to_pydatetime') else pd.Timestamp(future.index[0]),
+                        "hour": "amc",
+                        "epsEstimate": earliest.get("EPS Estimate") if hasattr(earliest, 'get') else None,
+                        "revenueEstimate": None,
+                        "_source": "yfinance_get_earnings_dates",
+                    }
         except Exception:
             pass
 
@@ -448,16 +478,42 @@ def _show_calendar_diagnostics(df_full, today, cutoff, universe_tickers, exclude
                 """)
         else:
             st.warning(f"❌ {search_ticker} NOT found in earnings data (Finnhub or yfinance).")
+
+            # Add a button to directly test yfinance for this specific ticker
+            if st.button(f"🔬 Test yfinance directly for {search_ticker}", key=f"test_yf_{search_ticker}"):
+                with st.spinner(f"Querying yfinance for {search_ticker}..."):
+                    result = fetch_yfinance_earnings_date(search_ticker)
+                if result:
+                    st.success(f"✓ yfinance has data for {search_ticker}!")
+                    st.json(result)
+                    st.info(
+                        "If you see data here but NOT in the calendar above, the merge logic isn't working. "
+                        "Try clearing Streamlit's cache (Manage app → Reboot)."
+                    )
+                else:
+                    st.error(f"❌ yfinance also returned no data for {search_ticker}.")
+                    st.markdown(f"""
+                    **This means neither Finnhub nor yfinance has earnings data for {search_ticker}.**
+
+                    Possible reasons:
+                    - The earnings date hasn't been announced yet
+                    - {search_ticker}'s earnings are reported on a different schedule
+                    - yfinance scraping is broken for this ticker (Yahoo's HTML changed)
+                    - The ticker is delisted or non-US
+
+                    **Manual verification:**
+                    - Yahoo Finance: https://finance.yahoo.com/calendar/earnings?symbol={search_ticker}
+                    - Earnings Whisper: https://www.earningswhispers.com/stocks/{search_ticker.lower()}
+                    """)
+
             st.markdown(f"""
             **Possible reasons:**
-            - {search_ticker}'s next earnings is more than 7 days away (Finnhub returns dates within ~30 days)
+            - {search_ticker}'s next earnings is more than 7 days away
             - {search_ticker} doesn't have earnings scheduled
             - Neither Finnhub nor yfinance has this ticker's calendar data
-            - The ticker symbol differs between sources
 
             **Verify directly:**
-            - Finnhub dashboard: https://finnhub.io/dashboard
-            - Yahoo Finance calendar: https://finance.yahoo.com/calendar/earnings?symbol={search_ticker}
+            - Yahoo Finance: https://finance.yahoo.com/calendar/earnings?symbol={search_ticker}
             """)
 
 
@@ -487,11 +543,16 @@ def _render_table(upcoming, universe_tickers=None):
         hour_str = _format_hour(hour)
 
         # Keep numeric values for sorting - Streamlit will format via NumberColumn
+        # Treat zero or near-zero as missing data (data provider artifact, not real $0.00 estimate)
         eps_est = row.get("epsEstimate")
         eps_est_num = float(eps_est) if pd.notna(eps_est) else None
+        if eps_est_num is not None and abs(eps_est_num) < 0.001:
+            eps_est_num = None  # Display as "—" instead of "$-0.00"
 
         rev_est = row.get("revenueEstimate")
         rev_est_num = float(rev_est) if pd.notna(rev_est) and rev_est else None
+        if rev_est_num is not None and abs(rev_est_num) < 1000:
+            rev_est_num = None  # Sub-$1k revenue est is a data error, treat as missing
 
         display_rows.append({
             "Ticker": symbol,
