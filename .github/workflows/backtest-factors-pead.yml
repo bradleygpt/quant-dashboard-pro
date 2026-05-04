@@ -1,0 +1,105 @@
+name: Backtest Factor Rotation + PEAD
+# Two research-backed strategies tested in parallel:
+# - Factor Rotation: Multi-factor (Value+Momentum+Quality+LowVol) monthly rebalance
+#   This is what AQR, Dimensional, Alpha Architect actually do
+# - PEAD: Buy stocks after positive earnings surprise, hold ~1 month
+#   The most documented anomaly in finance (Ball & Brown 1968)
+#
+# Both use parquet price cache + EDGAR cache for speed.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  factor-rotation:
+    name: Factor Rotation
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests pyarrow
+      - name: Run factor rotation backtest
+        env:
+          VARIANT_NAME: "factor_rotation"
+          START_YEAR: "2010"
+          TRAIN_END_YEAR: "2019"
+          TOP_N: "30"
+          HOLD_DAYS: "21"
+          MAX_UNIVERSE_SIZE: "500"
+        run: |
+          echo "Starting Factor Rotation backtest at $(date)"
+          python build_backtest_factors.py
+          echo "Completed at $(date)"
+      - name: Verify
+        run: |
+          if [ ! -f "backtest_variant_factor_rotation.json" ]; then
+            echo "ERROR: output not created"
+            exit 1
+          fi
+          ls -lh backtest_variant_factor_rotation.json
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add backtest_variant_factor_rotation.json
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m "chore: factor rotation backtest results"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
+
+  pead:
+    name: PEAD (Post-Earnings-Announcement Drift)
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests pyarrow
+      - name: Run PEAD backtest
+        env:
+          VARIANT_NAME: "pead"
+          START_YEAR: "2010"
+          TRAIN_END_YEAR: "2019"
+          TOP_N: "20"
+          HOLD_DAYS: "21"
+          MIN_SURPRISE_PCT: "5.0"
+          MAX_UNIVERSE_SIZE: "500"
+        run: |
+          echo "Starting PEAD backtest at $(date)"
+          python build_backtest_pead.py
+          echo "Completed at $(date)"
+      - name: Verify
+        run: |
+          if [ ! -f "backtest_variant_pead.json" ]; then
+            echo "ERROR: output not created"
+            exit 1
+          fi
+          ls -lh backtest_variant_pead.json
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add backtest_variant_pead.json
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m "chore: PEAD backtest results"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
