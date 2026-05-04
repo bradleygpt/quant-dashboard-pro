@@ -443,16 +443,12 @@ with tab_macro:
     with fp3: st.metric("Hike Probability",f"{fed['hike_probability']}%")
     st.caption(fed["note"])
 
-    # Economic calendar
+    # Economic calendar - real release dates with countdown + FRED historical data
     st.markdown("---")
-    with st.expander("Key Economic Releases Calendar"):
-        cal=fetch_economic_calendar()
-        for ev in cal:
-            imp_color={"Critical":"#FF5722","High":"#FFC107","Medium":"#8BC34A"}.get(ev["importance"],"#666")
-            st.markdown(f'<span style="color:{imp_color};font-weight:700;">[{ev["importance"]}]</span> **{ev["event"]}** ({ev["date"]})',unsafe_allow_html=True)
-            st.caption(ev["description"])
+    from economic_calendar import render_economic_calendar_panel
+    render_economic_calendar_panel()
 
-    st.caption(f"Macro data last updated: {macro['last_updated']}. Update macro.py MACRO_DATA dict with latest BLS/ISM releases.")
+    st.caption(f"Macro data last updated: {macro['last_updated']}.")
 
 # ═══ TAB 2: MARKET SENTIMENT ══════════════════════════════════════
 with tab_sentiment:
@@ -584,10 +580,29 @@ with tab_swing:
     st.markdown("### IBD-Inspired Swing Trader")
     st.caption("Combines fundamental quality (5-pillar score) with technical swing setups. Targets 5-10% gains over 3-10 trading days.")
 
-    # Show backtest results at top of swing tab
-    with st.expander("📈 View Backtest Performance (20-year validation)", expanded=False):
-        from swing_backtest_panel import render_backtest_panel
-        render_backtest_panel()
+    # Backtest panel - GATED FOR PRIVATE REVIEW
+    # Add ?dev_mode=true to URL to view, otherwise hidden from public
+    query_params = st.query_params if hasattr(st, "query_params") else st.experimental_get_query_params()
+    is_dev_mode = False
+    if hasattr(query_params, "get"):
+        dm = query_params.get("dev_mode", "")
+        if isinstance(dm, list):
+            dm = dm[0] if dm else ""
+        is_dev_mode = str(dm).lower() == "true"
+
+    if is_dev_mode:
+        with st.expander("🔒 [DEV] Backtest Performance (private review)", expanded=True):
+            st.warning("⚠️ This panel is in private review mode. Backtest results are not yet validated for public release. Add `?dev_mode=true` to URL to access.")
+            from swing_backtest_panel import render_backtest_panel
+            render_backtest_panel()
+    else:
+        with st.expander("📈 Backtest Performance (coming soon)", expanded=False):
+            st.info(
+                "🚧 **Backtest validation in progress.** "
+                "We are validating the swing trader's hypothesis against 20 years of historical monthly checkpoints. "
+                "Results will be published after thorough analysis and parameter optimization. "
+                "This ensures any performance claims are credible and methodologically sound."
+            )
 
     methodology=get_swing_methodology()
     with st.expander("Methodology"):
@@ -1452,10 +1467,27 @@ with tab_quantport:
     st.markdown("### 💎 Quant Perfect Portfolio")
     st.caption("Score-tiered portfolio construction with sector caps and position floors. Two modes: Fresh build or Rebalance from existing.")
 
-    # Show backtest validation at top
-    with st.expander("📊 View Backtest Performance (20-year validation)", expanded=False):
-        from quant_backtest_panel import render_quant_backtest_panel
-        render_quant_backtest_panel()
+    # Backtest panel - GATED FOR PRIVATE REVIEW (same dev_mode flag as swing)
+    qb_query_params = st.query_params if hasattr(st, "query_params") else st.experimental_get_query_params()
+    qb_is_dev_mode = False
+    if hasattr(qb_query_params, "get"):
+        dm = qb_query_params.get("dev_mode", "")
+        if isinstance(dm, list):
+            dm = dm[0] if dm else ""
+        qb_is_dev_mode = str(dm).lower() == "true"
+
+    if qb_is_dev_mode:
+        with st.expander("🔒 [DEV] Backtest Performance (private review)", expanded=True):
+            st.warning("⚠️ Private review mode. Add `?dev_mode=true` to URL to access.")
+            from quant_backtest_panel import render_quant_backtest_panel
+            render_quant_backtest_panel()
+    else:
+        with st.expander("📊 Backtest Performance (coming soon)", expanded=False):
+            st.info(
+                "🚧 **Backtest validation in progress.** "
+                "We are validating the 5-pillar quant scoring system against 20 years of historical monthly checkpoints. "
+                "Results will be published after thorough analysis and parameter optimization."
+            )
 
     from quant_portfolio import (
         build_optimal_portfolio, compute_rebalance_deltas,
