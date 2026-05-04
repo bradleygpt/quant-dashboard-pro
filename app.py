@@ -48,14 +48,9 @@ st.markdown("""<style>
 </style>""", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
-# AUTH GATE - App requires login to access
-# ═══════════════════════════════════════════════════════════════════
-if not is_logged_in():
-    render_login_page()
-    st.stop()
-
-# ═══════════════════════════════════════════════════════════════════
-# AUTHENTICATED APP BELOW
+# AUTH MODE: Open access with optional sign-in
+# Anonymous users see all content with Premium banners on advanced features.
+# Auth UI lives in sidebar (rendered by premium_gate.render_auth_sidebar).
 # ═══════════════════════════════════════════════════════════════════
 
 for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("sector_relative",True),("portfolio_holdings",[]),("current_portfolio_id",None),("current_portfolio_name",None),("portfolio_autoloaded",False)]:
