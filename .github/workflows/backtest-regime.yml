@@ -1,0 +1,60 @@
+name: Backtest Regime-Aware Swing Trader
+# Runs the regime-aware swing trader backtest:
+# - Detects bull/bear/transition each month using SPY 50/200 SMA
+# - Bull regime: momentum/breakout strategy with trailing stops
+# - Bear regime: mean-reversion strategy with tight stops and 7-day hold
+# - Transition regime: cash (no trades)
+#
+# Hypothesis: regime-correct execution beats both buy-and-hold AND any
+# single-style swing trader because each strategy operates in its native regime.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backtest-regime:
+    name: Regime-Aware Backtest
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests
+      - name: Run regime-aware backtest
+        env:
+          VARIANT_NAME: "regime"
+          START_YEAR: "2005"
+          TRAIN_END_YEAR: "2019"
+          TOP_N: "10"
+        run: |
+          echo "Starting regime-aware backtest at $(date)"
+          python build_backtest_regime.py
+          echo "Completed at $(date)"
+      - name: Verify output
+        run: |
+          if [ ! -f "backtest_variant_regime.json" ]; then
+            echo "ERROR: output not created"
+            exit 1
+          fi
+          ls -lh backtest_variant_regime.json
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add backtest_variant_regime.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "chore: regime-aware swing trader backtest results"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
