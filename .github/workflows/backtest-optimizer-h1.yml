@@ -1,0 +1,110 @@
+name: Backtest Optimizer H1 (Stop Loss Variants)
+# Tests two stop/target variants in parallel for H1 hypothesis
+# H1A: 1.5x ATR stop / 2x ATR target (loosen stop only)
+# H1B: 2x ATR stop / 3x ATR target (loosen both, keep R/R similar)
+#
+# Both run with walk-forward split: train 2005-2019, holdout 2020+
+
+on:
+  workflow_dispatch:  # Manual trigger only - we control when this runs
+
+jobs:
+  variant-h1a:
+    name: H1A - Stop 1.5x ATR / Target 2x ATR
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy
+      - name: Run H1A variant
+        env:
+          VARIANT_NAME: h1a
+          STOP_ATR: "1.5"
+          TARGET_ATR: "2.0"
+          HOLD_DAYS: "14"
+          MIN_SCORE: "50"
+          TOP_N: "10"
+          TRAIN_END_YEAR: "2019"
+        run: |
+          echo "Starting H1A at $(date)"
+          python build_backtest_optimizer.py
+          echo "Completed at $(date)"
+      - name: Verify output
+        run: |
+          if [ ! -f "backtest_variant_h1a.json" ]; then
+            echo "ERROR: backtest_variant_h1a.json not created"
+            exit 1
+          fi
+          ls -lh backtest_variant_h1a.json
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add backtest_variant_h1a.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "chore: H1A backtest variant (stop=1.5x ATR, target=2x ATR)"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
+
+  variant-h1b:
+    name: H1B - Stop 2x ATR / Target 3x ATR
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy
+      - name: Run H1B variant
+        env:
+          VARIANT_NAME: h1b
+          STOP_ATR: "2.0"
+          TARGET_ATR: "3.0"
+          HOLD_DAYS: "14"
+          MIN_SCORE: "50"
+          TOP_N: "10"
+          TRAIN_END_YEAR: "2019"
+        run: |
+          echo "Starting H1B at $(date)"
+          python build_backtest_optimizer.py
+          echo "Completed at $(date)"
+      - name: Verify output
+        run: |
+          if [ ! -f "backtest_variant_h1b.json" ]; then
+            echo "ERROR: backtest_variant_h1b.json not created"
+            exit 1
+          fi
+          ls -lh backtest_variant_h1b.json
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add backtest_variant_h1b.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "chore: H1B backtest variant (stop=2x ATR, target=3x ATR)"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
