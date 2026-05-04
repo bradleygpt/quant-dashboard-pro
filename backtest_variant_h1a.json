@@ -1,0 +1,4338 @@
+{
+  "last_run_utc": "2026-05-04T00:59:09.785067+00:00",
+  "variant_name": "h1a",
+  "parameters": {
+    "stop_atr_mult": 1.5,
+    "target_atr_mult": 2.0,
+    "hold_days": 14,
+    "min_score": 50,
+    "top_n_picks": 10,
+    "train_end_year": 2019,
+    "start_year": 2005
+  },
+  "aggregate_full": {
+    "realistic_strategy": {
+      "n_periods": 28,
+      "win_rate_pct": 67.85714285714286,
+      "avg_return_pct": 0.6681853242913602,
+      "avg_win_pct": 1.4894478558836175,
+      "avg_loss_pct": -1.0655911312922939,
+      "best_period_pct": 3.0475546265882616,
+      "worst_period_pct": -2.3155144000221295,
+      "total_compounded_pct": 20.16850498724083
+    },
+    "theoretical_max_strategy": {
+      "n_periods": 28,
+      "win_rate_pct": 100.0,
+      "avg_return_pct": 3.9968598388599057,
+      "avg_win_pct": 3.9968598388599057,
+      "avg_loss_pct": 0,
+      "best_period_pct": 9.606350267683235,
+      "worst_period_pct": 0.5562372585317807,
+      "total_compounded_pct": 197.68962412106248
+    },
+    "spy_benchmark": {
+      "n_periods": 27,
+      "win_rate_pct": 62.96296296296296,
+      "avg_return_pct": 0.2934414047294536,
+      "avg_win_pct": 1.5800598484897628,
+      "avg_loss_pct": -1.893809949663072,
+      "best_period_pct": 3.8509415486043856,
+      "worst_period_pct": -3.9307059166718132,
+      "total_compounded_pct": 7.663807110432974
+    }
+  },
+  "aggregate_train": {
+    "realistic_strategy": {
+      "n_periods": 28,
+      "win_rate_pct": 67.85714285714286,
+      "avg_return_pct": 0.6681853242913602,
+      "avg_win_pct": 1.4894478558836175,
+      "avg_loss_pct": -1.0655911312922939,
+      "best_period_pct": 3.0475546265882616,
+      "worst_period_pct": -2.3155144000221295,
+      "total_compounded_pct": 20.16850498724083
+    },
+    "theoretical_max_strategy": {
+      "n_periods": 28,
+      "win_rate_pct": 100.0,
+      "avg_return_pct": 3.9968598388599057,
+      "avg_win_pct": 3.9968598388599057,
+      "avg_loss_pct": 0,
+      "best_period_pct": 9.606350267683235,
+      "worst_period_pct": 0.5562372585317807,
+      "total_compounded_pct": 197.68962412106248
+    },
+    "spy_benchmark": {
+      "n_periods": 27,
+      "win_rate_pct": 62.96296296296296,
+      "avg_return_pct": 0.2934414047294536,
+      "avg_win_pct": 1.5800598484897628,
+      "avg_loss_pct": -1.893809949663072,
+      "best_period_pct": 3.8509415486043856,
+      "worst_period_pct": -3.9307059166718132,
+      "total_compounded_pct": 7.663807110432974
+    }
+  },
+  "aggregate_holdout": {
+    "realistic_strategy": {},
+    "theoretical_max_strategy": {},
+    "spy_benchmark": {}
+  },
+  "monthly_results": [
+    {
+      "date": "2005-01-01",
+      "n_qualified": 107,
+      "top_picks": [
+        {
+          "ticker": "PLD",
+          "swing_score": 80,
+          "weight": 0.11267605633802817,
+          "realistic_return_pct": -2.3741734777491583,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.2723461550231035
+        },
+        {
+          "ticker": "AAPL",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": 5.130865665447801,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 9.704963221860206
+        },
+        {
+          "ticker": "LLY",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": 0.4405286343612335,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.8149758225495596
+        },
+        {
+          "ticker": "AMGN",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": -2.508629345367389,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.1223713228013994
+        },
+        {
+          "ticker": "TJX",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": -2.187196087795889,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.1937968739670584
+        },
+        {
+          "ticker": "TGT",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": -2.1828799817185027,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.2503390474701718
+        },
+        {
+          "ticker": "EW",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": -2.9577295858189014,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.5269029791392161
+        },
+        {
+          "ticker": "MET",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": -2.470288599033853,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.752660634672664
+        },
+        {
+          "ticker": "STZ",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": -2.612341561376025,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 7.288762259052156
+        },
+        {
+          "ticker": "RSG",
+          "swing_score": 70,
+          "weight": 0.09859154929577464,
+          "realistic_return_pct": -2.689751754658332,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.9540837390856328
+        }
+      ],
+      "portfolio_return_realistic": -1.4543006497705953,
+      "portfolio_return_max": 2.3180118525716904,
+      "spy_return_pct": -1.7290122845298586
+    },
+    {
+      "date": "2005-02-01",
+      "n_qualified": 66,
+      "top_picks": [
+        {
+          "ticker": "CSX",
+          "swing_score": 73,
+          "weight": 0.10735294117647058,
+          "realistic_return_pct": 0.7755682577694527,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 0.7755682577694527
+        },
+        {
+          "ticker": "MCD",
+          "swing_score": 70,
+          "weight": 0.10294117647058823,
+          "realistic_return_pct": -2.5073895564950477,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.3772783954103973
+        },
+        {
+          "ticker": "C",
+          "swing_score": 70,
+          "weight": 0.10294117647058823,
+          "realistic_return_pct": -0.9785907834798675,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.4882747794023956
+        },
+        {
+          "ticker": "PEP",
+          "swing_score": 67,
+          "weight": 0.09852941176470588,
+          "realistic_return_pct": 2.7055062581685942,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.351953838896031
+        },
+        {
+          "ticker": "KO",
+          "swing_score": 67,
+          "weight": 0.09852941176470588,
+          "realistic_return_pct": 2.5100714873161767,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.3624909264179035
+        },
+        {
+          "ticker": "SYK",
+          "swing_score": 67,
+          "weight": 0.09852941176470588,
+          "realistic_return_pct": 4.764811789413098,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.000412055623473
+        },
+        {
+          "ticker": "TRV",
+          "swing_score": 67,
+          "weight": 0.09852941176470588,
+          "realistic_return_pct": 3.599969120085917,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.954716475731962
+        },
+        {
+          "ticker": "ROST",
+          "swing_score": 67,
+          "weight": 0.09852941176470588,
+          "realistic_return_pct": -3.781071495191536,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 3.2145354623217686
+        },
+        {
+          "ticker": "RSG",
+          "swing_score": 67,
+          "weight": 0.09852941176470588,
+          "realistic_return_pct": -2.0538151002362297,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.6985122159694894
+        },
+        {
+          "ticker": "XOM",
+          "swing_score": 65,
+          "weight": 0.09558823529411764,
+          "realistic_return_pct": 2.6328899786146556,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 15.135662023726532
+        }
+      ],
+      "portfolio_return_realistic": 0.7392387288516646,
+      "portfolio_return_max": 4.350086532233312,
+      "spy_return_pct": 1.244635171103491
+    },
+    {
+      "date": "2005-03-01",
+      "n_qualified": 73,
+      "top_picks": [
+        {
+          "ticker": "LIN",
+          "swing_score": 75,
+          "weight": 0.10548523206751055,
+          "realistic_return_pct": 2.9125876762806864,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.762657595578457
+        },
+        {
+          "ticker": "NSC",
+          "swing_score": 75,
+          "weight": 0.10548523206751055,
+          "realistic_return_pct": 4.418261617995307,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.238230983802896
+        },
+        {
+          "ticker": "KLAC",
+          "swing_score": 73,
+          "weight": 0.10267229254571027,
+          "realistic_return_pct": -4.731545656065444,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.2548045614236902
+        },
+        {
+          "ticker": "INTC",
+          "swing_score": 70,
+          "weight": 0.09845288326300984,
+          "realistic_return_pct": 4.918717450745429,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.668615464439396
+        },
+        {
+          "ticker": "TGT",
+          "swing_score": 70,
+          "weight": 0.09845288326300984,
+          "realistic_return_pct": 3.7161975881513545,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.3057857443216028
+        },
+        {
+          "ticker": "PGR",
+          "swing_score": 70,
+          "weight": 0.09845288326300984,
+          "realistic_return_pct": 3.368870145212647,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.041336778561243
+        },
+        {
+          "ticker": "PRU",
+          "swing_score": 70,
+          "weight": 0.09845288326300984,
+          "realistic_return_pct": 3.581455775669639,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.0701749032003836
+        },
+        {
+          "ticker": "BAX",
+          "swing_score": 70,
+          "weight": 0.09845288326300984,
+          "realistic_return_pct": -2.677070645104432,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.3645544591503445
+        },
+        {
+          "ticker": "ZBH",
+          "swing_score": 70,
+          "weight": 0.09845288326300984,
+          "realistic_return_pct": -2.8775151745241807,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.17462023666311413
+        },
+        {
+          "ticker": "MCD",
+          "swing_score": 68,
+          "weight": 0.09563994374120956,
+          "realistic_return_pct": 3.1223021924063667,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.415952813996386
+        }
+      ],
+      "portfolio_return_realistic": 1.5736614248552558,
+      "portfolio_return_max": 3.3919418770066985,
+      "spy_return_pct": -2.218924661320154
+    },
+    {
+      "date": "2005-04-01",
+      "n_qualified": 62,
+      "top_picks": [
+        {
+          "ticker": "MRK",
+          "swing_score": 75,
+          "weight": 0.10623229461756374,
+          "realistic_return_pct": 2.6214754003607283,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.506952002161802
+        },
+        {
+          "ticker": "JNJ",
+          "swing_score": 72,
+          "weight": 0.10198300283286119,
+          "realistic_return_pct": 1.880370087607888,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.3353152793725993
+        },
+        {
+          "ticker": "AME",
+          "swing_score": 72,
+          "weight": 0.10198300283286119,
+          "realistic_return_pct": -2.768411196312222,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.3726677776676018
+        },
+        {
+          "ticker": "LIN",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": 3.238614400676692,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 2.1312169760880817
+        },
+        {
+          "ticker": "INTU",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": -2.920298637791151,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -1.3708071339805856
+        },
+        {
+          "ticker": "CVS",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": -2.475973304740955,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.01900824103667554
+        },
+        {
+          "ticker": "DUK",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": 1.570866894658687,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.9989262875799345
+        },
+        {
+          "ticker": "DLR",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": -4.175367795325394,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.6005601791394592
+        },
+        {
+          "ticker": "PAYX",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": -3.6203982992965518,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.9750143138321947
+        },
+        {
+          "ticker": "EW",
+          "swing_score": 67,
+          "weight": 0.09490084985835694,
+          "realistic_return_pct": -2.037736118304223,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.023129138040441703
+        }
+      ],
+      "portfolio_return_realistic": -0.8365943295373193,
+      "portfolio_return_max": 1.614473298923421,
+      "spy_return_pct": -1.7201708573761914
+    },
+    {
+      "date": "2005-05-01",
+      "n_qualified": 73,
+      "top_picks": [
+        {
+          "ticker": "SO",
+          "swing_score": 75,
+          "weight": 0.10460251046025104,
+          "realistic_return_pct": 3.6809024417452383,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.613051358327414
+        },
+        {
+          "ticker": "AEP",
+          "swing_score": 75,
+          "weight": 0.10460251046025104,
+          "realistic_return_pct": -2.2694082580657677,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.3628606632590727
+        },
+        {
+          "ticker": "MNST",
+          "swing_score": 75,
+          "weight": 0.10460251046025104,
+          "realistic_return_pct": 12.718010810616237,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 22.81217183814252
+        },
+        {
+          "ticker": "NEE",
+          "swing_score": 72,
+          "weight": 0.100418410041841,
+          "realistic_return_pct": -2.761250626893856,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.9309188411469212
+        },
+        {
+          "ticker": "BA",
+          "swing_score": 70,
+          "weight": 0.09762900976290098,
+          "realistic_return_pct": 3.074593417814264,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 3.645830228924775
+        },
+        {
+          "ticker": "GILD",
+          "swing_score": 70,
+          "weight": 0.09762900976290098,
+          "realistic_return_pct": 7.702973111296811,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.865537217505791
+        },
+        {
+          "ticker": "C",
+          "swing_score": 70,
+          "weight": 0.09762900976290098,
+          "realistic_return_pct": 1.8739326402455236,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.8739326402455236
+        },
+        {
+          "ticker": "BKNG",
+          "swing_score": 70,
+          "weight": 0.09762900976290098,
+          "realistic_return_pct": -6.202118520034668,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 5.047321763075298
+        },
+        {
+          "ticker": "EOG",
+          "swing_score": 70,
+          "weight": 0.09762900976290098,
+          "realistic_return_pct": -5.617396241522042,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 5.068348866625747
+        },
+        {
+          "ticker": "ED",
+          "swing_score": 70,
+          "weight": 0.09762900976290098,
+          "realistic_return_pct": 2.752840045719959,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.776340273826169
+        }
+      ],
+      "portfolio_return_realistic": 1.5506841578552437,
+      "portfolio_return_max": 6.060731123230802,
+      "spy_return_pct": 2.4828173125117283
+    },
+    {
+      "date": "2005-06-01",
+      "n_qualified": 105,
+      "top_picks": [
+        {
+          "ticker": "TMO",
+          "swing_score": 75,
+          "weight": 0.1043115438108484,
+          "realistic_return_pct": 2.393621107218793,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.393621107218793
+        },
+        {
+          "ticker": "CI",
+          "swing_score": 75,
+          "weight": 0.1043115438108484,
+          "realistic_return_pct": 3.1391810804919986,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 9.748071126351594
+        },
+        {
+          "ticker": "WM",
+          "swing_score": 75,
+          "weight": 0.1043115438108484,
+          "realistic_return_pct": -1.911058151071491,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.6781985910197577
+        },
+        {
+          "ticker": "FISV",
+          "swing_score": 72,
+          "weight": 0.10013908205841446,
+          "realistic_return_pct": -0.2791410604716009,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.7913396170981133
+        },
+        {
+          "ticker": "BAX",
+          "swing_score": 72,
+          "weight": 0.10013908205841446,
+          "realistic_return_pct": 0.3793960780290855,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 0.3793960780290855
+        },
+        {
+          "ticker": "KO",
+          "swing_score": 70,
+          "weight": 0.09735744089012517,
+          "realistic_return_pct": -1.6276675208066815,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.3360916594035277
+        },
+        {
+          "ticker": "BAC",
+          "swing_score": 70,
+          "weight": 0.09735744089012517,
+          "realistic_return_pct": 0.6908456324104324,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 0.6908456324104324
+        },
+        {
+          "ticker": "MCD",
+          "swing_score": 70,
+          "weight": 0.09735744089012517,
+          "realistic_return_pct": -2.160863568679168,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.5817721463115152
+        },
+        {
+          "ticker": "UPS",
+          "swing_score": 70,
+          "weight": 0.09735744089012517,
+          "realistic_return_pct": -2.432353924105122,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.0
+        },
+        {
+          "ticker": "GE",
+          "swing_score": 70,
+          "weight": 0.09735744089012517,
+          "realistic_return_pct": 0.05482854732715196,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.2335550360526937
+        }
+      ],
+      "portfolio_return_realistic": -0.14522335793831806,
+      "portfolio_return_max": 1.9314927608983183,
+      "spy_return_pct": 0.7136934525739108
+    },
+    {
+      "date": "2005-07-01",
+      "n_qualified": 81,
+      "top_picks": [
+        {
+          "ticker": "TGT",
+          "swing_score": 75,
+          "weight": 0.10402219140083217,
+          "realistic_return_pct": 3.9225969107331964,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 9.465174674364302
+        },
+        {
+          "ticker": "PGR",
+          "swing_score": 75,
+          "weight": 0.10402219140083217,
+          "realistic_return_pct": -1.0221582145440462,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.8520411661476939
+        },
+        {
+          "ticker": "OXY",
+          "swing_score": 75,
+          "weight": 0.10402219140083217,
+          "realistic_return_pct": 4.352750095754556,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.0063652070542615
+        },
+        {
+          "ticker": "ABT",
+          "swing_score": 72,
+          "weight": 0.09986130374479889,
+          "realistic_return_pct": -1.626487505848312,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.9995975222228648
+        },
+        {
+          "ticker": "WFC",
+          "swing_score": 72,
+          "weight": 0.09986130374479889,
+          "realistic_return_pct": -1.508492988783806,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.094831215447504
+        },
+        {
+          "ticker": "USB",
+          "swing_score": 72,
+          "weight": 0.09986130374479889,
+          "realistic_return_pct": -2.076810765732345,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 4.931502017413047
+        },
+        {
+          "ticker": "UNH",
+          "swing_score": 70,
+          "weight": 0.0970873786407767,
+          "realistic_return_pct": 4.022141465590438,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 2.608363303167911
+        },
+        {
+          "ticker": "NEE",
+          "swing_score": 70,
+          "weight": 0.0970873786407767,
+          "realistic_return_pct": 2.7783451711125995,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.612454977095945
+        },
+        {
+          "ticker": "PLD",
+          "swing_score": 70,
+          "weight": 0.0970873786407767,
+          "realistic_return_pct": 2.3650545675745036,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.397881266384621
+        },
+        {
+          "ticker": "ALL",
+          "swing_score": 70,
+          "weight": 0.0970873786407767,
+          "realistic_return_pct": 2.828449584450183,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.317994696325837
+        }
+      ],
+      "portfolio_return_realistic": 1.3985014477953914,
+      "portfolio_return_max": 4.354652135841438,
+      "spy_return_pct": 2.9197673382508347
+    },
+    {
+      "date": "2005-08-01",
+      "n_qualified": 99,
+      "top_picks": [
+        {
+          "ticker": "AEP",
+          "swing_score": 80,
+          "weight": 0.10884353741496598,
+          "realistic_return_pct": -2.2536010128929327,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.5167978268645959
+        },
+        {
+          "ticker": "CTSH",
+          "swing_score": 80,
+          "weight": 0.10884353741496598,
+          "realistic_return_pct": -5.22397821612078,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.8964926860100102
+        },
+        {
+          "ticker": "AIZ",
+          "swing_score": 80,
+          "weight": 0.10884353741496598,
+          "realistic_return_pct": 3.2940282607928966,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.4641373555280226
+        },
+        {
+          "ticker": "CVX",
+          "swing_score": 75,
+          "weight": 0.10204081632653061,
+          "realistic_return_pct": 3.61513760825378,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.740047937219327
+        },
+        {
+          "ticker": "UNH",
+          "swing_score": 70,
+          "weight": 0.09523809523809523,
+          "realistic_return_pct": -1.9120459169937911,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.644360655634873
+        },
+        {
+          "ticker": "ORCL",
+          "swing_score": 70,
+          "weight": 0.09523809523809523,
+          "realistic_return_pct": -3.181915252355953,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.07369365590811443
+        },
+        {
+          "ticker": "BA",
+          "swing_score": 70,
+          "weight": 0.09523809523809523,
+          "realistic_return_pct": 0.9392442010651101,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.1966321789381333
+        },
+        {
+          "ticker": "GS",
+          "swing_score": 70,
+          "weight": 0.09523809523809523,
+          "realistic_return_pct": 2.926791856837464,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.689611636998418
+        },
+        {
+          "ticker": "EOG",
+          "swing_score": 70,
+          "weight": 0.09523809523809523,
+          "realistic_return_pct": -1.7184930659290836,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 4.909983756007212
+        },
+        {
+          "ticker": "EQIX",
+          "swing_score": 70,
+          "weight": 0.09523809523809523,
+          "realistic_return_pct": -3.4989853695996396,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -1.600178277134109
+        }
+      ],
+      "portfolio_return_realistic": -0.7003088505128494,
+      "portfolio_return_max": 2.6458300370181562,
+      "spy_return_pct": -1.1807513679383908
+    },
+    {
+      "date": "2005-09-01",
+      "n_qualified": 72,
+      "top_picks": [
+        {
+          "ticker": "MSFT",
+          "swing_score": 75,
+          "weight": 0.1048951048951049,
+          "realistic_return_pct": -2.0113733851015727,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.6574083394606969
+        },
+        {
+          "ticker": "AMD",
+          "swing_score": 75,
+          "weight": 0.1048951048951049,
+          "realistic_return_pct": 4.876537649754548,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 14.829079710274023
+        },
+        {
+          "ticker": "SPGI",
+          "swing_score": 75,
+          "weight": 0.1048951048951049,
+          "realistic_return_pct": -2.019762298957074,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.5599345726431627
+        },
+        {
+          "ticker": "MET",
+          "swing_score": 75,
+          "weight": 0.1048951048951049,
+          "realistic_return_pct": 1.4904029157044183,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.490806282312584
+        },
+        {
+          "ticker": "EOG",
+          "swing_score": 73,
+          "weight": 0.1020979020979021,
+          "realistic_return_pct": 5.720552503315945,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 13.896278964027939
+        },
+        {
+          "ticker": "NEE",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": 3.6700604947521733,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.753306653765099
+        },
+        {
+          "ticker": "KLAC",
+          "swing_score": 68,
+          "weight": 0.0951048951048951,
+          "realistic_return_pct": -3.177731968405954,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.05915752285245178
+        },
+        {
+          "ticker": "BIIB",
+          "swing_score": 68,
+          "weight": 0.0951048951048951,
+          "realistic_return_pct": -3.244290278266245,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.5662075390875214
+        },
+        {
+          "ticker": "WMB",
+          "swing_score": 68,
+          "weight": 0.0951048951048951,
+          "realistic_return_pct": 5.328500034608887,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.996431076421092
+        },
+        {
+          "ticker": "GLW",
+          "swing_score": 68,
+          "weight": 0.0951048951048951,
+          "realistic_return_pct": 5.0458069480241745,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.917839520494825
+        }
+      ],
+      "portfolio_return_realistic": 1.5642591545805298,
+      "portfolio_return_max": 5.543343424845516,
+      "spy_return_pct": 0.48983466779744567
+    },
+    {
+      "date": "2005-10-01",
+      "n_qualified": 67,
+      "top_picks": [
+        {
+          "ticker": "HUM",
+          "swing_score": 75,
+          "weight": 0.10714285714285714,
+          "realistic_return_pct": -3.8847126829974257,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.2949016667788713
+        },
+        {
+          "ticker": "OXY",
+          "swing_score": 75,
+          "weight": 0.10714285714285714,
+          "realistic_return_pct": -3.34108039636395,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.03512345175535696
+        },
+        {
+          "ticker": "RTX",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": -2.029594626544416,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.07716087276091402
+        },
+        {
+          "ticker": "EQIX",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": -4.751329243021994,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.21608679301480874
+        },
+        {
+          "ticker": "WM",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": -2.4604268262717497,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.6291516998802658
+        },
+        {
+          "ticker": "AJG",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": 2.013189637131716,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.013189637131716
+        },
+        {
+          "ticker": "AMT",
+          "swing_score": 68,
+          "weight": 0.09714285714285714,
+          "realistic_return_pct": -3.2550814594557322,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.6012085021725426
+        },
+        {
+          "ticker": "AON",
+          "swing_score": 68,
+          "weight": 0.09714285714285714,
+          "realistic_return_pct": -3.697229188955583,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.6209370741463902
+        },
+        {
+          "ticker": "AFL",
+          "swing_score": 67,
+          "weight": 0.09571428571428571,
+          "realistic_return_pct": 1.147903899605924,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.147903899605924
+        },
+        {
+          "ticker": "AIZ",
+          "swing_score": 67,
+          "weight": 0.09571428571428571,
+          "realistic_return_pct": -2.6433845094860318,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.9721463965695389
+        }
+      ],
+      "portfolio_return_realistic": -2.3155144000221295,
+      "portfolio_return_max": 0.7305135843712579,
+      "spy_return_pct": -2.3001629118449585
+    },
+    {
+      "date": "2005-11-01",
+      "n_qualified": 79,
+      "top_picks": [
+        {
+          "ticker": "C",
+          "swing_score": 75,
+          "weight": 0.1079136690647482,
+          "realistic_return_pct": 2.8833550633554466,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.744870906908052
+        },
+        {
+          "ticker": "DLR",
+          "swing_score": 75,
+          "weight": 0.1079136690647482,
+          "realistic_return_pct": 4.185907077658379,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 12.617309894624459
+        },
+        {
+          "ticker": "MET",
+          "swing_score": 75,
+          "weight": 0.1079136690647482,
+          "realistic_return_pct": 3.379885342782738,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 3.379885342782738
+        },
+        {
+          "ticker": "AXP",
+          "swing_score": 70,
+          "weight": 0.10071942446043165,
+          "realistic_return_pct": 0.2812927232485063,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.3307209900400148
+        },
+        {
+          "ticker": "MS",
+          "swing_score": 68,
+          "weight": 0.09784172661870504,
+          "realistic_return_pct": -3.3239697790882046,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.2054783427765963
+        },
+        {
+          "ticker": "NSC",
+          "swing_score": 68,
+          "weight": 0.09784172661870504,
+          "realistic_return_pct": 5.867092398079836,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 9.129348505706245
+        },
+        {
+          "ticker": "IBM",
+          "swing_score": 67,
+          "weight": 0.09640287769784173,
+          "realistic_return_pct": 3.166651819661321,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.193452061293897
+        },
+        {
+          "ticker": "GIS",
+          "swing_score": 67,
+          "weight": 0.09640287769784173,
+          "realistic_return_pct": -2.102450506638724,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.9738939847691922
+        },
+        {
+          "ticker": "BRK-B",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "realistic_return_pct": 2.0908413105371877,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.110128753148904
+        },
+        {
+          "ticker": "ACN",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "realistic_return_pct": 4.034316368569675,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.259596678762974
+        }
+      ],
+      "portfolio_return_realistic": 2.080209535421624,
+      "portfolio_return_max": 5.727795674796801,
+      "spy_return_pct": 3.8509415486043856
+    },
+    {
+      "date": "2005-12-01",
+      "n_qualified": 120,
+      "top_picks": [
+        {
+          "ticker": "ADBE",
+          "swing_score": 75,
+          "weight": 0.10302197802197802,
+          "realistic_return_pct": 4.10040593177642,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 19.04323510653779
+        },
+        {
+          "ticker": "GS",
+          "swing_score": 75,
+          "weight": 0.10302197802197802,
+          "realistic_return_pct": 3.5415189157538287,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.171523049750915
+        },
+        {
+          "ticker": "VRTX",
+          "swing_score": 75,
+          "weight": 0.10302197802197802,
+          "realistic_return_pct": 8.308124275100653,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.627453972311582
+        },
+        {
+          "ticker": "BDX",
+          "swing_score": 75,
+          "weight": 0.10302197802197802,
+          "realistic_return_pct": -1.770076375378376,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.043618397698904
+        },
+        {
+          "ticker": "ALL",
+          "swing_score": 75,
+          "weight": 0.10302197802197802,
+          "realistic_return_pct": -2.4942714941197224,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.3030338471773755
+        },
+        {
+          "ticker": "TFC",
+          "swing_score": 73,
+          "weight": 0.10027472527472528,
+          "realistic_return_pct": -2.160484925195998,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.9506506367496377
+        },
+        {
+          "ticker": "UNH",
+          "swing_score": 70,
+          "weight": 0.09615384615384616,
+          "realistic_return_pct": 3.221803222364023,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.364847176321092
+        },
+        {
+          "ticker": "JPM",
+          "swing_score": 70,
+          "weight": 0.09615384615384616,
+          "realistic_return_pct": 2.6517282124438317,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.026146184385213
+        },
+        {
+          "ticker": "PG",
+          "swing_score": 70,
+          "weight": 0.09615384615384616,
+          "realistic_return_pct": 2.3705476358105058,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.248995215119515
+        },
+        {
+          "ticker": "PEP",
+          "swing_score": 70,
+          "weight": 0.09615384615384616,
+          "realistic_return_pct": 0.574324574672537,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.1824337059429053
+        }
+      ],
+      "portfolio_return_realistic": 1.8351654527692516,
+      "portfolio_return_max": 5.1361701706281275,
+      "spy_return_pct": -0.7735443508155605
+    },
+    {
+      "date": "2006-01-01",
+      "n_qualified": 77,
+      "top_picks": [
+        {
+          "ticker": "AAPL",
+          "swing_score": 75,
+          "weight": 0.10608203677510608,
+          "realistic_return_pct": 4.721507478721895,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 19.05690064589842
+        },
+        {
+          "ticker": "PLD",
+          "swing_score": 75,
+          "weight": 0.10608203677510608,
+          "realistic_return_pct": 2.5102413525656373,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.7217854366536796
+        },
+        {
+          "ticker": "NVDA",
+          "swing_score": 70,
+          "weight": 0.09900990099009901,
+          "realistic_return_pct": 4.798447735745162,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 23.276560296619518
+        },
+        {
+          "ticker": "LIN",
+          "swing_score": 70,
+          "weight": 0.09900990099009901,
+          "realistic_return_pct": -2.259789881712886,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.7190378895388694
+        },
+        {
+          "ticker": "BA",
+          "swing_score": 70,
+          "weight": 0.09900990099009901,
+          "realistic_return_pct": -2.217907325973939,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.3240323654045616
+        },
+        {
+          "ticker": "ISRG",
+          "swing_score": 70,
+          "weight": 0.09900990099009901,
+          "realistic_return_pct": 6.668368872366616,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 13.183255879314451
+        },
+        {
+          "ticker": "FCX",
+          "swing_score": 70,
+          "weight": 0.09900990099009901,
+          "realistic_return_pct": 5.801910506978031,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 14.814128873096577
+        },
+        {
+          "ticker": "BIIB",
+          "swing_score": 70,
+          "weight": 0.09900990099009901,
+          "realistic_return_pct": 5.117365490275754,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.918728748732085
+        },
+        {
+          "ticker": "MCK",
+          "swing_score": 70,
+          "weight": 0.09900990099009901,
+          "realistic_return_pct": 2.9518466011077042,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.516375284872999
+        },
+        {
+          "ticker": "BAC",
+          "swing_score": 67,
+          "weight": 0.09476661951909476,
+          "realistic_return_pct": 2.2690002796460425,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 2.0151685253017333
+        }
+      ],
+      "portfolio_return_realistic": 3.0475546265882616,
+      "portfolio_return_max": 9.11749094910489,
+      "spy_return_pct": 1.2707187443810741
+    },
+    {
+      "date": "2006-02-01",
+      "n_qualified": 90,
+      "top_picks": [
+        {
+          "ticker": "FIS",
+          "swing_score": 80,
+          "weight": 0.11065006915629322,
+          "realistic_return_pct": -2.5374032534030437,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -9.13694165936431
+        },
+        {
+          "ticker": "PG",
+          "swing_score": 75,
+          "weight": 0.1037344398340249,
+          "realistic_return_pct": 2.185186426596557,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 2.9883512940119172
+        },
+        {
+          "ticker": "PSA",
+          "swing_score": 75,
+          "weight": 0.1037344398340249,
+          "realistic_return_pct": -2.499558259872068,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 5.759956349391998
+        },
+        {
+          "ticker": "KLAC",
+          "swing_score": 73,
+          "weight": 0.10096818810511757,
+          "realistic_return_pct": 1.0580978105119936,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 3.674489927342419
+        },
+        {
+          "ticker": "CSCO",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": -3.5368133992336883,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 7.592891063994475
+        },
+        {
+          "ticker": "VZ",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": 3.293929436065389,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 9.854707519249294
+        },
+        {
+          "ticker": "BMY",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": 1.2724835301833097,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.3602433237778992
+        },
+        {
+          "ticker": "QCOM",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": -4.070354895251387,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.7297795986232093
+        },
+        {
+          "ticker": "PNC",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": 4.4843882411004135,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.248532876620482
+        },
+        {
+          "ticker": "WM",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": 2.972043658145582,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.188089157375288
+        }
+      ],
+      "portfolio_return_realistic": 0.22097974048429064,
+      "portfolio_return_max": 3.6536688146293095,
+      "spy_return_pct": 0.3271268564077704
+    },
+    {
+      "date": "2006-03-01",
+      "n_qualified": 97,
+      "top_picks": [
+        {
+          "ticker": "NOC",
+          "swing_score": 80,
+          "weight": 0.10810810810810811,
+          "realistic_return_pct": 2.7390239991904592,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.939158401725635
+        },
+        {
+          "ticker": "GS",
+          "swing_score": 75,
+          "weight": 0.10135135135135136,
+          "realistic_return_pct": 3.8209180307402675,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.419426537766666
+        },
+        {
+          "ticker": "BIIB",
+          "swing_score": 75,
+          "weight": 0.10135135135135136,
+          "realistic_return_pct": 4.105817199384094,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 4.190475221664187
+        },
+        {
+          "ticker": "RSG",
+          "swing_score": 75,
+          "weight": 0.10135135135135136,
+          "realistic_return_pct": 2.510198749031958,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.3545106929534345
+        },
+        {
+          "ticker": "OXY",
+          "swing_score": 75,
+          "weight": 0.10135135135135136,
+          "realistic_return_pct": 3.8671654050608177,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 3.8890094229403775
+        },
+        {
+          "ticker": "EXC",
+          "swing_score": 75,
+          "weight": 0.10135135135135136,
+          "realistic_return_pct": -2.8403841787405346,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.15758991933958322
+        },
+        {
+          "ticker": "ARE",
+          "swing_score": 75,
+          "weight": 0.10135135135135136,
+          "realistic_return_pct": 2.624404585814345,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 10.293121487754526
+        },
+        {
+          "ticker": "KO",
+          "swing_score": 70,
+          "weight": 0.0945945945945946,
+          "realistic_return_pct": 1.9537757230746184,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.9537757230746184
+        },
+        {
+          "ticker": "ACN",
+          "swing_score": 70,
+          "weight": 0.0945945945945946,
+          "realistic_return_pct": -2.647402959862697,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.09185174353040305
+        },
+        {
+          "ticker": "BMY",
+          "swing_score": 70,
+          "weight": 0.0945945945945946,
+          "realistic_return_pct": -0.7792220874601077,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": -0.6926400206489064
+        }
+      ],
+      "portfolio_return_realistic": 1.5846370967360606,
+      "portfolio_return_max": 4.217775753434045,
+      "spy_return_pct": 0.9662209532184876
+    },
+    {
+      "date": "2006-04-01",
+      "n_qualified": 87,
+      "top_picks": [
+        {
+          "ticker": "DUK",
+          "swing_score": 80,
+          "weight": 0.11331444759206799,
+          "realistic_return_pct": -2.0289145214763127,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.5437389834404327
+        },
+        {
+          "ticker": "ICE",
+          "swing_score": 73,
+          "weight": 0.10339943342776203,
+          "realistic_return_pct": -8.166443045978658,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.33308852700828373
+        },
+        {
+          "ticker": "DHR",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": 3.2887501249378386,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.388667748266099
+        },
+        {
+          "ticker": "CVS",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": 4.256539031577588,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.620017147619265
+        },
+        {
+          "ticker": "CI",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": -2.222914717524294,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.1866476837148177
+        },
+        {
+          "ticker": "ECL",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": -2.069931873417054,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.5445029863986073
+        },
+        {
+          "ticker": "JCI",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "realistic_return_pct": -1.9929842580960866,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.11161221683128589
+        },
+        {
+          "ticker": "TT",
+          "swing_score": 68,
+          "weight": 0.09631728045325778,
+          "realistic_return_pct": 4.338014129989376,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.27446933147953
+        },
+        {
+          "ticker": "OXY",
+          "swing_score": 68,
+          "weight": 0.09631728045325778,
+          "realistic_return_pct": 4.644207863978051,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 10.80410151646917
+        },
+        {
+          "ticker": "IBM",
+          "swing_score": 67,
+          "weight": 0.09490084985835694,
+          "realistic_return_pct": -2.013720919041707,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.06136225985779
+        }
+      ],
+      "portfolio_return_realistic": -0.27539607441515157,
+      "portfolio_return_max": 3.497513179404459,
+      "spy_return_pct": 0.9404156793972231
+    },
+    {
+      "date": "2006-05-01",
+      "n_qualified": 79,
+      "top_picks": [
+        {
+          "ticker": "MS",
+          "swing_score": 80,
+          "weight": 0.11065006915629322,
+          "realistic_return_pct": -2.636076245463423,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.2550495791967897
+        },
+        {
+          "ticker": "GS",
+          "swing_score": 75,
+          "weight": 0.1037344398340249,
+          "realistic_return_pct": -3.3020525175275823,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 3.406330365315169
+        },
+        {
+          "ticker": "MNST",
+          "swing_score": 75,
+          "weight": 0.1037344398340249,
+          "realistic_return_pct": 7.78289137486748,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 55.30667005174682
+        },
+        {
+          "ticker": "ROP",
+          "swing_score": 73,
+          "weight": 0.10096818810511757,
+          "realistic_return_pct": 4.659562892316324,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.79435325126188
+        },
+        {
+          "ticker": "NVDA",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": 7.856735118700834,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.049895575597295
+        },
+        {
+          "ticker": "XOM",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": -3.03696061075517,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.5206028721258846
+        },
+        {
+          "ticker": "NFLX",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": 8.010449704913073,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.284539890427311
+        },
+        {
+          "ticker": "INTU",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": -3.8153714226963196,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 4.301277293360582
+        },
+        {
+          "ticker": "LMT",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": -2.420947706338826,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.4229272850362849
+        },
+        {
+          "ticker": "FCX",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "realistic_return_pct": 9.547404063395886,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.113963634559337
+        }
+      ],
+      "portfolio_return_realistic": 2.2063852643262427,
+      "portfolio_return_max": 9.606350267683235,
+      "spy_return_pct": -3.2131863559271854
+    },
+    {
+      "date": "2006-06-01",
+      "n_qualified": 49,
+      "top_picks": [
+        {
+          "ticker": "NEE",
+          "swing_score": 72,
+          "weight": 0.10572687224669604,
+          "realistic_return_pct": 3.3643012324860626,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.94601384745579
+        },
+        {
+          "ticker": "MO",
+          "swing_score": 72,
+          "weight": 0.10572687224669604,
+          "realistic_return_pct": -2.7055984782969293,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.6910850180305743
+        },
+        {
+          "ticker": "WMT",
+          "swing_score": 70,
+          "weight": 0.1027900146842878,
+          "realistic_return_pct": -2.916850927009422,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.43343465311232654
+        },
+        {
+          "ticker": "ORCL",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "realistic_return_pct": -4.106389170375889,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.49226226096861253
+        },
+        {
+          "ticker": "C",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "realistic_return_pct": -2.1645881168671752,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.7038527173396298
+        },
+        {
+          "ticker": "BIIB",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "realistic_return_pct": -2.873686729345067,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 3.1953631345472244
+        },
+        {
+          "ticker": "JCI",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "realistic_return_pct": -2.6360866323428658,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.323863244312023
+        },
+        {
+          "ticker": "AVB",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "realistic_return_pct": 4.823277246160433,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.0009357671029417
+        },
+        {
+          "ticker": "ETR",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "realistic_return_pct": 3.39669962814222,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.423194273263994
+        },
+        {
+          "ticker": "KO",
+          "swing_score": 65,
+          "weight": 0.09544787077826726,
+          "realistic_return_pct": -1.8712869173245057,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.2498310547382648
+        }
+      ],
+      "portfolio_return_realistic": -0.7591166800517384,
+      "portfolio_return_max": 2.0078077960494864,
+      "spy_return_pct": -3.9307059166718132
+    },
+    {
+      "date": "2006-07-01",
+      "n_qualified": 69,
+      "top_picks": [
+        {
+          "ticker": "GIS",
+          "swing_score": 80,
+          "weight": 0.11510791366906475,
+          "realistic_return_pct": 1.9357336487682835,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.18738109069476
+        },
+        {
+          "ticker": "PG",
+          "swing_score": 75,
+          "weight": 0.1079136690647482,
+          "realistic_return_pct": 1.8705052950881107,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.9676287251103
+        },
+        {
+          "ticker": "STZ",
+          "swing_score": 73,
+          "weight": 0.10503597122302158,
+          "realistic_return_pct": 0.5999984741210938,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.44000244140625
+        },
+        {
+          "ticker": "WELL",
+          "swing_score": 72,
+          "weight": 0.10359712230215827,
+          "realistic_return_pct": 2.6772968418034018,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.004289596966055
+        },
+        {
+          "ticker": "CMG",
+          "swing_score": 70,
+          "weight": 0.10071942446043165,
+          "realistic_return_pct": -4.821867747929717,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.9187818981424573
+        },
+        {
+          "ticker": "ORCL",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "realistic_return_pct": 4.002760061198381,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 4.002760061198381
+        },
+        {
+          "ticker": "MO",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "realistic_return_pct": 2.706175217154115,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.1555176689108775
+        },
+        {
+          "ticker": "ELV",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "realistic_return_pct": 6.091601295692603,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.01897084631765
+        },
+        {
+          "ticker": "SO",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "realistic_return_pct": 2.8883405692426325,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.307336656861129
+        },
+        {
+          "ticker": "FISV",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "realistic_return_pct": -3.032878912773801,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.2865984708244624
+        }
+      ],
+      "portfolio_return_realistic": 1.4630517883195409,
+      "portfolio_return_max": 2.7374763705514042,
+      "spy_return_pct": -1.6510176525559486
+    },
+    {
+      "date": "2006-08-01",
+      "n_qualified": 88,
+      "top_picks": [
+        {
+          "ticker": "MET",
+          "swing_score": 80,
+          "weight": 0.11188811188811189,
+          "realistic_return_pct": 3.7747222844507697,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.134616745886751
+        },
+        {
+          "ticker": "NOC",
+          "swing_score": 75,
+          "weight": 0.1048951048951049,
+          "realistic_return_pct": -2.6644080826059238,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.24172493176270068
+        },
+        {
+          "ticker": "CVX",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": 2.2499291340811025,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 3.1468527413164313
+        },
+        {
+          "ticker": "KO",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": -1.752808694854783,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.38201835718047755
+        },
+        {
+          "ticker": "GILD",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": 3.4622903970515715,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 4.031208588723861
+        },
+        {
+          "ticker": "TJX",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": 5.697871492247746,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 10.668848521069158
+        },
+        {
+          "ticker": "USB",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": 1.5625,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.5625
+        },
+        {
+          "ticker": "TFC",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": 2.4291417058682288,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.4291417058682288
+        },
+        {
+          "ticker": "WELL",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": 2.7079307111932924,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.752697667785286
+        },
+        {
+          "ticker": "AIZ",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "realistic_return_pct": 2.8470580457137498,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.563629659640612
+        }
+      ],
+      "portfolio_return_realistic": 2.022966534198155,
+      "portfolio_return_max": 3.598599925117146,
+      "spy_return_pct": 2.7275594933247294
+    },
+    {
+      "date": "2006-09-01",
+      "n_qualified": 83,
+      "top_picks": [
+        {
+          "ticker": "LMT",
+          "swing_score": 80,
+          "weight": 0.11379800853485064,
+          "realistic_return_pct": -1.8120854757688252,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.331717305619234
+        },
+        {
+          "ticker": "TJX",
+          "swing_score": 75,
+          "weight": 0.10668563300142248,
+          "realistic_return_pct": 5.1748960772566495,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.6915922075788545
+        },
+        {
+          "ticker": "MRK",
+          "swing_score": 70,
+          "weight": 0.09957325746799431,
+          "realistic_return_pct": 1.553631877995148,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 3.9457474027592427
+        },
+        {
+          "ticker": "ABT",
+          "swing_score": 70,
+          "weight": 0.09957325746799431,
+          "realistic_return_pct": -2.0306534755298697,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.6016374641345559
+        },
+        {
+          "ticker": "WMB",
+          "swing_score": 70,
+          "weight": 0.09957325746799431,
+          "realistic_return_pct": -3.0624611232303827,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.380422181294085
+        },
+        {
+          "ticker": "ADP",
+          "swing_score": 70,
+          "weight": 0.09957325746799431,
+          "realistic_return_pct": -0.44491150176433936,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.6949193996619496
+        },
+        {
+          "ticker": "ADBE",
+          "swing_score": 67,
+          "weight": 0.0953058321479374,
+          "realistic_return_pct": -4.0228128750305165,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 15.628852988452074
+        },
+        {
+          "ticker": "CVS",
+          "swing_score": 67,
+          "weight": 0.0953058321479374,
+          "realistic_return_pct": 3.827977729444381,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.153506946217088
+        },
+        {
+          "ticker": "TGT",
+          "swing_score": 67,
+          "weight": 0.0953058321479374,
+          "realistic_return_pct": 4.316122850348856,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 12.399256201031317
+        },
+        {
+          "ticker": "MCK",
+          "swing_score": 67,
+          "weight": 0.0953058321479374,
+          "realistic_return_pct": 2.7587191606636168,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.090552504089723
+        }
+      ],
+      "portfolio_return_realistic": 0.6048410130003503,
+      "portfolio_return_max": 5.848126529492723,
+      "spy_return_pct": 0.29675802395544
+    },
+    {
+      "date": "2006-10-01",
+      "n_qualified": 106,
+      "top_picks": [
+        {
+          "ticker": "ROST",
+          "swing_score": 80,
+          "weight": 0.1111111111111111,
+          "realistic_return_pct": 5.369088315657473,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 20.58244617726347
+        },
+        {
+          "ticker": "CRM",
+          "swing_score": 75,
+          "weight": 0.10416666666666667,
+          "realistic_return_pct": 7.9670350992386965,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 15.189522298488994
+        },
+        {
+          "ticker": "ETR",
+          "swing_score": 75,
+          "weight": 0.10416666666666667,
+          "realistic_return_pct": 2.6916947466018084,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 9.114146679614109
+        },
+        {
+          "ticker": "PG",
+          "swing_score": 70,
+          "weight": 0.09722222222222222,
+          "realistic_return_pct": 2.5353800952478514,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 2.4846739704764094
+        },
+        {
+          "ticker": "MRK",
+          "swing_score": 70,
+          "weight": 0.09722222222222222,
+          "realistic_return_pct": 3.099217247107506,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.181385562130674
+        },
+        {
+          "ticker": "T",
+          "swing_score": 70,
+          "weight": 0.09722222222222222,
+          "realistic_return_pct": -2.8496812131606757,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 3.654786216819858
+        },
+        {
+          "ticker": "C",
+          "swing_score": 70,
+          "weight": 0.09722222222222222,
+          "realistic_return_pct": 2.0276700308472453,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 2.838730670306575
+        },
+        {
+          "ticker": "SO",
+          "swing_score": 70,
+          "weight": 0.09722222222222222,
+          "realistic_return_pct": 2.6200148672302968,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.772487729537735
+        },
+        {
+          "ticker": "CI",
+          "swing_score": 70,
+          "weight": 0.09722222222222222,
+          "realistic_return_pct": -2.6085680944594047,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.5876908918628794
+        },
+        {
+          "ticker": "EQIX",
+          "swing_score": 70,
+          "weight": 0.09722222222222222,
+          "realistic_return_pct": 7.497028262799884,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 10.698836053955182
+        }
+      ],
+      "portfolio_return_realistic": 2.9047306769215626,
+      "portfolio_return_max": 7.950933672493142,
+      "spy_return_pct": 2.802822119189853
+    },
+    {
+      "date": "2006-11-01",
+      "n_qualified": 110,
+      "top_picks": [
+        {
+          "ticker": "BLK",
+          "swing_score": 80,
+          "weight": 0.10825439783491204,
+          "realistic_return_pct": -3.8711797208451353,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -1.1866834590231097
+        },
+        {
+          "ticker": "PG",
+          "swing_score": 75,
+          "weight": 0.10148849797023005,
+          "realistic_return_pct": 0.7414438006444846,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.1358277766771852
+        },
+        {
+          "ticker": "HD",
+          "swing_score": 75,
+          "weight": 0.10148849797023005,
+          "realistic_return_pct": -2.422412935827418,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.544861777777596
+        },
+        {
+          "ticker": "DIS",
+          "swing_score": 75,
+          "weight": 0.10148849797023005,
+          "realistic_return_pct": 2.8017433887846033,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.738719338128241
+        },
+        {
+          "ticker": "TGT",
+          "swing_score": 75,
+          "weight": 0.10148849797023005,
+          "realistic_return_pct": -3.025273801170207,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.03379597441793637
+        },
+        {
+          "ticker": "VZ",
+          "swing_score": 73,
+          "weight": 0.09878213802435724,
+          "realistic_return_pct": -2.8610047281203883,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.02702105945939997
+        },
+        {
+          "ticker": "MET",
+          "swing_score": 73,
+          "weight": 0.09878213802435724,
+          "realistic_return_pct": 3.3357488108062547,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.3432502869938068
+        },
+        {
+          "ticker": "CTSH",
+          "swing_score": 73,
+          "weight": 0.09878213802435724,
+          "realistic_return_pct": -3.338963032994221,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 6.58873427856209
+        },
+        {
+          "ticker": "WMT",
+          "swing_score": 70,
+          "weight": 0.09472259810554803,
+          "realistic_return_pct": -3.0481782226916283,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.8725655759480854
+        },
+        {
+          "ticker": "HON",
+          "swing_score": 70,
+          "weight": 0.09472259810554803,
+          "realistic_return_pct": 1.9468165268144866,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.92022479022173
+        }
+      ],
+      "portfolio_return_realistic": -0.9996145410272813,
+      "portfolio_return_max": 2.0979496252838055,
+      "spy_return_pct": 2.6011965093652685
+    },
+    {
+      "date": "2006-12-01",
+      "n_qualified": 97,
+      "top_picks": [
+        {
+          "ticker": "AMT",
+          "swing_score": 75,
+          "weight": 0.1091703056768559,
+          "realistic_return_pct": -3.3696114521563807,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.34327239789942837
+        },
+        {
+          "ticker": "EOG",
+          "swing_score": 73,
+          "weight": 0.10625909752547306,
+          "realistic_return_pct": -4.3203469717217065,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.14178147717542133
+        },
+        {
+          "ticker": "MTD",
+          "swing_score": 70,
+          "weight": 0.10189228529839883,
+          "realistic_return_pct": 3.070451971176616,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.36580336186095
+        },
+        {
+          "ticker": "BRK-B",
+          "swing_score": 67,
+          "weight": 0.0975254730713246,
+          "realistic_return_pct": 2.073538259252958,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.891704122416267
+        },
+        {
+          "ticker": "KO",
+          "swing_score": 67,
+          "weight": 0.0975254730713246,
+          "realistic_return_pct": 1.8821883842455478,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.63377767264213
+        },
+        {
+          "ticker": "TMO",
+          "swing_score": 67,
+          "weight": 0.0975254730713246,
+          "realistic_return_pct": 3.8003986750750465,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.247545382101577
+        },
+        {
+          "ticker": "ADBE",
+          "swing_score": 67,
+          "weight": 0.0975254730713246,
+          "realistic_return_pct": -3.639014200370757,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 6.598609402259924
+        },
+        {
+          "ticker": "AXP",
+          "swing_score": 67,
+          "weight": 0.0975254730713246,
+          "realistic_return_pct": 1.8781666793996357,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.415531742282384
+        },
+        {
+          "ticker": "FISV",
+          "swing_score": 67,
+          "weight": 0.0975254730713246,
+          "realistic_return_pct": 2.9180733076112917,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.482681976208709
+        },
+        {
+          "ticker": "AEP",
+          "swing_score": 67,
+          "weight": 0.0975254730713246,
+          "realistic_return_pct": 2.2335403263221045,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.3485985558921176
+        }
+      ],
+      "portfolio_return_realistic": 0.5730235459211795,
+      "portfolio_return_max": 3.896138175438753,
+      "spy_return_pct": 1.4263300403571135
+    },
+    {
+      "date": "2007-01-01",
+      "n_qualified": 79,
+      "top_picks": [
+        {
+          "ticker": "MA",
+          "swing_score": 70,
+          "weight": 0.1023391812865497,
+          "realistic_return_pct": 6.332770684436281,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 10.711750508960364
+        },
+        {
+          "ticker": "TMO",
+          "swing_score": 70,
+          "weight": 0.1023391812865497,
+          "realistic_return_pct": 3.501246590049603,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.302049559562088
+        },
+        {
+          "ticker": "LMT",
+          "swing_score": 70,
+          "weight": 0.1023391812865497,
+          "realistic_return_pct": 2.062095759372284,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.647873319732953
+        },
+        {
+          "ticker": "EW",
+          "swing_score": 70,
+          "weight": 0.1023391812865497,
+          "realistic_return_pct": 2.98227663741949,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.10203585134164
+        },
+        {
+          "ticker": "GIS",
+          "swing_score": 70,
+          "weight": 0.1023391812865497,
+          "realistic_return_pct": -1.5866806530073128,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.29513571779292735
+        },
+        {
+          "ticker": "PRU",
+          "swing_score": 70,
+          "weight": 0.1023391812865497,
+          "realistic_return_pct": 1.778644636585944,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.2028884002458895
+        },
+        {
+          "ticker": "DIS",
+          "swing_score": 67,
+          "weight": 0.097953216374269,
+          "realistic_return_pct": 2.5469961239919705,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.610446724615637
+        },
+        {
+          "ticker": "MDLZ",
+          "swing_score": 67,
+          "weight": 0.097953216374269,
+          "realistic_return_pct": -2.034812370859945,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.5602262147486451
+        },
+        {
+          "ticker": "AMZN",
+          "swing_score": 65,
+          "weight": 0.09502923976608187,
+          "realistic_return_pct": -3.7090023977198823,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -1.419158460983338
+        },
+        {
+          "ticker": "ABT",
+          "swing_score": 65,
+          "weight": 0.09502923976608187,
+          "realistic_return_pct": 2.2465309400236073,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 9.87477113056096
+        }
+      ],
+      "portfolio_return_realistic": 1.4534801499262107,
+      "portfolio_return_max": 4.65358515351382,
+      "spy_return_pct": 1.0256859709369546
+    },
+    {
+      "date": "2007-02-01",
+      "n_qualified": 96,
+      "top_picks": [
+        {
+          "ticker": "AEP",
+          "swing_score": 75,
+          "weight": 0.10714285714285714,
+          "realistic_return_pct": 2.7698463665092055,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.559389045500147
+        },
+        {
+          "ticker": "MO",
+          "swing_score": 72,
+          "weight": 0.10285714285714286,
+          "realistic_return_pct": -2.1798831474028337,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.10299115220707673
+        },
+        {
+          "ticker": "GS",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": 2.2435871157019815,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.4698294418962785
+        },
+        {
+          "ticker": "BLK",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": 5.117854827700445,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.667383218551326
+        },
+        {
+          "ticker": "CME",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": 2.034439679026385,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 4.26948109554472
+        },
+        {
+          "ticker": "ROP",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": 0.5200317166520358,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.2149490878964473
+        },
+        {
+          "ticker": "F",
+          "swing_score": 70,
+          "weight": 0.1,
+          "realistic_return_pct": 5.517485947631775,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.3800666586665935
+        },
+        {
+          "ticker": "GOOGL",
+          "swing_score": 68,
+          "weight": 0.09714285714285714,
+          "realistic_return_pct": -3.2484694293555645,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -3.9381805683587614
+        },
+        {
+          "ticker": "GOOG",
+          "swing_score": 68,
+          "weight": 0.09714285714285714,
+          "realistic_return_pct": -3.248467968135467,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -3.938177485062145
+        },
+        {
+          "ticker": "WMT",
+          "swing_score": 67,
+          "weight": 0.09571428571428571,
+          "realistic_return_pct": 1.6565317022522772,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.8662160700462893
+        }
+      ],
+      "portfolio_return_realistic": 1.1433153170951176,
+      "portfolio_return_max": 2.1199047651582514,
+      "spy_return_pct": 0.774493542950257
+    },
+    {
+      "date": "2007-03-01",
+      "n_qualified": 73,
+      "top_picks": [
+        {
+          "ticker": "SYK",
+          "swing_score": 80,
+          "weight": 0.1038961038961039,
+          "realistic_return_pct": -3.29444345246461,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 5.691716491356869
+        },
+        {
+          "ticker": "ITW",
+          "swing_score": 80,
+          "weight": 0.1038961038961039,
+          "realistic_return_pct": -2.545784124181251,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.21301435254008316
+        },
+        {
+          "ticker": "AEP",
+          "swing_score": 80,
+          "weight": 0.1038961038961039,
+          "realistic_return_pct": 2.917592759343154,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.34075712477526
+        },
+        {
+          "ticker": "ICE",
+          "swing_score": 80,
+          "weight": 0.1038961038961039,
+          "realistic_return_pct": -7.690522516198796,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.12602012223123232
+        },
+        {
+          "ticker": "TXN",
+          "swing_score": 75,
+          "weight": 0.09740259740259741,
+          "realistic_return_pct": 5.172572635643643,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.264861486810339
+        },
+        {
+          "ticker": "NEE",
+          "swing_score": 75,
+          "weight": 0.09740259740259741,
+          "realistic_return_pct": -2.739306099449354,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.1844344856387294
+        },
+        {
+          "ticker": "GILD",
+          "swing_score": 75,
+          "weight": 0.09740259740259741,
+          "realistic_return_pct": -3.383771458472466,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -1.0340943110899588
+        },
+        {
+          "ticker": "KLAC",
+          "swing_score": 75,
+          "weight": 0.09740259740259741,
+          "realistic_return_pct": -3.3898878843678926,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.647852507617782
+        },
+        {
+          "ticker": "FCX",
+          "swing_score": 75,
+          "weight": 0.09740259740259741,
+          "realistic_return_pct": -5.4719201611492405,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 8.761537698425222
+        },
+        {
+          "ticker": "ROP",
+          "swing_score": 75,
+          "weight": 0.09740259740259741,
+          "realistic_return_pct": -0.47063253958376855,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 0.056480788022252496
+        }
+      ],
+      "portfolio_return_realistic": -2.1042512983552615,
+      "portfolio_return_max": 2.547474779825575,
+      "spy_return_pct": -0.22062313765065897
+    },
+    {
+      "date": "2007-04-01",
+      "n_qualified": 84,
+      "top_picks": [
+        {
+          "ticker": "MTD",
+          "swing_score": 75,
+          "weight": 0.10668563300142248,
+          "realistic_return_pct": 3.1196666015784924,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.213797236637891
+        }
+      ],
+      "portfolio_return_realistic": 0.33282360614279793,
+      "portfolio_return_max": 0.5562372585317807,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2007-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2007-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2007-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2007-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2007-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2007-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2007-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2007-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2008-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2009-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2010-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2011-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2012-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2013-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2014-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2015-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2016-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2017-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2018-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2019-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2020-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2021-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2022-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2023-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2024-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-06-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-07-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-08-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-09-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-10-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-11-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2025-12-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2026-01-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2026-02-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2026-03-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2026-04-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2026-05-01",
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    }
+  ],
+  "n_train_periods": 180,
+  "n_holdout_periods": 77
+}
