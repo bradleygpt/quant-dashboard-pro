@@ -1,0 +1,58 @@
+name: Backtest Optimizer H2 (Extended Hold Window)
+# Tests extending hold window from 14 to 21 trading days
+# Uses H1B's locked-in stop/target parameters (stop=2x ATR, target=3x ATR)
+# Walk-forward split: train 2005-2019, holdout 2020+
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  variant-h2:
+    name: H2 - 21-day hold (H1B stop/target locked in)
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy
+      - name: Run H2 variant
+        env:
+          VARIANT_NAME: h2
+          STOP_ATR: "2.0"
+          TARGET_ATR: "3.0"
+          HOLD_DAYS: "21"
+          MIN_SCORE: "50"
+          TOP_N: "10"
+          TRAIN_END_YEAR: "2019"
+        run: |
+          echo "Starting H2 at $(date)"
+          python build_backtest_optimizer.py
+          echo "Completed at $(date)"
+      - name: Verify output
+        run: |
+          if [ ! -f "backtest_variant_h2.json" ]; then
+            echo "ERROR: backtest_variant_h2.json not created"
+            exit 1
+          fi
+          ls -lh backtest_variant_h2.json
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add backtest_variant_h2.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "chore: H2 backtest variant (21-day hold with H1B stop/target)"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
