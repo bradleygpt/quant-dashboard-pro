@@ -33,6 +33,10 @@ MIN_SCORE = int(os.environ.get("MIN_SCORE", "50"))
 TOP_N = int(os.environ.get("TOP_N", "10"))
 START_YEAR = int(os.environ.get("START_YEAR", "2005"))
 
+# Trailing stop config
+USE_TRAILING_STOP = os.environ.get("USE_TRAILING_STOP", "false").lower() == "true"
+TRAIL_ATR_MULT = float(os.environ.get("TRAIL_ATR_MULT", "1.5"))
+
 # Walk-forward split year
 TRAIN_END_YEAR = int(os.environ.get("TRAIN_END_YEAR", "2019"))
 
@@ -218,12 +222,24 @@ def compute_swing_score_at_date(ticker, target_date, lookback_days=180,
             "stop_price": stop_price,
             "target_pct": target_pct,
             "stop_pct": stop_pct,
+            "atr_pct": atr_pct,
         }
     except Exception:
         return None
 
 
-def simulate_trade(ticker, entry_date, entry_price, target_price, stop_price, hold_days):
+def simulate_trade(ticker, entry_date, entry_price, target_price, stop_price, hold_days,
+                   atr_pct=None, use_trailing_stop=False, trail_atr_mult=1.5):
+    """
+    Simulate a swing trade with optional trailing stop.
+
+    When use_trailing_stop=True:
+    - Initial stop applies until trade is in profit
+    - Once trade is up by 1x ATR (entry + atr_pct), trailing stop kicks in
+    - Trailing stop = highest close so far × (1 - trail_atr_mult * atr_pct)
+    - No fixed target - let winners run until trailing stop or timeout
+    - This addresses the "winners cut short" problem identified in diagnostics
+    """
     try:
         end_date = entry_date + timedelta(days=hold_days + 5)
         hist = fetch_historical_prices(
@@ -243,19 +259,61 @@ def simulate_trade(ticker, entry_date, entry_price, target_price, stop_price, ho
         realistic_exit_price = float(close.iloc[-1])
         realistic_exit_reason = "timeout"
 
-        for i, (date, row) in enumerate(hist.iterrows()):
-            day_high = float(row["High"])
-            day_low = float(row["Low"])
-            if day_low <= stop_price:
-                realistic_exit_price = stop_price
-                realistic_exit_reason = "stop"
-                break
-            if day_high >= target_price:
-                realistic_exit_price = target_price
-                realistic_exit_reason = "target"
-                break
+        if use_trailing_stop and atr_pct is not None:
+            # ── TRAILING STOP MODE ─────────────────────────────
+            running_high_close = entry_price
+            trail_active = False  # Only activates after trade is in profit
+            # Activation threshold: trade must be up by 1x ATR before trailing kicks in
+            activation_price = entry_price * (1 + atr_pct)
+            trail_distance = trail_atr_mult * atr_pct  # e.g., 1.5x ATR below running high
 
-        realistic_return = ((realistic_exit_price - entry_price) / entry_price) * 100
+            for i, (date, row) in enumerate(hist.iterrows()):
+                day_high = float(row["High"])
+                day_low = float(row["Low"])
+                day_close = float(row["Close"])
+
+                # Initial stop check - applies until trail activates
+                if not trail_active and day_low <= stop_price:
+                    realistic_exit_price = stop_price
+                    realistic_exit_reason = "stop"
+                    break
+
+                # Activate trailing stop once trade is in profit
+                if not trail_active and day_high >= activation_price:
+                    trail_active = True
+                    running_high_close = day_close
+
+                # Update running high close
+                if trail_active:
+                    if day_close > running_high_close:
+                        running_high_close = day_close
+
+                    # Compute current trailing stop level
+                    trail_stop_price = running_high_close * (1 - trail_distance)
+
+                    # Check if trailing stop hit
+                    if day_low <= trail_stop_price:
+                        realistic_exit_price = trail_stop_price
+                        realistic_exit_reason = "trail_stop"
+                        break
+
+            realistic_return = ((realistic_exit_price - entry_price) / entry_price) * 100
+
+        else:
+            # ── FIXED TARGET/STOP MODE (original behavior) ──────
+            for i, (date, row) in enumerate(hist.iterrows()):
+                day_high = float(row["High"])
+                day_low = float(row["Low"])
+                if day_low <= stop_price:
+                    realistic_exit_price = stop_price
+                    realistic_exit_reason = "stop"
+                    break
+                if day_high >= target_price:
+                    realistic_exit_price = target_price
+                    realistic_exit_reason = "target"
+                    break
+
+            realistic_return = ((realistic_exit_price - entry_price) / entry_price) * 100
 
         max_close = float(close.max())
         max_return = ((max_close - entry_price) / entry_price) * 100
@@ -319,8 +377,13 @@ def run_monthly_backtest(checkpoint_date, universe, top_n, hold_days, min_score,
     detailed = []
 
     for c, w in zip(top, weights):
-        sim = simulate_trade(c["ticker"], checkpoint_date, c["price"],
-                             c["target_price"], c["stop_price"], hold_days)
+        sim = simulate_trade(
+            c["ticker"], checkpoint_date, c["price"],
+            c["target_price"], c["stop_price"], hold_days,
+            atr_pct=c.get("atr_pct"),
+            use_trailing_stop=USE_TRAILING_STOP,
+            trail_atr_mult=TRAIL_ATR_MULT,
+        )
         if sim:
             realistic_returns.append(sim["realistic_return_pct"] * w)
             max_returns.append(sim["max_return_pct"] * w)
@@ -433,6 +496,8 @@ def main():
             "top_n_picks": TOP_N,
             "train_end_year": TRAIN_END_YEAR,
             "start_year": START_YEAR,
+            "use_trailing_stop": USE_TRAILING_STOP,
+            "trail_atr_mult": TRAIL_ATR_MULT,
         },
         "aggregate_full": aggregate_metrics(monthly_results),
         "aggregate_train": aggregate_metrics(train_results),
