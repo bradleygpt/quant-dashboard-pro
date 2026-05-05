@@ -214,7 +214,7 @@ def _get_concept_value_at_date(facts_dict, concept_tags, target_date):
     if not us_gaap:
         return None
 
-    target_dt = target_date if isinstance(target_date, date) else target_date.date() if hasattr(target_date, 'date') else target_date
+    target_dt = target_date.date() if isinstance(target_date, datetime) else target_date
 
     best_value = None
     best_end_date = None
@@ -274,7 +274,7 @@ def _get_ttm_value(facts_dict, concept_tags, target_date):
     if not us_gaap:
         return None
 
-    target_dt = target_date if isinstance(target_date, date) else target_date.date() if hasattr(target_date, 'date') else target_date
+    target_dt = target_date.date() if isinstance(target_date, datetime) else target_date
 
     for tag in concept_tags:
         if tag not in us_gaap:
@@ -354,7 +354,7 @@ def get_fundamentals_at_date(ticker, target_date, verbose=False):
             print(f"  No companyfacts data", file=sys.stderr)
         return result
 
-    target_dt = target_date if isinstance(target_date, date) else target_date.date() if hasattr(target_date, 'date') else target_date
+    target_dt = target_date.date() if isinstance(target_date, datetime) else target_date
 
     if verbose:
         # Show what tags ARE available

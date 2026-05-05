@@ -44,7 +44,7 @@ import numpy as np
 START_YEAR = int(os.environ.get("START_YEAR", "2005"))
 HOLD_DAYS_TRADING = int(os.environ.get("HOLD_DAYS", "21"))  # 21 = monthly, 63 = quarterly
 TOP_N_PICKS = 10
-MAX_UNIVERSE_SIZE = 200  # Sample to keep runtime manageable
+MAX_UNIVERSE_SIZE = int(os.environ.get("MAX_UNIVERSE_SIZE", "2000"))  # 2000 = effectively all of 1326-ticker universe
 VARIANT_NAME = os.environ.get("VARIANT_NAME", "")
 RESULTS_FILE = f"quant_backtest_results{('_' + VARIANT_NAME) if VARIANT_NAME else ''}.json"
 
