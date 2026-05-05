@@ -468,6 +468,19 @@ def run_monthly_quant_backtest(checkpoint_date, universe, top_n=10):
 
     sample = universe[:MAX_UNIVERSE_SIZE]
 
+    # CRITICAL: Filter to tickers that were actually listed at checkpoint_date
+    # This prevents wasted compute and yfinance fallback noise on pre-IPO tickers
+    try:
+        from price_cache import get_listed_tickers_at
+        listed_sample = get_listed_tickers_at(checkpoint_date, sample)
+        if len(listed_sample) < len(sample):
+            skipped = len(sample) - len(listed_sample)
+            print(f"  Filtered to {len(listed_sample)} listed tickers (skipped {skipped} pre-IPO)", flush=True)
+        sample = listed_sample
+    except ImportError:
+        # Cache not available, run on full universe
+        pass
+
     candidates = []
     avg_quality = 0
     n_with_data = 0
