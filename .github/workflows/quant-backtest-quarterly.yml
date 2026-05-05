@@ -26,6 +26,15 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+      - name: Extract EDGAR cache from tarball
+        run: |
+          if [ -f "edgar_cache.tar.gz" ]; then
+            echo "Extracting edgar_cache.tar.gz..."
+            tar -xzf edgar_cache.tar.gz
+            echo "Cache extracted: $(ls edgar_cache | wc -l) files"
+          else
+            echo "WARNING: edgar_cache.tar.gz not found - workflow will be slow"
+          fi
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip

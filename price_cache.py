@@ -1,20 +1,14 @@
 """
-Price Cache Reader
-====================
+Price Cache Reader (Optimized)
+================================
 
 Provides fast historical price lookups by loading prices_cache.parquet
-once at startup and slicing in memory.
+once at process startup, organized by ticker for O(1) access.
 
-Used by backtests to avoid hitting yfinance for every ticker × checkpoint.
+Key change vs prior version: pre-grouped dict of ticker -> DataFrame,
+not row-range index. This is much faster for many small queries.
 
-Drop-in replacement for yfinance-based price fetches:
-    from price_cache import get_prices
-
-    df = get_prices("AAPL", "2018-01-01", "2018-06-30")
-    # Returns DataFrame with columns: open, high, low, close, adj_close, volume
-    # Indexed by date, identical schema to yf.Ticker.history()
-
-Falls back to live yfinance if cache file not present (graceful degradation).
+Module-level singleton state - loaded only once per process.
 """
 
 import os
@@ -28,89 +22,80 @@ warnings.filterwarnings("ignore")
 
 CACHE_FILE = "prices_cache.parquet"
 
-# Module-level cache - loaded once on first call
-_PRICES_DF = None
-_TICKER_INDEX = None  # Maps ticker to row range for fast slicing
+# Module-level state - LOADED ONCE per Python process
+_TICKER_DFS = None  # dict: ticker (uppercase) -> DataFrame indexed by date
+_LOAD_ATTEMPTED = False
+_LOAD_FAILED = False
 
 
-def _load_cache():
-    """Lazy-load the parquet file once."""
-    global _PRICES_DF, _TICKER_INDEX
+def _ensure_loaded():
+    """Load and pre-group prices into per-ticker DataFrames. ONCE per process."""
+    global _TICKER_DFS, _LOAD_ATTEMPTED, _LOAD_FAILED
 
-    if _PRICES_DF is not None:
-        return _PRICES_DF
+    if _LOAD_ATTEMPTED:
+        return _TICKER_DFS is not None
+
+    _LOAD_ATTEMPTED = True
 
     if not os.path.exists(CACHE_FILE):
-        print(f"WARNING: {CACHE_FILE} not found - falling back to yfinance", file=sys.stderr)
-        return None
+        print(f"price_cache: {CACHE_FILE} not found - will use yfinance fallback", file=sys.stderr)
+        _LOAD_FAILED = True
+        return False
 
-    print(f"Loading price cache from {CACHE_FILE}...", file=sys.stderr)
-    df = pd.read_parquet(CACHE_FILE)
+    try:
+        print(f"price_cache: Loading {CACHE_FILE}...", file=sys.stderr)
+        df = pd.read_parquet(CACHE_FILE)
+        df["date"] = pd.to_datetime(df["date"])
 
-    # Ensure date is datetime
-    df["date"] = pd.to_datetime(df["date"])
+        # Pre-group by ticker - massive speedup vs filtering on every call
+        # This builds the dict ONCE: ticker -> DataFrame indexed by date
+        ticker_groups = {}
+        for ticker, group in df.groupby("ticker", sort=False):
+            sorted_group = group.sort_values("date").set_index("date")
+            ticker_groups[ticker.upper()] = sorted_group
 
-    # Sort if not already sorted
-    df = df.sort_values(["ticker", "date"]).reset_index(drop=True)
-
-    print(f"Loaded {len(df):,} rows for {df['ticker'].nunique()} tickers", file=sys.stderr)
-
-    _PRICES_DF = df
-
-    # Build ticker → row range index for fast slicing
-    _TICKER_INDEX = {}
-    for ticker in df["ticker"].unique():
-        ticker_rows = df[df["ticker"] == ticker]
-        if len(ticker_rows) > 0:
-            _TICKER_INDEX[ticker] = (ticker_rows.index.min(), ticker_rows.index.max())
-
-    return _PRICES_DF
+        _TICKER_DFS = ticker_groups
+        n_tickers = len(_TICKER_DFS)
+        n_rows = len(df)
+        print(f"price_cache: Loaded {n_rows:,} rows for {n_tickers} tickers (cached in memory)", file=sys.stderr)
+        return True
+    except Exception as e:
+        print(f"price_cache: Failed to load - {e}", file=sys.stderr)
+        _LOAD_FAILED = True
+        return False
 
 
 def get_prices(ticker, start_date, end_date):
     """
     Get historical prices for a ticker between dates.
 
-    Returns a DataFrame with the same shape as yf.Ticker.history():
-        - Date index (datetime)
-        - Columns: Open, High, Low, Close, Adj Close, Volume
+    Returns a DataFrame with columns: Open, High, Low, Close, Adj Close, Volume
+    indexed by date. Same schema as yf.Ticker.history().
 
-    Returns None if no data available.
+    Returns None if no data.
     """
-    df = _load_cache()
+    _ensure_loaded()
 
-    if df is None:
-        # Fallback: hit yfinance live
+    if _LOAD_FAILED or _TICKER_DFS is None:
         return _fetch_live(ticker, start_date, end_date)
 
-    # Convert date strings to datetime
-    if isinstance(start_date, str):
-        start_dt = pd.to_datetime(start_date)
-    else:
-        start_dt = pd.to_datetime(start_date)
-
-    if isinstance(end_date, str):
-        end_dt = pd.to_datetime(end_date)
-    else:
-        end_dt = pd.to_datetime(end_date)
-
-    # Slice for this ticker
     ticker_upper = ticker.upper()
-    if ticker_upper in _TICKER_INDEX:
-        start_idx, end_idx = _TICKER_INDEX[ticker_upper]
-        ticker_df = df.iloc[start_idx:end_idx + 1]
-    else:
-        # Ticker not in cache, try fallback
+    if ticker_upper not in _TICKER_DFS:
+        # Not in cache - try live yfinance
         return _fetch_live(ticker, start_date, end_date)
 
-    # Filter by date range
-    mask = (ticker_df["date"] >= start_dt) & (ticker_df["date"] < end_dt)
-    result = ticker_df[mask].copy()
+    # Convert date inputs
+    start_dt = pd.to_datetime(start_date)
+    end_dt = pd.to_datetime(end_date)
+
+    # O(log n) slice using sorted DatetimeIndex
+    ticker_df = _TICKER_DFS[ticker_upper]
+    result = ticker_df.loc[start_dt:end_dt - pd.Timedelta(days=1)]
 
     if result.empty:
         return None
 
-    # Reshape to match yfinance schema (capitalized column names, date as index)
+    # Rename columns to match yfinance schema
     result = result.rename(columns={
         "open": "Open",
         "high": "High",
@@ -120,14 +105,15 @@ def get_prices(ticker, start_date, end_date):
         "volume": "Volume",
     })
 
-    result = result.set_index("date")
-    result = result[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+    # Drop the ticker column (it's redundant since we keyed by it)
+    if "ticker" in result.columns:
+        result = result.drop(columns=["ticker"])
 
-    return result
+    return result[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
 
 
 def _fetch_live(ticker, start_date, end_date):
-    """Fallback: hit yfinance directly."""
+    """Fallback: hit yfinance directly (slow)."""
     try:
         import yfinance as yf
         t = yf.Ticker(ticker)
@@ -140,34 +126,26 @@ def _fetch_live(ticker, start_date, end_date):
 
 
 def is_cache_available():
-    """Check if cache is available (for diagnostic logging)."""
     return os.path.exists(CACHE_FILE)
 
 
 def get_cache_info():
-    """Return summary stats about the cache."""
-    df = _load_cache()
-    if df is None:
+    _ensure_loaded()
+    if _TICKER_DFS is None:
         return {"available": False}
     return {
         "available": True,
-        "rows": len(df),
-        "tickers": df["ticker"].nunique(),
-        "date_min": df["date"].min().strftime("%Y-%m-%d"),
-        "date_max": df["date"].max().strftime("%Y-%m-%d"),
+        "tickers": len(_TICKER_DFS),
         "size_mb": os.path.getsize(CACHE_FILE) / (1024 * 1024),
     }
 
 
 if __name__ == "__main__":
-    # Diagnostic mode
     info = get_cache_info()
     print("Price Cache Info:")
     print(f"  Available: {info.get('available')}")
     if info.get("available"):
-        print(f"  Rows: {info.get('rows'):,}")
         print(f"  Tickers: {info.get('tickers')}")
-        print(f"  Date range: {info.get('date_min')} to {info.get('date_max')}")
         print(f"  Size: {info.get('size_mb'):.1f} MB")
 
     if len(sys.argv) > 1:
@@ -177,3 +155,5 @@ if __name__ == "__main__":
             print(f"\nSample {ticker} 2018 H1:")
             print(df.head())
             print(f"\nRow count: {len(df)}")
+        else:
+            print(f"\nNo data for {ticker}")

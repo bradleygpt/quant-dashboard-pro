@@ -27,13 +27,30 @@ from edgar_fundamentals import fetch_companyfacts, get_cik_for_ticker, _load_tic
 
 
 def get_universe():
-    """Get the same universe used by build_quant_backtest.py."""
-    # Try to load from universe.json if it exists
+    """Get the full quant universe (~1300 tickers) from fundamentals_cache.json."""
+    if os.path.exists("fundamentals_cache.json"):
+        try:
+            with open("fundamentals_cache.json") as f:
+                cache = json.load(f)
+                # Wrapped format
+                if "tickers" in cache and isinstance(cache["tickers"], dict):
+                    tickers = list(cache["tickers"].keys())
+                    if tickers:
+                        return tickers
+                # Flat format
+                tickers = [k for k in cache.keys()
+                           if isinstance(k, str) and k.isupper() and 1 <= len(k) <= 6]
+                if tickers:
+                    return tickers
+        except Exception as e:
+            print(f"Could not load fundamentals_cache.json: {e}")
+
     if os.path.exists("universe.json"):
         try:
             with open("universe.json") as f:
                 tickers = json.load(f)
-                return [t for t in tickers if t and isinstance(t, str)][:200]
+                if isinstance(tickers, list):
+                    return [t for t in tickers if isinstance(t, str)][:1500]
         except Exception:
             pass
 
@@ -51,7 +68,7 @@ def get_universe():
         "TGT", "PNC", "EOG", "TJX", "CCI", "SO", "DUK", "FDX", "ITW",
         "AON", "BDX", "ATVI", "F", "GM", "EMR", "ETN", "ADI", "PSA",
         "FIS", "EW", "ICE",
-    ][:200]
+    ]
 
 
 def main():
