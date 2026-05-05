@@ -42,7 +42,7 @@ import numpy as np
 
 
 START_YEAR = int(os.environ.get("START_YEAR", "2005"))
-HOLD_DAYS_TRADING = 21  # ~1 month of trading days
+HOLD_DAYS_TRADING = int(os.environ.get("HOLD_DAYS", "21"))  # 21 = monthly, 63 = quarterly
 TOP_N_PICKS = 10
 MAX_UNIVERSE_SIZE = 200  # Sample to keep runtime manageable
 VARIANT_NAME = os.environ.get("VARIANT_NAME", "")
@@ -112,8 +112,16 @@ def get_first_of_months(start_year=2005, end_year=None):
     if end_year is None:
         end_year = datetime.now().year
     dates = []
+    # Allow quarterly mode via env var
+    checkpoint_freq = os.environ.get("CHECKPOINT_FREQ", "monthly").lower()
+    if checkpoint_freq == "quarterly":
+        # First of Jan, Apr, Jul, Oct
+        months = [1, 4, 7, 10]
+    else:
+        months = list(range(1, 13))
+
     for y in range(start_year, end_year + 1):
-        for m in range(1, 13):
+        for m in months:
             try:
                 d = datetime(y, m, 1)
                 if d > datetime.now() - timedelta(days=30):
@@ -482,7 +490,7 @@ def run_monthly_quant_backtest(checkpoint_date, universe, top_n=10):
             "top_picks": [],
             "portfolio_return_realistic": None,
             "portfolio_return_max": None,
-            "spy_return_pct": fetch_spy_return(checkpoint_date),
+            "spy_return_pct": fetch_spy_return(checkpoint_date, hold_trading_days=HOLD_DAYS_TRADING),
         }
 
     avg_quality = avg_quality / n_with_data if n_with_data else 0
@@ -498,7 +506,7 @@ def run_monthly_quant_backtest(checkpoint_date, universe, top_n=10):
     detailed = []
 
     for c, w in zip(top, weights):
-        sim = simulate_monthly_hold(c["ticker"], checkpoint_date, c["price"])
+        sim = simulate_monthly_hold(c["ticker"], checkpoint_date, c["price"], hold_trading_days=HOLD_DAYS_TRADING)
         if sim:
             realistic_returns.append(sim["realistic_return_pct"] * w)
             max_returns.append(sim["max_return_pct"] * w)
@@ -521,7 +529,7 @@ def run_monthly_quant_backtest(checkpoint_date, universe, top_n=10):
         "top_picks": detailed,
         "portfolio_return_realistic": sum(realistic_returns) if realistic_returns else None,
         "portfolio_return_max": sum(max_returns) if max_returns else None,
-        "spy_return_pct": fetch_spy_return(checkpoint_date),
+        "spy_return_pct": fetch_spy_return(checkpoint_date, hold_trading_days=HOLD_DAYS_TRADING),
     }
 
 
@@ -568,7 +576,11 @@ def main():
     print(f"Universe size: {len(universe)} tickers", flush=True)
 
     checkpoint_dates = get_first_of_months(start_year=START_YEAR)
-    print(f"Backtesting {len(checkpoint_dates)} monthly checkpoints", flush=True)
+    checkpoint_freq = os.environ.get("CHECKPOINT_FREQ", "monthly").lower()
+    print(f"Backtesting {len(checkpoint_dates)} {checkpoint_freq} checkpoints, hold={HOLD_DAYS_TRADING} days", flush=True)
+
+    import time
+    start_time = time.time()
 
     monthly_results = []
     for i, date in enumerate(checkpoint_dates):
@@ -579,14 +591,28 @@ def main():
             max_r = result.get('portfolio_return_max')
             spy = result.get('spy_return_pct')
             quality = result.get('avg_data_quality', 0)
+
+            # Timing telemetry every 10 checkpoints
+            elapsed = time.time() - start_time
+            avg_per_checkpoint = elapsed / (i + 1)
+            eta_remaining = avg_per_checkpoint * (len(checkpoint_dates) - i - 1)
+
             print(
                 f"[{i+1}/{len(checkpoint_dates)}] {date.strftime('%Y-%m')}: "
                 f"qualified={result['n_qualified']}, quality={quality:.0f}, "
                 f"realistic={f'{real:+.2f}%' if real is not None else 'n/a'}, "
                 f"max={f'{max_r:+.2f}%' if max_r is not None else 'n/a'}, "
-                f"spy={f'{spy:+.2f}%' if spy is not None else 'n/a'}",
+                f"spy={f'{spy:+.2f}%' if spy is not None else 'n/a'} "
+                f"(elapsed: {elapsed/60:.1f}min, eta: {eta_remaining/60:.1f}min)",
                 flush=True
             )
+
+            # Bail early if pace would exceed timeout (5h 30min = 19800s)
+            projected_total = avg_per_checkpoint * len(checkpoint_dates)
+            if i >= 5 and projected_total > 19800:
+                print(f"\nWARNING: Projected runtime {projected_total/60:.0f}min exceeds 5h 30min timeout safety margin", flush=True)
+                print(f"Saving partial results and exiting cleanly", flush=True)
+                break
         except Exception as e:
             print(f"[{i+1}] FAILED for {date}: {e}", file=sys.stderr, flush=True)
             continue

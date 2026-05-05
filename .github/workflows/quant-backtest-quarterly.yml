@@ -1,0 +1,59 @@
+name: Quant Backtest - Quarterly Full Window
+# Tests the quant 5-pillar scoring system at quarterly frequency
+# instead of monthly. Reduces compute from 240 to 68 checkpoints
+# (3.5x speedup) while still giving 17 years of validation.
+#
+# Hold period: 63 trading days (1 quarter)
+# Universe: full 1300 tickers from fundamentals_cache.json
+# Caches: parquet prices + EDGAR fundamentals
+#
+# Has timing telemetry that bails early if projected runtime exceeds
+# 5h30min safety margin (rather than failing at 6h timeout).
+
+on:
+  workflow_dispatch:
+
+jobs:
+  quant-quarterly:
+    name: Quant Quarterly Full Window
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy requests pyarrow
+      - name: Run quarterly quant backtest
+        env:
+          START_YEAR: "2009"
+          VARIANT_NAME: "quarterly_full"
+          CHECKPOINT_FREQ: "quarterly"
+          HOLD_DAYS: "63"
+        run: |
+          echo "Starting quarterly quant backtest at $(date)"
+          echo "Mode: quarterly checkpoints, 63-day hold"
+          python build_quant_backtest.py
+          echo "Completed at $(date)"
+      - name: Verify output
+        run: |
+          ls -lh quant_backtest_results*.json || echo "No output file"
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add quant_backtest_results*.json
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "chore: quant quarterly full backtest results"
+          git fetch origin main
+          git rebase origin/main || (git rebase --abort 2>/dev/null || true)
+          git push origin main
