@@ -40,6 +40,7 @@ from portfolio_persistence import save_portfolio, load_portfolios, delete_portfo
 from help_content import GETTING_STARTED, PILLAR_METHODOLOGY, RATING_SYSTEM, FAIR_VALUE, BUY_POINT, SWING_TRADER, DOPPELGANGER, MONTE_CARLO, PGI, PRO_CHARTS, ETF_CENTER, GLOSSARY, BEST_PRACTICES, DATA_SOURCES, DISCLAIMER
 from pro_charts import fetch_chart_data, compute_indicators, build_candlestick_chart, get_quick_quote, get_watchlist_quotes, get_market_movers
 from etf_center import PORTFOLIO_TEMPLATES, get_portfolio_template, list_templates, calculate_template_metrics, compare_etfs, get_sector_etf_map, get_theme_etf_map, load_raw_cache, get_etf_universe
+from risk_metrics import compute_full_metrics, daily_returns_from_prices, current_drawdown_pct, format_sharpe, format_drawdown
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
@@ -964,6 +965,92 @@ with tab_detail:
                 else:
                     st.error("No earnings data available.")
 
+                # ── Risk-Adjusted Performance Metrics ──
+                st.markdown("---")
+                st.markdown("### 📐 Risk-Adjusted Performance")
+
+                if price_hist is not None and not price_hist.empty and len(price_hist) >= 60:
+                    stock_returns = daily_returns_from_prices(price_hist["Close"])
+
+                    # Get SPY for benchmark comparison (matches stock chart period)
+                    spy_returns_for_metrics = None
+                    try:
+                        spy_obj = yf.Ticker("SPY")
+                        spy_hist_metrics = spy_obj.history(period=chart_period)
+                        if not spy_hist_metrics.empty:
+                            spy_returns_for_metrics = daily_returns_from_prices(spy_hist_metrics["Close"])
+                    except Exception:
+                        pass
+
+                    metrics = compute_full_metrics(stock_returns, spy_returns_for_metrics)
+
+                    rm1, rm2, rm3, rm4, rm5, rm6 = st.columns(6)
+                    with rm1:
+                        cagr = metrics.get('cagr_pct')
+                        st.metric("CAGR", f"{cagr:.2f}%" if cagr is not None else "—")
+                    with rm2:
+                        st.metric("Sharpe", format_sharpe(metrics.get('sharpe')))
+                    with rm3:
+                        sortino = metrics.get('sortino')
+                        st.metric("Sortino", f"{sortino:.2f}" if sortino is not None else "—")
+                    with rm4:
+                        calmar = metrics.get('calmar')
+                        st.metric("Calmar", f"{calmar:.2f}" if calmar is not None else "—")
+                    with rm5:
+                        st.metric("Max DD", format_drawdown(metrics.get('max_drawdown_pct')))
+                    with rm6:
+                        vol = metrics.get('volatility_annualized_pct')
+                        st.metric("Volatility", f"{vol:.1f}%" if vol is not None else "—")
+
+                    # Beta/Alpha row (if SPY benchmark available)
+                    if metrics.get('beta') is not None:
+                        rm7, rm8, rm9, rm10 = st.columns(4)
+                        with rm7:
+                            beta = metrics.get('beta')
+                            beta_label = "More volatile than market" if beta > 1.1 else ("Less volatile than market" if beta < 0.9 else "Tracks market")
+                            st.metric("Beta vs SPY", f"{beta:.2f}", beta_label)
+                        with rm8:
+                            alpha = metrics.get('alpha_pct')
+                            st.metric("Alpha vs SPY",
+                                     f"{alpha:+.2f}%" if alpha is not None else "—",
+                                     "Risk-adjusted excess return")
+                        with rm9:
+                            current_dd = current_drawdown_pct(price_hist["Close"].values)
+                            st.metric("Current Drawdown",
+                                     f"-{current_dd:.1f}%" if current_dd is not None else "—",
+                                     "Below all-time-high")
+                        with rm10:
+                            sharpe = metrics.get('sharpe')
+                            if sharpe is not None:
+                                if sharpe >= 2.0:
+                                    quality = "Excellent"
+                                elif sharpe >= 1.0:
+                                    quality = "Good"
+                                elif sharpe >= 0:
+                                    quality = "Mediocre"
+                                else:
+                                    quality = "Underperforming"
+                            else:
+                                quality = "—"
+                            st.metric("Risk Quality", quality)
+
+                    with st.expander("How to read these metrics"):
+                        st.markdown("""
+                        **Sharpe Ratio**: Return per unit of total risk (volatility). Compares average excess return (above 4% risk-free rate) to standard deviation. **>1.0 is good, >2.0 is excellent.**
+
+                        **Sortino Ratio**: Like Sharpe, but only penalizes downside volatility. Higher than Sharpe = asymmetric returns (good).
+
+                        **Calmar Ratio**: Annualized return divided by maximum drawdown. Higher = better return for worst-case loss.
+
+                        **Max Drawdown**: Largest peak-to-trough decline historically. Lower (less negative) is better.
+
+                        **Beta**: Sensitivity to market moves. 1.0 = moves with SPY. >1 amplifies, <1 dampens. Negative = inverse correlation.
+
+                        **Alpha**: Excess return after adjusting for beta-implied market exposure. Positive = stock beats market on a risk-adjusted basis.
+                        """)
+                else:
+                    st.caption("Need at least 60 days of price history to compute risk metrics.")
+
                 # ── Forward Outlook: analyst consensus estimates + 8-K guidance extraction ──
                 st.markdown("---")
                 from forward_outlook import render_forward_outlook
@@ -1847,6 +1934,108 @@ with tab_quantport:
             - Tax implications NOT considered — rebalancing creates capital gains
             - Past performance ≠ future returns
             """)
+
+        # ── Public Backtest Chart: Validated 21-Year Performance ──
+        st.markdown("---")
+        st.markdown("### 📈 Validated Backtest: Quant Strategy vs SPY")
+        st.caption(
+            "Real point-in-time SEC EDGAR fundamentals. Top 10 picks per quarter, 63-day hold. "
+            "1,326-ticker universe across 86 quarterly checkpoints (2005-2026)."
+        )
+
+        try:
+            import json as _json
+            import os as _os
+            qbt_paths = ["quant_backtest_results.json", "data_cache/quant_backtest_results.json"]
+            qbt_data = None
+            for _p in qbt_paths:
+                if _os.path.exists(_p):
+                    try:
+                        with open(_p) as _f:
+                            qbt_data = _json.load(_f)
+                            break
+                    except Exception:
+                        continue
+        except Exception:
+            qbt_data = None
+
+        if qbt_data and qbt_data.get("monthly_results"):
+            qbt_monthly = qbt_data["monthly_results"]
+            qbt_aggregate = qbt_data.get("aggregate_metrics", {})
+            qbt_realistic = qbt_aggregate.get("realistic_strategy", {})
+            qbt_spy = qbt_aggregate.get("spy_benchmark", {})
+
+            # Headline metrics
+            qbt_quant_total = qbt_realistic.get("total_compounded_pct", 0)
+            qbt_spy_total = qbt_spy.get("total_compounded_pct", 0)
+
+            qbt_h1, qbt_h2, qbt_h3, qbt_h4 = st.columns(4)
+            with qbt_h1:
+                st.metric("Quant Strategy", f"+{qbt_quant_total:,.0f}%", f"$100 → ${100 + qbt_quant_total:,.0f}")
+            with qbt_h2:
+                st.metric("SPY Benchmark", f"+{qbt_spy_total:,.0f}%", f"$100 → ${100 + qbt_spy_total:,.0f}")
+            with qbt_h3:
+                qbt_outperf = qbt_quant_total - qbt_spy_total
+                st.metric("Outperformance", f"+{qbt_outperf:,.0f}%", "absolute over 21 years")
+            with qbt_h4:
+                qbt_winrate = qbt_realistic.get("win_rate_pct", 0)
+                st.metric("Quarterly Win Rate", f"{qbt_winrate:.1f}%", f"{qbt_realistic.get('n_periods', 0)} quarters")
+
+            # Build dueling line chart
+            qbt_rows = []
+            qbt_cum_quant = 100.0
+            qbt_cum_spy = 100.0
+
+            qbt_sorted = sorted(qbt_monthly, key=lambda x: x.get("date", ""))
+            if qbt_sorted:
+                qbt_first_date = qbt_sorted[0].get("date", "")
+                qbt_rows.append({
+                    "Date": qbt_first_date,
+                    "Quant Strategy": qbt_cum_quant,
+                    "SPY Benchmark": qbt_cum_spy,
+                })
+
+            for _m in qbt_sorted:
+                _r_quant = _m.get("portfolio_return_realistic")
+                _r_spy = _m.get("spy_return_pct")
+                if _r_quant is not None:
+                    qbt_cum_quant *= (1 + _r_quant / 100)
+                if _r_spy is not None:
+                    qbt_cum_spy *= (1 + _r_spy / 100)
+                qbt_rows.append({
+                    "Date": _m.get("date"),
+                    "Quant Strategy": qbt_cum_quant,
+                    "SPY Benchmark": qbt_cum_spy,
+                })
+
+            qbt_df = pd.DataFrame(qbt_rows)
+            if not qbt_df.empty:
+                qbt_df["Date"] = pd.to_datetime(qbt_df["Date"])
+                qbt_df = qbt_df.set_index("Date")
+                st.line_chart(qbt_df, height=400)
+                st.caption(
+                    f"Cumulative growth of $100 starting capital, compounded quarterly. "
+                    f"Final values: Quant ${qbt_cum_quant:,.0f} | SPY ${qbt_cum_spy:,.0f}. "
+                    f"For full risk-adjusted metrics (Sharpe, Sortino, Calmar) and methodology, "
+                    f"see [docs/methodology.md](https://github.com/bradleygpt/quant-dashboard-pro/blob/main/docs/methodology.md)."
+                )
+
+            with st.expander("⚠️ Important Caveats — Read Before Drawing Conclusions"):
+                st.markdown("""
+                **What this backtest IS valid for:**
+                - Validating that 5-pillar scoring has predictive value beyond random
+                - Comparing risk/reward to buy-and-hold SPY across multiple market regimes
+                - Showing the strategy was tested with rigorous methodology
+
+                **Limitations:**
+                - **Survivorship bias.** Universe = today's tickers. Inflates 21-year returns by an estimated 1-3 percentage points annualized.
+                - **Pre-2009 data is sparse.** XBRL filings became standard around 2009.
+                - **No transaction costs.** Real friction estimated at -0.1% to -0.3% per quarter.
+                - **No risk overlay.** Strategy buys top 10 every quarter regardless of market conditions.
+                - **Past performance ≠ future returns.**
+                """)
+        else:
+            st.info("Backtest results loading... If this persists, the validated quant_backtest_results.json may not be deployed yet.")
 
 # ═══ TAB: PORTFOLIO ═══════════════════════════════════════════════
 with tab_portfolio:

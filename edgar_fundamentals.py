@@ -102,6 +102,12 @@ CONCEPT_MAPPING = {
         "OperatingIncomeLoss",
         "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
     ],
+    "cost_of_revenue": [
+        "CostOfRevenue",
+        "CostOfGoodsAndServicesSold",
+        "CostOfGoodsSold",
+        "CostOfServices",
+    ],
     "total_debt": [
         "LongTermDebt",
         "LongTermDebtNoncurrent",
@@ -205,6 +211,9 @@ def _get_concept_value_at_date(facts_dict, concept_tags, target_date):
     Find the most recent reported value for any of `concept_tags`
     that was filed BEFORE target_date.
 
+    Tries ALL tags and picks the one with the most recent end_date.
+    This handles cases where ticker uses different tags over time.
+
     Returns (value, end_date_of_period, filing_date) or None.
     """
     if not facts_dict:
@@ -220,6 +229,7 @@ def _get_concept_value_at_date(facts_dict, concept_tags, target_date):
     best_end_date = None
     best_filed_date = None
 
+    # Try ALL tags, keep the entry with the most recent end_date
     for tag in concept_tags:
         if tag not in us_gaap:
             continue
@@ -243,7 +253,16 @@ def _get_concept_value_at_date(facts_dict, concept_tags, target_date):
                     if filed_dt > target_dt:
                         continue
 
-                    if best_end_date is None or end_dt > best_end_date:
+                    # Pick most recent end_date; tiebreak with latest filed_date (latest restatement)
+                    is_better = False
+                    if best_end_date is None:
+                        is_better = True
+                    elif end_dt > best_end_date:
+                        is_better = True
+                    elif end_dt == best_end_date and filed_dt > best_filed_date:
+                        is_better = True
+
+                    if is_better:
                         val = entry.get("val")
                         if val is not None:
                             best_value = val
@@ -251,9 +270,6 @@ def _get_concept_value_at_date(facts_dict, concept_tags, target_date):
                             best_filed_date = filed_dt
                 except (ValueError, TypeError, KeyError):
                     continue
-
-        if best_value is not None:
-            break
 
     if best_value is None:
         return None
@@ -264,6 +280,17 @@ def _get_concept_value_at_date(facts_dict, concept_tags, target_date):
 def _get_ttm_value(facts_dict, concept_tags, target_date):
     """
     Get trailing-twelve-month sum for a concept at target_date.
+
+    Logic:
+    1. Collect ALL entries from ALL provided tags (filed before target_date)
+    2. Prefer the most recent annual entry (350-380 day period)
+    3. Otherwise, sum the 4 most recent quarterly entries (80-100 day periods)
+    4. Pick whichever option has the most recent end_date
+
+    This handles tickers like AAPL where:
+    - Q4 fiscal data appears as 370-day annual entries (10-K filings), not 90-day
+    - Multiple revenue tags exist with data spanning different periods
+    - First-tag-wins logic would miss the most recent data
 
     Returns (ttm_value, latest_end_date) or None.
     """
@@ -276,6 +303,10 @@ def _get_ttm_value(facts_dict, concept_tags, target_date):
 
     target_dt = target_date.date() if isinstance(target_date, datetime) else target_date
 
+    # Collect entries across ALL tags
+    all_quarterly = []  # (end_dt, filed_dt, val, period_days, tag)
+    all_annual = []     # same shape
+
     for tag in concept_tags:
         if tag not in us_gaap:
             continue
@@ -284,9 +315,7 @@ def _get_ttm_value(facts_dict, concept_tags, target_date):
         if "USD" not in units:
             continue
 
-        entries = units["USD"]
-        valid_quarterly = []
-        for entry in entries:
+        for entry in units["USD"]:
             try:
                 end_str = entry.get("end")
                 start_str = entry.get("start")
@@ -298,31 +327,127 @@ def _get_ttm_value(facts_dict, concept_tags, target_date):
                 start_dt = datetime.strptime(start_str, "%Y-%m-%d").date()
                 filed_dt = datetime.strptime(filed_str, "%Y-%m-%d").date()
 
+                # Skip future filings (point-in-time discipline)
                 if filed_dt > target_dt:
                     continue
 
                 period_days = (end_dt - start_dt).days
+                val = entry.get("val")
+                if val is None:
+                    continue
+
                 if 80 <= period_days <= 100:
-                    val = entry.get("val")
-                    if val is not None:
-                        valid_quarterly.append((end_dt, filed_dt, val))
+                    all_quarterly.append((end_dt, filed_dt, val, period_days, tag))
+                elif 350 <= period_days <= 380:
+                    all_annual.append((end_dt, filed_dt, val, period_days, tag))
             except (ValueError, TypeError, KeyError):
                 continue
 
-        if not valid_quarterly:
-            continue
+    # Find best annual candidate (most recent end_date, latest filed_date as tiebreaker)
+    annual_candidate = None
+    if all_annual:
+        all_annual.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        # Dedupe by end_dt (keep latest filed)
+        seen = set()
+        deduped_annual = []
+        for end_dt, filed_dt, val, period, tag in all_annual:
+            if end_dt not in seen:
+                seen.add(end_dt)
+                deduped_annual.append((end_dt, filed_dt, val, period, tag))
+        if deduped_annual:
+            best = deduped_annual[0]
+            annual_candidate = (best[2], best[0])  # (val, end_dt)
 
-        valid_quarterly.sort(key=lambda x: x[0], reverse=True)
+    # Find best quarterly TTM candidate
+    quarterly_candidate = None
+    if all_quarterly:
+        # Dedupe by end_dt (keep latest filed)
+        all_quarterly.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        seen = set()
+        deduped_q = []
+        for end_dt, filed_dt, val, period, tag in all_quarterly:
+            if end_dt not in seen:
+                seen.add(end_dt)
+                deduped_q.append((end_dt, filed_dt, val, period, tag))
 
-        if len(valid_quarterly) < 4:
-            continue
+        # Need 4 quarters for TTM
+        if len(deduped_q) >= 4:
+            top_4 = deduped_q[:4]
+            ttm_sum = sum(v for _, _, v, _, _ in top_4)
+            latest_end = top_4[0][0]
+            quarterly_candidate = (ttm_sum, latest_end)
 
-        last_4 = valid_quarterly[:4]
-        ttm = sum(q[2] for q in last_4)
-        latest_end = last_4[0][0]
-        return (ttm, latest_end)
+    # Pick whichever candidate has the most recent end_date
+    if annual_candidate and quarterly_candidate:
+        if annual_candidate[1] >= quarterly_candidate[1]:
+            return annual_candidate
+        else:
+            return quarterly_candidate
+    elif annual_candidate:
+        return annual_candidate
+    elif quarterly_candidate:
+        return quarterly_candidate
+    else:
+        return None
 
-    return None
+
+def get_latest_earnings_filing_date(ticker, target_date):
+    """
+    Find the most recent earnings filing date BEFORE target_date.
+    Returns date object or None.
+
+    Used by PEAD computation: PEAD = stock return in 30 trading days post-filing,
+    minus SPY return over same period.
+
+    Accepts both 10-Q (quarterly, 80-100 day periods) and 10-K (annual, 350-380 day) filings.
+    """
+    cik_map = _load_ticker_cik_map()
+    cik = cik_map.get(ticker.upper())
+    if cik is None:
+        return None
+
+    facts_dict = fetch_companyfacts(ticker, cik)
+    if not facts_dict:
+        return None
+
+    target_dt = target_date.date() if isinstance(target_date, datetime) else target_date
+    us_gaap = facts_dict.get("facts", {}).get("us-gaap", {})
+    if not us_gaap:
+        return None
+
+    # Use revenue or net_income as proxy for earnings filings (10-Q / 10-K)
+    latest_filed = None
+    for concept_tags in [CONCEPT_MAPPING["revenue"], CONCEPT_MAPPING["net_income"]]:
+        for tag in concept_tags:
+            if tag not in us_gaap:
+                continue
+            units = us_gaap[tag].get("units", {})
+            if "USD" not in units:
+                continue
+            for entry in units["USD"]:
+                try:
+                    filed_str = entry.get("filed")
+                    if not filed_str:
+                        continue
+                    filed_dt = datetime.strptime(filed_str, "%Y-%m-%d").date()
+                    if filed_dt > target_dt:
+                        continue
+                    # Accept both quarterly (80-100d) and annual (350-380d)
+                    end_str = entry.get("end")
+                    start_str = entry.get("start")
+                    if not (end_str and start_str):
+                        continue
+                    end_dt = datetime.strptime(end_str, "%Y-%m-%d").date()
+                    start_dt = datetime.strptime(start_str, "%Y-%m-%d").date()
+                    period_days = (end_dt - start_dt).days
+                    if not ((80 <= period_days <= 100) or (350 <= period_days <= 380)):
+                        continue
+                    if latest_filed is None or filed_dt > latest_filed:
+                        latest_filed = filed_dt
+                except (ValueError, TypeError, KeyError):
+                    continue
+
+    return latest_filed
 
 
 def get_fundamentals_at_date(ticker, target_date, verbose=False):
@@ -390,15 +515,28 @@ def get_fundamentals_at_date(ticker, target_date, verbose=False):
             if verbose:
                 print(f"  Revenue Growth YoY: {growth:.1f}%", file=sys.stderr)
 
-    # Operating Income
-    op_inc_data = _get_concept_value_at_date(facts, CONCEPT_MAPPING["operating_income"], target_dt)
-    if op_inc_data:
-        op_inc, _, _ = op_inc_data
-        rev_data = _get_concept_value_at_date(facts, CONCEPT_MAPPING["revenue"], target_dt)
-        if rev_data and rev_data[0] > 0:
-            margin = (op_inc / rev_data[0]) * 100
-            result["operating_margin"] = margin
-            result["data_quality_score"] += 10
+    # Operating Income (TTM, for consistency with TTM revenue)
+    ttm_op_inc = _get_ttm_value(facts, CONCEPT_MAPPING["operating_income"], target_dt)
+    if ttm_op_inc and ttm_rev and ttm_rev[0] > 0:
+        op_inc_value = ttm_op_inc[0]
+        margin = (op_inc_value / ttm_rev[0]) * 100
+        result["ttm_operating_income"] = op_inc_value
+        result["operating_margin"] = margin
+        result["data_quality_score"] += 10
+        if verbose:
+            print(f"  Operating Margin: {margin:.1f}%", file=sys.stderr)
+
+    # TTM Cost of Revenue (for Gross Margin)
+    ttm_cogs = _get_ttm_value(facts, CONCEPT_MAPPING["cost_of_revenue"], target_dt)
+    if ttm_cogs and ttm_rev and ttm_rev[0] > 0:
+        cogs_value = ttm_cogs[0]
+        gross_profit = ttm_rev[0] - cogs_value
+        gross_margin_pct = (gross_profit / ttm_rev[0]) * 100
+        result["ttm_cost_of_revenue"] = cogs_value
+        result["gross_margin"] = gross_margin_pct
+        result["data_quality_score"] += 10
+        if verbose:
+            print(f"  Gross Margin: {gross_margin_pct:.1f}%", file=sys.stderr)
 
     # Balance sheet items
     debt_data = _get_concept_value_at_date(facts, CONCEPT_MAPPING["total_debt"], target_dt)
