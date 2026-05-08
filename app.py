@@ -41,6 +41,7 @@ from help_content import GETTING_STARTED, PILLAR_METHODOLOGY, RATING_SYSTEM, FAI
 from pro_charts import fetch_chart_data, compute_indicators, build_candlestick_chart, get_quick_quote, get_watchlist_quotes, get_market_movers
 from etf_center import PORTFOLIO_TEMPLATES, get_portfolio_template, list_templates, calculate_template_metrics, compare_etfs, get_sector_etf_map, get_theme_etf_map, load_raw_cache, get_etf_universe
 from risk_metrics import compute_full_metrics, daily_returns_from_prices, current_drawdown_pct, format_sharpe, format_drawdown
+from prediction_market_tab import render_prediction_market_tab
 
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
@@ -120,8 +121,8 @@ st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_all
 mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
 st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
 
-tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","✨ 🎤 Pundit Views","Advanced Screener","✨ Swing Trader","Sector Overview","Stock Detail","✨ 📈 Pro Charts","✨ Doppelganger","✨ 💎 Quant Portfolio","Portfolio","✨ Monte Carlo","ETF Center","₿ Crypto","📖 Help"])
-tab_home,tab_macro,tab_sentiment,tab_pundits,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_quantport,tab_portfolio,tab_mc,tab_etfs,tab_crypto,tab_help=tabs
+tabs=st.tabs(["🏠 Home","Macro Economy","Market Sentiment","✨ 🎤 Pundit Views","Advanced Screener","✨ Swing Trader","Sector Overview","Stock Detail","✨ 📈 Pro Charts","✨ Doppelganger","✨ 💎 Quant Portfolio","Portfolio","✨ Monte Carlo","ETF Center","₿ Crypto","🎯 Prediction Market","📖 Help"])
+tab_home,tab_macro,tab_sentiment,tab_pundits,tab_advanced,tab_swing,tab_sectors,tab_detail,tab_procharts,tab_doppel,tab_quantport,tab_portfolio,tab_mc,tab_etfs,tab_crypto,tab_prediction,tab_help=tabs
 
 def _cache_file_mtime():
     """Get modification time of the cache file. Used as a cache-buster so Streamlit
@@ -2511,6 +2512,9 @@ with tab_crypto:
     from crypto_tab import render_crypto_tab
     render_crypto_tab()
 
+# === TAB: PREDICTION MARKET ====================================================
+with tab_prediction:
+    render_prediction_market_tab()
 # ═══ TAB: HELP & GLOSSARY ═══════════════════════════════════════════
 with tab_help:
     help_section=st.radio(
