@@ -1,0 +1,30 @@
+{
+  "scored_at": "2026-05-10T12:53:24.073000",
+  "model_version": "v2",
+  "model_trained_at": "2026-05-10T12:15:58.682639",
+  "n_tickers_scored": 1291,
+  "n_tickers_in_cache": 1361,
+  "regime": "normal",
+  "regime_features": {
+    "spy_drawdown_pct": 0.0,
+    "spy_trend_sma_ratio": 0.01964394187906726,
+    "spy_vol_realized": 0.14965446917829017,
+    "spy_vol_percentile": 0.7123015873015873,
+    "spy_return_3m": 0.06583243897829294,
+    "spy_return_12m": 0.3203478153706041
+  },
+  "rating_thresholds": {
+    "strong_buy": 1.1216371059417725,
+    "buy": 0.6553922295570374,
+    "sell": 0.24471129477024078,
+    "strong_sell": 0.10053545236587524
+  },
+  "rating_distribution": {
+    "Hold": 757,
+    "Buy": 289,
+    "Strong Buy": 241,
+    "Sell": 4
+  },
+  "feature_completeness_mean": 0.9032618986143387,
+  "feature_completeness_min": 0.4444444444444444
+}
