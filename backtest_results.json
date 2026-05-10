@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-05-03T21:17:44.705773+00:00",
+  "last_run_utc": "2026-05-10T12:32:42.995494+00:00",
   "parameters": {
     "start_year": 2005,
     "hold_days": 14,
@@ -9,33 +9,33 @@
   "aggregate_metrics": {
     "realistic_strategy": {
       "n_periods": 257,
-      "win_rate_pct": 54.474708171206224,
-      "avg_return_pct": 0.3192853520216336,
-      "avg_win_pct": 1.547145213068999,
-      "avg_loss_pct": -1.1499486697444445,
+      "win_rate_pct": 54.86381322957199,
+      "avg_return_pct": 0.3241561886326509,
+      "avg_win_pct": 1.544225165715514,
+      "avg_loss_pct": -1.1588586886835877,
       "best_period_pct": 8.129709290742687,
       "worst_period_pct": -6.2023069048297135,
-      "total_compounded_pct": 117.79436131381607
+      "total_compounded_pct": 120.52389885059335
     },
     "theoretical_max_strategy": {
       "n_periods": 257,
-      "win_rate_pct": 98.0544747081712,
-      "avg_return_pct": 3.84778544549745,
-      "avg_win_pct": 3.9375837260430826,
-      "avg_loss_pct": -0.6780478940024368,
+      "win_rate_pct": 98.44357976653697,
+      "avg_return_pct": 3.859122262340397,
+      "avg_win_pct": 3.932361414993045,
+      "avg_loss_pct": -0.7732541429395834,
       "best_period_pct": 11.453343100736237,
       "worst_period_pct": -1.0217566817643324,
-      "total_compounded_pct": 1542689.5084204343
+      "total_compounded_pct": 1587773.6365290002
     },
     "spy_benchmark": {
-      "n_periods": 256,
-      "win_rate_pct": 62.890625,
-      "avg_return_pct": 0.49009252098088973,
-      "avg_win_pct": 2.757312464727815,
+      "n_periods": 257,
+      "win_rate_pct": 63.035019455252915,
+      "avg_return_pct": 0.4973482482200906,
+      "avg_win_pct": 2.754827908905147,
       "avg_loss_pct": -3.352248646842847,
       "best_period_pct": 16.449328359106417,
       "worst_period_pct": -22.18771317208354,
-      "total_compounded_pct": 177.78832578303258
+      "total_compounded_pct": 184.3297253396912
     }
   },
   "monthly_results": [
@@ -30738,9 +30738,9 @@
           "entry_price": 1750.3499755859375,
           "target_price": 1897.7427804129463,
           "stop_price": 1676.6535731724332,
-          "realistic_return_pct": -1.376294235799802,
+          "realistic_return_pct": 6.789497384974698,
           "realistic_exit_reason": "timeout",
-          "max_return_pct": -1.376294235799802
+          "max_return_pct": 6.789497384974698
         },
         {
           "ticker": "APD",
@@ -30749,9 +30749,9 @@
           "entry_price": 300.04998779296875,
           "target_price": 311.4214172363281,
           "stop_price": 294.36427307128906,
-          "realistic_return_pct": 0.3399498659382724,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": 0.3399498659382724
+          "realistic_return_pct": -1.8949224972482817,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.2931194936390604
         },
         {
           "ticker": "MSFT",
@@ -30760,9 +30760,9 @@
           "entry_price": 407.7799987792969,
           "target_price": 433.12142508370533,
           "stop_price": 395.1092856270926,
-          "realistic_return_pct": 1.6332345093055862,
+          "realistic_return_pct": 1.7999892981174042,
           "realistic_exit_reason": "timeout",
-          "max_return_pct": 1.6332345093055862
+          "max_return_pct": 3.185538837917743
         },
         {
           "ticker": "NVDA",
@@ -30771,9 +30771,9 @@
           "entry_price": 199.57000732421875,
           "target_price": 212.10143389020647,
           "stop_price": 193.3042940412249,
-          "realistic_return_pct": -0.5612117727474994,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": -0.5612117727474994
+          "realistic_return_pct": 6.279213361770002,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.831832966078498
         },
         {
           "ticker": "JPM",
@@ -30782,9 +30782,9 @@
           "entry_price": 313.2300109863281,
           "target_price": 325.10427856445307,
           "stop_price": 307.2928771972656,
-          "realistic_return_pct": -0.24263631803089677,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": -0.24263631803089677
+          "realistic_return_pct": -1.895454963069182,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.5331490762643243
         },
         {
           "ticker": "AFL",
@@ -30793,9 +30793,9 @@
           "entry_price": 113.66999816894531,
           "target_price": 118.35713849748885,
           "stop_price": 111.32642800467355,
-          "realistic_return_pct": -0.6949950983136132,
+          "realistic_return_pct": -0.5014513099375969,
           "realistic_exit_reason": "timeout",
-          "max_return_pct": -0.6949950983136132
+          "max_return_pct": 0.6949950983136132
         },
         {
           "ticker": "FTV",
@@ -30804,9 +30804,9 @@
           "entry_price": 59.790000915527344,
           "target_price": 62.73342950003487,
           "stop_price": 58.31828662327358,
-          "realistic_return_pct": -1.2711191245911115,
+          "realistic_return_pct": 1.0704120753445765,
           "realistic_exit_reason": "timeout",
-          "max_return_pct": -1.2711191245911115
+          "max_return_pct": 1.8564987344954158
         },
         {
           "ticker": "AEP",
@@ -30815,9 +30815,9 @@
           "entry_price": 137.11000061035156,
           "target_price": 141.77571759905135,
           "stop_price": 134.77714211600167,
-          "realistic_return_pct": -0.14586605451964973,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": -0.14586605451964973
+          "realistic_return_pct": -1.701450283688326,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.051059239958507134
         },
         {
           "ticker": "AME",
@@ -30828,12 +30828,12 @@
           "stop_price": 229.65928540910994,
           "realistic_return_pct": -2.480133584242063,
           "realistic_exit_reason": "stop",
-          "max_return_pct": -2.131636633741375
+          "max_return_pct": 2.496817360005308
         }
       ],
-      "portfolio_return_realistic": -0.11638647280384182,
-      "portfolio_return_max": -0.29722289825385034,
-      "spy_return_pct": null
+      "portfolio_return_realistic": 1.1354185362276006,
+      "portfolio_return_max": 2.6163390303835072,
+      "spy_return_pct": 2.3548144214555102
     }
   ],
   "universe_size": 197,
