@@ -164,10 +164,62 @@ SP600_EXTRA = [
 ]
 
 SUPPLEMENTAL = [
+    # International / ADRs
     "TSM","BABA","JD","PDD","BIDU","NIO","LI","XPEV",
     "SHOP","TD","RY","CNQ","SU","BN","BAM","SE","MELI","NU","GRAB",
-    "BX","KKR","APO","OWL","SPOT","XYZ","MSTR","CELH","CAVA",
-    "RIVN","LCID","JOBY","BILL","PATH","SNAP","U","PINS",
+    # Private equity / asset managers / financial services
+    "BX","KKR","APO","OWL","SPOT","XYZ",
+    # Crypto/digital treasury
+    "MSTR",
+    # Consumer growth
+    "CELH","CAVA",
+    # EV / mobility
+    "RIVN","LCID","JOBY",
+    # Software / fintech
+    "BILL","PATH","SNAP","U","PINS",
+    # ── Recent re-IPOs and 2024 IPOs ──
+    "SNDK",   # SanDisk re-IPO from Western Digital (Feb 2025)
+    "RDDT",   # Reddit (Mar 2024)
+    "RBRK",   # Rubrik (Apr 2024)
+    "ALAB",   # Astera Labs (Mar 2024, AI infrastructure)
+    "BIRK",   # Birkenstock (Oct 2023)
+    "ODD",    # Oddity Tech (Jul 2023, AI beauty)
+    "NXT",    # Nextracker (Feb 2023, solar trackers)
+    "MBLY",   # Mobileye (Intel spinoff, Oct 2022)
+    # ── 2023 IPOs ──
+    "KVYO",   # Klaviyo (Sep 2023)
+    "VFS",    # VinFast (Aug 2023, Vietnamese EV)
+    "TBPH",   # Theravance Biopharma
+    # ── Pre-2022 missing names ──
+    "BE",     # Bloom Energy
+    "CHWY",   # Chewy
+    "ROKU",   # Roku
+    # ── Crypto/digital mining ──
+    "RIOT",   # Riot Platforms
+    "CIFR",   # Cipher Mining
+    "WULF",   # TeraWulf
+    "HUT",    # Hut 8
+    # ── AI infrastructure / growth ──
+    "CRWV",   # CoreWeave (Mar 2025, AI cloud)
+    "VRT",    # Vertiv (data center power)
+    # ── Nuclear / SMR thesis ──
+    "SMR",    # NuScale Power
+    "OKLO",   # Oklo Inc
+    "CCJ",    # Cameco (uranium miner)
+    "UEC",    # Uranium Energy
+    "NRGV",   # Energy Vault
+    # ── Fintech ──
+    "HIMS",   # Hims & Hers Health
+    "SOFI",   # SoFi Technologies
+    "UPST",   # Upstart Holdings
+    "OPEN",   # Opendoor
+    # ── Biotech / gene editing ──
+    "GH",     # Guardant Health
+    "NTRA",   # Natera
+    "CRSP",   # CRISPR Therapeutics
+    "EDIT",   # Editas Medicine
+    "BEAM",   # Beam Therapeutics
+    "NVAX",   # Novavax
 ]
 
 PORTFOLIO_STOCKS = ["CLS","IREN","ASTS","RKLB","BMNR","ONDS"]
