@@ -1160,10 +1160,11 @@ with tab_detail:
                 else:
                     st.caption("Need at least 60 days of price history to compute risk metrics.")
 
-                # ── Forward Outlook: analyst consensus estimates + 8-K guidance extraction ──
-                st.markdown("---")
-                from forward_outlook import render_forward_outlook
-                render_forward_outlook(sel)
+                # ── Forward Outlook section removed ──
+                # The analyst forward consensus (yfinance) and 8-K guidance extraction (regex)
+                # were unreliable — yfinance often returns empty estimates and 8-K press release
+                # extraction misses most filings. Removed in favor of an empty UI rather than
+                # showing "No data available" boxes that imply broken functionality.
 
                 # ── M&A Analysis: target profile + historical filings ──
                 st.markdown("---")
@@ -1319,15 +1320,14 @@ with tab_detail:
 
     # ── Section 1: Candlestick Chart ──
     if pc_section=="📈 Chart":
-        all_tickers=sorted(scored_df.index.tolist())
-        pc_default=0
-        if st.session_state.selected_ticker in all_tickers:
-            pc_default=all_tickers.index(st.session_state.selected_ticker)
+        # Use the ticker selected at the top of Stock Detail — single source of truth
+        pc_ticker = sel if sel else None
+        if pc_ticker:
+            st.caption(f"Charting **{pc_ticker}** — change ticker via the selector at the top of this tab.")
 
-        pc1,pc2,pc3=st.columns([2,1,1])
-        with pc1: pc_ticker=st.selectbox("Ticker",all_tickers,index=pc_default,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="pc_ticker")
-        with pc2: pc_period=st.selectbox("Period",["1mo","3mo","6mo","1y","2y","5y"],index=2,key="pc_period")
-        with pc3: pc_interval=st.selectbox("Interval",["1d","1h","30m","15m"],index=0,key="pc_interval",help="Intraday intervals (1h, 30m, 15m) only available for periods up to 60 days.")
+        pc2_col,pc3_col=st.columns(2)
+        with pc2_col: pc_period=st.selectbox("Period",["1mo","3mo","6mo","1y","2y","5y"],index=2,key="pc_period")
+        with pc3_col: pc_interval=st.selectbox("Interval",["1d","1h","30m","15m"],index=0,key="pc_interval",help="Intraday intervals (1h, 30m, 15m) only available for periods up to 60 days.")
 
         # Indicators toggles
         st.markdown("**Indicators:**")
