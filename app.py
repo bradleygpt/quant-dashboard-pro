@@ -762,7 +762,7 @@ with tab_sectors:
         ).reset_index()
         # Compute aggregate earnings: market cap * (1/PE) gives net income
         non_etf_universe["est_earnings"]=non_etf_universe.apply(
-            lambda r: (r["marketCapB"]/r["trailingPE"]) if pd.notna(r.get("trailingPE")) and r.get("trailingPE",0)>0 else 0,
+            lambda r: (r["marketCapB"]/r["trailingPE"]) if pd.notna(r.get("marketCapB")) and pd.notna(r.get("trailingPE")) and r.get("marketCapB",0)>0 and r.get("trailingPE",0)>0 else 0,
             axis=1
         )
         sec_earnings=non_etf_universe.groupby("sector")["est_earnings"].sum().reset_index()
