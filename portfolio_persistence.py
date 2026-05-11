@@ -4,6 +4,10 @@ Saves user portfolios to Supabase, loads on login, supports multiple named portf
 
 Schema (run portfolio_schema.sql in Supabase first):
 - portfolios table: id, user_id, name, holdings (jsonb), created_at, updated_at
+
+Holdings can be stocks or Treasuries:
+  Stock entry:    {ticker, shares, cost_basis}                            (type defaults to "stock")
+  Treasury entry: {ticker, shares, cost_basis, type="treasury", current_value, description}
 """
 
 import json
@@ -12,13 +16,40 @@ import streamlit as st
 from auth import get_supabase, get_current_user, is_logged_in
 
 
+def _sanitize_holding(h):
+    """Clean a single holding dict, preserving Treasury fields if present."""
+    if not h.get("ticker"):
+        return None
+
+    base = {
+        "ticker": str(h["ticker"]).upper(),
+        "shares": float(h.get("shares", 0)),
+        "cost_basis": float(h["cost_basis"]) if h.get("cost_basis") is not None else None,
+    }
+
+    # Preserve Treasury-specific fields
+    if h.get("type") == "treasury":
+        base["type"] = "treasury"
+        if h.get("current_value") is not None:
+            try:
+                base["current_value"] = float(h["current_value"])
+            except (TypeError, ValueError):
+                base["current_value"] = None
+        if h.get("description"):
+            base["description"] = str(h["description"])
+    elif "type" in h:
+        base["type"] = str(h["type"])
+
+    return base
+
+
 def save_portfolio(name, holdings, portfolio_id=None):
     """
     Save or update a user's portfolio.
 
     Args:
         name: Portfolio name (e.g. "Main Account")
-        holdings: List of dicts with ticker, shares, cost_basis
+        holdings: List of dicts. Each can be a stock or Treasury entry.
         portfolio_id: If provided, updates existing. If None, creates new.
 
     Returns:
@@ -34,16 +65,12 @@ def save_portfolio(name, holdings, portfolio_id=None):
     user = get_current_user()
     user_id = user["id"]
 
-    # Sanitize holdings (remove None, ensure types)
+    # Sanitize holdings (remove None, ensure types, preserve Treasury fields)
     clean_holdings = []
     for h in holdings:
-        if not h.get("ticker"):
-            continue
-        clean_holdings.append({
-            "ticker": str(h["ticker"]).upper(),
-            "shares": float(h.get("shares", 0)),
-            "cost_basis": float(h["cost_basis"]) if h.get("cost_basis") is not None else None,
-        })
+        cleaned = _sanitize_holding(h)
+        if cleaned:
+            clean_holdings.append(cleaned)
 
     if not clean_holdings:
         return {"error": "No valid holdings to save"}

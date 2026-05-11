@@ -28,6 +28,10 @@ from data_fetcher import (
 )
 from scoring import score_universe, get_pillar_detail, get_top_stocks, get_sector_stats
 from portfolio import analyze_portfolio, run_monte_carlo, generate_suggestions, parse_fidelity_csv
+from treasury_handler import (
+    parse_fidelity_csv_with_treasuries, split_holdings, compute_treasury_total,
+    compute_treasury_cost_basis_total, format_treasury_description, is_treasury_cusip,
+)
 from sectors import get_sector_overview, get_sector_detail
 from fairvalue import compute_fair_value
 from sentiment import fetch_index_data, fetch_vix_data, fetch_buffett_indicator, compute_market_breadth, compute_fear_greed, compute_pgi, COMING_SOON_INDICATORS
@@ -2182,7 +2186,7 @@ with tab_portfolio:
             if not st.session_state.get(csv_key):
                 try:
                     csv_text=up.read().decode("utf-8")
-                    parsed=parse_fidelity_csv(csv_text)
+                    parsed=parse_fidelity_csv_with_treasuries(csv_text, parse_fidelity_csv)
                     if parsed and len(parsed)>0:
                         st.session_state.portfolio_holdings=parsed
                         st.session_state[csv_key]=True
@@ -2240,15 +2244,65 @@ with tab_portfolio:
                     st.success("Saved as new portfolio!")
                     st.rerun()
 
-        analysis=analyze_portfolio(st.session_state.portfolio_holdings,scored_df,sector_stats)
-        if "error" in analysis: st.error(analysis["error"])
-        elif analysis:
+        # Split holdings into stocks and treasuries
+        _stocks_h, _treasuries_h = split_holdings(st.session_state.portfolio_holdings)
+        _treasury_value = compute_treasury_total(_treasuries_h)
+        _treasury_cb = compute_treasury_cost_basis_total(_treasuries_h)
+
+        # Analyze stocks only (analyze_portfolio doesn't understand treasuries)
+        analysis=analyze_portfolio(_stocks_h,scored_df,sector_stats)
+        if "error" in analysis and not _treasuries_h:
+            st.error(analysis["error"])
+        elif analysis or _treasuries_h:
+            # Total portfolio value = stock value + treasury current value
+            _stock_value = analysis.get("total_value", 0) if isinstance(analysis, dict) else 0
+            _total_value = _stock_value + _treasury_value
+            _num_stocks = analysis.get("num_holdings", 0) if isinstance(analysis, dict) else 0
+            _total_holdings = _num_stocks + len(_treasuries_h)
+
             m1,m2,m3,m4,m5=st.columns(5)
-            with m1: st.metric("Value",f"${analysis['total_value']:,.0f}")
-            with m2: st.metric("Holdings",analysis["num_holdings"])
-            with m3: st.metric("Rating",analysis["weighted_rating"])
-            with m4: st.metric("Score",f"{analysis['weighted_composite']:.1f}/12")
-            with m5: st.metric("Concentration",analysis["concentration_level"])
+            with m1: st.metric("Value",f"${_total_value:,.0f}")
+            with m2: st.metric("Holdings",_total_holdings)
+            if isinstance(analysis, dict) and "weighted_rating" in analysis:
+                with m3: st.metric("Rating",analysis["weighted_rating"])
+                with m4: st.metric("Score",f"{analysis['weighted_composite']:.1f}/12")
+                with m5: st.metric("Concentration",analysis["concentration_level"])
+            else:
+                with m3: st.metric("Rating","--")
+                with m4: st.metric("Score","--")
+                with m5: st.metric("Concentration","--")
+
+            # Show treasury breakdown if present
+            if _treasuries_h:
+                tcol1, tcol2, tcol3 = st.columns(3)
+                with tcol1: st.metric("Treasury Value", f"${_treasury_value:,.2f}")
+                with tcol2: st.metric("Treasury Cost", f"${_treasury_cb:,.2f}")
+                with tcol3:
+                    _gl = _treasury_value - _treasury_cb
+                    _gl_pct = (_gl / _treasury_cb * 100) if _treasury_cb > 0 else 0
+                    st.metric("Treasury G/L", f"${_gl:+,.2f}", delta=f"{_gl_pct:+.2f}%")
+
+                # Treasury holdings table (same view, different row type)
+                import pandas as _pd
+                _t_rows = []
+                for _t in _treasuries_h:
+                    _coupon, _maturity = format_treasury_description(_t.get("description", ""))
+                    _t_rows.append({
+                        "CUSIP": _t.get("ticker", ""),
+                        "Type": "Treasury",
+                        "Description": _t.get("description", "")[:60] or "U.S. Treasury",
+                        "Coupon": _coupon or "--",
+                        "Maturity": _maturity or "--",
+                        "Quantity": f"{_t.get('shares', 0):,.0f}",
+                        "Cost Basis": f"${_t.get('cost_basis', 0):.4f}",
+                        "Current Value": f"${_t.get('current_value', 0):,.2f}",
+                    })
+                if _t_rows:
+                    with st.expander(f"🏛 Treasury Holdings ({len(_t_rows)})", expanded=True):
+                        st.dataframe(_pd.DataFrame(_t_rows), use_container_width=True, hide_index=True)
+                        st.caption("Treasuries are excluded from quant scoring, rebalancing recommendations, and portfolio rating. Their value contributes to total portfolio value only.")
+
+        if isinstance(analysis, dict) and "error" not in analysis and analysis:
             td2=[];
             for p,t2 in analysis["factor_tilts"].items(): td2.append({"Pillar":p,"Portfolio":t2["portfolio"],"Universe":t2["universe"]})
             fig_t=go.Figure();tdf=pd.DataFrame(td2)
