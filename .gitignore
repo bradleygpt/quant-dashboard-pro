@@ -1,5 +1,62 @@
-edgar_cache/
+﻿# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.Python
+build/
+dist/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env
+
+# Streamlit
+.streamlit/secrets.toml
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Large cache files - regenerable, should not be in repo
+prices_cache.parquet
+edgar_cache/
+edgar_cache.tar.gz
 edgar_cache.tar.gz.part-*
+fundamentals_cache.json
+correlations_cache.json
+indicator_snapshots.json
+pundits_cache.json
+
+# Backtest variants - keep one canonical, ignore the rest
+backtest_variant_*.json
+quant_backtest_results_short_*.json
+quant_backtest_results_quarterly_*.json
+
+# Archives and binary artifacts
+*.zip
+*.tar
+*.tar.gz
 *.bak
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# OS-specific
+.AppleDouble
+.LSOverride
