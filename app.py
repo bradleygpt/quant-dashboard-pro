@@ -129,6 +129,17 @@ with st.sidebar:
             f"Sharpe **{_p['backtest_sharpe']:+.2f}** · "
             f"MaxDD **{_p['backtest_max_dd']:+.2f}%**"
         )
+        _universe = _p.get("backtest_universe", "")
+        _validated = _p.get("validated_at_floor", False)
+        if _universe:
+            if _validated:
+                st.caption(f"✓ Validated on: {_universe}")
+            else:
+                st.warning(
+                    f"⚠ Backtest universe: {_universe}. "
+                    f"Performance at the current ${market_cap_floor}B+ floor is UNTESTED. "
+                    f"Use with caution."
+                )
     else:
         st.session_state.preset_name = "Custom"
     _locked = (_selected_preset != "Custom")

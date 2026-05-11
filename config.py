@@ -7,44 +7,28 @@ MIN_MARKET_CAP_FLOOR_B = 1
 MAX_MARKET_CAP_FLOOR_B = 50
 
 # ── Pillar Weight Presets ──────────────────────────────────────────
-# Backtested across 1996-2026 (121 quarterly rebalances, TOP25 selection,
-# 1Q hold-and-reselect). 5-pillar dashboard tests on 4 pillars (V/G/P/M)
-# because EPS Revisions history pre-2010 is unreliable. New presets set
-# EPS Revisions to 0% - honest about what was tested.
+# IMPORTANT: Backtest universes differ. Read carefully before selecting.
 #
-#   m_heavy: V=0.05 G=0.15 P=0.00 M=0.80  → +30.12% CAGR  Sharpe 1.30
-#   v_heavy: V=0.45 G=0.10 P=0.25 M=0.20  → +28.18% CAGR  Sharpe 1.35
-#   equal:   each pillar 20%               → +26.27% CAGR  Sharpe 1.21
+# equal:   Validated at $10B+ MC floor on 2015-2026 dashboard data.
+#          +26.27% CAGR  Sharpe 1.21  MaxDD -35.67%
+#          This is the default — only validated preset at the dashboard's
+#          actual operating universe ($10B+ market cap).
+#
+# m_heavy: +30.12% CAGR  Sharpe 1.30  MaxDD -32.04%
+#          BUT: validated on FULL universe (no MC floor) 1996-2026.
+#          Includes sub-$10B caps where momentum-driven returns are explosive.
+#          UNTESTED at $10B+ filter. Performance at large-cap-only is unknown.
+#
+# v_heavy: +28.18% CAGR  Sharpe 1.35  MaxDD -37.39%
+#          BUT: validated on FULL universe (no MC floor) 1996-2026.
+#          UNTESTED at $10B+ filter.
+#
+# 5-pillar dashboard tests on 4 pillars (V/G/P/M) because EPS Revisions
+# history pre-2010 is unreliable. Non-equal presets set EPS Revisions to 0%.
 
 WEIGHT_PRESETS = {
-    "m_heavy": {
-        "label": "Growth/Momentum (highest CAGR)",
-        "weights": {
-            "Valuation": 0.05,
-            "Growth": 0.15,
-            "Profitability": 0.00,
-            "Momentum": 0.80,
-            "EPS Revisions": 0.00,
-        },
-        "backtest_cagr": 30.12,
-        "backtest_sharpe": 1.30,
-        "backtest_max_dd": -32.04,
-    },
-    "v_heavy": {
-        "label": "Value/Quality (highest Sharpe)",
-        "weights": {
-            "Valuation": 0.45,
-            "Growth": 0.10,
-            "Profitability": 0.25,
-            "Momentum": 0.20,
-            "EPS Revisions": 0.00,
-        },
-        "backtest_cagr": 28.18,
-        "backtest_sharpe": 1.35,
-        "backtest_max_dd": -37.39,
-    },
     "equal": {
-        "label": "Equal weight (legacy)",
+        "label": "Equal weight (validated, default)",
         "weights": {
             "Valuation": 0.20,
             "Growth": 0.20,
@@ -55,10 +39,42 @@ WEIGHT_PRESETS = {
         "backtest_cagr": 26.27,
         "backtest_sharpe": 1.21,
         "backtest_max_dd": -35.67,
+        "backtest_universe": "$10B+ MC floor, 2015-2026",
+        "validated_at_floor": True,
+    },
+    "m_heavy": {
+        "label": "Growth/Momentum (untested at $10B+)",
+        "weights": {
+            "Valuation": 0.05,
+            "Growth": 0.15,
+            "Profitability": 0.00,
+            "Momentum": 0.80,
+            "EPS Revisions": 0.00,
+        },
+        "backtest_cagr": 30.12,
+        "backtest_sharpe": 1.30,
+        "backtest_max_dd": -32.04,
+        "backtest_universe": "Full universe (no MC floor), 1996-2026",
+        "validated_at_floor": False,
+    },
+    "v_heavy": {
+        "label": "Value/Quality (untested at $10B+)",
+        "weights": {
+            "Valuation": 0.45,
+            "Growth": 0.10,
+            "Profitability": 0.25,
+            "Momentum": 0.20,
+            "EPS Revisions": 0.00,
+        },
+        "backtest_cagr": 28.18,
+        "backtest_sharpe": 1.35,
+        "backtest_max_dd": -37.39,
+        "backtest_universe": "Full universe (no MC floor), 1996-2026",
+        "validated_at_floor": False,
     },
 }
 
-DEFAULT_PRESET = "m_heavy"
+DEFAULT_PRESET = "equal"
 DEFAULT_PILLAR_WEIGHTS = WEIGHT_PRESETS[DEFAULT_PRESET]["weights"]
 
 # ── Absolute Threshold Breadth Indicator ──────────────────────────
