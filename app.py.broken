@@ -14,9 +14,7 @@ from datetime import datetime
 from config import (
     DEFAULT_PILLAR_WEIGHTS, PILLAR_METRICS, GRADE_COLORS, RATING_COLORS,
     GRADE_SCORES, DEFAULT_MARKET_CAP_FLOOR_B, MIN_MARKET_CAP_FLOOR_B, MAX_MARKET_CAP_FLOOR_B,
-    WEIGHT_PRESETS, DEFAULT_PRESET,
 )
-from breadth_indicator import compute_breadth_indicator, format_breadth_indicator
 from data_fetcher import (
     get_broad_universe, fetch_universe_data, load_watchlist, add_to_watchlist, remove_from_watchlist,
 )
@@ -57,7 +55,7 @@ st.markdown("""<style>
 # Auth UI lives in sidebar (rendered by premium_gate.render_auth_sidebar).
 # ═══════════════════════════════════════════════════════════════════
 
-for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("sector_relative",True),("portfolio_holdings",[]),("current_portfolio_id",None),("current_portfolio_name",None),("portfolio_autoloaded",False)]:
+for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("preset_name",DEFAULT_PRESET),("sector_relative",True),("portfolio_holdings",[]),("current_portfolio_id",None),("current_portfolio_name",None),("portfolio_autoloaded",False)]:
     if k not in st.session_state: st.session_state[k]=v
 
 # Auto-load most recent saved portfolio on first login (one-time per session)
@@ -105,41 +103,13 @@ with st.sidebar:
     sector_relative=st.toggle("Sector-Relative Scoring",value=True);st.session_state.sector_relative=sector_relative
     st.markdown("---")
     st.markdown("### Pillar Weights")
-    # Preset selector — backtested 1996-2026 on TOP25 1Q-reselect strategy
-    _preset_options = list(WEIGHT_PRESETS.keys()) + ["Custom"]
-    _preset_labels = {k: WEIGHT_PRESETS[k]["label"] for k in WEIGHT_PRESETS}
-    _preset_labels["Custom"] = "Custom (manual sliders)"
-    _current_preset = st.session_state.get("preset_name", DEFAULT_PRESET)
-    if _current_preset not in _preset_options:
-        _current_preset = DEFAULT_PRESET
-    _selected_preset = st.selectbox(
-        "Weight Preset",
-        _preset_options,
-        index=_preset_options.index(_current_preset),
-        format_func=lambda k: _preset_labels.get(k, k),
-        key="sb_preset",
-        help="Backtested 1996-2026, TOP25 1Q-reselect. m_heavy = highest CAGR. v_heavy = highest Sharpe. equal = legacy."
-    )
-    if _selected_preset != "Custom":
-        _p = WEIGHT_PRESETS[_selected_preset]
-        st.session_state.weights = _p["weights"].copy()
-        st.session_state.preset_name = _selected_preset
-        st.caption(
-            f"📈 Backtest: **{_p['backtest_cagr']:+.2f}%/yr CAGR** · "
-            f"Sharpe **{_p['backtest_sharpe']:+.2f}** · "
-            f"MaxDD **{_p['backtest_max_dd']:+.2f}%**"
-        )
-    else:
-        st.session_state.preset_name = "Custom"
-    _locked = (_selected_preset != "Custom")
-    w_val=st.slider("Valuation",0.0,1.0,st.session_state.weights["Valuation"],0.05,key="w_val",disabled=_locked)
-    w_gro=st.slider("Growth",0.0,1.0,st.session_state.weights["Growth"],0.05,key="w_gro",disabled=_locked)
-    w_pro=st.slider("Profitability",0.0,1.0,st.session_state.weights["Profitability"],0.05,key="w_pro",disabled=_locked)
-    w_mom=st.slider("Momentum",0.0,1.0,st.session_state.weights["Momentum"],0.05,key="w_mom",disabled=_locked)
-    w_eps=st.slider("EPS Revisions",0.0,1.0,st.session_state.weights["EPS Revisions"],0.05,key="w_eps",disabled=_locked)
-    if _selected_preset == "Custom":
-        tw=w_val+w_gro+w_pro+w_mom+w_eps
-        if tw>0: st.session_state.weights={"Valuation":w_val/tw,"Growth":w_gro/tw,"Profitability":w_pro/tw,"Momentum":w_mom/tw,"EPS Revisions":w_eps/tw}
+    w_val=st.slider("Valuation",0.0,1.0,st.session_state.weights["Valuation"],0.05,key="w_val")
+    w_gro=st.slider("Growth",0.0,1.0,st.session_state.weights["Growth"],0.05,key="w_gro")
+    w_pro=st.slider("Profitability",0.0,1.0,st.session_state.weights["Profitability"],0.05,key="w_pro")
+    w_mom=st.slider("Momentum",0.0,1.0,st.session_state.weights["Momentum"],0.05,key="w_mom")
+    w_eps=st.slider("EPS Revisions",0.0,1.0,st.session_state.weights["EPS Revisions"],0.05,key="w_eps")
+    tw=w_val+w_gro+w_pro+w_mom+w_eps
+    if tw>0: st.session_state.weights={"Valuation":w_val/tw,"Growth":w_gro/tw,"Profitability":w_pro/tw,"Momentum":w_mom/tw,"EPS Revisions":w_eps/tw}
     st.markdown("---")
     nt=st.text_input("Add to Watchlist",placeholder="e.g. AAPL").upper().strip()
     if st.button("Add",key="sb_wl") and nt: add_to_watchlist(nt);st.success(f"Added {nt}");st.rerun()
@@ -290,19 +260,6 @@ with tab_home:
     st.markdown("---")
     st.markdown("#### Stock Screener")
     st.caption("Browse and filter the scored universe.")
-    # Breadth indicator — count of stocks above absolute quality threshold for the active preset
-    try:
-        _breadth = compute_breadth_indicator(scored_df, st.session_state.get("preset_name", DEFAULT_PRESET))
-        _breadth_text = format_breadth_indicator(_breadth)
-        _signal = _breadth.get("signal", "normal")
-        if _signal == "broad":
-            st.success(_breadth_text)
-        elif _signal == "thin":
-            st.warning(_breadth_text)
-        else:
-            st.info(_breadth_text)
-    except Exception as _bi_err:
-        st.caption(f"Breadth indicator unavailable: {_bi_err}")
     sc1,sc2,sc3=st.columns(3)
     with sc1: home_sec=st.selectbox("Sector",["All"]+sorted(scored_df["sector"].dropna().unique().tolist()),key="home_screen_sec")
     with sc2: home_rat=st.selectbox("Rating",["All","Strong Buy","Buy","Hold","Sell","Strong Sell"],key="home_screen_rat")
