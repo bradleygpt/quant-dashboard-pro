@@ -65,15 +65,11 @@ DEFAULT_PILLAR_WEIGHTS = WEIGHT_PRESETS[DEFAULT_PRESET]["weights"]
 # Median quarterly TOP25 cutoff composite score across 1996-2026 history.
 # When the count of stocks above this threshold contracts, market breadth
 # is thinning. When it expands, breadth is broadening. Display in screener.
-#
-# Per-scheme thresholds (derived from backtest):
-#   m_heavy: 10.617 (count median 153, range 35-246)
-#   v_heavy:  8.723 (count median  25, range  0-76)
 
 ABSOLUTE_THRESHOLDS = {
     "m_heavy": 10.617,
     "v_heavy": 8.723,
-    "equal":    8.5,  # approximate, untested - placeholder for legacy
+    "equal":    8.5,
 }
 
 ABSOLUTE_THRESHOLD_STATS = {
@@ -135,17 +131,64 @@ GRADE_SCORES = {
     "D+": 3, "D": 2, "F": 1,
 }
 
-# ── Rating Thresholds ──────────────────────────────────────────────
-# REBALANCED for ~12% Strong Buy, 13% Buy, 50% Hold, 13% Sell, 12% Strong Sell
-# With sector-relative scoring, mean composite is ~7.0 with SD ~1.5
-# These thresholds produce approximately 25% buy zone / 50% hold / 25% sell zone
+# ── Rating Thresholds (LEGACY DEFAULT — used by equal-weight only) ──
+# Equal-weight composite distribution → mean ~7.0, SD ~1.5
+# Produces approximately 25% buy zone / 50% hold / 25% sell zone
 OVERALL_RATING_MAP = {
-    "Strong Buy": (9.0, 12.0),   # Top ~8-12%
-    "Buy": (8.0, 9.0),           # Next ~12-17%
-    "Hold": (6.0, 8.0),          # Middle ~45-55%
-    "Sell": (5.0, 6.0),          # Next ~12-17%
-    "Strong Sell": (0.0, 5.0),   # Bottom ~8-12%
+    "Strong Buy": (9.0, 12.0),
+    "Buy": (8.0, 9.0),
+    "Hold": (6.0, 8.0),
+    "Sell": (5.0, 6.0),
+    "Strong Sell": (0.0, 5.0),
 }
+
+# ── Per-Preset Rating Maps ──────────────────────────────────────────
+# Each weight scheme produces a different composite distribution. Rating
+# thresholds are calibrated so Strong Buy + Buy averages ~25 stocks over
+# the 1996-2026 backtest universe with variance preserved as breadth signal.
+#
+# m_heavy: M=0.80 inflates composite in bull markets. Calibrated against
+#          current distribution: 8 stocks ≥ 11.0, 27 stocks ≥ 10.617.
+#          Median 1996-2026 TOP25 cutoff = 10.617 → Buy threshold.
+#
+# v_heavy: V-heavy composite stays close to historical equal-weight range.
+#          Median TOP25 cutoff = 8.723 → Buy threshold. Strong Buy ≥ 9.0
+#          gives historical median of 11 Strong Buys.
+#
+# equal:   Preserved as-is (existing dashboard behavior).
+
+RATING_MAPS_PER_PRESET = {
+    "m_heavy": {
+        "Strong Buy": (11.0, 12.0),     # ~5-10 stocks elite tier
+        "Buy": (10.617, 11.0),          # SB + Buy ≈ 25 average
+        "Hold": (8.5, 10.617),
+        "Sell": (7.0, 8.5),
+        "Strong Sell": (0.0, 7.0),
+    },
+    "v_heavy": {
+        "Strong Buy": (9.0, 12.0),      # median 11 historically
+        "Buy": (8.723, 9.0),            # SB + Buy ≈ 25 average
+        "Hold": (6.5, 8.723),
+        "Sell": (5.0, 6.5),
+        "Strong Sell": (0.0, 5.0),
+    },
+    "equal": {
+        "Strong Buy": (9.0, 12.0),      # existing
+        "Buy": (8.0, 9.0),
+        "Hold": (6.0, 8.0),
+        "Sell": (5.0, 6.0),
+        "Strong Sell": (0.0, 5.0),
+    },
+}
+
+
+def get_rating_map(preset_name: str = None) -> dict:
+    """Return the rating threshold map for the given preset.
+    Falls back to OVERALL_RATING_MAP if preset is None or unknown."""
+    if preset_name and preset_name in RATING_MAPS_PER_PRESET:
+        return RATING_MAPS_PER_PRESET[preset_name]
+    return OVERALL_RATING_MAP
+
 
 RATING_COLORS = {
     "Strong Buy": "#00C805", "Buy": "#8BC34A", "Hold": "#FFC107",

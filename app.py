@@ -165,13 +165,13 @@ def _cache_file_mtime():
     return 0
 
 @st.cache_data(ttl=43200,show_spinner=False)
-def load_and_score(mcap,wt,sr,_file_mtime):
+def load_and_score(mcap,wt,sr,preset,_file_mtime):
     w=dict(zip(DEFAULT_PILLAR_WEIGHTS.keys(),wt));tickers=get_broad_universe(mcap)
     progress=st.progress(0,text="Loading...");raw=fetch_universe_data(tickers,mcap,lambda p,m:progress.progress(p,text=m));progress.empty()
-    scored=score_universe(raw,w,sector_relative=sr);ss=get_sector_stats(scored) if not scored.empty else {}
+    scored=score_universe(raw,w,sector_relative=sr,preset_name=preset);ss=get_sector_stats(scored) if not scored.empty else {}
     return raw,scored,ss
 
-try: raw_data,scored_df,sector_stats=load_and_score(market_cap_floor,tuple(st.session_state.weights.values()),st.session_state.sector_relative,_cache_file_mtime())
+try: raw_data,scored_df,sector_stats=load_and_score(market_cap_floor,tuple(st.session_state.weights.values()),st.session_state.sector_relative,st.session_state.get("preset_name",DEFAULT_PRESET),_cache_file_mtime())
 except Exception as e: st.error(f"Error: {e}");st.stop()
 if scored_df is None or scored_df.empty: st.warning("No data.");st.stop()
 
@@ -289,10 +289,12 @@ with tab_home:
     # ═══ Stock Screener ═══
     st.markdown("---")
     st.markdown("#### Stock Screener")
-    st.caption("Browse and filter the scored universe.")
+    st.caption("Browse and filter the scored universe. ETFs are excluded.")
+    # Exclude ETFs from screener — breadth, counts, and table all operate on stocks-only
+    _stocks_only = scored_df[scored_df["sector"] != "ETF"].copy()
     # Breadth indicator — count of stocks above absolute quality threshold for the active preset
     try:
-        _breadth = compute_breadth_indicator(scored_df, st.session_state.get("preset_name", DEFAULT_PRESET))
+        _breadth = compute_breadth_indicator(_stocks_only, st.session_state.get("preset_name", DEFAULT_PRESET))
         _breadth_text = format_breadth_indicator(_breadth)
         _signal = _breadth.get("signal", "normal")
         if _signal == "broad":
@@ -304,18 +306,18 @@ with tab_home:
     except Exception as _bi_err:
         st.caption(f"Breadth indicator unavailable: {_bi_err}")
     sc1,sc2,sc3=st.columns(3)
-    with sc1: home_sec=st.selectbox("Sector",["All"]+sorted(scored_df["sector"].dropna().unique().tolist()),key="home_screen_sec")
+    with sc1: home_sec=st.selectbox("Sector",["All"]+sorted(_stocks_only["sector"].dropna().unique().tolist()),key="home_screen_sec")
     with sc2: home_rat=st.selectbox("Rating",["All","Strong Buy","Buy","Hold","Sell","Strong Sell"],key="home_screen_rat")
     with sc3: home_top=st.selectbox("Show Top",[50,100,250,500],index=1,key="home_screen_top")
-    home_filtered=get_top_stocks(scored_df,home_top,home_sec,home_rat)
+    home_filtered=get_top_stocks(_stocks_only,home_top,home_sec,home_rat)
     if not home_filtered.empty:
         hs1,hs2,hs3,hs4,hs5,hs6=st.columns(6)
-        with hs1: st.metric("Universe",f"{len(scored_df):,}")
-        with hs2: st.metric("Strong Buys",len(scored_df[scored_df["overall_rating"]=="Strong Buy"]))
-        with hs3: st.metric("Buys",len(scored_df[scored_df["overall_rating"]=="Buy"]))
-        with hs4: st.metric("Holds",len(scored_df[scored_df["overall_rating"]=="Hold"]))
-        with hs5: st.metric("Sells",len(scored_df[scored_df["overall_rating"]=="Sell"]))
-        with hs6: st.metric("Strong Sells",len(scored_df[scored_df["overall_rating"]=="Strong Sell"]))
+        with hs1: st.metric("Universe",f"{len(_stocks_only):,}")
+        with hs2: st.metric("Strong Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Buy"]))
+        with hs3: st.metric("Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Buy"]))
+        with hs4: st.metric("Holds",len(_stocks_only[_stocks_only["overall_rating"]=="Hold"]))
+        with hs5: st.metric("Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Sell"]))
+        with hs6: st.metric("Strong Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Sell"]))
         hdc=["shortName","sector","marketCapB","currentPrice"]
         for p in PILLAR_METRICS: hdc.append(f"{p}_grade")
         hdc+=["composite_score","overall_rating"]

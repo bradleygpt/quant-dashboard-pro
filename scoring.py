@@ -13,6 +13,7 @@ from config import (
     GRADE_SCORES,
     OVERALL_RATING_MAP,
     DEFAULT_PILLAR_WEIGHTS,
+    get_rating_map,
 )
 
 
@@ -20,6 +21,7 @@ def score_universe(
     data: dict[str, dict],
     weights: dict[str, float] | None = None,
     sector_relative: bool = True,
+    preset_name: str | None = None,
 ) -> pd.DataFrame:
     """
     Score all tickers across the five pillars.
@@ -86,7 +88,8 @@ def score_universe(
     if total_weight > 0:
         composite = composite / total_weight * (sum(weights.values()))
 
-    overall_rating = composite.apply(_score_to_rating)
+    rating_map = get_rating_map(preset_name)
+    overall_rating = composite.apply(lambda s: _score_to_rating(s, rating_map))
 
     # Build result with ALL raw metric columns
     keep_cols = ["shortName", "sector", "industry", "marketCap", "currentPrice"]
@@ -269,10 +272,12 @@ def _score_to_grade(score: float) -> str:
     return best_grade
 
 
-def _score_to_rating(score: float) -> str:
+def _score_to_rating(score: float, rating_map: dict | None = None) -> str:
     if pd.isna(score):
         return "Hold"
-    for rating, (low, high) in OVERALL_RATING_MAP.items():
+    if rating_map is None:
+        rating_map = OVERALL_RATING_MAP
+    for rating, (low, high) in rating_map.items():
         if low <= score <= high:
             return rating
     return "Hold"
