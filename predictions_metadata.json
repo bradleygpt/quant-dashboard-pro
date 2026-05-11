@@ -1,5 +1,5 @@
 {
-  "scored_at": "2026-05-10T12:53:24.073000",
+  "scored_at": "2026-05-10T16:08:34.697720",
   "model_version": "v2",
   "model_trained_at": "2026-05-10T12:15:58.682639",
   "n_tickers_scored": 1291,
@@ -7,24 +7,40 @@
   "regime": "normal",
   "regime_features": {
     "spy_drawdown_pct": 0.0,
-    "spy_trend_sma_ratio": 0.01964394187906726,
+    "spy_trend_sma_ratio": 0.019643942807163528,
     "spy_vol_realized": 0.14965446917829017,
     "spy_vol_percentile": 0.7123015873015873,
     "spy_return_3m": 0.06583243897829294,
-    "spy_return_12m": 0.3203478153706041
+    "spy_return_12m": 0.3203476711178761
   },
-  "rating_thresholds": {
+  "rating_thresholds_dynamic": {
+    "strong_buy": 2.6305642127990723,
+    "buy": 1.5056443214416504,
+    "sell": 0.3765842318534851,
+    "strong_sell": 0.2570355534553528
+  },
+  "rating_thresholds_static": {
     "strong_buy": 1.1216371059417725,
     "buy": 0.6553922295570374,
     "sell": 0.24471129477024078,
     "strong_sell": 0.10053545236587524
   },
   "rating_distribution": {
-    "Hold": 757,
-    "Buy": 289,
-    "Strong Buy": 241,
-    "Sell": 4
+    "Strong Sell": 65,
+    "Hold": 774,
+    "Sell": 193,
+    "Buy": 194,
+    "Strong Buy": 65
   },
   "feature_completeness_mean": 0.9032618986143387,
-  "feature_completeness_min": 0.4444444444444444
+  "feature_completeness_min": 0.4444444444444444,
+  "prediction_distribution": {
+    "min": 0.08528467267751694,
+    "q05": 0.2570355534553528,
+    "q20": 0.3765842318534851,
+    "median": 0.7823072671890259,
+    "q80": 1.5056443214416504,
+    "q95": 2.6305642127990723,
+    "max": 7.346144676208496
+  }
 }

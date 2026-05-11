@@ -1,41 +1,21 @@
 """
-Build Predictions Cache for New Dashboard
+Build Predictions Cache for New Dashboard - v2
 
-Reads fundamentals_cache.json (built by build_cache.py with quarterly_history
-support), computes the 45 features the v2 model expects, runs XGBoost
-to produce per-ticker predictions, and writes predictions_cache.json.
+Major changes from v1:
+  - NaN-fill instead of 0-fill for missing features (XGBoost handles natively
+    as it was trained to do)
+  - Computes debt_to_equity and cash_to_market_cap from new cache fields
+  - Dynamic threshold calibration: rating cutoffs derived from CURRENT
+    prediction distribution, not historical training distribution
+  - Trend features more robust (uses current TTM where quarterly_history
+    insufficient)
 
 Workflow:
-  python build_cache.py        # rebuild fundamentals (~50 min)
+  python build_cache.py        # rebuild fundamentals (~50-65 min)
   python build_predictions.py  # compute predictions (~1-2 min)
   git add fundamentals_cache.json predictions_cache.json
   git commit -m "Daily refresh"
   git push
-
-Inputs:
-  fundamentals_cache.json   built by build_cache.py
-  dashboard_model_v2.pkl    trained model bundle from quant-historical
-
-Outputs:
-  predictions_cache.json    per-ticker predictions for dashboard
-  predictions_metadata.json regime context, run timestamp, etc.
-
-The output structure mirrors fundamentals_cache.json:
-  {
-    "AAPL": {
-      "ticker": "AAPL",
-      "pred_return_12q": 0.34,
-      "pred_rank": 247,
-      "pred_pct": 81.2,
-      "rating_v2": "Hold",
-      "in_top10": False,
-      "in_top25": False,
-      "regime": "strong_bull",
-      "feature_completeness": 0.95,
-      "scored_at": "2026-05-10T12:34:00"
-    },
-    ...
-  }
 """
 
 from __future__ import annotations
@@ -59,7 +39,6 @@ OUTPUT_FILE = "predictions_cache.json"
 METADATA_FILE = "predictions_metadata.json"
 
 # yfinance field name → our feature name mapping
-# (cache stores yfinance field names; model expects our snake_case names)
 FIELD_MAP = {
     "trailingPE": "trailing_pe",
     "priceToBook": "price_to_book",
@@ -83,46 +62,26 @@ FIELD_MAP = {
 
 
 def fetch_spy_regime() -> dict:
-    """Compute SPY-derived regime features using fresh yfinance pull.
-    All 6 regime features the model expects.
-    Returns dict of feature_name → value."""
+    """Compute SPY-derived regime features."""
     try:
         spy = yf.Ticker("SPY").history(period="3y")
         if spy.empty or len(spy) < 252:
-            print(f"WARN: insufficient SPY history ({len(spy)} rows); using neutral defaults")
-            return {
-                "spy_drawdown_pct": 0.0,
-                "spy_trend_sma_ratio": 0.0,
-                "spy_vol_realized": 0.15,
-                "spy_vol_percentile": 0.5,
-                "spy_return_3m": 0.0,
-                "spy_return_12m": 0.0,
-            }
+            print(f"WARN: insufficient SPY history; using neutral defaults")
+            return _neutral_regime()
         close = spy["Close"]
         latest = float(close.iloc[-1])
-
-        # Drawdown vs trailing 252-day high
         high_252 = float(close.iloc[-252:].max())
         drawdown = latest / high_252 - 1.0
-
-        # Trend: 50-day vs 200-day SMA
         sma50 = float(close.rolling(50).mean().iloc[-1])
         sma200 = float(close.rolling(200).mean().iloc[-1])
         trend = sma50 / sma200 - 1.0
-
-        # Realized vol (60-day annualized)
         log_returns = np.log(close / close.shift(1)).dropna()
         vol = float(log_returns.iloc[-60:].std() * np.sqrt(252))
-
-        # Vol percentile vs trailing 504 days
         rolling_vol = log_returns.rolling(60).std() * np.sqrt(252)
         vol_history = rolling_vol.iloc[-504:].dropna()
         vol_pct = float((vol_history < vol).sum() / len(vol_history)) if len(vol_history) > 0 else 0.5
-
-        # Returns
         ret_3m = float(close.iloc[-1] / close.iloc[-63] - 1.0) if len(close) >= 63 else 0.0
         ret_12m = float(close.iloc[-1] / close.iloc[-252] - 1.0) if len(close) >= 252 else 0.0
-
         return {
             "spy_drawdown_pct": drawdown,
             "spy_trend_sma_ratio": trend,
@@ -133,17 +92,20 @@ def fetch_spy_regime() -> dict:
         }
     except Exception as e:
         print(f"WARN: SPY regime fetch failed ({e}); using neutral defaults")
-        return {
-            "spy_drawdown_pct": 0.0, "spy_trend_sma_ratio": 0.0,
-            "spy_vol_realized": 0.15, "spy_vol_percentile": 0.5,
-            "spy_return_3m": 0.0, "spy_return_12m": 0.0,
-        }
+        return _neutral_regime()
 
 
-def classify_regime(regime_features: dict) -> str:
-    """Classify current regime from SPY signals."""
-    dd = regime_features["spy_drawdown_pct"]
-    trend = regime_features["spy_trend_sma_ratio"]
+def _neutral_regime() -> dict:
+    return {
+        "spy_drawdown_pct": 0.0, "spy_trend_sma_ratio": 0.0,
+        "spy_vol_realized": 0.15, "spy_vol_percentile": 0.5,
+        "spy_return_3m": 0.0, "spy_return_12m": 0.0,
+    }
+
+
+def classify_regime(regime: dict) -> str:
+    dd = regime["spy_drawdown_pct"]
+    trend = regime["spy_trend_sma_ratio"]
     if dd < -0.10 or trend < -0.02:
         return "bear"
     if -0.10 <= dd < -0.05 and trend > 0:
@@ -153,11 +115,11 @@ def classify_regime(regime_features: dict) -> str:
     return "normal"
 
 
-def compute_trend_features(quarterly_history: list) -> dict:
-    """Compute the 7 trend features from quarterly history.
+def compute_trend_features(quarterly_history: list, current_record: dict) -> dict:
+    """Compute the 7 trend features.
 
-    For each metric, the trend is current value minus value 4 quarters ago.
-    Returns dict; values are None if insufficient history.
+    For each metric, the trend is current value minus 4-quarter-ago value.
+    quarterly_history is most-recent-first (index 0 = current quarter).
     """
     out = {
         "gross_margin_yoy_change": None,
@@ -172,14 +134,13 @@ def compute_trend_features(quarterly_history: list) -> dict:
     if not quarterly_history or len(quarterly_history) < 5:
         return out
 
-    # quarterly_history is most-recent first, so [0] is current and [4] is 4Q ago
     current = quarterly_history[0]
     past = quarterly_history[4]
 
-    def diff(curr, prev):
-        if curr is None or prev is None:
+    def diff(c, p):
+        if c is None or p is None:
             return None
-        return float(curr - prev)
+        return float(c - p)
 
     out["gross_margin_yoy_change"] = diff(
         current.get("grossMargins"), past.get("grossMargins"))
@@ -200,42 +161,56 @@ def compute_trend_features(quarterly_history: list) -> dict:
 
 
 def compute_ratio_features(record: dict) -> dict:
-    """Compute the 3 derived ratio features from cache record."""
+    """Compute the 3 derived ratio features from cache record.
+
+    Now uses totalDebt, stockholdersEquity, totalCash if present
+    (added in build_cache.py patch v3).
+    """
     out = {
         "debt_to_equity": None,
         "cash_to_market_cap": None,
         "net_income_margin_ttm": None,
     }
-    # debt_to_equity not directly in cache; build_cache doesn't store totalDebt/equity
-    # Leave None — model handles it.
 
-    # cash_to_market_cap: same — totalCash not in cache
-    # Leave None.
+    debt = record.get("totalDebt")
+    equity = record.get("stockholdersEquity")
+    if debt is not None and equity is not None and equity > 0:
+        try:
+            out["debt_to_equity"] = float(debt) / float(equity)
+        except (TypeError, ValueError):
+            pass
 
-    # net_income_margin_ttm: profitMargins is essentially this (TTM NI / TTM revenue)
+    cash = record.get("totalCash")
+    mcap = record.get("marketCap")
+    if cash is not None and mcap is not None and mcap > 0:
+        try:
+            out["cash_to_market_cap"] = float(cash) / float(mcap)
+        except (TypeError, ValueError):
+            pass
+
     nm = record.get("profitMargins")
     if nm is not None:
-        out["net_income_margin_ttm"] = float(nm)
+        try:
+            out["net_income_margin_ttm"] = float(nm)
+        except (TypeError, ValueError):
+            pass
+
     return out
 
 
 def encode_sector(sector: str, sector_columns: list) -> dict:
-    """One-hot encode the sector into the model's expected columns."""
     out = {col: 0 for col in sector_columns}
     if not sector or sector == "Unknown":
         return out
-    # Sector column format: sector_consumer_cyclical
-    target_col = "sector_" + sector.lower().replace(" ", "_")
-    if target_col in out:
-        out[target_col] = 1
+    target = "sector_" + sector.lower().replace(" ", "_")
+    if target in out:
+        out[target] = 1
     return out
 
 
 def build_feature_row(
-    ticker: str, record: dict, regime_features: dict, bundle: dict,
+    ticker: str, record: dict, regime: dict, bundle: dict,
 ) -> tuple[dict, float]:
-    """Build a complete feature dict for one ticker.
-    Returns (feature_dict, completeness_pct)."""
     row = {}
 
     # Core features
@@ -251,32 +226,19 @@ def build_feature_row(
         else:
             row[model_key] = None
 
-    n_core_features = len(FIELD_MAP)
-    completeness = n_observed / n_core_features if n_core_features > 0 else 0.0
+    completeness = n_observed / len(FIELD_MAP) if FIELD_MAP else 0.0
 
-    # Trend features
-    trend = compute_trend_features(record.get("quarterly_history", []))
-    row.update(trend)
-
-    # Ratio features
-    ratios = compute_ratio_features(record)
-    row.update(ratios)
-
-    # Regime features (same for all tickers)
-    row.update(regime_features)
-
-    # Sector encoding
-    sector = record.get("sector", "Unknown")
-    sector_encoded = encode_sector(sector, bundle["sector_columns"])
-    row.update(sector_encoded)
+    row.update(compute_trend_features(record.get("quarterly_history", []), record))
+    row.update(compute_ratio_features(record))
+    row.update(regime)
+    row.update(encode_sector(record.get("sector", "Unknown"), bundle["sector_columns"]))
 
     return row, completeness
 
 
 def winsorize_value(value, bounds):
-    """Clip a value to bounds. None passes through."""
-    if value is None:
-        return None
+    if value is None or pd.isna(value):
+        return value  # preserve None/NaN
     lo, hi = bounds
     return max(lo, min(hi, value))
 
@@ -295,55 +257,52 @@ def assign_rating(pred: float, thresholds: dict) -> str:
 
 def main() -> int:
     print("=" * 70)
-    print("BUILD PREDICTIONS CACHE")
+    print("BUILD PREDICTIONS CACHE v2")
+    print("  - NaN-fill for missing features")
+    print("  - Computed ratios from new cache fields")
+    print("  - Dynamic threshold calibration")
     print("=" * 70)
 
-    # ── Load model bundle ──
     if not Path(MODEL_FILE).exists():
         print(f"ERROR: {MODEL_FILE} not found")
-        print(f"  Copy from quant-historical: copy ..\\quant-historical\\stage5_output\\{MODEL_FILE} .")
         return 1
+
     print(f"\n1. Loading model bundle...")
     with open(MODEL_FILE, "rb") as f:
         bundle = pickle.load(f)
-    print(f"   Model: {bundle['metadata']['model_type']}, "
-          f"trained {bundle['metadata']['trained_at'][:10]}")
+    print(f"   Model: {bundle['metadata']['model_type']}")
     print(f"   Features: {len(bundle['feature_cols'])}")
 
-    # ── Load cache ──
     if not Path(CACHE_FILE).exists():
-        print(f"ERROR: {CACHE_FILE} not found. Run build_cache.py first.")
+        print(f"ERROR: {CACHE_FILE} not found")
         return 1
     print(f"\n2. Loading fundamentals cache...")
     with open(CACHE_FILE, "r") as f:
         cache = json.load(f)
-    print(f"   {len(cache):,} tickers in cache")
+    print(f"   {len(cache):,} entries in cache")
 
-    # Filter to stocks (skip ETFs)
     stocks = {k: v for k, v in cache.items() if v.get("type") == "stock"}
     print(f"   {len(stocks):,} stocks (ETFs excluded)")
 
-    # Check quarterly_history coverage
     with_qh = sum(1 for v in stocks.values()
                   if v.get("quarterly_history") and len(v["quarterly_history"]) >= 5)
     print(f"   {with_qh:,} stocks have ≥5 quarters of history "
           f"({with_qh/len(stocks)*100:.1f}%)")
-    if with_qh < len(stocks) * 0.5:
-        print(f"   WARN: less than 50% of stocks have sufficient quarterly history")
-        print(f"         model accuracy will be reduced for affected tickers")
 
-    # ── Compute SPY regime ──
+    with_balance = sum(1 for v in stocks.values()
+                       if v.get("totalDebt") is not None or v.get("totalCash") is not None)
+    print(f"   {with_balance:,} stocks have balance sheet fields "
+          f"({with_balance/len(stocks)*100:.1f}%)")
+
     print(f"\n3. Computing SPY regime features...")
     regime = fetch_spy_regime()
     regime_class = classify_regime(regime)
-    print(f"   Regime detected: {regime_class}")
+    print(f"   Regime: {regime_class}")
     print(f"   Drawdown: {regime['spy_drawdown_pct']*100:+.2f}%")
-    print(f"   Trend (SMA50/200): {regime['spy_trend_sma_ratio']*100:+.2f}%")
-    print(f"   Vol percentile: {regime['spy_vol_percentile']:.2f}")
-    print(f"   3m return: {regime['spy_return_3m']*100:+.2f}%")
+    print(f"   Trend: {regime['spy_trend_sma_ratio']*100:+.2f}%")
+    print(f"   Vol pct: {regime['spy_vol_percentile']:.2f}")
     print(f"   12m return: {regime['spy_return_12m']*100:+.2f}%")
 
-    # ── Build feature matrix ──
     print(f"\n4. Building feature matrix for {len(stocks):,} stocks...")
     feature_cols = bundle["feature_cols"]
     winsor_bounds = bundle["winsorization_bounds"]
@@ -354,45 +313,67 @@ def main() -> int:
 
     for ticker, record in stocks.items():
         row, completeness = build_feature_row(ticker, record, regime, bundle)
-
-        # Winsorize
         for col, bounds in winsor_bounds.items():
             if col in row:
                 row[col] = winsorize_value(row[col], bounds)
-
         feature_rows.append(row)
         completeness_scores.append(completeness)
         tickers_in_order.append(ticker)
 
     df = pd.DataFrame(feature_rows)
-    # Reorder to match the model's expected feature order
     for col in feature_cols:
         if col not in df.columns:
             df[col] = None
     df = df[feature_cols]
 
-    # Fill remaining NaN with 0 (XGBoost tolerates but we standardize)
-    df = df.fillna(0.0)
+    n_missing_per_feature = df.isna().sum()
+    n_full_features = (n_missing_per_feature == 0).sum()
     print(f"   Built {len(df):,} feature rows × {df.shape[1]} columns")
+    print(f"   Features with 0% missing: {n_full_features}/{len(feature_cols)}")
     print(f"   Mean feature completeness: {np.mean(completeness_scores)*100:.1f}%")
 
-    # ── Predict ──
-    print(f"\n5. Running model...")
+    # CRITICAL: don't fillna here. Pass NaN through to XGBoost.
+    print(f"\n5. Running model (NaN-fill, native XGBoost handling)...")
     model = bundle["xgb_model"]
-    X = df.values
+    X = df.values.astype(np.float32)  # numpy preserves NaN
     preds = model.predict(X)
     print(f"   Generated {len(preds):,} predictions")
-    print(f"   Pred range: [{preds.min():+.4f}, {preds.max():+.4f}]")
-    print(f"   Pred median: {np.median(preds):+.4f}")
+    print(f"   min={preds.min():+.4f}  q05={np.quantile(preds, 0.05):+.4f}  "
+          f"median={np.median(preds):+.4f}  "
+          f"q95={np.quantile(preds, 0.95):+.4f}  max={preds.max():+.4f}")
 
-    # ── Build ranks ──
+    # ── DYNAMIC THRESHOLD CALIBRATION ──
+    print(f"\n6. Dynamic threshold calibration...")
+    print(f"   Computing rating thresholds from CURRENT prediction distribution")
+    print(f"   (5/15/60/15/5 split — same shape as training, but dynamic levels)")
+
+    thresholds_dynamic = {
+        "strong_buy": float(np.quantile(preds, 0.95)),
+        "buy": float(np.quantile(preds, 0.80)),
+        "sell": float(np.quantile(preds, 0.20)),
+        "strong_sell": float(np.quantile(preds, 0.05)),
+    }
+    thresholds_static = bundle["rating_thresholds"]
+
+    print(f"   Dynamic thresholds (used for ratings):")
+    print(f"     Strong Buy   >= {thresholds_dynamic['strong_buy']:+.4f}")
+    print(f"     Buy          >= {thresholds_dynamic['buy']:+.4f}")
+    print(f"     Sell          < {thresholds_dynamic['sell']:+.4f}")
+    print(f"     Strong Sell   < {thresholds_dynamic['strong_sell']:+.4f}")
+    print(f"   Static (training) thresholds (for reference):")
+    print(f"     Strong Buy   >= {thresholds_static['strong_buy']:+.4f}")
+    print(f"     Buy          >= {thresholds_static['buy']:+.4f}")
+    print(f"     Sell          < {thresholds_static['sell']:+.4f}")
+    print(f"     Strong Sell   < {thresholds_static['strong_sell']:+.4f}")
+
+    # Use dynamic thresholds for ratings
+    thresholds = thresholds_dynamic
+
     pred_series = pd.Series(preds, index=tickers_in_order)
     rank_series = pred_series.rank(method="first", ascending=False).astype(int)
     pct_series = pred_series.rank(pct=True, ascending=True) * 100
 
-    # ── Assign ratings ──
-    print(f"\n6. Assigning ratings...")
-    thresholds = bundle["rating_thresholds"]
+    print(f"\n7. Assigning ratings...")
     rating_counts = {}
     predictions_out = {}
     scored_at = datetime.now().isoformat()
@@ -425,20 +406,26 @@ def main() -> int:
         pct = n / len(predictions_out) * 100
         print(f"     {r:<12} {n:>5,} ({pct:>5.1f}%)")
 
-    # ── TOP10 ──
+    print(f"\n8. Current TOP10:")
     top10 = sorted(predictions_out.values(), key=lambda r: r["pred_rank"])[:10]
-    print(f"\n7. Current TOP10 (by predicted 12Q return):")
     for r in top10:
         sector = stocks[r["ticker"]].get("sector", "?")
         name = stocks[r["ticker"]].get("shortName", r["ticker"])[:30]
         print(f"   #{r['pred_rank']:>2} {r['ticker']:<8} pred={r['pred_return_12q']*100:+6.1f}%  "
               f"{r['rating_v2']:<12} [{sector[:18]:<18}]  {name}")
 
-    # ── Save ──
-    print(f"\n8. Saving outputs...")
+    print(f"\n9. Bottom 10 (Strong Sell candidates):")
+    bottom10 = sorted(predictions_out.values(), key=lambda r: r["pred_rank"])[-10:]
+    for r in bottom10:
+        sector = stocks[r["ticker"]].get("sector", "?")
+        name = stocks[r["ticker"]].get("shortName", r["ticker"])[:30]
+        print(f"   #{r['pred_rank']:>4} {r['ticker']:<8} pred={r['pred_return_12q']*100:+6.1f}%  "
+              f"{r['rating_v2']:<12} [{sector[:18]:<18}]  {name}")
+
+    print(f"\n10. Saving outputs...")
     with open(OUTPUT_FILE, "w") as f:
         json.dump(predictions_out, f, default=str)
-    print(f"   {OUTPUT_FILE} ({Path(OUTPUT_FILE).stat().st_size / 1024:.1f} KB)")
+    print(f"    {OUTPUT_FILE} ({Path(OUTPUT_FILE).stat().st_size / 1024:.1f} KB)")
 
     metadata = {
         "scored_at": scored_at,
@@ -448,23 +435,28 @@ def main() -> int:
         "n_tickers_in_cache": len(cache),
         "regime": regime_class,
         "regime_features": regime,
-        "rating_thresholds": thresholds,
+        "rating_thresholds_dynamic": thresholds_dynamic,
+        "rating_thresholds_static": thresholds_static,
         "rating_distribution": rating_counts,
         "feature_completeness_mean": float(np.mean(completeness_scores)),
         "feature_completeness_min": float(np.min(completeness_scores)),
+        "prediction_distribution": {
+            "min": float(preds.min()),
+            "q05": float(np.quantile(preds, 0.05)),
+            "q20": float(np.quantile(preds, 0.20)),
+            "median": float(np.median(preds)),
+            "q80": float(np.quantile(preds, 0.80)),
+            "q95": float(np.quantile(preds, 0.95)),
+            "max": float(preds.max()),
+        },
     }
     with open(METADATA_FILE, "w") as f:
         json.dump(metadata, f, indent=2, default=str)
-    print(f"   {METADATA_FILE}")
+    print(f"    {METADATA_FILE}")
 
     print("\n" + "=" * 70)
     print("DONE")
     print("=" * 70)
-    print(f"\nNext step: commit and push")
-    print(f"  git add {CACHE_FILE} {OUTPUT_FILE} {METADATA_FILE}")
-    print(f'  git commit -m "Refresh predictions cache (regime={regime_class})"')
-    print(f"  git push")
-
     return 0
 
 

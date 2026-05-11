@@ -291,122 +291,6 @@ ALL_ETFS = sorted(set(ETFS))
 
 # ── Fetch Logic ────────────────────────────────────────────────────
 
-
-def fetch_quarterly_history(t, max_quarters=12):
-    """Fetch last N quarters of key metrics for a ticker.
-
-    Returns a list of dicts (most-recent first) with computable metrics.
-    On any error or missing data, returns []. The caller must tolerate
-    an empty result.
-
-    Used to enable trend feature computation in the model scoring pipeline.
-    Each quarter contains: date, grossMargins, operatingMargins, netMargins,
-    returnOnEquity, returnOnAssets, revenueGrowth (yoy), earningsGrowth (yoy).
-    """
-    try:
-        # Pull all three quarterly statements
-        income = t.quarterly_income_stmt
-        balance = t.quarterly_balance_sheet
-        # cashflow not strictly needed for trend features but cheap to grab
-        # cashflow = t.quarterly_cashflow
-
-        if income is None or income.empty:
-            return []
-
-        # Columns are quarter-end dates, sorted newest first by yfinance
-        # Take up to max_quarters
-        quarters = list(income.columns)[:max_quarters]
-        if len(quarters) < 2:
-            return []
-
-        # Helper to safely extract a row value, returning None if missing
-        def get_val(df, row_name, col):
-            try:
-                if df is None or df.empty:
-                    return None
-                if row_name not in df.index:
-                    return None
-                v = df.at[row_name, col]
-                if v is None:
-                    return None
-                fv = float(v)
-                if not np.isfinite(fv):
-                    return None
-                return fv
-            except Exception:
-                return None
-
-        history = []
-
-        # Pre-compute revenue series for YoY growth (needs same-quarter-prior-year)
-        # yfinance gives ~4 quarters typically, sometimes 5-8
-        # We compute YoY by comparing q[i] to q[i+4] when both exist
-        rev_by_q = {}
-        ni_by_q = {}
-        for q in quarters:
-            rev_by_q[q] = get_val(income, "Total Revenue", q)
-            ni_by_q[q] = get_val(income, "Net Income", q)
-
-        for i, q in enumerate(quarters):
-            revenue = rev_by_q.get(q)
-            net_income = ni_by_q.get(q)
-            cogs = get_val(income, "Cost Of Revenue", q)
-            op_income = get_val(income, "Operating Income", q)
-
-            # Margins
-            gross_margin = None
-            op_margin = None
-            net_margin = None
-            if revenue and revenue > 0:
-                if cogs is not None:
-                    gross_margin = (revenue - cogs) / revenue
-                if op_income is not None:
-                    op_margin = op_income / revenue
-                if net_income is not None:
-                    net_margin = net_income / revenue
-
-            # Returns: need balance sheet
-            equity = get_val(balance, "Stockholders Equity", q)
-            assets = get_val(balance, "Total Assets", q)
-
-            roe = None
-            roa = None
-            if net_income is not None:
-                # Annualize quarterly NI by *4 for ROE/ROA computation
-                ni_annualized = net_income * 4
-                if equity and equity > 0:
-                    roe = ni_annualized / equity
-                if assets and assets > 0:
-                    roa = ni_annualized / assets
-
-            # YoY growth: compare to same quarter 4 quarters back
-            rev_growth_yoy = None
-            ni_growth_yoy = None
-            if i + 4 < len(quarters):
-                q_prior = quarters[i + 4]
-                rev_prior = rev_by_q.get(q_prior)
-                ni_prior = ni_by_q.get(q_prior)
-                if revenue is not None and rev_prior and rev_prior > 0:
-                    rev_growth_yoy = (revenue - rev_prior) / rev_prior
-                if net_income is not None and ni_prior and ni_prior != 0:
-                    ni_growth_yoy = (net_income - ni_prior) / abs(ni_prior)
-
-            history.append({
-                "date": str(q.date()) if hasattr(q, "date") else str(q),
-                "grossMargins": round(gross_margin, 4) if gross_margin is not None else None,
-                "operatingMargins": round(op_margin, 4) if op_margin is not None else None,
-                "netMargins": round(net_margin, 4) if net_margin is not None else None,
-                "returnOnEquity": round(roe, 4) if roe is not None else None,
-                "returnOnAssets": round(roa, 4) if roa is not None else None,
-                "revenueGrowth": round(rev_growth_yoy, 4) if rev_growth_yoy is not None else None,
-                "earningsGrowth": round(ni_growth_yoy, 4) if ni_growth_yoy is not None else None,
-            })
-
-        return history
-    except Exception:
-        return []
-
-
 def fetch_stock(ticker):
     try:
         t = yf.Ticker(ticker)
@@ -481,10 +365,6 @@ def fetch_stock(ticker):
             "analyst_recommendation_score": info.get("recommendationMean"),
             "earnings_surprise_pct": surprise,
             "analyst_count": info.get("numberOfAnalystOpinions", 0),
-            "totalDebt": info.get("totalDebt"),
-            "totalCash": info.get("totalCash"),
-            "stockholdersEquity": info.get("stockholdersEquity"),
-            "quarterly_history": fetch_quarterly_history(t),
             "lastUpdated": datetime.now().isoformat(),
         }
     except Exception as e:
@@ -555,7 +435,7 @@ def main():
     print(f"{'='*60}")
     print(f"  Stocks: {total_stocks}  |  ETFs: {total_etfs}")
     print(f"  Started: {datetime.now().strftime('%H:%M:%S')}")
-    print(f"  Est. time: 50-65 minutes (12 quarters + balance sheet fields)")
+    print(f"  Est. time: 12-18 minutes")
     print()
 
     results = {}

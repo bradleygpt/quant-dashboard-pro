@@ -55,7 +55,7 @@ st.markdown("""<style>
 # Auth UI lives in sidebar (rendered by premium_gate.render_auth_sidebar).
 # ═══════════════════════════════════════════════════════════════════
 
-for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("sector_relative",True),("portfolio_holdings",[]),("current_portfolio_id",None),("current_portfolio_name",None),("portfolio_autoloaded",False)]:
+for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("preset_name",DEFAULT_PRESET),("sector_relative",True),("portfolio_holdings",[]),("current_portfolio_id",None),("current_portfolio_name",None),("portfolio_autoloaded",False)]:
     if k not in st.session_state: st.session_state[k]=v
 
 # Auto-load most recent saved portfolio on first login (one-time per session)

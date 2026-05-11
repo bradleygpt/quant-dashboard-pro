@@ -1,0 +1,1976 @@
+{
+  "last_run_utc": "2026-05-07T03:16:17.808255+00:00",
+  "n_checkpoints_completed": 21,
+  "initial_capital": 100000.0,
+  "spy_initial_price": 92.33000183105469,
+  "variants": {
+    "v1_concentrated_equal": {
+      "name": "Concentrated Quality (Equal Weight)",
+      "logic": "Concentrated Quality",
+      "weighting": "Equal Weight",
+      "max_positions": 15,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 100000.0,
+        "total_return_pct": 0.0,
+        "n_periods": 2,
+        "win_rate_pct": 0.0,
+        "avg_return_pct": 0.0,
+        "avg_win_pct": 0,
+        "avg_loss_pct": 0.0,
+        "best_period_pct": 0.0,
+        "worst_period_pct": 0.0,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        }
+      ],
+      "n_trades": 0,
+      "_state_cash": 100000.0,
+      "_state_positions": {},
+      "_state_trades": []
+    },
+    "v1_concentrated_score_weighted": {
+      "name": "Concentrated Quality (Score Weighted)",
+      "logic": "Concentrated Quality",
+      "weighting": "Score Weighted",
+      "max_positions": 15,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 100000.0,
+        "total_return_pct": 0.0,
+        "n_periods": 2,
+        "win_rate_pct": 0.0,
+        "avg_return_pct": 0.0,
+        "avg_win_pct": 0,
+        "avg_loss_pct": 0.0,
+        "best_period_pct": 0.0,
+        "worst_period_pct": 0.0,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        }
+      ],
+      "n_trades": 0,
+      "_state_cash": 100000.0,
+      "_state_positions": {},
+      "_state_trades": []
+    },
+    "v2_diversified_equal": {
+      "name": "Diversified Buy-and-Above (Equal Weight)",
+      "logic": "Diversified Buy-and-Above",
+      "weighting": "Equal Weight",
+      "max_positions": 25,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 100000.0,
+        "total_return_pct": 0.0,
+        "n_periods": 2,
+        "win_rate_pct": 0.0,
+        "avg_return_pct": 0.0,
+        "avg_win_pct": 0,
+        "avg_loss_pct": 0.0,
+        "best_period_pct": 0.0,
+        "worst_period_pct": 0.0,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 0.0,
+          "n_positions": 2
+        }
+      ],
+      "n_trades": 2,
+      "_state_cash": 0.0,
+      "_state_positions": {
+        "ISRG": {
+          "shares": 1483.0439195844237,
+          "entry_price": 33.71444320678711,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "DTE": {
+          "shares": 1347.7861405441756,
+          "entry_price": 37.09787368774414,
+          "entry_date": "2010-01-01 00:00:00"
+        }
+      },
+      "_state_trades": [
+        {
+          "ticker": "ISRG",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.71,
+          "shares": 1483.0439,
+          "value": 50000.0
+        },
+        {
+          "ticker": "DTE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 37.1,
+          "shares": 1347.7861,
+          "value": 50000.0
+        }
+      ]
+    },
+    "v2_diversified_score_weighted": {
+      "name": "Diversified Buy-and-Above (Score Weighted)",
+      "logic": "Diversified Buy-and-Above",
+      "weighting": "Score Weighted",
+      "max_positions": 25,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 100000.0,
+        "total_return_pct": 0.0,
+        "n_periods": 2,
+        "win_rate_pct": 0.0,
+        "avg_return_pct": 0.0,
+        "avg_win_pct": 0,
+        "avg_loss_pct": 0.0,
+        "best_period_pct": 0.0,
+        "worst_period_pct": 0.0,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": -0.0,
+          "n_positions": 2
+        }
+      ],
+      "n_trades": 2,
+      "_state_cash": -7.275957614183426e-12,
+      "_state_positions": {
+        "ISRG": {
+          "shares": 1595.6929645841847,
+          "entry_price": 33.71444320678711,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "DTE": {
+          "shares": 1245.411005464724,
+          "entry_price": 37.09787368774414,
+          "entry_date": "2010-01-01 00:00:00"
+        }
+      },
+      "_state_trades": [
+        {
+          "ticker": "ISRG",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.71,
+          "shares": 1595.693,
+          "value": 53797.9
+        },
+        {
+          "ticker": "DTE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 37.1,
+          "shares": 1245.411,
+          "value": 46202.1
+        }
+      ]
+    },
+    "v3_aggressive_exit_equal": {
+      "name": "Aggressive Exit (Equal Weight)",
+      "logic": "Aggressive Exit",
+      "weighting": "Equal Weight",
+      "max_positions": 25,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 100000.0,
+        "total_return_pct": 0.0,
+        "n_periods": 2,
+        "win_rate_pct": 0.0,
+        "avg_return_pct": 0.0,
+        "avg_win_pct": 0,
+        "avg_loss_pct": 0.0,
+        "best_period_pct": 0.0,
+        "worst_period_pct": 0.0,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 0.0,
+          "n_positions": 2
+        }
+      ],
+      "n_trades": 2,
+      "_state_cash": 0.0,
+      "_state_positions": {
+        "ISRG": {
+          "shares": 1483.0439195844237,
+          "entry_price": 33.71444320678711,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "DTE": {
+          "shares": 1347.7861405441756,
+          "entry_price": 37.09787368774414,
+          "entry_date": "2010-01-01 00:00:00"
+        }
+      },
+      "_state_trades": [
+        {
+          "ticker": "ISRG",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.71,
+          "shares": 1483.0439,
+          "value": 50000.0
+        },
+        {
+          "ticker": "DTE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 37.1,
+          "shares": 1347.7861,
+          "value": 50000.0
+        }
+      ]
+    },
+    "v3_aggressive_exit_score_weighted": {
+      "name": "Aggressive Exit (Score Weighted)",
+      "logic": "Aggressive Exit",
+      "weighting": "Score Weighted",
+      "max_positions": 25,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 100000.0,
+        "total_return_pct": 0.0,
+        "n_periods": 2,
+        "win_rate_pct": 0.0,
+        "avg_return_pct": 0.0,
+        "avg_win_pct": 0,
+        "avg_loss_pct": 0.0,
+        "best_period_pct": 0.0,
+        "worst_period_pct": 0.0,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": -0.0,
+          "n_positions": 2
+        }
+      ],
+      "n_trades": 2,
+      "_state_cash": -7.275957614183426e-12,
+      "_state_positions": {
+        "ISRG": {
+          "shares": 1595.6929645841847,
+          "entry_price": 33.71444320678711,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "DTE": {
+          "shares": 1245.411005464724,
+          "entry_price": 37.09787368774414,
+          "entry_date": "2010-01-01 00:00:00"
+        }
+      },
+      "_state_trades": [
+        {
+          "ticker": "ISRG",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.71,
+          "shares": 1595.693,
+          "value": 53797.9
+        },
+        {
+          "ticker": "DTE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 37.1,
+          "shares": 1245.411,
+          "value": 46202.1
+        }
+      ]
+    },
+    "v4_patient_equal": {
+      "name": "Patient Holder (Equal Weight)",
+      "logic": "Patient Holder",
+      "weighting": "Equal Weight",
+      "max_positions": 25,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 100000.0,
+        "total_return_pct": 0.0,
+        "n_periods": 2,
+        "win_rate_pct": 0.0,
+        "avg_return_pct": 0.0,
+        "avg_win_pct": 0,
+        "avg_loss_pct": 0.0,
+        "best_period_pct": 0.0,
+        "worst_period_pct": 0.0,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 0.0,
+          "n_positions": 2
+        }
+      ],
+      "n_trades": 2,
+      "_state_cash": 0.0,
+      "_state_positions": {
+        "ISRG": {
+          "shares": 1483.0439195844237,
+          "entry_price": 33.71444320678711,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "DTE": {
+          "shares": 1347.7861405441756,
+          "entry_price": 37.09787368774414,
+          "entry_date": "2010-01-01 00:00:00"
+        }
+      },
+      "_state_trades": [
+        {
+          "ticker": "ISRG",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.71,
+          "shares": 1483.0439,
+          "value": 50000.0
+        },
+        {
+          "ticker": "DTE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 37.1,
+          "shares": 1347.7861,
+          "value": 50000.0
+        }
+      ]
+    },
+    "v4_patient_score_weighted": {
+      "name": "Patient Holder (Score Weighted)",
+      "logic": "Patient Holder",
+      "weighting": "Score Weighted",
+      "max_positions": 25,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 100000.0,
+        "total_return_pct": 0.0,
+        "n_periods": 2,
+        "win_rate_pct": 0.0,
+        "avg_return_pct": 0.0,
+        "avg_win_pct": 0,
+        "avg_loss_pct": 0.0,
+        "best_period_pct": 0.0,
+        "worst_period_pct": 0.0,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 100000.0,
+          "n_positions": 0
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": -0.0,
+          "n_positions": 2
+        }
+      ],
+      "n_trades": 2,
+      "_state_cash": -7.275957614183426e-12,
+      "_state_positions": {
+        "ISRG": {
+          "shares": 1595.6929645841847,
+          "entry_price": 33.71444320678711,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "DTE": {
+          "shares": 1245.411005464724,
+          "entry_price": 37.09787368774414,
+          "entry_date": "2010-01-01 00:00:00"
+        }
+      },
+      "_state_trades": [
+        {
+          "ticker": "ISRG",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.71,
+          "shares": 1595.693,
+          "value": 53797.9
+        },
+        {
+          "ticker": "DTE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 37.1,
+          "shares": 1245.411,
+          "value": 46202.1
+        }
+      ]
+    },
+    "v5_top_n_equal": {
+      "name": "Top-N Score (Equal Weight)",
+      "logic": "Top-N Score",
+      "weighting": "Equal Weight",
+      "max_positions": 20,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 124548.79,
+        "total_return_pct": 24.55,
+        "n_periods": 2,
+        "win_rate_pct": 100.0,
+        "avg_return_pct": 11.69,
+        "avg_win_pct": 11.69,
+        "avg_loss_pct": 0,
+        "best_period_pct": 16.01,
+        "worst_period_pct": 7.36,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 0.0,
+          "n_positions": 7
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 116014.31,
+          "cash": -0.0,
+          "n_positions": 20
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 124548.79,
+          "cash": -0.0,
+          "n_positions": 20
+        }
+      ],
+      "n_trades": 66,
+      "_state_cash": -5.4569682106375694e-12,
+      "_state_positions": {
+        "ADBE": {
+          "shares": 498.4547928043423,
+          "entry_price": 28.65999984741211,
+          "entry_date": "2009-07-01 00:00:00"
+        },
+        "TGT": {
+          "shares": 99.88610226642024,
+          "entry_price": 46.56999969482422,
+          "entry_date": "2009-10-01 00:00:00"
+        },
+        "ISRG": {
+          "shares": 167.0634623200279,
+          "entry_price": 33.71444320678711,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "DTE": {
+          "shares": 151.82680440735248,
+          "entry_price": 37.09787368774414,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "WDC": {
+          "shares": 168.78219526424627,
+          "entry_price": 33.371124267578125,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "UNH": {
+          "shares": 184.79172233952545,
+          "entry_price": 30.479999542236328,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "MCHP": {
+          "shares": 387.776369035645,
+          "entry_price": 14.524999618530273,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "AMZN": {
+          "shares": 837.4147714652225,
+          "entry_price": 6.72599983215332,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "AEE": {
+          "shares": 201.51883572705287,
+          "entry_price": 27.950000762939453,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "AXP": {
+          "shares": 139.00423367933638,
+          "entry_price": 40.52000045776367,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "GLD": {
+          "shares": 52.487668814290565,
+          "entry_price": 107.30999755859375,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "OKE": {
+          "shares": 288.68684271733423,
+          "entry_price": 19.51059341430664,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "STLD": {
+          "shares": 317.85845544999313,
+          "entry_price": 17.719999313354492,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "HP": {
+          "shares": 141.2349915110971,
+          "entry_price": 39.880001068115234,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "IP": {
+          "shares": 225.21057271443266,
+          "entry_price": 25.00971221923828,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "UNP": {
+          "shares": 176.28956112111226,
+          "entry_price": 31.950000762939453,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "CMCSA": {
+          "shares": 712.9093398228193,
+          "entry_price": 7.900656223297119,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "NOC": {
+          "shares": 111.62105607298362,
+          "entry_price": 50.46047592163086,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "NSC": {
+          "shares": 107.44852745253583,
+          "entry_price": 52.41999816894531,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "MO": {
+          "shares": 286.9308126907651,
+          "entry_price": 19.6299991607666,
+          "entry_date": "2010-01-01 00:00:00"
+        }
+      },
+      "_state_trades": [
+        {
+          "ticker": "CSX",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 3.85,
+          "shares": 3712.7178,
+          "value": 14285.71
+        },
+        {
+          "ticker": "FCX",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 25.28,
+          "shares": 564.9877,
+          "value": 14285.71
+        },
+        {
+          "ticker": "ADBE",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 28.66,
+          "shares": 498.4548,
+          "value": 14285.71
+        },
+        {
+          "ticker": "CVX",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 66.52,
+          "shares": 214.7582,
+          "value": 14285.71
+        },
+        {
+          "ticker": "FE",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 39.33,
+          "shares": 363.2269,
+          "value": 14285.71
+        },
+        {
+          "ticker": "NEM",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 42.18,
+          "shares": 338.6845,
+          "value": 14285.71
+        },
+        {
+          "ticker": "LUV",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 6.8,
+          "shares": 2100.8403,
+          "value": 14285.71
+        },
+        {
+          "ticker": "CSX",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 4.64,
+          "shares": 3712.7178,
+          "value": 17231.14,
+          "entry_price": 3.85,
+          "return_pct": 20.62
+        },
+        {
+          "ticker": "FCX",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 32.7,
+          "shares": 564.9877,
+          "value": 18475.1,
+          "entry_price": 25.28,
+          "return_pct": 29.33
+        },
+        {
+          "ticker": "CVX",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 68.81,
+          "shares": 214.7582,
+          "value": 14777.51,
+          "entry_price": 66.52,
+          "return_pct": 3.44
+        },
+        {
+          "ticker": "NEM",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 42.4,
+          "shares": 338.6845,
+          "value": 14360.23,
+          "entry_price": 42.18,
+          "return_pct": 0.52
+        },
+        {
+          "ticker": "LUV",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 8.99,
+          "shares": 2100.8403,
+          "value": 18886.55,
+          "entry_price": 6.8,
+          "return_pct": 32.21
+        },
+        {
+          "ticker": "GNW",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 11.0,
+          "shares": 422.8814,
+          "value": 4651.7
+        },
+        {
+          "ticker": "WBD",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 14.77,
+          "shares": 314.8865,
+          "value": 4651.7
+        },
+        {
+          "ticker": "MCK",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 58.37,
+          "shares": 79.6933,
+          "value": 4651.7
+        },
+        {
+          "ticker": "MSI",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 33.84,
+          "shares": 137.4788,
+          "value": 4651.7
+        },
+        {
+          "ticker": "NOV",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 37.17,
+          "shares": 125.1512,
+          "value": 4651.7
+        },
+        {
+          "ticker": "CCI",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 30.3,
+          "shares": 153.5213,
+          "value": 4651.7
+        },
+        {
+          "ticker": "GE",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 76.54,
+          "shares": 60.7785,
+          "value": 4651.7
+        },
+        {
+          "ticker": "AES",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 13.83,
+          "shares": 336.3482,
+          "value": 4651.7
+        },
+        {
+          "ticker": "BBWI",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 13.46,
+          "shares": 345.5945,
+          "value": 4651.7
+        },
+        {
+          "ticker": "WAT",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 54.14,
+          "shares": 85.9198,
+          "value": 4651.7
+        },
+        {
+          "ticker": "AMP",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 36.97,
+          "shares": 125.8235,
+          "value": 4651.7
+        },
+        {
+          "ticker": "HUM",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 37.28,
+          "shares": 124.7773,
+          "value": 4651.7
+        },
+        {
+          "ticker": "MAR",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 24.77,
+          "shares": 187.7942,
+          "value": 4651.7
+        },
+        {
+          "ticker": "EMR",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 39.09,
+          "shares": 118.9996,
+          "value": 4651.7
+        },
+        {
+          "ticker": "SYK",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 44.23,
+          "shares": 105.1706,
+          "value": 4651.7
+        },
+        {
+          "ticker": "TGT",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 46.57,
+          "shares": 99.8861,
+          "value": 4651.7
+        },
+        {
+          "ticker": "CCL",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 32.73,
+          "shares": 142.1233,
+          "value": 4651.7
+        },
+        {
+          "ticker": "DVA",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 28.01,
+          "shares": 166.0727,
+          "value": 4651.7
+        },
+        {
+          "ticker": "FE",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 46.45,
+          "shares": 363.2269,
+          "value": 16871.89,
+          "entry_price": 39.33,
+          "return_pct": 18.1
+        },
+        {
+          "ticker": "GNW",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 11.35,
+          "shares": 422.8814,
+          "value": 4799.7,
+          "entry_price": 11.0,
+          "return_pct": 3.18
+        },
+        {
+          "ticker": "WBD",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 15.67,
+          "shares": 314.8865,
+          "value": 4934.88,
+          "entry_price": 14.77,
+          "return_pct": 6.09
+        },
+        {
+          "ticker": "MCK",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 62.5,
+          "shares": 79.6933,
+          "value": 4980.83,
+          "entry_price": 58.37,
+          "return_pct": 7.08
+        },
+        {
+          "ticker": "MSI",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 31.37,
+          "shares": 137.4788,
+          "value": 4312.68,
+          "entry_price": 33.84,
+          "return_pct": -7.29
+        },
+        {
+          "ticker": "NOV",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 39.76,
+          "shares": 125.1512,
+          "value": 4975.58,
+          "entry_price": 37.17,
+          "return_pct": 6.96
+        },
+        {
+          "ticker": "CCI",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 39.04,
+          "shares": 153.5213,
+          "value": 5993.47,
+          "entry_price": 30.3,
+          "return_pct": 28.84
+        },
+        {
+          "ticker": "GE",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 72.51,
+          "shares": 60.7785,
+          "value": 4407.02,
+          "entry_price": 76.54,
+          "return_pct": -5.26
+        },
+        {
+          "ticker": "AES",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 13.31,
+          "shares": 336.3482,
+          "value": 4476.79,
+          "entry_price": 13.83,
+          "return_pct": -3.76
+        },
+        {
+          "ticker": "BBWI",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 15.55,
+          "shares": 345.5945,
+          "value": 5375.29,
+          "entry_price": 13.46,
+          "return_pct": 15.56
+        },
+        {
+          "ticker": "WAT",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 61.96,
+          "shares": 85.9198,
+          "value": 5323.59,
+          "entry_price": 54.14,
+          "return_pct": 14.44
+        },
+        {
+          "ticker": "AMP",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 38.82,
+          "shares": 125.8235,
+          "value": 4884.47,
+          "entry_price": 36.97,
+          "return_pct": 5.0
+        },
+        {
+          "ticker": "HUM",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 43.89,
+          "shares": 124.7773,
+          "value": 5476.47,
+          "entry_price": 37.28,
+          "return_pct": 17.73
+        },
+        {
+          "ticker": "MAR",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 25.68,
+          "shares": 187.7942,
+          "value": 4823.18,
+          "entry_price": 24.77,
+          "return_pct": 3.69
+        },
+        {
+          "ticker": "EMR",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 42.6,
+          "shares": 118.9996,
+          "value": 5069.38,
+          "entry_price": 39.09,
+          "return_pct": 8.98
+        },
+        {
+          "ticker": "SYK",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 50.37,
+          "shares": 105.1706,
+          "value": 5297.44,
+          "entry_price": 44.23,
+          "return_pct": 13.88
+        },
+        {
+          "ticker": "CCL",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 31.69,
+          "shares": 142.1233,
+          "value": 4503.89,
+          "entry_price": 32.73,
+          "return_pct": -3.18
+        },
+        {
+          "ticker": "DVA",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 29.37,
+          "shares": 166.0727,
+          "value": 4877.55,
+          "entry_price": 28.01,
+          "return_pct": 4.86
+        },
+        {
+          "ticker": "ISRG",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.71,
+          "shares": 167.0635,
+          "value": 5632.45
+        },
+        {
+          "ticker": "DTE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 37.1,
+          "shares": 151.8268,
+          "value": 5632.45
+        },
+        {
+          "ticker": "WDC",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.37,
+          "shares": 168.7822,
+          "value": 5632.45
+        },
+        {
+          "ticker": "UNH",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 30.48,
+          "shares": 184.7917,
+          "value": 5632.45
+        },
+        {
+          "ticker": "MCHP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 14.52,
+          "shares": 387.7764,
+          "value": 5632.45
+        },
+        {
+          "ticker": "AMZN",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 6.73,
+          "shares": 837.4148,
+          "value": 5632.45
+        },
+        {
+          "ticker": "AEE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 27.95,
+          "shares": 201.5188,
+          "value": 5632.45
+        },
+        {
+          "ticker": "AXP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 40.52,
+          "shares": 139.0042,
+          "value": 5632.45
+        },
+        {
+          "ticker": "GLD",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 107.31,
+          "shares": 52.4877,
+          "value": 5632.45
+        },
+        {
+          "ticker": "OKE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 19.51,
+          "shares": 288.6868,
+          "value": 5632.45
+        },
+        {
+          "ticker": "STLD",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 17.72,
+          "shares": 317.8585,
+          "value": 5632.45
+        },
+        {
+          "ticker": "HP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 39.88,
+          "shares": 141.235,
+          "value": 5632.45
+        },
+        {
+          "ticker": "IP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 25.01,
+          "shares": 225.2106,
+          "value": 5632.45
+        },
+        {
+          "ticker": "UNP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 31.95,
+          "shares": 176.2896,
+          "value": 5632.45
+        },
+        {
+          "ticker": "CMCSA",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 7.9,
+          "shares": 712.9093,
+          "value": 5632.45
+        },
+        {
+          "ticker": "NOC",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 50.46,
+          "shares": 111.6211,
+          "value": 5632.45
+        },
+        {
+          "ticker": "NSC",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 52.42,
+          "shares": 107.4485,
+          "value": 5632.45
+        },
+        {
+          "ticker": "MO",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 19.63,
+          "shares": 286.9308,
+          "value": 5632.45
+        }
+      ]
+    },
+    "v5_top_n_score_weighted": {
+      "name": "Top-N Score (Score Weighted)",
+      "logic": "Top-N Score",
+      "weighting": "Score Weighted",
+      "max_positions": 20,
+      "metrics": {
+        "initial_capital": 100000.0,
+        "final_value": 125110.34,
+        "total_return_pct": 25.11,
+        "n_periods": 2,
+        "win_rate_pct": 100.0,
+        "avg_return_pct": 11.95,
+        "avg_win_pct": 11.95,
+        "avg_loss_pct": 0,
+        "best_period_pct": 16.56,
+        "worst_period_pct": 7.34,
+        "max_drawdown_pct": 0
+      },
+      "history": [
+        {
+          "date": "2009-07-01 00:00:00",
+          "total_value": 100000.0,
+          "cash": 0.0,
+          "n_positions": 7
+        },
+        {
+          "date": "2009-10-01 00:00:00",
+          "total_value": 116556.74,
+          "cash": 0.0,
+          "n_positions": 20
+        },
+        {
+          "date": "2010-01-01 00:00:00",
+          "total_value": 125110.34,
+          "cash": -0.0,
+          "n_positions": 20
+        }
+      ],
+      "n_trades": 66,
+      "_state_cash": -7.275957614183426e-12,
+      "_state_positions": {
+        "ADBE": {
+          "shares": 511.23362989251393,
+          "entry_price": 28.65999984741211,
+          "entry_date": "2009-07-01 00:00:00"
+        },
+        "TGT": {
+          "shares": 92.17948082534059,
+          "entry_price": 46.56999969482422,
+          "entry_date": "2009-10-01 00:00:00"
+        },
+        "ISRG": {
+          "shares": 223.84621982774073,
+          "entry_price": 33.71444320678711,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "DTE": {
+          "shares": 174.70813740022382,
+          "entry_price": 37.09787368774414,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "WDC": {
+          "shares": 180.30096108298258,
+          "entry_price": 33.371124267578125,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "UNH": {
+          "shares": 189.01965476187695,
+          "entry_price": 30.479999542236328,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "MCHP": {
+          "shares": 393.5835945395168,
+          "entry_price": 14.524999618530273,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "AMZN": {
+          "shares": 845.5574394620393,
+          "entry_price": 6.72599983215332,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "AEE": {
+          "shares": 201.89586325534896,
+          "entry_price": 27.950000762939453,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "AXP": {
+          "shares": 139.26430079642608,
+          "entry_price": 40.52000045776367,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "GLD": {
+          "shares": 51.63040316352464,
+          "entry_price": 107.30999755859375,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "OKE": {
+          "shares": 282.479183572451,
+          "entry_price": 19.51059341430664,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "STLD": {
+          "shares": 311.02351649267945,
+          "entry_price": 17.719999313354492,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "HP": {
+          "shares": 136.38082330474046,
+          "entry_price": 39.880001068115234,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "IP": {
+          "shares": 215.74083191941443,
+          "entry_price": 25.00971221923828,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "UNP": {
+          "shares": 167.5285569115944,
+          "entry_price": 31.950000762939453,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "CMCSA": {
+          "shares": 661.2536395036774,
+          "entry_price": 7.900656223297119,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "NOC": {
+          "shares": 102.69323915870206,
+          "entry_price": 50.46047592163086,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "NSC": {
+          "shares": 98.31719160263366,
+          "entry_price": 52.41999816894531,
+          "entry_date": "2010-01-01 00:00:00"
+        },
+        "MO": {
+          "shares": 256.84685295318326,
+          "entry_price": 19.6299991607666,
+          "entry_date": "2010-01-01 00:00:00"
+        }
+      },
+      "_state_trades": [
+        {
+          "ticker": "CSX",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 3.85,
+          "shares": 5019.7425,
+          "value": 19314.86
+        },
+        {
+          "ticker": "FCX",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 25.28,
+          "shares": 722.5697,
+          "value": 18270.17
+        },
+        {
+          "ticker": "ADBE",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 28.66,
+          "shares": 511.2336,
+          "value": 14651.96
+        },
+        {
+          "ticker": "CVX",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 66.52,
+          "shares": 220.2639,
+          "value": 14651.96
+        },
+        {
+          "ticker": "FE",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 39.33,
+          "shares": 372.5389,
+          "value": 14651.96
+        },
+        {
+          "ticker": "NEM",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 42.18,
+          "shares": 227.4911,
+          "value": 9595.57
+        },
+        {
+          "ticker": "LUV",
+          "action": "BUY",
+          "date": "2009-07-01 00:00:00",
+          "price": 6.8,
+          "shares": 1303.4601,
+          "value": 8863.53
+        },
+        {
+          "ticker": "CSX",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 4.64,
+          "shares": 5019.7425,
+          "value": 23297.18,
+          "entry_price": 3.85,
+          "return_pct": 20.62
+        },
+        {
+          "ticker": "FCX",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 32.7,
+          "shares": 722.5697,
+          "value": 23628.03,
+          "entry_price": 25.28,
+          "return_pct": 29.33
+        },
+        {
+          "ticker": "CVX",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 68.81,
+          "shares": 220.2639,
+          "value": 15156.36,
+          "entry_price": 66.52,
+          "return_pct": 3.44
+        },
+        {
+          "ticker": "NEM",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 42.4,
+          "shares": 227.4911,
+          "value": 9645.62,
+          "entry_price": 42.18,
+          "return_pct": 0.52
+        },
+        {
+          "ticker": "LUV",
+          "action": "SELL",
+          "date": "2009-10-01 00:00:00",
+          "price": 8.99,
+          "shares": 1303.4601,
+          "value": 11718.11,
+          "entry_price": 6.8,
+          "return_pct": 32.21
+        },
+        {
+          "ticker": "GNW",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 11.0,
+          "shares": 484.9002,
+          "value": 5333.9
+        },
+        {
+          "ticker": "WBD",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 14.77,
+          "shares": 345.8282,
+          "value": 5108.78
+        },
+        {
+          "ticker": "MCK",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 58.37,
+          "shares": 85.738,
+          "value": 5004.53
+        },
+        {
+          "ticker": "MSI",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 33.84,
+          "shares": 147.1412,
+          "value": 4978.63
+        },
+        {
+          "ticker": "NOV",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 37.17,
+          "shares": 131.5228,
+          "value": 4888.52
+        },
+        {
+          "ticker": "CCI",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 30.3,
+          "shares": 160.0711,
+          "value": 4850.15
+        },
+        {
+          "ticker": "GE",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 76.54,
+          "shares": 62.0444,
+          "value": 4748.58
+        },
+        {
+          "ticker": "AES",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 13.83,
+          "shares": 341.5299,
+          "value": 4723.36
+        },
+        {
+          "ticker": "BBWI",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 13.46,
+          "shares": 346.2553,
+          "value": 4660.59
+        },
+        {
+          "ticker": "WAT",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 54.14,
+          "shares": 85.3922,
+          "value": 4623.13
+        },
+        {
+          "ticker": "AMP",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 36.97,
+          "shares": 120.046,
+          "value": 4438.1
+        },
+        {
+          "ticker": "HUM",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 37.28,
+          "shares": 118.3937,
+          "value": 4413.72
+        },
+        {
+          "ticker": "MAR",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 24.77,
+          "shares": 174.7625,
+          "value": 4328.9
+        },
+        {
+          "ticker": "EMR",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 39.09,
+          "shares": 109.8183,
+          "value": 4292.8
+        },
+        {
+          "ticker": "SYK",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 44.23,
+          "shares": 97.0563,
+          "value": 4292.8
+        },
+        {
+          "ticker": "TGT",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 46.57,
+          "shares": 92.1795,
+          "value": 4292.8
+        },
+        {
+          "ticker": "CCL",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 32.73,
+          "shares": 130.0596,
+          "value": 4256.85
+        },
+        {
+          "ticker": "DVA",
+          "action": "BUY",
+          "date": "2009-10-01 00:00:00",
+          "price": 28.01,
+          "shares": 150.2733,
+          "value": 4209.16
+        },
+        {
+          "ticker": "FE",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 46.45,
+          "shares": 372.5389,
+          "value": 17304.43,
+          "entry_price": 39.33,
+          "return_pct": 18.1
+        },
+        {
+          "ticker": "GNW",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 11.35,
+          "shares": 484.9002,
+          "value": 5503.62,
+          "entry_price": 11.0,
+          "return_pct": 3.18
+        },
+        {
+          "ticker": "WBD",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 15.67,
+          "shares": 345.8282,
+          "value": 5419.8,
+          "entry_price": 14.77,
+          "return_pct": 6.09
+        },
+        {
+          "ticker": "MCK",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 62.5,
+          "shares": 85.738,
+          "value": 5358.62,
+          "entry_price": 58.37,
+          "return_pct": 7.08
+        },
+        {
+          "ticker": "MSI",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 31.37,
+          "shares": 147.1412,
+          "value": 4615.79,
+          "entry_price": 33.84,
+          "return_pct": -7.29
+        },
+        {
+          "ticker": "NOV",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 39.76,
+          "shares": 131.5228,
+          "value": 5228.89,
+          "entry_price": 37.17,
+          "return_pct": 6.96
+        },
+        {
+          "ticker": "CCI",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 39.04,
+          "shares": 160.0711,
+          "value": 6249.18,
+          "entry_price": 30.3,
+          "return_pct": 28.84
+        },
+        {
+          "ticker": "GE",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 72.51,
+          "shares": 62.0444,
+          "value": 4498.81,
+          "entry_price": 76.54,
+          "return_pct": -5.26
+        },
+        {
+          "ticker": "AES",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 13.31,
+          "shares": 341.5299,
+          "value": 4545.76,
+          "entry_price": 13.83,
+          "return_pct": -3.76
+        },
+        {
+          "ticker": "BBWI",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 15.55,
+          "shares": 346.2553,
+          "value": 5385.57,
+          "entry_price": 13.46,
+          "return_pct": 15.56
+        },
+        {
+          "ticker": "WAT",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 61.96,
+          "shares": 85.3922,
+          "value": 5290.9,
+          "entry_price": 54.14,
+          "return_pct": 14.44
+        },
+        {
+          "ticker": "AMP",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 38.82,
+          "shares": 120.046,
+          "value": 4660.19,
+          "entry_price": 36.97,
+          "return_pct": 5.0
+        },
+        {
+          "ticker": "HUM",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 43.89,
+          "shares": 118.3937,
+          "value": 5196.3,
+          "entry_price": 37.28,
+          "return_pct": 17.73
+        },
+        {
+          "ticker": "MAR",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 25.68,
+          "shares": 174.7625,
+          "value": 4488.48,
+          "entry_price": 24.77,
+          "return_pct": 3.69
+        },
+        {
+          "ticker": "EMR",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 42.6,
+          "shares": 109.8183,
+          "value": 4678.26,
+          "entry_price": 39.09,
+          "return_pct": 8.98
+        },
+        {
+          "ticker": "SYK",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 50.37,
+          "shares": 97.0563,
+          "value": 4888.72,
+          "entry_price": 44.23,
+          "return_pct": 13.88
+        },
+        {
+          "ticker": "CCL",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 31.69,
+          "shares": 130.0596,
+          "value": 4121.59,
+          "entry_price": 32.73,
+          "return_pct": -3.18
+        },
+        {
+          "ticker": "DVA",
+          "action": "SELL",
+          "date": "2010-01-01 00:00:00",
+          "price": 29.37,
+          "shares": 150.2733,
+          "value": 4413.53,
+          "entry_price": 28.01,
+          "return_pct": 4.86
+        },
+        {
+          "ticker": "ISRG",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.71,
+          "shares": 223.8462,
+          "value": 7546.85
+        },
+        {
+          "ticker": "DTE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 37.1,
+          "shares": 174.7081,
+          "value": 6481.3
+        },
+        {
+          "ticker": "WDC",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 33.37,
+          "shares": 180.301,
+          "value": 6016.85
+        },
+        {
+          "ticker": "UNH",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 30.48,
+          "shares": 189.0197,
+          "value": 5761.32
+        },
+        {
+          "ticker": "MCHP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 14.52,
+          "shares": 393.5836,
+          "value": 5716.8
+        },
+        {
+          "ticker": "AMZN",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 6.73,
+          "shares": 845.5574,
+          "value": 5687.22
+        },
+        {
+          "ticker": "AEE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 27.95,
+          "shares": 201.8959,
+          "value": 5642.99
+        },
+        {
+          "ticker": "AXP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 40.52,
+          "shares": 139.2643,
+          "value": 5642.99
+        },
+        {
+          "ticker": "GLD",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 107.31,
+          "shares": 51.6304,
+          "value": 5540.46
+        },
+        {
+          "ticker": "OKE",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 19.51,
+          "shares": 282.4792,
+          "value": 5511.34
+        },
+        {
+          "ticker": "STLD",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 17.72,
+          "shares": 311.0235,
+          "value": 5511.34
+        },
+        {
+          "ticker": "HP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 39.88,
+          "shares": 136.3808,
+          "value": 5438.87
+        },
+        {
+          "ticker": "IP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 25.01,
+          "shares": 215.7408,
+          "value": 5395.62
+        },
+        {
+          "ticker": "UNP",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 31.95,
+          "shares": 167.5286,
+          "value": 5352.54
+        },
+        {
+          "ticker": "CMCSA",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 7.9,
+          "shares": 661.2536,
+          "value": 5224.34
+        },
+        {
+          "ticker": "NOC",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 50.46,
+          "shares": 102.6932,
+          "value": 5181.95
+        },
+        {
+          "ticker": "NSC",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 52.42,
+          "shares": 98.3172,
+          "value": 5153.79
+        },
+        {
+          "ticker": "MO",
+          "action": "BUY",
+          "date": "2010-01-01 00:00:00",
+          "price": 19.63,
+          "shares": 256.8469,
+          "value": 5041.9
+        }
+      ]
+    }
+  },
+  "spy_benchmark": {
+    "history": [
+      {
+        "date": "2009-07-01 00:00:00",
+        "spy_value": 100000.0
+      },
+      {
+        "date": "2009-10-01 00:00:00",
+        "spy_value": 111523.88
+      },
+      {
+        "date": "2010-01-01 00:00:00",
+        "spy_value": 120697.5
+      }
+    ],
+    "final_value": 120697.5,
+    "return_pct": 20.7
+  }
+}

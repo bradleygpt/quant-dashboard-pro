@@ -292,7 +292,7 @@ ALL_ETFS = sorted(set(ETFS))
 # ── Fetch Logic ────────────────────────────────────────────────────
 
 
-def fetch_quarterly_history(t, max_quarters=12):
+def fetch_quarterly_history(t, max_quarters=8):
     """Fetch last N quarters of key metrics for a ticker.
 
     Returns a list of dicts (most-recent first) with computable metrics.
@@ -481,9 +481,6 @@ def fetch_stock(ticker):
             "analyst_recommendation_score": info.get("recommendationMean"),
             "earnings_surprise_pct": surprise,
             "analyst_count": info.get("numberOfAnalystOpinions", 0),
-            "totalDebt": info.get("totalDebt"),
-            "totalCash": info.get("totalCash"),
-            "stockholdersEquity": info.get("stockholdersEquity"),
             "quarterly_history": fetch_quarterly_history(t),
             "lastUpdated": datetime.now().isoformat(),
         }
@@ -555,7 +552,7 @@ def main():
     print(f"{'='*60}")
     print(f"  Stocks: {total_stocks}  |  ETFs: {total_etfs}")
     print(f"  Started: {datetime.now().strftime('%H:%M:%S')}")
-    print(f"  Est. time: 50-65 minutes (12 quarters + balance sheet fields)")
+    print(f"  Est. time: 40-55 minutes (with quarterly history)")
     print()
 
     results = {}
