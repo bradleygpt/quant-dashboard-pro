@@ -107,53 +107,66 @@ with st.sidebar:
     st.markdown("## Settings")
     st.markdown("---")
 
-    # ── Market Cap Filter ──
-    st.markdown("### Min Market Cap ($B)")
+    # ── Market Cap Filter (Validated Universes Only) ──
+    # Slider removed — only show MC floors we've backtested.
+    # Backtested results (TOP25, 1Q reselect, 1996-2026):
+    #   No Floor : Equal +26.27% / m_heavy +30.12% / mature_bull +28.31% CAGR
+    #   $1B+     : Equal +14.42% / m_heavy +14.67% / mature_bull +16.63% CAGR
+    #   $10B+    : Equal +12.51% / m_heavy +11.27% / mature_bull +12.29% CAGR
+    st.markdown("### Market Cap Floor")
+    st.caption("Only validated universes shown — backtested 1996-2026.")
 
-    # Initialize slider state on first load — DEFAULT TO 0 (no floor)
     if "market_cap_floor" not in st.session_state:
         st.session_state.market_cap_floor = 0
 
-    # Quick-select buttons for cap categories
-    qc1, qc2 = st.columns(2)
-    with qc1:
-        if st.button("No Floor", key="mc_none", use_container_width=True):
+    _current = st.session_state.market_cap_floor
+    mcf1, mcf2, mcf3 = st.columns(3)
+    with mcf1:
+        if st.button(
+            "No Floor",
+            key="mc_no_floor",
+            use_container_width=True,
+            type="primary" if _current == 0 else "secondary",
+        ):
             st.session_state.market_cap_floor = 0
             st.rerun()
-        if st.button("Mega ≥$200B", key="mc_mega", use_container_width=True):
-            st.session_state.market_cap_floor = 200
-            st.rerun()
-        if st.button("Large ≥$10B", key="mc_large", use_container_width=True):
-            st.session_state.market_cap_floor = 10
-            st.rerun()
-    with qc2:
-        if st.button("Mid ≥$2B", key="mc_mid", use_container_width=True):
-            st.session_state.market_cap_floor = 2
-            st.rerun()
-        if st.button("Small ≥$0.3B", key="mc_small", use_container_width=True):
-            # Slider rounds to integer, so 0.3B floors to 0; use 1 as Small approximation
+    with mcf2:
+        if st.button(
+            "$1B+",
+            key="mc_1b",
+            use_container_width=True,
+            type="primary" if _current == 1 else "secondary",
+        ):
             st.session_state.market_cap_floor = 1
             st.rerun()
-        if st.button("Micro ≥$0.05B", key="mc_micro", use_container_width=True):
-            st.session_state.market_cap_floor = 0
+    with mcf3:
+        if st.button(
+            "$10B+",
+            key="mc_10b",
+            use_container_width=True,
+            type="primary" if _current == 10 else "secondary",
+        ):
+            st.session_state.market_cap_floor = 10
             st.rerun()
 
-    # Slider with full range 0-50, default 0 (no floor)
-    market_cap_floor = st.slider(
-        "Custom floor",
-        min_value=0,
-        max_value=50,
-        value=st.session_state.market_cap_floor,
-        step=1,
-        key="market_cap_floor_slider",
-    )
-    st.session_state.market_cap_floor = market_cap_floor
+    market_cap_floor = st.session_state.market_cap_floor
 
-    # Show current state
-    if market_cap_floor == 0:
-        st.caption("✓ No floor — entire universe")
-    else:
-        st.caption(f"Floor: ${market_cap_floor}B+")
+    # Show backtested alpha for the active selection
+    _bt_stats = {
+        0:  {"label": "Full universe (no floor)", "cagr": "+26.27%", "alpha": "+8.99%",
+             "sharpe": "1.21", "dd": "-35.67%"},
+        1:  {"label": "$1B+ universe",             "cagr": "+16.63%", "alpha": "+5.13%",
+             "sharpe": "1.02", "dd": "-34.86%"},
+        10: {"label": "$10B+ universe",            "cagr": "+12.51%", "alpha": "+2.57%",
+             "sharpe": "0.86", "dd": "-32.26%"},
+    }
+    _stats = _bt_stats.get(market_cap_floor, _bt_stats[0])
+    st.caption(
+        f"**{_stats['label']}**\n\n"
+        f"📊 Best preset CAGR: **{_stats['cagr']}** · "
+        f"Alpha vs benchmark: **{_stats['alpha']}** · "
+        f"Sharpe: {_stats['sharpe']} · MaxDD: {_stats['dd']}"
+    )
 
     st.markdown("---")
     sector_relative=st.toggle("Sector-Relative Scoring",value=True);st.session_state.sector_relative=sector_relative
