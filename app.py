@@ -196,17 +196,30 @@ with st.sidebar:
             f"Sharpe **{_p['backtest_sharpe']:+.2f}** · "
             f"MaxDD **{_p['backtest_max_dd']:+.2f}%**"
         )
-        _universe = _p.get("backtest_universe", "")
-        _validated = _p.get("validated_at_floor", False)
-        if _universe:
-            if _validated:
-                st.caption(f"✓ Validated on: {_universe}")
-            else:
-                st.warning(
-                    f"⚠ Backtest universe: {_universe}. "
-                    f"Performance at the current ${market_cap_floor}B+ floor is UNTESTED. "
-                    f"Use with caution."
-                )
+        # Show validated CAGR for the active preset at the current MC floor.
+        # equal and m_heavy backtested at all 3 floors (no floor / $1B / $10B).
+        # v_heavy backtested at no-floor only — show that caveat when filtered.
+        _preset_cagr_by_floor = {
+            "equal":   {0: "+26.27%", 1: "+14.42%", 10: "+12.51%"},
+            "m_heavy": {0: "+30.12%", 1: "+14.67%", 10: "+11.27%"},
+            "v_heavy": {0: "+28.18%"},  # only validated at no floor
+        }
+        _floor_label = {0: "Full universe", 1: "$1B+", 10: "$10B+"}.get(
+            market_cap_floor, f"${market_cap_floor}B+"
+        )
+        _preset_floor_cagr = _preset_cagr_by_floor.get(_selected_preset, {}).get(
+            market_cap_floor
+        )
+        if _preset_floor_cagr:
+            st.caption(
+                f"✓ Validated at **{_floor_label}** 1996-2026: "
+                f"**{_preset_floor_cagr}** CAGR"
+            )
+        else:
+            st.caption(
+                f"⚠ {_selected_preset} not directly validated at {_floor_label}. "
+                f"Backtest universe: full universe (no MC floor)."
+            )
     else:
         st.session_state.preset_name = "Custom"
     _locked = (_selected_preset != "Custom")
@@ -774,10 +787,20 @@ with tab_sectors:
             std_score=("composite_score","std"),
         ).reset_index()
         # Compute aggregate earnings: market cap * (1/PE) gives net income
-        non_etf_universe["est_earnings"]=non_etf_universe.apply(
-            lambda r: (r["marketCapB"]/r["trailingPE"]) if pd.notna(r.get("marketCapB")) and pd.notna(r.get("trailingPE")) and r.get("marketCapB",0)>0 and r.get("trailingPE",0)>0 else 0,
-            axis=1
-        )
+        def _safe_est_earnings(r):
+            try:
+                mcap = r.get("marketCapB")
+                pe = r.get("trailingPE")
+                if mcap is None or pe is None:
+                    return 0
+                mcap_v = float(mcap) if pd.notna(mcap) else 0
+                pe_v = float(pe) if pd.notna(pe) else 0
+                if mcap_v > 0 and pe_v > 0:
+                    return mcap_v / pe_v
+                return 0
+            except (TypeError, ValueError):
+                return 0
+        non_etf_universe["est_earnings"]=non_etf_universe.apply(_safe_est_earnings, axis=1)
         sec_earnings=non_etf_universe.groupby("sector")["est_earnings"].sum().reset_index()
         sec_combo=sec_agg.merge(sec_earnings,on="sector").sort_values("total_mcap",ascending=False)
 
