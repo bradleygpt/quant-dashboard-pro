@@ -106,7 +106,55 @@ render_auth_sidebar()
 with st.sidebar:
     st.markdown("## Settings")
     st.markdown("---")
-    market_cap_floor=st.slider("Min Market Cap ($B)",MIN_MARKET_CAP_FLOOR_B,MAX_MARKET_CAP_FLOOR_B,DEFAULT_MARKET_CAP_FLOOR_B,1)
+
+    # ── Market Cap Filter ──
+    st.markdown("### Min Market Cap ($B)")
+
+    # Initialize slider state on first load — DEFAULT TO 0 (no floor)
+    if "market_cap_floor" not in st.session_state:
+        st.session_state.market_cap_floor = 0
+
+    # Quick-select buttons for cap categories
+    qc1, qc2 = st.columns(2)
+    with qc1:
+        if st.button("No Floor", key="mc_none", use_container_width=True):
+            st.session_state.market_cap_floor = 0
+            st.rerun()
+        if st.button("Mega ≥$200B", key="mc_mega", use_container_width=True):
+            st.session_state.market_cap_floor = 200
+            st.rerun()
+        if st.button("Large ≥$10B", key="mc_large", use_container_width=True):
+            st.session_state.market_cap_floor = 10
+            st.rerun()
+    with qc2:
+        if st.button("Mid ≥$2B", key="mc_mid", use_container_width=True):
+            st.session_state.market_cap_floor = 2
+            st.rerun()
+        if st.button("Small ≥$0.3B", key="mc_small", use_container_width=True):
+            # Slider rounds to integer, so 0.3B floors to 0; use 1 as Small approximation
+            st.session_state.market_cap_floor = 1
+            st.rerun()
+        if st.button("Micro ≥$0.05B", key="mc_micro", use_container_width=True):
+            st.session_state.market_cap_floor = 0
+            st.rerun()
+
+    # Slider with full range 0-50, default 0 (no floor)
+    market_cap_floor = st.slider(
+        "Custom floor",
+        min_value=0,
+        max_value=50,
+        value=st.session_state.market_cap_floor,
+        step=1,
+        key="market_cap_floor_slider",
+    )
+    st.session_state.market_cap_floor = market_cap_floor
+
+    # Show current state
+    if market_cap_floor == 0:
+        st.caption("✓ No floor — entire universe")
+    else:
+        st.caption(f"Floor: ${market_cap_floor}B+")
+
     st.markdown("---")
     sector_relative=st.toggle("Sector-Relative Scoring",value=True);st.session_state.sector_relative=sector_relative
     st.markdown("---")

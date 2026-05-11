@@ -1,9 +1,9 @@
 """
 Data fetching and caching layer.
+
 Primary data source: fundamentals_cache.json bundled in the repo (built locally).
 Fallback: live yfinance fetch for individual tickers (watchlist additions etc).
 """
-
 import json
 import os
 import time
@@ -66,12 +66,10 @@ def _load_cache() -> dict:
                 return json.load(f)
         except Exception:
             pass
-
     return {}
 
 
 # ── Ticker Universe ────────────────────────────────────────────────
-
 
 def _get_cache_mtime():
     """Return modification time of the cache file. Used as cache-buster argument."""
@@ -92,18 +90,21 @@ def _get_broad_universe_cached(min_market_cap_b: float, _mtime: float) -> list[s
     return []
 
 
-def get_broad_universe(min_market_cap_b: float = 10.0) -> list[str]:
+def get_broad_universe(min_market_cap_b: float = 0.0) -> list[str]:
     """Return the ticker universe. Derived from the bundled cache keys.
-    Auto-invalidates when fundamentals_cache.json is updated."""
+    Auto-invalidates when fundamentals_cache.json is updated.
+
+    Note: min_market_cap_b is accepted for backward compat but the actual filtering
+    happens in fetch_universe_data → _filter_by_market_cap. All cache keys are returned.
+    """
     return _get_broad_universe_cached(min_market_cap_b, _get_cache_mtime())
 
 
 # ── Main Data Loader ──────────────────────────────────────────────
 
-
 def fetch_universe_data(
     tickers: list[str],
-    min_market_cap_b: float = 10.0,
+    min_market_cap_b: float = 0.0,
     progress_callback=None,
 ) -> dict[str, dict]:
     """
@@ -112,25 +113,33 @@ def fetch_universe_data(
     """
     if progress_callback:
         progress_callback(0.5, "Loading pre-built data...")
-
     results = _load_cache()
-
     if progress_callback:
         progress_callback(1.0, f"Loaded {len(results)} tickers.")
-
     return _filter_by_market_cap(results, min_market_cap_b)
 
 
 def _filter_by_market_cap(data: dict, min_cap_b: float) -> dict:
+    """Filter universe by market cap floor.
+
+    When min_cap_b is 0 (no floor), returns the entire universe including tickers
+    with missing or zero marketCap. When floor > 0, only tickers with marketCap
+    meeting the floor are returned (tickers with missing marketCap are excluded
+    since we can't verify they meet the threshold).
+    """
+    # No floor: return everything
+    if min_cap_b <= 0:
+        return dict(data)
+
+    # Floor > 0: filter, but exclude tickers with no marketCap data
     min_cap = min_cap_b * 1e9
     return {
         k: v for k, v in data.items()
-        if v.get("marketCap", 0) >= min_cap
+        if (v.get("marketCap") or 0) >= min_cap
     }
 
 
 # ── Single Ticker Live Fetch (for watchlist additions) ─────────────
-
 
 def _fetch_single_live(ticker: str) -> dict | None:
     """Fetch one ticker live from yfinance. Used for watchlist additions."""
@@ -229,7 +238,6 @@ def fetch_single_ticker(ticker: str) -> dict | None:
 
 
 # ── Watchlist Management ───────────────────────────────────────────
-
 
 def load_watchlist() -> list[dict]:
     _ensure_cache_dir()
