@@ -1,0 +1,2608 @@
+"""
+Quantitative Strategy Dashboard Pro v4.0
+13 tabs: Home, Market Regime, Your Portfolio (with Monte Carlo), Quant Portfolio,
+Stock Detail (with Pro Charts), Doppelganger, Quant Screener, RAQP (placeholder),
+BH Watch (placeholder), Sector Overview, Crypto, ETF Center,
+Pundit Views & Predictions, Help.
+
+Swing Trader sunset. Pro Charts folded into Stock Detail. Monte Carlo folded into
+Your Portfolio. Macro + Market Sentiment merged into Market Regime. Pundit Views
++ Prediction Market merged.
+"""
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+import yfinance as yf
+from datetime import datetime
+
+from config import (
+    DEFAULT_PILLAR_WEIGHTS, PILLAR_METRICS, GRADE_COLORS, RATING_COLORS,
+    GRADE_SCORES, DEFAULT_MARKET_CAP_FLOOR_B, MIN_MARKET_CAP_FLOOR_B, MAX_MARKET_CAP_FLOOR_B,
+    WEIGHT_PRESETS, DEFAULT_PRESET,
+)
+from breadth_indicator import compute_breadth_indicator, format_breadth_indicator
+from data_fetcher import (
+    get_broad_universe, fetch_universe_data, load_watchlist, add_to_watchlist, remove_from_watchlist,
+)
+from scoring import score_universe, get_pillar_detail, get_top_stocks, get_sector_stats
+from portfolio import analyze_portfolio, run_monte_carlo, generate_suggestions, parse_fidelity_csv
+from sectors import get_sector_overview, get_sector_detail
+from fairvalue import compute_fair_value
+from sentiment import fetch_index_data, fetch_vix_data, fetch_buffett_indicator, compute_market_breadth, compute_fear_greed, compute_pgi, COMING_SOON_INDICATORS
+from advanced_screener import apply_advanced_filters, compute_fair_values_batch, PRESET_SCREENS, FILTERABLE_METRICS
+from etf_screener import load_etf_data, get_etf_categories, filter_etfs, get_etf_detail
+from buy_point import compute_buy_point, compute_buy_points_batch
+from macro import get_macro_summary, get_fed_rate_outlook, fetch_economic_calendar, fetch_yield_curve
+from swing_trader import scan_swing_candidates, get_swing_methodology, compute_swing_signals
+from ai_assistant import generate_stock_research_note, interpret_thesis, generate_doppelganger_narrative, generate_portfolio_optimization, is_ai_available, get_provider_status
+from doppelganger import find_doppelgangers, get_database_stats, get_tags_list, HISTORICAL_ANALOGS
+from doppelganger_returns import get_forward_returns, aggregate_forward_returns
+from earnings_data import get_earnings_data, test_earnings_sources
+from finnhub_data import is_finnhub_configured
+from edgar_data import is_edgar_available
+from suggestions_v2 import generate_suggestions_v2, format_suggestion_card
+from auth import is_logged_in, is_auth_configured, render_login_page, render_user_sidebar, get_current_user, get_user_tier, can_use_ai
+from portfolio_persistence import save_portfolio, load_portfolios, delete_portfolio, get_portfolio_by_id
+from help_content import GETTING_STARTED, PILLAR_METHODOLOGY, RATING_SYSTEM, FAIR_VALUE, BUY_POINT, SWING_TRADER, DOPPELGANGER, MONTE_CARLO, PGI, PRO_CHARTS, ETF_CENTER, GLOSSARY, BEST_PRACTICES, DATA_SOURCES, DISCLAIMER
+from pro_charts import fetch_chart_data, compute_indicators, build_candlestick_chart, get_quick_quote, get_watchlist_quotes, get_market_movers
+from etf_center import PORTFOLIO_TEMPLATES, get_portfolio_template, list_templates, calculate_template_metrics, compare_etfs, get_sector_etf_map, get_theme_etf_map, load_raw_cache, get_etf_universe
+from risk_metrics import compute_full_metrics, daily_returns_from_prices, current_drawdown_pct, format_sharpe, format_drawdown
+from prediction_market_tab import render_prediction_market_tab
+
+st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
+st.markdown("""<style>
+.main-header{font-size:1.8em;font-weight:800;background:linear-gradient(90deg,#00D4AA,#00A3FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0}
+.sub-header{color:#888;font-size:0.95em;margin-top:-8px}
+</style>""", unsafe_allow_html=True)
+
+# ═══════════════════════════════════════════════════════════════════
+# AUTH MODE: Open access with optional sign-in
+# Anonymous users see all content with Premium banners on advanced features.
+# Auth UI lives in sidebar (rendered by premium_gate.render_auth_sidebar).
+# ═══════════════════════════════════════════════════════════════════
+
+for k,v in [("scored_df",None),("raw_data",None),("selected_ticker",None),("compare_tickers",[]),("weights",DEFAULT_PILLAR_WEIGHTS.copy()),("sector_relative",True),("portfolio_holdings",[]),("current_portfolio_id",None),("current_portfolio_name",None),("portfolio_autoloaded",False)]:
+    if k not in st.session_state: st.session_state[k]=v
+
+# Auto-load most recent saved portfolio on first login (one-time per session)
+if not st.session_state.portfolio_autoloaded and not st.session_state.portfolio_holdings:
+    _saved=load_portfolios()
+    if _saved:
+        most_recent=_saved[0]
+        st.session_state.portfolio_holdings=most_recent["holdings"]
+        st.session_state.current_portfolio_id=most_recent["id"]
+        st.session_state.current_portfolio_name=most_recent["name"]
+    st.session_state.portfolio_autoloaded=True
+
+def fmt_mcap(b): return f"${b/1000:.1f}T" if b>=1000 else f"${b:.1f}B"
+
+def make_gauge(value,title,mn=0,mx=100,invert=False):
+    if invert: steps=[dict(range=[0,25],color="#00C805"),dict(range=[25,45],color="#8BC34A"),dict(range=[45,55],color="#FFC107"),dict(range=[55,75],color="#FF5722"),dict(range=[75,100],color="#D32F2F")]
+    else: steps=[dict(range=[0,25],color="#D32F2F"),dict(range=[25,45],color="#FF5722"),dict(range=[45,55],color="#FFC107"),dict(range=[55,75],color="#8BC34A"),dict(range=[75,100],color="#00C805")]
+    fig=go.Figure(go.Indicator(mode="gauge+number",value=value,title=dict(text=title,font=dict(size=14,color="#e0e0e0")),number=dict(font=dict(size=28,color="#e0e0e0")),gauge=dict(axis=dict(range=[mn,mx],tickcolor="#666"),bar=dict(color="#00D4AA",thickness=0.3),bgcolor="#1A1F2E",steps=steps,threshold=dict(line=dict(color="white",width=2),thickness=0.8,value=value))))
+    fig.update_layout(height=200,margin=dict(l=20,r=20,t=40,b=10),paper_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
+    return fig
+
+def radar(ps,t):
+    cats=list(ps.keys());vals=[ps[c] for c in cats]+[ps[cats[0]]];cats=cats+[cats[0]]
+    fig=go.Figure();fig.add_trace(go.Scatterpolar(r=vals,theta=cats,fill="toself",fillcolor="rgba(0,212,170,0.2)",line=dict(color="#00D4AA",width=2),name=t))
+    fig.update_layout(polar=dict(radialaxis=dict(visible=True,range=[0,12],tickvals=[3,6,9,12],ticktext=["D","C","B","A+"],gridcolor="#2a2f3e"),angularaxis=dict(gridcolor="#2a2f3e"),bgcolor="rgba(0,0,0,0)"),showlegend=False,margin=dict(l=60,r=60,t=30,b=30),height=320,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
+    return fig
+
+def multi_radar(td):
+    colors=["#00D4AA","#FF6B6B","#4ECDC4","#FFE66D","#A8E6CF"];fig=go.Figure();pillars=list(PILLAR_METRICS.keys())
+    for i,(t,s) in enumerate(td.items()):
+        v=[s.get(p,0) for p in pillars]+[s.get(pillars[0],0)];c_=pillars+[pillars[0]];cl=colors[i%len(colors)]
+        fig.add_trace(go.Scatterpolar(r=v,theta=c_,fill="toself",fillcolor=f"rgba({','.join(str(int(cl[j:j+2],16)) for j in (1,3,5))},0.1)",line=dict(color=cl,width=2),name=t))
+    fig.update_layout(polar=dict(radialaxis=dict(visible=True,range=[0,12],tickvals=[3,6,9,12],ticktext=["D","C","B","A+"],gridcolor="#2a2f3e"),angularaxis=dict(gridcolor="#2a2f3e"),bgcolor="rgba(0,0,0,0)"),margin=dict(l=60,r=60,t=40,b=40),height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),legend=dict(orientation="h",yanchor="bottom",y=-0.15,xanchor="center",x=0.5))
+    return fig
+
+# Premium gating system - shows auth UI in sidebar (sign in/up if anonymous, account info if signed in)
+from premium_gate import render_auth_sidebar, premium_banner, is_premium
+render_auth_sidebar()
+
+with st.sidebar:
+    st.markdown("## Settings")
+    st.markdown("---")
+    market_cap_floor=st.slider("Min Market Cap ($B)",MIN_MARKET_CAP_FLOOR_B,MAX_MARKET_CAP_FLOOR_B,DEFAULT_MARKET_CAP_FLOOR_B,1)
+    st.markdown("---")
+    sector_relative=st.toggle("Sector-Relative Scoring",value=True);st.session_state.sector_relative=sector_relative
+    st.markdown("---")
+    st.markdown("### Pillar Weights")
+    # Preset selector — backtested 1996-2026 on TOP25 1Q-reselect strategy
+    _preset_options = list(WEIGHT_PRESETS.keys()) + ["Custom"]
+    _preset_labels = {k: WEIGHT_PRESETS[k]["label"] for k in WEIGHT_PRESETS}
+    _preset_labels["Custom"] = "Custom (manual sliders)"
+    _current_preset = st.session_state.get("preset_name", DEFAULT_PRESET)
+    if _current_preset not in _preset_options:
+        _current_preset = DEFAULT_PRESET
+    _selected_preset = st.selectbox(
+        "Weight Preset",
+        _preset_options,
+        index=_preset_options.index(_current_preset),
+        format_func=lambda k: _preset_labels.get(k, k),
+        key="sb_preset",
+        help="Backtested 1996-2026, TOP25 1Q-reselect. m_heavy = highest CAGR. v_heavy = highest Sharpe. equal = legacy."
+    )
+    if _selected_preset != "Custom":
+        _p = WEIGHT_PRESETS[_selected_preset]
+        st.session_state.weights = _p["weights"].copy()
+        st.session_state.preset_name = _selected_preset
+        st.caption(
+            f"📈 Backtest: **{_p['backtest_cagr']:+.2f}%/yr CAGR** · "
+            f"Sharpe **{_p['backtest_sharpe']:+.2f}** · "
+            f"MaxDD **{_p['backtest_max_dd']:+.2f}%**"
+        )
+        _universe = _p.get("backtest_universe", "")
+        _validated = _p.get("validated_at_floor", False)
+        if _universe:
+            if _validated:
+                st.caption(f"✓ Validated on: {_universe}")
+            else:
+                st.warning(
+                    f"⚠ Backtest universe: {_universe}. "
+                    f"Performance at the current ${market_cap_floor}B+ floor is UNTESTED. "
+                    f"Use with caution."
+                )
+    else:
+        st.session_state.preset_name = "Custom"
+    _locked = (_selected_preset != "Custom")
+    w_val=st.slider("Valuation",0.0,1.0,st.session_state.weights["Valuation"],0.05,key="w_val",disabled=_locked)
+    w_gro=st.slider("Growth",0.0,1.0,st.session_state.weights["Growth"],0.05,key="w_gro",disabled=_locked)
+    w_pro=st.slider("Profitability",0.0,1.0,st.session_state.weights["Profitability"],0.05,key="w_pro",disabled=_locked)
+    w_mom=st.slider("Momentum",0.0,1.0,st.session_state.weights["Momentum"],0.05,key="w_mom",disabled=_locked)
+    w_eps=st.slider("EPS Revisions",0.0,1.0,st.session_state.weights["EPS Revisions"],0.05,key="w_eps",disabled=_locked)
+    if _selected_preset == "Custom":
+        tw=w_val+w_gro+w_pro+w_mom+w_eps
+        if tw>0: st.session_state.weights={"Valuation":w_val/tw,"Growth":w_gro/tw,"Profitability":w_pro/tw,"Momentum":w_mom/tw,"EPS Revisions":w_eps/tw}
+    st.markdown("---")
+    nt=st.text_input("Add to Watchlist",placeholder="e.g. AAPL").upper().strip()
+    if st.button("Add",key="sb_wl") and nt: add_to_watchlist(nt);st.success(f"Added {nt}");st.rerun()
+    st.markdown("---")
+    if st.button("Refresh Data",key="sb_ref"):
+        st.cache_data.clear();st.session_state.scored_df=None;st.session_state.raw_data=None;st.rerun()
+
+st.markdown('<p class="main-header">Quant Strategy Dashboard Pro</p>',unsafe_allow_html=True)
+mode="Sector-Relative" if st.session_state.sector_relative else "Universe-Wide"
+st.markdown(f'<p class="sub-header">{mode} scoring across 5 pillars</p>',unsafe_allow_html=True)
+
+tabs=st.tabs([
+    "🏠 Home",
+    "📊 Market Regime",
+    "💼 Your Portfolio",
+    "✨ 💎 Quant Portfolio",
+    "🔍 Stock Detail",
+    "✨ Doppelganger",
+    "📋 Quant Screener",
+    "🎯 RAQP",
+    "🔥 BH Watch",
+    "Sector Overview",
+    "₿ Crypto",
+    "ETF Center",
+    "🎤 Pundit Views & Predictions",
+    "📖 Help",
+])
+(tab_home, tab_regime, tab_portfolio, tab_quantport, tab_detail, tab_doppel,
+ tab_screener, tab_raqp, tab_bh, tab_sectors, tab_crypto, tab_etfs,
+ tab_voices, tab_help) = tabs
+
+def _cache_file_mtime():
+    """Get modification time of the cache file. Used as a cache-buster so Streamlit
+    invalidates load_and_score when GitHub Actions pushes a new fundamentals_cache.json."""
+    import os
+    cache_paths = ["fundamentals_cache.json", os.path.join("data_cache", "fundamentals_cache.json")]
+    for p in cache_paths:
+        if os.path.exists(p):
+            return os.path.getmtime(p)
+    return 0
+
+@st.cache_data(ttl=43200,show_spinner=False)
+def load_and_score(mcap,wt,sr,preset,_file_mtime):
+    w=dict(zip(DEFAULT_PILLAR_WEIGHTS.keys(),wt));tickers=get_broad_universe(mcap)
+    progress=st.progress(0,text="Loading...");raw=fetch_universe_data(tickers,mcap,lambda p,m:progress.progress(p,text=m));progress.empty()
+    scored=score_universe(raw,w,sector_relative=sr,preset_name=preset);ss=get_sector_stats(scored) if not scored.empty else {}
+    return raw,scored,ss
+
+try: raw_data,scored_df,sector_stats=load_and_score(market_cap_floor,tuple(st.session_state.weights.values()),st.session_state.sector_relative,st.session_state.get("preset_name",DEFAULT_PRESET),_cache_file_mtime())
+except Exception as e: st.error(f"Error: {e}");st.stop()
+if scored_df is None or scored_df.empty: st.warning("No data.");st.stop()
+
+# Add M&A target scores
+try:
+    from ma_analysis import add_ma_target_scores_to_universe
+    scored_df = add_ma_target_scores_to_universe(scored_df, sector_stats)
+except Exception as e:
+    pass  # Non-critical, scoring can continue without M&A column
+
+# ═══ TAB 0: HOME DASHBOARD ════════════════════════════════════════
+with tab_home:
+    st.markdown("### Dashboard Overview")
+    st.caption("Your portfolio and market at a glance")
+
+    # Pullback Pressure Index (compact)
+    from pullback_pressure import render_pullback_panel
+    render_pullback_panel(scored_df=scored_df, compact=True)
+    st.markdown("---")
+
+    # Earnings + IPO calendar (filtered to tracked universe)
+    from earnings_calendar import render_combined_calendar_panel
+    render_combined_calendar_panel(compact=True, universe_tickers=set(scored_df.index))
+    st.markdown("---")
+
+    # Top-line market metrics
+    with st.spinner("Loading market overview..."):
+        hm_index=fetch_index_data();hm_vix=fetch_vix_data();hm_breadth=compute_market_breadth(scored_df);hm_buffett=fetch_buffett_indicator()
+        hm_fg=compute_fear_greed(hm_vix,hm_breadth,hm_index,hm_buffett)
+
+    st.markdown("#### Market Health")
+    from snapshots import get_snapshot, render_snapshot_metric
+
+    mh1,mh2,mh3,mh4,mh5=st.columns(5)
+    with mh1:
+        fg_snap = get_snapshot("fear_greed", current_value=hm_fg["score"])
+        render_snapshot_metric("Fear & Greed", fg_snap, format_str="{:.0f}", suffix=f"  ({hm_fg['classification']})")
+    with mh2:
+        sp_dist=0
+        for idx in hm_index:
+            if idx["name"]=="S&P 500": sp_dist=idx["distance_from_ath_pct"];break
+        st.metric("S&P vs ATH",f"{sp_dist:+.1f}%")
+    with mh3:
+        if hm_vix:
+            vix_snap = get_snapshot("vix")  # price-based, fetches from yfinance
+            render_snapshot_metric("VIX", vix_snap, format_str="{:.1f}")
+    with mh4:
+        if hm_breadth:
+            breadth_snap = get_snapshot("breadth_above_200sma", current_value=hm_breadth['pct_above_200sma'])
+            render_snapshot_metric("Above 200-SMA", breadth_snap, format_str="{:.0f}", suffix="%")
+    with mh5:
+        if hm_buffett:
+            buffett_snap = get_snapshot("buffett_indicator", current_value=hm_buffett['ratio'])
+            render_snapshot_metric("Buffett Ind.", buffett_snap, format_str="{:.0f}", suffix="%")
+
+    st.markdown("---")
+
+    # Portfolio snapshot if holdings exist
+    if st.session_state.portfolio_holdings:
+        analysis_h=analyze_portfolio(st.session_state.portfolio_holdings,scored_df,sector_stats)
+        if "error" not in analysis_h and analysis_h:
+            st.markdown("#### Your Portfolio")
+            ph1,ph2,ph3,ph4,ph5=st.columns(5)
+            with ph1: st.metric("Value",f"${analysis_h['total_value']:,.0f}")
+            with ph2: st.metric("Holdings",analysis_h["num_holdings"])
+            with ph3: st.metric("Rating",analysis_h["weighted_rating"])
+            with ph4: st.metric("Score",f"{analysis_h['weighted_composite']:.1f}/12")
+            with ph5: st.metric("Concentration",analysis_h["concentration_level"])
+
+            # Top 3 actionable suggestions
+            sugs_h=generate_suggestions_v2(analysis_h,scored_df,max_suggestions=3)
+            if sugs_h:
+                st.markdown("**Top Actions:**")
+                for sug in sugs_h:
+                    card=format_suggestion_card(sug)
+                    st.markdown(f'<div style="background:#1A1F2E;border-left:4px solid {card["color"]};padding:12px;margin-bottom:8px;border-radius:4px;"><strong style="color:{card["color"]};">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # Top movers today
+    st.markdown("#### Top Rated Opportunities")
+    top5=scored_df[(scored_df["overall_rating"]=="Strong Buy")&(scored_df["sector"]!="ETF")].nlargest(5,"composite_score")
+    if not top5.empty:
+        top_cols=st.columns(5)
+        for i,(tk,rw) in enumerate(top5.iterrows()):
+            with top_cols[i]:
+                st.markdown(f"**{tk}**")
+                st.caption(rw.get("shortName",""))
+                st.metric("Score",f"{rw.get('composite_score',0):.1f}",rw.get("sector","")[:12])
+
+    # ═══ Stock Screener ═══
+    st.markdown("---")
+    st.markdown("#### Stock Screener")
+    st.caption("Browse and filter the scored universe. ETFs are excluded.")
+    # Exclude ETFs from screener — breadth, counts, and table all operate on stocks-only
+    _stocks_only = scored_df[scored_df["sector"] != "ETF"].copy()
+    # Breadth indicator — count of stocks above absolute quality threshold for the active preset
+    try:
+        _breadth = compute_breadth_indicator(_stocks_only, st.session_state.get("preset_name", DEFAULT_PRESET))
+        _breadth_text = format_breadth_indicator(_breadth)
+        _signal = _breadth.get("signal", "normal")
+        if _signal == "broad":
+            st.success(_breadth_text)
+        elif _signal == "thin":
+            st.warning(_breadth_text)
+        else:
+            st.info(_breadth_text)
+    except Exception as _bi_err:
+        st.caption(f"Breadth indicator unavailable: {_bi_err}")
+    sc1,sc2,sc3=st.columns(3)
+    with sc1: home_sec=st.selectbox("Sector",["All"]+sorted(_stocks_only["sector"].dropna().unique().tolist()),key="home_screen_sec")
+    with sc2: home_rat=st.selectbox("Rating",["All","Strong Buy","Buy","Hold","Sell","Strong Sell"],key="home_screen_rat")
+    with sc3: home_top=st.selectbox("Show Top",[50,100,250,500,"All"],index=1,key="home_screen_top")
+    _n_show = len(_stocks_only) if home_top == "All" else home_top
+    home_filtered=get_top_stocks(_stocks_only,_n_show,home_sec,home_rat)
+    if not home_filtered.empty:
+        hs1,hs2,hs3,hs4,hs5,hs6=st.columns(6)
+        with hs1: st.metric("Universe",f"{len(_stocks_only):,}")
+        with hs2: st.metric("Strong Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Buy"]))
+        with hs3: st.metric("Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Buy"]))
+        with hs4: st.metric("Holds",len(_stocks_only[_stocks_only["overall_rating"]=="Hold"]))
+        with hs5: st.metric("Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Sell"]))
+        with hs6: st.metric("Strong Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Sell"]))
+        hdc=["shortName","sector","marketCapB","currentPrice"]
+        for p in PILLAR_METRICS: hdc.append(f"{p}_grade")
+        hdc+=["composite_score","overall_rating"]
+        hdd=home_filtered[hdc].copy()
+        hdd.columns=["Company","Sector","Mkt Cap ($B)","Price","Valuation","Growth","Profit","Momentum","EPS Rev","Score","Rating"]
+        st.dataframe(hdd,use_container_width=True,height=500)
+
+    # AI Status Diagnostic
+    st.markdown("---")
+    st.markdown("#### Service Status")
+    ai_status=get_provider_status()
+    can_use_now,ai_msg=can_use_ai()
+
+    # Row 1: AI status
+    ai_c1,ai_c2,ai_c3=st.columns(3)
+    with ai_c1:
+        if ai_status["available"]:
+            st.success(f"✓ AI Provider: {ai_status['provider'].title()}")
+        else:
+            st.error("✗ AI provider not configured")
+            st.caption("Add GEMINI_API_KEY to Streamlit secrets")
+    with ai_c2:
+        if can_use_now:
+            st.success(f"✓ {ai_msg}")
+        else:
+            st.warning(f"⚠ {ai_msg}")
+    with ai_c3:
+        if ai_status["available"] and can_use_now:
+            st.info("AI buttons appear in: Stock Detail, Doppelganger, Portfolio")
+        else:
+            st.caption("Fix the issues at left to unlock AI features")
+
+    # Row 2: Data sources
+    ds_c1,ds_c2,ds_c3=st.columns(3)
+    with ds_c1:
+        # Earnings data sources status
+        finnhub_ok=is_finnhub_configured()
+        edgar_ok=is_edgar_available()
+        if finnhub_ok or edgar_ok:
+            label_parts=[]
+            if finnhub_ok: label_parts.append("Finnhub")
+            if edgar_ok: label_parts.append("SEC EDGAR")
+            st.success(f"✓ Earnings Data: {' + '.join(label_parts)}")
+            st.caption("5+ years of quarterly EPS with surprise data" if finnhub_ok else "5+ years from SEC filings")
+            if st.button("Test Earnings APIs",key="earnings_test_btn"):
+                with st.spinner("Testing earnings sources with AAPL..."):
+                    src_results=test_earnings_sources("AAPL")
+                for src_name,(success,msg) in src_results.items():
+                    label={"finnhub":"Finnhub","sec_edgar":"SEC EDGAR"}.get(src_name,src_name)
+                    if success:
+                        st.success(f"✓ {label}: {msg}")
+                    else:
+                        st.error(f"✗ {label}: {msg}")
+        else:
+            st.warning("⚠ No earnings data source configured")
+            st.caption("Add FINNHUB_API_KEY to secrets, or SEC EDGAR will be used as fallback (always free).")
+    with ds_c2:
+        if is_auth_configured():
+            st.success("✓ Supabase Auth & Storage")
+            st.caption("Saved portfolios, watchlist, usage tracking")
+        else:
+            st.warning("⚠ Supabase not configured")
+    with ds_c3:
+        st.info("📊 Yahoo Finance: Always available")
+        st.caption("Primary source for prices, quotes, fundamentals")
+
+# ═══ TAB: MARKET REGIME (Macro + Sentiment merged) ═══════════════
+with tab_regime:
+    st.markdown("### Market Regime Dashboard")
+    st.caption("Macro fundamentals (slow-moving) and market sentiment (fast-moving). 3-factor earnings model (CPI + Unemployment + ISM).")
+
+    # Show Fear & Greed with snapshot at top of macro tab
+    from snapshots import get_snapshot, render_snapshot_metric
+
+    # Compute Fear & Greed for snapshot context
+    macro_fg_data = compute_fear_greed(
+        fetch_vix_data(),
+        compute_market_breadth(scored_df) if scored_df is not None else None,
+        fetch_index_data(),
+        fetch_buffett_indicator(),
+    )
+
+    macro_top_cols = st.columns(4)
+    with macro_top_cols[0]:
+        if macro_fg_data:
+            fg_snap = get_snapshot("fear_greed", current_value=macro_fg_data["score"])
+            render_snapshot_metric("Fear & Greed", fg_snap, format_str="{:.0f}", suffix=f"  ({macro_fg_data['classification']})")
+    with macro_top_cols[1]:
+        vix_snap = get_snapshot("vix")
+        render_snapshot_metric("VIX", vix_snap, format_str="{:.1f}")
+    with macro_top_cols[2]:
+        tnx_snap = get_snapshot("tnx")
+        render_snapshot_metric("10Y Treasury", tnx_snap, format_str="{:.2f}", suffix="%")
+    with macro_top_cols[3]:
+        dxy_snap = get_snapshot("dxy")
+        render_snapshot_metric("Dollar Index", dxy_snap, format_str="{:.2f}")
+
+    st.caption("📊 For full 1W/1M/ATH comparisons across all indexes/commodities/currencies/rates, see Markets at a Glance on the Home tab.")
+    st.markdown("---")
+
+    # Earnings + IPO calendar (earnings filtered to tracked universe)
+    from earnings_calendar import render_earnings_calendar_panel, render_ipo_calendar_panel
+    render_earnings_calendar_panel(compact=False, universe_tickers=set(scored_df.index))
+    st.markdown("")
+    render_ipo_calendar_panel(compact=False, days_out=21)
+    st.markdown("---")
+
+    macro=get_macro_summary()
+    health=macro["health_score"]
+    earnings=macro["earnings_forecast"]
+    fed=get_fed_rate_outlook()
+    yc=fetch_yield_curve()
+
+    # Health gauge
+    st.markdown("---")
+    hg1,hg2=st.columns([1,2])
+    with hg1: st.plotly_chart(make_gauge(health["score"],"Macro Health",0,100),use_container_width=True,key="mh_g")
+    with hg2:
+        st.markdown(f'### <span style="color:{health["color"]}">{health["classification"]}</span>',unsafe_allow_html=True)
+        for c in health["components"]:
+            st.markdown(f"**{c['name']}**: {c['value']} ({c['interpretation']})");st.progress(c["score"]/100)
+
+    # Key indicators
+    st.markdown("---")
+    st.markdown("### Key Economic Indicators")
+    ki1,ki2,ki3,ki4,ki5,ki6=st.columns(6)
+    with ki1: st.metric("CPI (YoY)",f"{macro['cpi_current']}%",f"{macro['cpi_current']-macro['cpi_prior']:+.1f}%")
+    with ki2: st.metric("Unemployment",f"{macro['unemployment_current']}%",f"{macro['unemployment_current']-macro['unemployment_prior']:+.1f}%",delta_color="inverse")
+    with ki3: st.metric("ISM Composite",f"{macro['ism_composite']:.1f}","Expanding" if macro['ism_composite']>50 else "Contracting")
+    with ki4: st.metric("GDP Growth",f"{macro['gdp_latest_qoq_annualized']}%",macro['gdp_quarter'])
+    with ki5: st.metric("Fed Rate",fed["current_rate"])
+    with ki6:
+        if yc: st.metric("Yield Curve",f"{yc['spread_10y_2y']:+.2f}%","Normal" if yc['spread_10y_2y']>0 else "INVERTED",delta_color="normal" if yc['spread_10y_2y']>0 else "inverse")
+
+    # Earnings forecast
+    st.markdown("---")
+    st.markdown("### S&P 500 Earnings Growth Forecast")
+    st.markdown(f"**Model Output: {earnings['sp500_earnings_growth']:+.1f}%** (based on current macro conditions)")
+    st.caption("Model: Intercept + CPI effect + Unemployment effect + ISM effect")
+
+    # Scenario table
+    st.markdown("#### Scenario Analysis")
+    srows=[]
+    for sn,sd in earnings["scenarios"].items():
+        srows.append({"Scenario":sn,"CPI":f"{sd['cpi']:.1f}%","Unemployment":f"{sd['unemployment']:.1f}%","ISM":f"{sd['ism']:.1f}","Earnings Growth":f"{sd['earnings_growth']:+.1f}%","Description":sd["description"]})
+    st.dataframe(pd.DataFrame(srows),use_container_width=True,hide_index=True)
+
+    # Sector earnings forecasts
+    st.markdown("#### Sector Earnings Forecast (based on macro model)")
+    sf=earnings["sector_forecasts"]
+    sf_df=pd.DataFrame([{"Sector":k,"Forecast":f"{v:+.1f}%"} for k,v in sorted(sf.items(),key=lambda x:x[1],reverse=True)])
+    fig_sf=px.bar(sf_df,x="Sector",y=[float(r.replace("%","")) for r in sf_df["Forecast"]],color=[float(r.replace("%","")) for r in sf_df["Forecast"]],color_continuous_scale=["#D32F2F","#FFC107","#00C805"])
+    fig_sf.update_layout(yaxis=dict(title="Earnings Growth %"),height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),coloraxis_showscale=False,showlegend=False)
+    st.plotly_chart(fig_sf,use_container_width=True,key="sf_bar")
+
+    # Fed rate outlook
+    st.markdown("---")
+    st.markdown("### Federal Reserve Rate Outlook")
+    fr1,fr2,fr3,fr4=st.columns(4)
+    with fr1: st.metric("Current Rate",fed["current_rate"])
+    with fr2: st.metric("Next Meeting",fed["next_meeting"])
+    with fr3: st.metric("Year-End Dots",fed["year_end_dots"])
+    with fr4: st.markdown(f"**Bias:** {fed['bias']}")
+    fp1,fp2,fp3=st.columns(3)
+    with fp1: st.metric("Cut Probability",f"{fed['cut_probability']}%")
+    with fp2: st.metric("Hold Probability",f"{fed['hold_probability']}%")
+    with fp3: st.metric("Hike Probability",f"{fed['hike_probability']}%")
+    st.caption(fed["note"])
+
+    # Economic calendar - real release dates with countdown + FRED historical data
+    st.markdown("---")
+    from economic_calendar import render_economic_calendar_panel
+    render_economic_calendar_panel()
+
+    st.caption(f"Macro data last updated: {macro['last_updated']}.")
+
+    # ═══ SENTIMENT SECTION (merged from former Market Sentiment tab) ═══
+    st.markdown("---")
+    st.markdown("## Market Sentiment")
+    st.caption("Fast-moving positioning indicators: Fear & Greed, VIX, breadth, PGI.")
+
+    with st.spinner("Fetching live market data..."):
+        index_data=fetch_index_data();vix_data=fetch_vix_data();breadth_data=compute_market_breadth(scored_df);buffett_data=fetch_buffett_indicator()
+        fear_greed=compute_fear_greed(vix_data,breadth_data,index_data,buffett_data)
+    fg1,fg2=st.columns([1,1])
+    with fg1: st.plotly_chart(make_gauge(fear_greed["score"],"Fear & Greed",0,100),use_container_width=True,key="fg_g")
+    with fg2:
+        st.markdown(f'### <span style="color:{fear_greed["color"]}">{fear_greed["classification"]}</span>',unsafe_allow_html=True)
+        for comp in fear_greed["components"]:
+            st.markdown(f"**{comp['name']}**: {comp['value']} ({comp['interpretation']})");st.progress(comp["score"]/100)
+    st.markdown("---")
+    g1,g2,g3=st.columns(3)
+    with g1:
+        if vix_data: st.plotly_chart(make_gauge(vix_data["score"],f"VIX: {vix_data['current']}",0,100),use_container_width=True,key="vg")
+    with g2:
+        if breadth_data: st.plotly_chart(make_gauge(breadth_data["pct_above_50sma"],f"Above 50-SMA: {breadth_data['pct_above_50sma']:.0f}%",0,100),use_container_width=True,key="s5g")
+    with g3:
+        if breadth_data: st.plotly_chart(make_gauge(breadth_data["pct_above_200sma"],f"Above 200-SMA: {breadth_data['pct_above_200sma']:.0f}%",0,100),use_container_width=True,key="s2g")
+    st.markdown("---")
+    # PGI (Potential Growth Indicator)
+    pgi_data=compute_pgi()
+    if pgi_data:
+        st.markdown("### Potential Growth Indicator (PGI)")
+        st.caption("Measures cash sitting in money markets vs total US stock market cap. Higher PGI = more fear = contrarian buy signal.")
+        pg1,pg2=st.columns([1,2])
+        with pg1:
+            st.plotly_chart(make_gauge(pgi_data["score"],f"PGI: {pgi_data['pgi']:.1f}%",0,100),use_container_width=True,key="pgi_g")
+        with pg2:
+            st.markdown(f'### <span style="color:{pgi_data["color"]}">{pgi_data["level"]}</span>',unsafe_allow_html=True)
+            st.markdown(f"**PGI: {pgi_data['pgi']:.2f}%** (Money Markets: ${pgi_data['money_market_t']}T / US Market Cap: ${pgi_data['total_mkt_cap_t']}T)")
+            st.caption(pgi_data["interpretation"])
+            st.caption("Above 11.5% = Eager to invest (others fearful) | 9.5-11.5% = Neutral | Below 9.5% = Cautious (others greedy)")
+            st.caption(pgi_data["note"])
+    st.markdown("---")
+    if index_data:
+        idf=pd.DataFrame(index_data);dc=["name","current_price","all_time_high","distance_from_ath_pct","change_1d_pct","change_5d_pct","change_1m_pct","change_ytd_pct"]
+        st.dataframe(idf[dc].rename(columns={"name":"Asset","current_price":"Price","all_time_high":"ATH","distance_from_ath_pct":"From ATH %","change_1d_pct":"1D%","change_5d_pct":"5D%","change_1m_pct":"1M%","change_ytd_pct":"YTD%"}),use_container_width=True,hide_index=True)
+    with st.expander("Coming Soon"):
+        for ind in COMING_SOON_INDICATORS:
+            st.markdown(f"**{ind['name']}** -- *{ind.get('status','Planned')}*");st.caption(ind["description"])
+
+# ═══ TAB: PUNDIT VIEWS & PREDICTIONS (merged) ════════════════════
+with tab_voices:
+    premium_banner("Pundit Views & Predictions")
+    st.markdown("### Pundit Views & Predictions")
+    st.caption("Qualitative outlook layer: pundit/analyst views and real-money prediction markets.")
+
+    voices_section = st.radio(
+        "",
+        ["🎤 Pundit Views", "🎯 Prediction Markets"],
+        horizontal=True,
+        key="voices_section",
+        label_visibility="collapsed",
+    )
+    st.markdown("---")
+
+    if voices_section == "🎤 Pundit Views":
+        from pundit_views import render_equity_pundit_panel
+        render_equity_pundit_panel()
+    else:
+        render_prediction_market_tab()
+
+# ═══ TAB: QUANT SCREENER ═════════════════════════════════════════
+with tab_screener:
+    st.markdown("### Quant Screener")
+    st.caption("Combine rating, fair value, and custom metric filters. Results include Fair Value and Buy Point.")
+    preset_names=["Custom"]+list(PRESET_SCREENS.keys())
+    selected_preset=st.selectbox("Quick Screens",preset_names,key="adv_preset")
+    st.markdown("---")
+    fc1,fc2,fc3=st.columns(3)
+    preset=PRESET_SCREENS.get(selected_preset,{}) if selected_preset!="Custom" else {}
+    with fc1: adv_ratings=st.multiselect("Rating",["Strong Buy","Buy","Hold","Sell","Strong Sell"],default=preset.get("rating_filter",[]),key="adv_rat")
+    with fc2: adv_sectors=st.multiselect("Sector",sorted(scored_df["sector"].dropna().unique().tolist()),key="adv_sec")
+    with fc3: adv_fv=st.multiselect("Fair Value Verdict",["Deeply Undervalued","Undervalued","Fairly Valued","Overvalued","Significantly Overvalued"],default=preset.get("fair_value_filter",[]),key="adv_fv")
+    if preset: st.info(preset.get("description",""))
+    st.markdown("#### Metric Filters")
+    active_filters=dict(preset.get("metric_filters",{}))
+    if selected_preset=="Custom":
+        filter_options=[]
+        for cat,metrics in FILTERABLE_METRICS.items():
+            for m in metrics: filter_options.append(f"{cat}: {m['name']}")
+        selected_filters=st.multiselect("Add metric filters",filter_options,key="adv_ms")
+        for i,sf in enumerate(selected_filters):
+            cat_name,metric_name=sf.split(": ",1)
+            for cat,metrics in FILTERABLE_METRICS.items():
+                if cat==cat_name:
+                    for m in metrics:
+                        if m["name"]==metric_name:
+                            is_pct=m["type"]=="pct_range"
+                            vals=st.slider(f"{m['name']}{' (%)' if is_pct else ''}",float(m["default_min"]),float(m["default_max"]),(float(m["default_min"]),float(m["default_max"])),step=float(m["step"]),key=f"am_{i}")
+                            active_filters[m["key"]]=vals
+    if st.button("Run Screen",key="adv_run"):
+        results=apply_advanced_filters(scored_df,rating_filter=adv_ratings or None,sector_filter=adv_sectors or None,metric_filters=active_filters or None)
+        if results.empty: st.warning("No stocks match all filters.")
+        else:
+            # Always compute fair values
+            with st.spinner(f"Computing fair values for {len(results)} stocks..."):
+                fv_r=compute_fair_values_batch(scored_df,results.index.tolist())
+                results["fv_price"]=results.index.map(lambda t:fv_r.get(t,{}).get("fair_value"))
+                results["fv_verdict"]=results.index.map(lambda t:fv_r.get(t,{}).get("verdict","N/A"))
+                results["fv_premium"]=results.index.map(lambda t:fv_r.get(t,{}).get("premium_discount"))
+            # Compute buy points
+            with st.spinner("Computing buy points..."):
+                bp_r=compute_buy_points_batch(results.index.tolist()[:100],scored_df)
+                results["bp_price"]=results.index.map(lambda t:bp_r.get(t,{}).get("buy_point"))
+                results["bp_distance"]=results.index.map(lambda t:bp_r.get(t,{}).get("distance_pct"))
+                results["bp_signal"]=results.index.map(lambda t:bp_r.get(t,{}).get("signal","N/A"))
+            # Filter by fair value if selected
+            if adv_fv:
+                results=results[results["fv_verdict"].isin(adv_fv)]
+            st.metric("Results",len(results))
+            dc2=["shortName","sector","currentPrice","fv_price","fv_verdict","fv_premium","bp_price","bp_distance","bp_signal"]
+            for p in PILLAR_METRICS: dc2.append(f"{p}_grade")
+            dc2+=["composite_score","overall_rating","ma_target_score"]
+            avail=[c for c in dc2 if c in results.columns];dd2=results[avail].copy()
+
+            # Add earnings emoji to ticker index (filtered to universe)
+            from earnings_calendar import get_tickers_reporting_within
+            upcoming_set = get_tickers_reporting_within(days=7, universe_tickers=set(scored_df.index))
+            new_index = []
+            for ticker in dd2.index:
+                if ticker.upper() in upcoming_set:
+                    new_index.append(f"{ticker} 📅")
+                else:
+                    new_index.append(ticker)
+            dd2.index = new_index
+
+            rn={"shortName":"Company","sector":"Sector","currentPrice":"Price","fv_price":"Fair Value","fv_verdict":"FV Verdict","fv_premium":"Prem/Disc %","bp_price":"Buy Point","bp_distance":"BP Dist %","bp_signal":"BP Signal","composite_score":"Score","overall_rating":"Rating","ma_target_score":"M&A Score"}
+            for p in PILLAR_METRICS: rn[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
+            dd2=dd2.rename(columns={c:rn.get(c,c) for c in dd2.columns})
+            st.caption("📅 = Reporting earnings within 7 days · M&A Score (0-100) shows fit to historical acquisition target patterns")
+            st.dataframe(dd2,use_container_width=True,height=600)
+
+# ═══ SWING TRADER SUNSET ═══════════════════════════════════════════
+# The Swing Trader tab was retired in v4.0.
+# Reasons: didn't fit the long-term quant identity, overlapped with Buy Point
+# functionality, and the backtest was unvalidated. swing_trader.py and
+# swing_backtest_panel.py remain in the repo for potential future use as
+# a Buy Point enhancement layer, but are no longer rendered in the UI.
+
+
+# ═══ TAB: RAQP (placeholder) ═══════════════════════════════════════
+with tab_raqp:
+    st.markdown("### 🎯 RAQP — Risk-Adjusted Quant Probability")
+    st.caption("Probabilistic classification model — assigns a probability that a stock scores well over the next 4 quarters.")
+    st.info(
+        "🚧 **Model in development.** "
+        "RAQP is a probabilistic counterpart to the 5-pillar Quant Screener. "
+        "Where the Quant Screener ranks stocks deterministically by composite score, "
+        "RAQP will output a probability (0-100%) that a stock delivers top-decile forward returns. "
+        "Combining both gives you rank PLUS confidence."
+    )
+    st.markdown("---")
+    st.markdown("#### What this tab will include when shipped")
+    st.markdown("""
+    - **Probability columns** alongside the standard rating: `P(top-decile)`, `P(top-quartile)`, `P(loser)`
+    - **Calibration plot** showing predicted vs realized hit rates across deciles
+    - **Cross-model consensus**: stocks that score well on both Quant and RAQP get a 🔥 flag
+    - **Filter and rank by probability** in addition to composite score
+    """)
+    st.markdown("---")
+    st.caption("See the roadmap in the project README for development status.")
+
+
+# ═══ TAB: BH WATCH (placeholder) ═══════════════════════════════════
+with tab_bh:
+    st.markdown("### 🔥 BH Watch — Buried-Upside Detection")
+    st.caption("Asymmetric-upside detection: stocks the standard rating misses.")
+    st.info(
+        "🚧 **Model in development.** "
+        "BH (Buried Hits) identifies stocks the standard 5-pillar rating misses — typically Strong Sell tier stocks with 2+ elite pillars. "
+        "Historical analysis: 1,093 such cases delivered 100%+ returns over the following 4 quarters (e.g., AXON +4,649%, SBRA +2,655%). "
+        "The BH model surfaces these candidates with an upside magnitude × confidence score, "
+        "independent of the quant rating."
+    )
+    st.markdown("---")
+    st.markdown("#### What this tab will include when shipped")
+    st.markdown("""
+    - **BH Watch list** ranked by upside magnitude × confidence
+    - **Sized for asymmetric bets** (0-25% portfolio allocation, 1Q-1Y holding period)
+    - **Cross-reference with Quant rating**: high-BH + Strong Buy = max conviction; high-BH + Strong Sell = asymmetric speculation
+    - **Confidence tiers** showing which BH candidates have the strongest historical analog support
+    """)
+    st.markdown("---")
+    st.caption("See the roadmap in the project README for development status.")
+
+
+# ═══ TAB 6: SECTOR OVERVIEW ═══════════════════════════════════════
+with tab_sectors:
+    st.markdown("### Sector Overview")
+    overview=get_sector_overview(scored_df)
+    if not overview.empty:
+        # ── Sector Aggregates: Market Cap + Earnings combo chart ──
+        st.markdown("#### Sector Aggregates: Market Cap & Earnings")
+        st.caption("Combined market cap (line) and aggregate trailing 12-month earnings (bars) per sector. Shows scale and profitability of each sector population.")
+        non_etf_universe=scored_df[scored_df["sector"]!="ETF"].copy()
+        sec_agg=non_etf_universe.groupby("sector").agg(
+            total_mcap=("marketCapB","sum"),
+            stock_count=("composite_score","count"),
+            avg_score=("composite_score","mean"),
+            median_score=("composite_score","median"),
+            std_score=("composite_score","std"),
+        ).reset_index()
+        # Compute aggregate earnings: market cap * (1/PE) gives net income
+        non_etf_universe["est_earnings"]=non_etf_universe.apply(
+            lambda r: (r["marketCapB"]/r["trailingPE"]) if pd.notna(r.get("trailingPE")) and r.get("trailingPE",0)>0 else 0,
+            axis=1
+        )
+        sec_earnings=non_etf_universe.groupby("sector")["est_earnings"].sum().reset_index()
+        sec_combo=sec_agg.merge(sec_earnings,on="sector").sort_values("total_mcap",ascending=False)
+
+        from plotly.subplots import make_subplots
+        fig_sa=make_subplots(specs=[[{"secondary_y":True}]])
+        fig_sa.add_trace(go.Bar(x=sec_combo["sector"],y=sec_combo["est_earnings"],name="Aggregate TTM Earnings ($B)",marker_color="#FFC107",opacity=0.7,hovertemplate="<b>%{x}</b><br>Earnings: $%{y:.0f}B<extra></extra>"),secondary_y=False)
+        fig_sa.add_trace(go.Scatter(x=sec_combo["sector"],y=sec_combo["total_mcap"],name="Total Market Cap ($B)",mode="lines+markers",line=dict(color="#00D4AA",width=3),marker=dict(size=10),hovertemplate="<b>%{x}</b><br>Market Cap: $%{y:,.0f}B<extra></extra>"),secondary_y=True)
+        fig_sa.update_layout(height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),legend=dict(orientation="h",yanchor="bottom",y=-0.3,xanchor="center",x=0.5,bgcolor="rgba(0,0,0,0)"),margin=dict(l=60,r=60,t=20,b=80),hovermode="x unified")
+        fig_sa.update_xaxes(gridcolor="#2a2f3e",tickangle=-30)
+        fig_sa.update_yaxes(title_text="Earnings ($B)",tickformat="$,.0f",gridcolor="#2a2f3e",secondary_y=False)
+        fig_sa.update_yaxes(title_text="Market Cap ($B)",tickformat="$,.0f",showgrid=False,secondary_y=True)
+        st.plotly_chart(fig_sa,use_container_width=True,key="sec_agg_combo")
+
+        # ── Sector P/E quick view ──
+        sec_combo["agg_pe"]=sec_combo["total_mcap"]/sec_combo["est_earnings"].replace(0,float("nan"))
+        st.markdown("#### Sector Valuation Snapshot")
+        st.caption("Aggregate P/E = total market cap / total earnings across the sector population.")
+        snap_df=sec_combo[["sector","stock_count","total_mcap","est_earnings","agg_pe","avg_score","std_score"]].copy()
+        snap_df.columns=["Sector","Stocks","Mkt Cap ($B)","Earnings ($B)","Agg P/E","Avg Score","Score Dispersion"]
+        snap_df["Mkt Cap ($B)"]=snap_df["Mkt Cap ($B)"].apply(lambda x: f"${x:,.0f}B")
+        snap_df["Earnings ($B)"]=snap_df["Earnings ($B)"].apply(lambda x: f"${x:,.0f}B")
+        snap_df["Agg P/E"]=snap_df["Agg P/E"].apply(lambda x: f"{x:.1f}x" if pd.notna(x) else "N/A")
+        snap_df["Avg Score"]=snap_df["Avg Score"].apply(lambda x: f"{x:.1f}")
+        snap_df["Score Dispersion"]=snap_df["Score Dispersion"].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "N/A")
+        st.dataframe(snap_df,use_container_width=True,hide_index=True)
+
+        st.markdown("---")
+        st.markdown("#### Sector Quality Distribution")
+        st.caption("Percentage of A-rated stocks (Strong Buy + Buy) by sector. This shows where the highest-conviction opportunities are concentrated.")
+        # % of strong buy + buy per sector
+        rating_dist=non_etf_universe.groupby(["sector","overall_rating"]).size().unstack(fill_value=0)
+        for col in ["Strong Buy","Buy","Hold","Sell","Strong Sell"]:
+            if col not in rating_dist.columns: rating_dist[col]=0
+        rating_dist["Total"]=rating_dist.sum(axis=1)
+        rating_dist["A-rated %"]=(rating_dist["Strong Buy"]+rating_dist["Buy"])/rating_dist["Total"]*100
+        rating_dist=rating_dist.sort_values("A-rated %",ascending=False).reset_index()
+        fig_q=go.Figure()
+        fig_q.add_trace(go.Bar(x=rating_dist["sector"],y=rating_dist["A-rated %"],marker=dict(color=rating_dist["A-rated %"],colorscale=[[0,"#D32F2F"],[0.5,"#FFC107"],[1,"#00C805"]],cmin=0,cmax=50),text=rating_dist["A-rated %"].apply(lambda x: f"{x:.0f}%"),textposition="outside",hovertemplate="<b>%{x}</b><br>A-rated: %{y:.1f}%<extra></extra>"))
+        fig_q.update_layout(height=350,yaxis=dict(title="% A-rated (Strong Buy + Buy)",gridcolor="#2a2f3e"),xaxis=dict(gridcolor="#2a2f3e",tickangle=-30),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),showlegend=False,margin=dict(l=60,r=20,t=20,b=80))
+        st.plotly_chart(fig_q,use_container_width=True,key="sec_qual")
+
+        st.markdown("---")
+        st.markdown("#### Full Sector Detail")
+        rc=["Rank","Sector","Stocks","composite_avg","Strong Buy","Buy","Hold","Sell","Strong Sell"]
+        for p in PILLAR_METRICS: rc.append(f"{p}_grade")
+        rc+=["best_stock","worst_stock"];ac=[c for c in rc if c in overview.columns]
+        rn2={"composite_avg":"Avg Score","best_stock":"Best","worst_stock":"Worst"}
+        for p in PILLAR_METRICS: rn2[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
+        st.dataframe(overview[ac].rename(columns=rn2),use_container_width=True,hide_index=True)
+        st.markdown("#### Sector Deep Dive")
+        ss2=st.selectbox("Select sector",overview["Sector"].tolist(),key="sec_drill")
+        if ss2:
+            sd=get_sector_detail(ss2,scored_df)
+            if sd:
+                m1,m2,m3=st.columns(3)
+                with m1: st.metric("Stocks",sd["num_stocks"])
+                with m2: st.metric("Avg Score",f"{sd['composite_avg']:.1f}")
+                with m3: st.metric("Median",f"{sd['composite_median']:.1f}")
+                cm={"shortName":"Company","currentPrice":"Price","marketCapB":"Mkt Cap","composite_score":"Score","overall_rating":"Rating"}
+                for p in PILLAR_METRICS: cm[f"{p}_grade"]={"Valuation":"Val","Growth":"Grw","Profitability":"Prof","Momentum":"Mom","EPS Revisions":"EPS"}.get(p,p)
+                st.dataframe(sd["stocks_df"].rename(columns={c:cm.get(c,c) for c in sd["stocks_df"].columns}),use_container_width=True,height=500)
+
+# ═══ TAB 6: STOCK DETAIL ═════════════════════════════════════════
+with tab_detail:
+    all_t=sorted(scored_df.index.tolist());di=0
+    if st.session_state.selected_ticker in all_t: di=all_t.index(st.session_state.selected_ticker)
+    sel=st.selectbox("Ticker",all_t,index=di,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="det_sel")
+    if sel and sel in scored_df.index:
+        row=scored_df.loc[sel];detail=get_pillar_detail(sel,scored_df,sector_stats)
+        from earnings_calendar import earnings_emoji
+        emoji = earnings_emoji(sel, days=7)
+        h1,h2,h3,h4=st.columns(4)
+        with h1:
+            st.markdown(f"## {sel} {emoji}")
+            caption = row.get("shortName","")
+            if emoji:
+                caption = f"📅 Reporting earnings within 7 days · {caption}"
+            st.caption(caption)
+        with h2: st.metric("Price",f"${row.get('currentPrice',0):.2f}")
+        with h3: st.metric("Mkt Cap",fmt_mcap(row.get("marketCapB",0)))
+        with h4: rat=row.get("overall_rating","Hold");st.metric("Score",f"{row.get('composite_score',0):.1f}/12");st.markdown(f'<span style="background:{RATING_COLORS.get(rat,"#666")};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{rat}</span>',unsafe_allow_html=True)
+        st.markdown(f"**Sector:** {row.get('sector','N/A')} | **Industry:** {row.get('industry','N/A')}")
+        # ═══ Combined Price + Quarterly Earnings Chart ═══
+        st.markdown("---")
+        st.markdown("### Price & Quarterly Earnings")
+        st.caption("Stock price line with quarterly EPS bars overlaid. Bars colored green when EPS beat analyst estimates, red when missed, gray when no estimate available. (Bar height already shows growth/decline visually.)")
+        chart_period=st.selectbox("Period",["1y","2y","3y","5y","10y","max"],index=3,key="price_period")
+        try:
+            t_obj=yf.Ticker(sel)
+            price_hist=t_obj.history(period=chart_period)
+            if not price_hist.empty:
+                ph_close=price_hist["Close"]
+                sma50=ph_close.rolling(50).mean() if len(ph_close)>=50 else None
+                sma200=ph_close.rolling(200).mean() if len(ph_close)>=200 else None
+
+                chart_start=price_hist.index.min().tz_localize(None) if price_hist.index.tz is not None else price_hist.index.min()
+
+                # ── Get quarterly EPS via unified orchestrator (Finnhub > EDGAR > yfinance) ──
+                quarterly_eps=None
+                surprises_series=None
+                eps_source=""
+                source_label=""
+                fmp_revenue_df=None  # Reused as "external_revenue_df" for downstream code
+                fetch_errors={}
+
+                # PRIMARY: Try Finnhub + EDGAR via unified orchestrator
+                ed_result=get_earnings_data(sel,period_start=chart_start)
+                if ed_result["earnings_df"] is not None and not ed_result["earnings_df"].empty:
+                    quarterly_eps=ed_result["earnings_df"]["reported_eps"]
+                    if "surprise_pct" in ed_result["earnings_df"].columns:
+                        surprises_series=ed_result["earnings_df"]["surprise_pct"]
+                    eps_source=ed_result["source"]
+                    source_label=ed_result["source_label"]
+                fetch_errors=ed_result.get("errors_by_source",{})
+                if ed_result["revenue_df"] is not None and not ed_result["revenue_df"].empty:
+                    fmp_revenue_df=ed_result["revenue_df"]
+
+                # FINAL FALLBACK: yfinance if both Finnhub and EDGAR fail
+                if quarterly_eps is None or (hasattr(quarterly_eps,'empty') and quarterly_eps.empty):
+                    try:
+                        ed=t_obj.earnings_dates
+                        if ed is not None and not ed.empty:
+                            if ed.index.tz is not None:
+                                ed.index=ed.index.tz_localize(None)
+                            now=pd.Timestamp.now()
+                            ed_past=ed[ed.index<=now]
+                            ed_past=ed_past[ed_past.index>=chart_start]
+                            eps_col="Reported EPS" if "Reported EPS" in ed_past.columns else None
+                            if eps_col:
+                                eps_series=ed_past[eps_col].dropna()
+                                if not eps_series.empty:
+                                    quarterly_eps=eps_series
+                                    eps_source="yfinance"
+                                    source_label="Yahoo Finance"
+                                    if "Surprise(%)" in ed_past.columns:
+                                        surprises_series=ed_past.loc[eps_series.index,"Surprise(%)"]
+                    except Exception:
+                        pass
+
+                # FALLBACK 2: yfinance quarterly income statement (last resort)
+                if quarterly_eps is None or (hasattr(quarterly_eps,'empty') and quarterly_eps.empty):
+                    try:
+                        qis=t_obj.quarterly_income_stmt
+                        if qis is not None and not qis.empty:
+                            for row_name in ["Diluted EPS","Basic EPS"]:
+                                if row_name in qis.index:
+                                    eps_from_stmt=qis.loc[row_name].dropna()
+                                    if not eps_from_stmt.empty:
+                                        quarterly_eps=eps_from_stmt.sort_index()
+                                        eps_source="yfinance"
+                                        source_label="Yahoo Finance (income statement)"
+                                        break
+                    except Exception:
+                        pass
+
+                # ── Build combo chart ──
+                from plotly.subplots import make_subplots
+                fig_combo=make_subplots(specs=[[{"secondary_y":True}]])
+
+                # Earnings bars FIRST (so they render behind the price line)
+                if quarterly_eps is not None and not quarterly_eps.empty:
+                    eps_sorted=quarterly_eps.sort_index()
+
+                    # DIAGNOSTIC: show what we actually have
+                    n_total = len(eps_sorted)
+                    n_with_surprise = 0
+                    if surprises_series is not None:
+                        n_with_surprise = surprises_series.dropna().shape[0] if hasattr(surprises_series, 'dropna') else 0
+
+                    bar_colors=[]
+                    # Per-bar coloring: ONLY based on beat/miss vs analyst estimates
+                    # Gray when no estimate available (don't fall back to QoQ direction —
+                    # the bar height already shows growth/decline visually)
+                    eps_values=eps_sorted.values
+                    eps_index=eps_sorted.index
+                    for i,idx in enumerate(eps_index):
+                        s=None
+                        if surprises_series is not None and hasattr(surprises_series,"get"):
+                            s=surprises_series.get(idx)
+                        if s is not None and not pd.isna(s):
+                            if s>0: bar_colors.append("#22C55E")  # Beat
+                            else: bar_colors.append("#EF4444")     # Miss
+                        else:
+                            bar_colors.append("#888888")           # No estimate available
+
+                    fig_combo.add_trace(
+                        go.Bar(
+                            x=eps_index,
+                            y=eps_values,
+                            name="Quarterly EPS",
+                            marker_color=bar_colors,
+                            opacity=0.55,
+                            width=86400000*45,  # 45-day-wide bars (was 60, causing overlap with close-spaced earnings)
+                            hovertemplate="<b>%{x|%b %d, %Y}</b><br>EPS: $%{y:.2f}<br>Source: " + source_label + "<extra></extra>",
+                        ),
+                        secondary_y=True,
+                    )
+
+                # Price line on primary y-axis
+                fig_combo.add_trace(
+                    go.Scatter(x=price_hist.index,y=ph_close,mode="lines",name="Price",
+                               line=dict(color="#00D4AA",width=2.5),
+                               hovertemplate="<b>%{x|%b %d, %Y}</b><br>Price: $%{y:.2f}<extra></extra>"),
+                    secondary_y=False,
+                )
+                if sma50 is not None:
+                    fig_combo.add_trace(go.Scatter(x=price_hist.index,y=sma50,mode="lines",name="50-SMA",line=dict(color="#FFC107",width=1,dash="dot")),secondary_y=False)
+                if sma200 is not None:
+                    fig_combo.add_trace(go.Scatter(x=price_hist.index,y=sma200,mode="lines",name="200-SMA",line=dict(color="#FF6B6B",width=1,dash="dot")),secondary_y=False)
+
+                fig_combo.update_layout(
+                    height=500,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
+                    font=dict(color="#e0e0e0"),
+                    legend=dict(orientation="h",yanchor="bottom",y=-0.2,xanchor="center",x=0.5,bgcolor="rgba(0,0,0,0)"),
+                    margin=dict(l=60,r=60,t=20,b=40),
+                    hovermode="x unified",
+                    bargap=0.3,
+                )
+                fig_combo.update_xaxes(gridcolor="#2a2f3e",showgrid=True)
+                fig_combo.update_yaxes(title_text="Price ($)",tickformat="$,.2f",gridcolor="#2a2f3e",secondary_y=False)
+                fig_combo.update_yaxes(title_text="EPS ($)",tickformat="$,.2f",showgrid=False,secondary_y=True)
+
+                st.plotly_chart(fig_combo,use_container_width=True,key="price_earnings_combo")
+
+                # ── Diagnostic: show actual earnings dates and source detail ──
+                if quarterly_eps is not None and not quarterly_eps.empty:
+                    with st.expander(f"🔍 Earnings data details ({len(quarterly_eps)} quarters fetched)"):
+                        earnings_table_rows = []
+                        for idx in eps_sorted.index:
+                            eps_val = float(eps_sorted.loc[idx])
+                            surprise_val = None
+                            if surprises_series is not None and hasattr(surprises_series, "get"):
+                                s = surprises_series.get(idx)
+                                if s is not None and not pd.isna(s):
+                                    surprise_val = float(s)
+                            earnings_table_rows.append({
+                                "Quarter Date": idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx),
+                                "EPS ($)": f"${eps_val:.2f}",
+                                "Surprise %": f"{surprise_val:+.1f}%" if surprise_val is not None else "n/a",
+                                "Color": "🟢 Beat" if surprise_val is not None and surprise_val > 0 else ("🔴 Miss" if surprise_val is not None else "⚪ No estimate"),
+                            })
+                        st.dataframe(pd.DataFrame(earnings_table_rows), use_container_width=True, hide_index=True)
+                        st.caption(f"Source: {source_label}. If you see fewer rows than expected, the data source returned incomplete data — try a different `chart_period` (e.g., '10y' for older data) or check fetch errors below.")
+                        if fetch_errors:
+                            st.markdown("**Fetch errors by source:**")
+                            for k, v in fetch_errors.items():
+                                if v:
+                                    st.caption(f"- {k}: {v[:200]}")
+
+                # Source badge
+                if eps_source=="finnhub":
+                    if surprises_series is not None and not (surprises_series.dropna() if hasattr(surprises_series,'dropna') else pd.Series([])).empty:
+                        st.success(f"📊 Earnings data: Finnhub ({len(quarterly_eps)} quarters with beat/miss surprises)")
+                    else:
+                        st.success(f"📊 Earnings data: Finnhub ({len(quarterly_eps)} quarters)")
+                elif eps_source=="sec_edgar":
+                    st.success(f"📊 Earnings data: SEC EDGAR ({len(quarterly_eps)} quarters from XBRL filings)")
+                elif eps_source=="merged":
+                    st.success(f"📊 Earnings data: {source_label}")
+                elif eps_source=="yfinance":
+                    err_summary=""
+                    if fetch_errors:
+                        err_pieces=[f"{k}: {v[:60]}" for k,v in fetch_errors.items() if v]
+                        if err_pieces:
+                            err_summary=" | Failures: " + "; ".join(err_pieces[:2])
+                    st.warning(f"📊 Using Yahoo Finance ({len(quarterly_eps)} quarters). Primary sources unavailable.{err_summary}")
+                else:
+                    st.error("No earnings data available.")
+
+                # ── Risk-Adjusted Performance Metrics ──
+                st.markdown("---")
+                st.markdown("### 📐 Risk-Adjusted Performance")
+
+                if price_hist is not None and not price_hist.empty and len(price_hist) >= 60:
+                    stock_returns = daily_returns_from_prices(price_hist["Close"])
+
+                    # Get SPY for benchmark comparison (matches stock chart period)
+                    spy_returns_for_metrics = None
+                    try:
+                        spy_obj = yf.Ticker("SPY")
+                        spy_hist_metrics = spy_obj.history(period=chart_period)
+                        if not spy_hist_metrics.empty:
+                            spy_returns_for_metrics = daily_returns_from_prices(spy_hist_metrics["Close"])
+                    except Exception:
+                        pass
+
+                    metrics = compute_full_metrics(stock_returns, spy_returns_for_metrics)
+
+                    rm1, rm2, rm3, rm4, rm5, rm6 = st.columns(6)
+                    with rm1:
+                        cagr = metrics.get('cagr_pct')
+                        st.metric("CAGR", f"{cagr:.2f}%" if cagr is not None else "—")
+                    with rm2:
+                        st.metric("Sharpe", format_sharpe(metrics.get('sharpe')))
+                    with rm3:
+                        sortino = metrics.get('sortino')
+                        st.metric("Sortino", f"{sortino:.2f}" if sortino is not None else "—")
+                    with rm4:
+                        calmar = metrics.get('calmar')
+                        st.metric("Calmar", f"{calmar:.2f}" if calmar is not None else "—")
+                    with rm5:
+                        st.metric("Max DD", format_drawdown(metrics.get('max_drawdown_pct')))
+                    with rm6:
+                        vol = metrics.get('volatility_annualized_pct')
+                        st.metric("Volatility", f"{vol:.1f}%" if vol is not None else "—")
+
+                    # Beta/Alpha row (if SPY benchmark available)
+                    if metrics.get('beta') is not None:
+                        rm7, rm8, rm9, rm10 = st.columns(4)
+                        with rm7:
+                            beta = metrics.get('beta')
+                            beta_label = "More volatile than market" if beta > 1.1 else ("Less volatile than market" if beta < 0.9 else "Tracks market")
+                            st.metric("Beta vs SPY", f"{beta:.2f}", beta_label)
+                        with rm8:
+                            alpha = metrics.get('alpha_pct')
+                            st.metric("Alpha vs SPY",
+                                     f"{alpha:+.2f}%" if alpha is not None else "—",
+                                     "Risk-adjusted excess return")
+                        with rm9:
+                            current_dd = current_drawdown_pct(price_hist["Close"].values)
+                            st.metric("Current Drawdown",
+                                     f"-{current_dd:.1f}%" if current_dd is not None else "—",
+                                     "Below all-time-high")
+                        with rm10:
+                            sharpe = metrics.get('sharpe')
+                            if sharpe is not None:
+                                if sharpe >= 2.0:
+                                    quality = "Excellent"
+                                elif sharpe >= 1.0:
+                                    quality = "Good"
+                                elif sharpe >= 0:
+                                    quality = "Mediocre"
+                                else:
+                                    quality = "Underperforming"
+                            else:
+                                quality = "—"
+                            st.metric("Risk Quality", quality)
+
+                    with st.expander("How to read these metrics"):
+                        st.markdown("""
+                        **Sharpe Ratio**: Return per unit of total risk (volatility). Compares average excess return (above 4% risk-free rate) to standard deviation. **>1.0 is good, >2.0 is excellent.**
+
+                        **Sortino Ratio**: Like Sharpe, but only penalizes downside volatility. Higher than Sharpe = asymmetric returns (good).
+
+                        **Calmar Ratio**: Annualized return divided by maximum drawdown. Higher = better return for worst-case loss.
+
+                        **Max Drawdown**: Largest peak-to-trough decline historically. Lower (less negative) is better.
+
+                        **Beta**: Sensitivity to market moves. 1.0 = moves with SPY. >1 amplifies, <1 dampens. Negative = inverse correlation.
+
+                        **Alpha**: Excess return after adjusting for beta-implied market exposure. Positive = stock beats market on a risk-adjusted basis.
+                        """)
+                else:
+                    st.caption("Need at least 60 days of price history to compute risk metrics.")
+
+                # ── Forward Outlook: analyst consensus estimates + 8-K guidance extraction ──
+                st.markdown("---")
+                from forward_outlook import render_forward_outlook
+                render_forward_outlook(sel)
+
+                # ── M&A Analysis: target profile + historical filings ──
+                st.markdown("---")
+                try:
+                    from ma_analysis import render_ma_target_panel, render_ma_history_panel
+                    render_ma_target_panel(sel, row.to_dict() if hasattr(row, 'to_dict') else dict(row), sector_stats)
+                    st.markdown("")
+                    render_ma_history_panel(sel)
+                except Exception as e:
+                    st.caption(f"M&A analysis unavailable: {str(e)[:120]}")
+
+                # ── Earnings summary ──
+                if quarterly_eps is None or quarterly_eps.empty:
+                    st.caption("No quarterly earnings data available for this period.")
+                else:
+                    if surprises_series is not None:
+                        sc=surprises_series.dropna() if hasattr(surprises_series,"dropna") else pd.Series([s for s in surprises_series if s is not None and not pd.isna(s)])
+                        if not sc.empty:
+                            beat_count=int((sc>0).sum())
+                            miss_count=int((sc<=0).sum())
+                            avg_surprise=float(sc.mean())
+                            ec1,ec2,ec3,ec4=st.columns(4)
+                            with ec1: st.metric("Quarters",len(quarterly_eps))
+                            with ec2: st.metric("Beats",beat_count,f"{beat_count/(beat_count+miss_count)*100:.0f}%" if (beat_count+miss_count)>0 else "")
+                            with ec3: st.metric("Misses",miss_count,f"{miss_count/(beat_count+miss_count)*100:.0f}%" if (beat_count+miss_count)>0 else "",delta_color="inverse")
+                            with ec4: st.metric("Avg Surprise",f"{avg_surprise:+.1f}%")
+                    else:
+                        eps_sorted=quarterly_eps.sort_index()
+                        latest=float(eps_sorted.iloc[-1])
+                        ec1,ec2,ec3=st.columns(3)
+                        with ec1: st.metric("Quarters",len(eps_sorted))
+                        with ec2: st.metric("Latest EPS",f"${latest:.2f}")
+                        if len(eps_sorted)>=5:
+                            yoy_eps=eps_sorted.iloc[-1]-eps_sorted.iloc[-5]
+                            with ec3: st.metric("YoY EPS Change",f"${yoy_eps:+.2f}")
+
+                # ── Quarterly Revenue Trend (uses FMP if available, else yfinance) ──
+                rev_data=None
+                rev_in_billions=False
+                if fmp_revenue_df is not None and not fmp_revenue_df.empty:
+                    rev_data=fmp_revenue_df["revenue"]
+                    rev_in_billions=False  # FMP gives raw dollars
+                else:
+                    try:
+                        income_stmt=t_obj.quarterly_income_stmt
+                        if income_stmt is not None and not income_stmt.empty and "Total Revenue" in income_stmt.index:
+                            rev_data=income_stmt.loc["Total Revenue"].dropna().sort_index()
+                            rev_data=rev_data[rev_data.index>=chart_start] if hasattr(rev_data.index,'min') else rev_data
+                    except Exception:
+                        pass
+
+                if rev_data is not None and len(rev_data)>=2:
+                    with st.expander(f"Quarterly Revenue Trend ({len(rev_data)} quarters)"):
+                        fig_rev=go.Figure()
+                        rev_colors=["#00D4AA" if (i==0 or rev_data.iloc[i]>=rev_data.iloc[i-1]) else "#F97316" for i in range(len(rev_data))]
+                        rev_billions=rev_data.values/1e9
+                        fig_rev.add_trace(go.Bar(x=rev_data.index,y=rev_billions,marker_color=rev_colors,hovertemplate="<b>%{x|%b %Y}</b><br>Revenue: $%{y:.2f}B<extra></extra>"))
+                        fig_rev.update_layout(yaxis=dict(title="Revenue ($B)",tickformat="$,.1f",gridcolor="#2a2f3e"),xaxis=dict(gridcolor="#2a2f3e"),height=300,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),margin=dict(l=60,r=20,t=20,b=40),showlegend=False)
+                        st.plotly_chart(fig_rev,use_container_width=True,key="rev_chart")
+                        if len(rev_data)>=5:
+                            yoy=(rev_data.iloc[-1]/rev_data.iloc[-5]-1)*100
+                            qoq=(rev_data.iloc[-1]/rev_data.iloc[-2]-1)*100
+                            rg1,rg2,rg3=st.columns(3)
+                            with rg1: st.metric("Latest Quarter",f"${rev_data.iloc[-1]/1e9:.2f}B")
+                            with rg2: st.metric("YoY Growth",f"{yoy:+.1f}%")
+                            with rg3: st.metric("QoQ Growth",f"{qoq:+.1f}%")
+        except Exception as e:
+            st.caption(f"Chart unavailable: {str(e)[:80]}")
+        # Fair Value
+        st.markdown("---");st.markdown("### Fair Value Analysis")
+        fv=compute_fair_value(sel,scored_df);fv_price=None
+        if "error" not in fv:
+            fv_price=fv["composite_fair_value"]
+            f1,f2,f3,f4=st.columns(4)
+            with f1: st.metric("Current",f"${fv['current_price']:.2f}")
+            with f2: st.metric("Fair Value",f"${fv['composite_fair_value']:.2f}")
+            with f3: st.metric("Premium/Disc",f"{fv['premium_discount_pct']:+.1f}%")
+            with f4: st.markdown(f'<span style="background:{fv["verdict_color"]};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{fv["verdict"]}</span>',unsafe_allow_html=True)
+            if fv.get("north_star_metric"): st.caption(f"Primary: {fv['north_star_metric']}")
+            mnames=list(fv["methods"].keys());mvals=[fv["methods"][m]["fair_value"] for m in mnames]
+            fig_fv=go.Figure();fig_fv.add_trace(go.Bar(x=mnames,y=mvals,marker_color="#4ECDC4"))
+            fig_fv.add_hline(y=fv["current_price"],line_dash="dash",line_color="#FF6B6B",annotation_text=f"Current: ${fv['current_price']}")
+            fig_fv.add_hline(y=fv["composite_fair_value"],line_dash="dash",line_color="#00D4AA",annotation_text=f"Fair: ${fv['composite_fair_value']:.0f}")
+            fig_fv.update_layout(yaxis=dict(title="$",tickformat="$,.0f"),height=300,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
+            st.plotly_chart(fig_fv,use_container_width=True,key="fv_bar")
+            with st.expander("Method Details"):
+                for mn,md in fv["methods"].items():
+                    st.markdown(f"**{mn}**: ${md['fair_value']:.2f} ({md['premium_discount_pct']:+.1f}%)")
+                    if "assumptions" in md:
+                        for ak,av in md["assumptions"].items(): st.caption(f"  {ak}: {av}")
+                    st.markdown("---")
+        else: st.caption(fv.get("error",""))
+        # Buy Point
+        st.markdown("---");st.markdown("### Quant Buy Point")
+        with st.spinner(f"Computing buy point..."):
+            bp=compute_buy_point(sel,scored_df,fair_value=fv_price)
+        if "error" not in bp:
+            bp1,bp2,bp3,bp4=st.columns(4)
+            with bp1: st.metric("Current",f"${bp['current_price']:.2f}")
+            with bp2: st.metric("Buy Point",f"${bp['buy_point']:.2f}")
+            with bp3: st.metric("Distance",f"{bp['distance_pct']:+.1f}%")
+            with bp4: st.markdown(f'<span style="background:{bp["signal_color"]};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{bp["signal"]}</span>',unsafe_allow_html=True)
+            with st.expander("Buy Point Components"):
+                for cn,cd in bp["components"].items(): st.markdown(f"**{cn}**: ${cd['price']:.2f} ({cd['weight']*100:.0f}%)");st.caption(cd["description"])
+            with st.expander("Technical Indicators"):
+                for tk,tv in bp.get("technicals",{}).items(): st.markdown(f"**{tk}**: {tv}")
+        else: st.caption(bp.get("error",""))
+
+        # ═══ AI Research Note ═══
+        if is_ai_available():
+            st.markdown("---")
+            st.markdown("### 🤖 AI Research Note")
+            if st.button(f"Generate AI Analysis for {sel}",key="ai_stock_note"):
+                with st.spinner("AI analyzing stock..."):
+                    ai_note=generate_stock_research_note(sel,row.to_dict(),fv if "error" not in fv else {})
+                if "error" in ai_note:
+                    st.error(ai_note["error"])
+                else:
+                    st.markdown(ai_note["text"])
+                    st.caption(f"Analysis powered by {ai_note.get('provider','AI')} • {ai_note.get('model','')}")
+
+        # Pillar breakdown
+        st.markdown("---")
+        if detail:
+            cc,cg=st.columns(2)
+            with cc: st.plotly_chart(radar({p:d["pillar_score"] for p,d in detail.items()},sel),use_container_width=True,key="det_radar")
+            with cg:
+                for pn in PILLAR_METRICS:
+                    g=row.get(f"{pn}_grade","N/A");s=row.get(f"{pn}_score",0);gc=GRADE_COLORS.get(g,"#666");bw=(s/12)*100
+                    st.markdown(f'<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#ccc;">{pn}</span><span style="background:{gc};padding:2px 10px;border-radius:4px;font-weight:700;color:#111;">{g}</span></div><div style="background:#2a2f3e;border-radius:4px;height:8px;"><div style="background:{gc};border-radius:4px;height:8px;width:{bw}%;"></div></div></div>',unsafe_allow_html=True)
+            st.markdown("### Full Metric Breakdown")
+            for pn,pd_ in detail.items():
+                with st.expander(f"{pn} | {pd_['pillar_grade']} | {pd_['pillar_score']:.1f}/12"):
+                    for m in pd_["metrics"]:
+                        mc1,mc2,mc3,mc4,mc5,mc6=st.columns([2.5,1.2,0.8,0.8,1.2,1.2])
+                        with mc1: st.markdown(m["metric"]);st.caption("higher better" if m["higher_is_better"] else "lower better")
+                        with mc2: st.markdown(f"**{m['value']}**")
+                        with mc3: g2=m["grade"];gc2=GRADE_COLORS.get(g2,"#666");st.markdown(f'<span style="background:{gc2};padding:2px 8px;border-radius:4px;font-weight:700;color:#111;">{g2}</span>',unsafe_allow_html=True)
+                        with mc4: st.markdown(m["percentile"])
+                        with mc5: st.markdown(m["sector_avg"])
+                        with mc6: st.markdown(f'**{m["a_threshold"]}**')
+
+# ═══ PRO CHARTS — folded into Stock Detail tab as a separate section ═══
+# Was a standalone tab; now appears at the bottom of Stock Detail.
+with tab_detail:
+    st.markdown("---")
+    st.markdown("## 📈 Pro Charts")
+    premium_banner("Pro Charts")
+    st.caption("Professional candlestick charts with indicators (VWAP, EMAs, RSI, Bollinger Bands) and a live monitoring dashboard.")
+
+    pc_section=st.radio("",["📈 Chart","👁 Live Monitor","🔥 Today's Movers"],horizontal=True,key="pc_section",label_visibility="collapsed")
+    st.markdown("---")
+
+    # ── Section 1: Candlestick Chart ──
+    if pc_section=="📈 Chart":
+        all_tickers=sorted(scored_df.index.tolist())
+        pc_default=0
+        if st.session_state.selected_ticker in all_tickers:
+            pc_default=all_tickers.index(st.session_state.selected_ticker)
+
+        pc1,pc2,pc3=st.columns([2,1,1])
+        with pc1: pc_ticker=st.selectbox("Ticker",all_tickers,index=pc_default,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="pc_ticker")
+        with pc2: pc_period=st.selectbox("Period",["1mo","3mo","6mo","1y","2y","5y"],index=2,key="pc_period")
+        with pc3: pc_interval=st.selectbox("Interval",["1d","1h","30m","15m"],index=0,key="pc_interval",help="Intraday intervals (1h, 30m, 15m) only available for periods up to 60 days.")
+
+        # Indicators toggles
+        st.markdown("**Indicators:**")
+        ic1,ic2,ic3,ic4,ic5=st.columns(5)
+        with ic1: show_vwap=st.checkbox("VWAP",value=True,key="pc_vwap")
+        with ic2: show_emas=st.checkbox("EMAs / SMAs",value=True,key="pc_emas")
+        with ic3: show_bb=st.checkbox("Bollinger",value=False,key="pc_bb")
+        with ic4: show_volume=st.checkbox("Volume",value=True,key="pc_vol")
+        with ic5: show_rsi=st.checkbox("RSI",value=True,key="pc_rsi")
+
+        if pc_ticker:
+            with st.spinner(f"Loading {pc_ticker} chart..."):
+                df=fetch_chart_data(pc_ticker,period=pc_period,interval=pc_interval)
+                if df is not None:
+                    df=compute_indicators(df)
+                    fig=build_candlestick_chart(df,pc_ticker,show_vwap=show_vwap,show_emas=show_emas,show_bb=show_bb,show_volume=show_volume,show_rsi=show_rsi)
+                    if fig:
+                        st.plotly_chart(fig,use_container_width=True,key="pc_chart",config={"displaylogo":False,"displayModeBar":True})
+                    else:
+                        st.warning("Could not build chart.")
+
+                    # Quote summary
+                    quote=get_quick_quote(pc_ticker)
+                    if quote:
+                        st.markdown("##### Current Quote")
+                        q1,q2,q3,q4,q5,q6=st.columns(6)
+                        with q1: st.metric("Price",f"${quote['price']}",f"{quote['change']:+.2f} ({quote['change_pct']:+.2f}%)")
+                        with q2: st.metric("Day Range",f"${quote['day_low']} - ${quote['day_high']}")
+                        with q3: st.metric("Range Position",f"{quote['day_range_pos']:.0f}%",help="0=at low, 100=at high")
+                        with q4: st.metric("Volume",f"{quote['volume']/1e6:.1f}M",f"{quote['rel_volume_pct']-100:+.0f}% vs avg")
+                        with q5:
+                            if quote.get("vwap"):
+                                st.metric("VWAP",f"${quote['vwap']}",f"{quote['vs_vwap_pct']:+.2f}%")
+                            else:
+                                st.metric("VWAP","N/A")
+                        with q6:
+                            if pc_ticker in scored_df.index:
+                                st.metric("Quant Score",f"{scored_df.loc[pc_ticker,'composite_score']:.1f}/12",scored_df.loc[pc_ticker,"overall_rating"])
+                else:
+                    st.error(f"Could not load chart data for {pc_ticker}.")
+
+    # ── Section 2: Live Monitor ──
+    elif pc_section=="👁 Live Monitor":
+        st.markdown("#### Live Monitor")
+        st.caption("Real-time-ish quotes for tickers you're watching. Use this for monitoring during market hours.")
+
+        # Pull from saved monitor list
+        if "monitor_tickers" not in st.session_state:
+            # Default to portfolio tickers
+            default_monitor=[h["ticker"] for h in st.session_state.portfolio_holdings] if st.session_state.portfolio_holdings else ["AAPL","NVDA","MSFT","GOOG","SPY"]
+            st.session_state.monitor_tickers=default_monitor[:15]
+
+        mon_tickers=st.multiselect(
+            "Tickers to monitor (max 20)",
+            sorted(scored_df.index.tolist()),
+            default=[t for t in st.session_state.monitor_tickers if t in scored_df.index][:20],
+            max_selections=20,
+            format_func=lambda x: f"{x} -- {scored_df.loc[x,'shortName'][:30]}" if x in scored_df.index else x,
+            key="mon_select"
+        )
+        st.session_state.monitor_tickers=mon_tickers
+
+        if st.button("🔄 Refresh Quotes",key="mon_refresh"):
+            st.cache_data.clear()
+            st.rerun()
+
+        if mon_tickers:
+            with st.spinner(f"Fetching {len(mon_tickers)} quotes..."):
+                quotes=get_watchlist_quotes(mon_tickers)
+            if quotes:
+                # Build display table
+                rows=[]
+                for q in quotes:
+                    score_data=scored_df.loc[q["ticker"]] if q["ticker"] in scored_df.index else None
+                    rows.append({
+                        "Ticker": q["ticker"],
+                        "Company": q["name"][:25],
+                        "Price": f"${q['price']}",
+                        "Change": f"{q['change']:+.2f}",
+                        "% Change": q["change_pct"],
+                        "Day Range %": q["day_range_pos"],
+                        "Volume": f"{q['volume']/1e6:.1f}M",
+                        "Rel Vol": f"{q['rel_volume_pct']:.0f}%",
+                        "VWAP": f"${q['vwap']}" if q.get("vwap") else "N/A",
+                        "vs VWAP": f"{q['vs_vwap_pct']:+.2f}%" if q.get("vs_vwap_pct") is not None else "N/A",
+                        "Score": f"{score_data['composite_score']:.1f}" if score_data is not None else "N/A",
+                        "Rating": score_data["overall_rating"] if score_data is not None else "N/A",
+                    })
+                mon_df=pd.DataFrame(rows)
+                # Simple display - format change column inline (avoids Styler API issues)
+                mon_df["% Change"]=mon_df["% Change"].apply(lambda x: f"{x:+.2f}%" if isinstance(x,(int,float)) else x)
+                mon_df["Day Range %"]=mon_df["Day Range %"].apply(lambda x: f"{x:.0f}%" if isinstance(x,(int,float)) else x)
+                st.dataframe(mon_df,use_container_width=True,hide_index=True,height=min(700,40+len(rows)*36))
+
+                st.caption(f"Last updated: {datetime.now().strftime('%H:%M:%S')} | Click Refresh to update.")
+            else:
+                st.warning("Could not fetch quotes. yfinance may be rate-limited.")
+        else:
+            st.info("Select tickers above to monitor.")
+
+    # ── Section 3: Today's Movers ──
+    else:
+        st.markdown("#### Today's Top Movers")
+        st.caption("Biggest gainers and losers from the scored universe (based on 1-month momentum as a proxy since intraday data isn't cached).")
+
+        movers=get_market_movers(scored_df,top_n=15)
+        mvc1,mvc2=st.columns(2)
+        with mvc1:
+            st.markdown("##### 🟢 Top Gainers")
+            if movers["gainers"]:
+                gn_rows=[]
+                for m in movers["gainers"]:
+                    gn_rows.append({
+                        "Ticker": m.get("ticker") or m.get("index",""),
+                        "Company": (m.get("shortName") or "")[:25],
+                        "Sector": m.get("sector",""),
+                        "1M %": f"{m['m_1m_pct']:+.1f}%",
+                        "Score": f"{m.get('composite_score',0):.1f}",
+                        "Rating": m.get("overall_rating",""),
+                    })
+                st.dataframe(pd.DataFrame(gn_rows),use_container_width=True,hide_index=True)
+            else:
+                st.info("No gainer data available.")
+
+        with mvc2:
+            st.markdown("##### 🔴 Top Losers")
+            if movers["losers"]:
+                ls_rows=[]
+                for m in movers["losers"]:
+                    ls_rows.append({
+                        "Ticker": m.get("ticker") or m.get("index",""),
+                        "Company": (m.get("shortName") or "")[:25],
+                        "Sector": m.get("sector",""),
+                        "1M %": f"{m['m_1m_pct']:+.1f}%",
+                        "Score": f"{m.get('composite_score',0):.1f}",
+                        "Rating": m.get("overall_rating",""),
+                    })
+                st.dataframe(pd.DataFrame(ls_rows),use_container_width=True,hide_index=True)
+            else:
+                st.info("No loser data available.")
+
+# ═══ TAB: DOPPELGANGER ANALYSIS ════════════════════════════════════
+with tab_doppel:
+    premium_banner("Doppelganger")
+    st.markdown("### Doppelganger Analysis")
+    st.caption("Find historical stock setups that resemble current companies. Learn from history.")
+
+    db_stats=get_database_stats()
+    with st.expander("About the Historical Database"):
+        st.markdown(f"**{db_stats['total_analogs']} curated historical setups** across major inflection points.")
+        st.markdown(f"Sectors covered: {', '.join(db_stats['sectors'])}")
+        st.markdown("**How it works:** We build a fingerprint from valuation, growth, margins, size, and momentum. Then we find the closest historical match across bubbles, crises, and transformations. Similarity scores range 0-1 (1 = identical profile).")
+        st.caption("Remember: History doesn't repeat, but it rhymes. Use these as perspective, not prophecy.")
+
+    dop_tickers=sorted([t for t in scored_df.index if scored_df.loc[t,"sector"]!="ETF"])
+    dop_sel=st.selectbox("Select a stock to analyze",dop_tickers,format_func=lambda x:f"{x} -- {scored_df.loc[x,'shortName']}" if x in scored_df.index else x,key="dop_sel")
+
+    dc1,dc2=st.columns(2)
+    with dc1:
+        sector_mode=st.radio("Match mode",["Same sector (recommended)","Any sector","Specific sector"],index=0,key="dop_mode",horizontal=True)
+        if sector_mode=="Specific sector":
+            sector_f=st.selectbox("Which sector?",sorted(db_stats["sectors"]),key="dop_sec_pick")
+        elif sector_mode=="Same sector (recommended)":
+            sector_f="same"
+        else:
+            sector_f="any"
+    with dc2: dop_tag=st.selectbox("Filter by theme (optional)",["All"]+db_stats["tags"],key="dop_tag")
+
+    dop_dedupe=st.checkbox(
+        "Deduplicate by era (recommended)",
+        value=True,
+        key="dop_dedupe",
+        help="When enabled, only the single highest-similarity match per historical era is shown. Prevents the aggregate forecast from being skewed by over-representation of any one period (e.g., multiple dot-com stocks). Disable to see all individual matches."
+    )
+
+    if dop_sel:
+        tag_f=dop_tag if dop_tag!="All" else None
+        matches=find_doppelgangers(dop_sel,scored_df,top_n=5,sector_filter=sector_f,tag_filter=tag_f,dedupe_eras=dop_dedupe)
+
+        if not matches:
+            cur_sector=scored_df.loc[dop_sel,"sector"]
+            if sector_mode=="Same sector (recommended)":
+                st.warning(f"No historical analogs in our database match {dop_sel}'s sector ({cur_sector}). Try 'Any sector' mode or check the sector coverage below.")
+                st.caption(f"Available sectors in database: {', '.join([f'{s} ({n})' for s,n in db_stats['sector_counts'].items()])}")
+            else:
+                st.warning("No strong matches found with current filters. Try removing filters.")
+        else:
+            # Show current stock summary
+            cur_row=scored_df.loc[dop_sel]
+            st.markdown(f"#### {dop_sel} ({cur_row.get('shortName','')}) Today")
+            cur_c1,cur_c2,cur_c3,cur_c4,cur_c5=st.columns(5)
+            with cur_c1: st.metric("Mkt Cap",f"${cur_row.get('marketCapB',0):.0f}B")
+            with cur_c2: st.metric("P/E",f"{cur_row.get('trailingPE','N/A')}" if cur_row.get('trailingPE') else "N/A")
+            with cur_c3: st.metric("P/S",f"{cur_row.get('priceToSalesTrailing12Months','N/A'):.1f}" if cur_row.get('priceToSalesTrailing12Months') else "N/A")
+            with cur_c4:
+                rg=cur_row.get('revenueGrowth')
+                st.metric("Rev Growth",f"{rg*100:+.0f}%" if rg else "N/A")
+            with cur_c5:
+                m12=cur_row.get('momentum_12m')
+                st.metric("12M Return",f"{m12*100:+.0f}%" if m12 else "N/A")
+
+            st.markdown("---")
+            st.markdown(f"#### Top {len(matches)} Historical Analogues")
+            for i,m in enumerate(matches):
+                similarity_bar_pct=int(m["similarity"]*100)
+                bar_color="#22C55E" if m["similarity"]>=0.7 else "#EAB308" if m["similarity"]>=0.5 else "#F97316"
+                # Get forward returns for this analog
+                fwd=get_forward_returns(m["match_key"])
+                fwd_label=""
+                if fwd:
+                    fwd_label=f" | 1Y: {fwd['1yr']:+.0f}% | 5Y: {fwd['5yr']:+.0f}%"
+                with st.expander(f"{i+1}. {m['company']} {m['era']} -- Similarity: {similarity_bar_pct}%{fwd_label}",expanded=(i==0)):
+                    st.markdown(f'<div style="background:#1A1F2E;padding:10px;border-radius:4px;margin-bottom:10px;"><div style="background:{bar_color};width:{similarity_bar_pct}%;height:6px;border-radius:3px;"></div></div>',unsafe_allow_html=True)
+
+                    ma=m["data"]
+                    mc1,mc2,mc3,mc4,mc5=st.columns(5)
+                    with mc1: st.metric("Mkt Cap",f"${ma.get('marketCapB',0):.0f}B")
+                    with mc2: st.metric("P/E",f"{ma.get('trailingPE','N/A')}")
+                    with mc3: st.metric("P/S",f"{ma.get('priceToSalesTrailing12Months','N/A')}")
+                    with mc4: st.metric("Rev Growth",f"{ma.get('revenueGrowth',0)*100:+.0f}%" if ma.get('revenueGrowth') else "N/A")
+                    with mc5: st.metric("12M Return",f"{ma.get('momentum_12m',0)*100:+.0f}%" if ma.get('momentum_12m') else "N/A")
+
+                    # Forward returns row
+                    if fwd:
+                        st.markdown("**📈 What happened next:**")
+                        fc1,fc2,fc3=st.columns(3)
+                        def _fmt_ret(r):
+                            color="#22C55E" if r>0 else "#EF4444"
+                            return f'<span style="color:{color};font-weight:700;">{r:+.0f}%</span>'
+                        with fc1: st.markdown(f'1-Year: {_fmt_ret(fwd["1yr"])}',unsafe_allow_html=True)
+                        with fc2: st.markdown(f'3-Year: {_fmt_ret(fwd["3yr"])}',unsafe_allow_html=True)
+                        with fc3: st.markdown(f'5-Year: {_fmt_ret(fwd["5yr"])}',unsafe_allow_html=True)
+                        st.caption(fwd.get("narrative",""))
+
+                    st.markdown(f"**Context:** {m['context']}")
+                    st.markdown(f"**Narrative:** {m['narrative']}")
+                    st.markdown(f"**What Happened Next:** {m['outcome']}")
+                    st.markdown(f"**Lesson:** {m['lesson']}")
+                    st.caption(f"Tags: {', '.join(m['tags'])}")
+
+                    # AI Narrative button (if available)
+                    if is_ai_available():
+                        if st.button(f"Generate AI Comparison Analysis",key=f"dop_ai_{i}"):
+                            with st.spinner("AI analyzing parallels..."):
+                                ai_result=generate_doppelganger_narrative(dop_sel,cur_row.to_dict(),m["company"],m["era"],m["data"],m["similarity"])
+                            if "error" in ai_result:
+                                st.error(ai_result["error"])
+                            else:
+                                st.markdown("**AI Analysis:**")
+                                st.markdown(ai_result["text"])
+                                st.caption(f"Powered by {ai_result.get('provider','AI')}")
+
+            # ═══ Aggregate Forward-Looking Analysis ═══
+            agg=aggregate_forward_returns(matches)
+            if agg and agg["contributing_count"]>=2:
+                st.markdown("---")
+                st.markdown(f"### 🔮 Predictive Aggregate ({agg['contributing_count']} analogs)")
+                st.caption("Similarity-weighted average of what historically happened to similar setups. Use as historical context, not financial prophecy.")
+
+                # Top metrics
+                ag1,ag2,ag3=st.columns(3)
+                with ag1:
+                    color1="#22C55E" if agg["weighted_1yr_pct"]>0 else "#EF4444"
+                    st.markdown(f'<div style="background:#1A1F2E;padding:16px;border-radius:6px;border-left:4px solid {color1};"><div style="color:#888;font-size:0.85em;">1-Year (weighted)</div><div style="color:{color1};font-size:1.8em;font-weight:700;">{agg["weighted_1yr_pct"]:+.0f}%</div><div style="color:#666;font-size:0.8em;">Median: {agg["median_1yr_pct"]:+.0f}% | Range: {agg["worst_1yr"]:+.0f}% to {agg["best_1yr"]:+.0f}%</div></div>',unsafe_allow_html=True)
+                with ag2:
+                    color3="#22C55E" if agg["weighted_3yr_pct"]>0 else "#EF4444"
+                    st.markdown(f'<div style="background:#1A1F2E;padding:16px;border-radius:6px;border-left:4px solid {color3};"><div style="color:#888;font-size:0.85em;">3-Year (weighted)</div><div style="color:{color3};font-size:1.8em;font-weight:700;">{agg["weighted_3yr_pct"]:+.0f}%</div><div style="color:#666;font-size:0.8em;">Median: {agg["median_3yr_pct"]:+.0f}%</div></div>',unsafe_allow_html=True)
+                with ag3:
+                    color5="#22C55E" if agg["weighted_5yr_pct"]>0 else "#EF4444"
+                    st.markdown(f'<div style="background:#1A1F2E;padding:16px;border-radius:6px;border-left:4px solid {color5};"><div style="color:#888;font-size:0.85em;">5-Year (weighted)</div><div style="color:{color5};font-size:1.8em;font-weight:700;">{agg["weighted_5yr_pct"]:+.0f}%</div><div style="color:#666;font-size:0.8em;">Median: {agg["median_5yr_pct"]:+.0f}% | Range: {agg["worst_5yr"]:+.0f}% to {agg["best_5yr"]:+.0f}%</div></div>',unsafe_allow_html=True)
+
+                # Aggregate projection chart
+                st.markdown("##### Forward Projection")
+                current_price=cur_row.get("currentPrice",0)
+                if current_price>0:
+                    timeline=[0,1,3,5]
+                    weighted_path=[current_price,
+                                   current_price*(1+agg["weighted_1yr_pct"]/100),
+                                   current_price*(1+agg["weighted_3yr_pct"]/100),
+                                   current_price*(1+agg["weighted_5yr_pct"]/100)]
+                    best_path=[current_price,
+                               current_price*(1+agg["best_1yr"]/100),
+                               current_price*(1+max(c["ret_3yr"] for c in agg["contributing"])/100),
+                               current_price*(1+agg["best_5yr"]/100)]
+                    worst_path=[current_price,
+                                current_price*(1+agg["worst_1yr"]/100),
+                                current_price*(1+min(c["ret_3yr"] for c in agg["contributing"])/100),
+                                current_price*(1+agg["worst_5yr"]/100)]
+
+                    fig_proj=go.Figure()
+                    # Best/worst envelope
+                    fig_proj.add_trace(go.Scatter(x=timeline,y=best_path,mode="lines",line=dict(width=0),showlegend=False,hovertemplate="Best: $%{y:.2f}<extra></extra>"))
+                    fig_proj.add_trace(go.Scatter(x=timeline,y=worst_path,mode="lines",line=dict(width=0),fill="tonexty",fillcolor="rgba(0,212,170,0.15)",name="Best/Worst Range",hovertemplate="Worst: $%{y:.2f}<extra></extra>"))
+                    # Weighted projection
+                    fig_proj.add_trace(go.Scatter(x=timeline,y=weighted_path,mode="lines+markers",line=dict(color="#00D4AA",width=3),marker=dict(size=10),name="Weighted Average",hovertemplate="Year %{x}: $%{y:.2f}<extra></extra>"))
+                    # Current
+                    fig_proj.add_hline(y=current_price,line_dash="dot",line_color="#666",annotation_text=f"Current: ${current_price:.2f}")
+
+                    fig_proj.update_layout(
+                        height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
+                        font=dict(color="#e0e0e0"),
+                        xaxis=dict(title="Years from Now",gridcolor="#2a2f3e",tickvals=[0,1,3,5]),
+                        yaxis=dict(title="Projected Price ($)",tickformat="$,.2f",gridcolor="#2a2f3e"),
+                        legend=dict(orientation="h",yanchor="bottom",y=-0.2,xanchor="center",x=0.5),
+                        margin=dict(l=60,r=20,t=20,b=40),
+                        hovermode="x unified",
+                    )
+                    st.plotly_chart(fig_proj,use_container_width=True,key="dop_projection")
+
+                # Contributing breakdown
+                with st.expander("Contributing Analogs Detail"):
+                    contrib_rows=[]
+                    for c in agg["contributing"]:
+                        # Find the original match to get era_bucket
+                        orig_match=next((m for m in matches if m["match_key"]==c["key"]),None)
+                        bucket=orig_match["era_bucket"] if orig_match else c["era"]
+                        contrib_rows.append({
+                            "Company": c["company"],
+                            "Era": c["era"],
+                            "Era Bucket": bucket,
+                            "Similarity": f"{c['similarity']*100:.0f}%",
+                            "1Y Return": f"{c['ret_1yr']:+.0f}%",
+                            "3Y Return": f"{c['ret_3yr']:+.0f}%",
+                            "5Y Return": f"{c['ret_5yr']:+.0f}%",
+                        })
+                    st.dataframe(pd.DataFrame(contrib_rows),use_container_width=True,hide_index=True)
+                    if agg["missing_count"]>0:
+                        st.caption(f"Note: {agg['missing_count']} analog(s) had no forward return data and were excluded from the aggregate.")
+                    if dop_dedupe:
+                        st.caption(f"✓ Era deduplication active: only the highest-similarity match per historical period is shown.")
+
+                st.warning("⚠️ This is descriptive of past outcomes for similar setups, not a prediction. Each stock's future depends on factors not captured in financial fingerprints (management, competition, regulation, macro). Use this as one of many inputs to your investment thesis.")
+
+# ═══ TAB: QUANT PORTFOLIO ═════════════════════════════════════════
+with tab_quantport:
+    premium_banner("Quant Portfolio")
+    st.markdown("### 💎 Quant Perfect Portfolio")
+    st.caption("Score-tiered portfolio construction with sector caps and position floors. Two modes: Fresh build or Rebalance from existing.")
+
+    # Backtest panel - GATED FOR PRIVATE REVIEW (same dev_mode flag as swing)
+    qb_query_params = st.query_params if hasattr(st, "query_params") else st.experimental_get_query_params()
+    qb_is_dev_mode = False
+    if hasattr(qb_query_params, "get"):
+        dm = qb_query_params.get("dev_mode", "")
+        if isinstance(dm, list):
+            dm = dm[0] if dm else ""
+        qb_is_dev_mode = str(dm).lower() == "true"
+
+    if qb_is_dev_mode:
+        with st.expander("🔒 [DEV] Backtest Performance (private review)", expanded=True):
+            st.warning("⚠️ Private review mode. Add `?dev_mode=true` to URL to access.")
+            from quant_backtest_panel import render_quant_backtest_panel
+            render_quant_backtest_panel()
+    else:
+        with st.expander("📊 Backtest Performance (coming soon)", expanded=False):
+            st.info(
+                "🚧 **Backtest validation in progress.** "
+                "We are validating the 5-pillar quant scoring system against 20 years of historical monthly checkpoints. "
+                "Results will be published after thorough analysis and parameter optimization."
+            )
+
+    from quant_portfolio import (
+        build_optimal_portfolio, compute_rebalance_deltas,
+        compute_diversification_stats, compare_to_spy_overlap, PRESETS
+    )
+    from pullback_pressure import render_pullback_panel
+
+    # ── Market timing context ──
+    qp_pp = render_pullback_panel(scored_df=scored_df, compact=False)
+    suggested_deploy_pct = qp_pp["deploy_pct"]
+
+    # Ideal allocation panel based on pullback pressure
+    from ideal_allocation import compute_ideal_allocation
+    ideal = compute_ideal_allocation(pullback_score=qp_pp["score"])
+
+    st.markdown("### 🎯 Ideal Portfolio Allocation")
+    ic1, ic2, ic3 = st.columns(3)
+    with ic1:
+        st.metric("Target Stock %", f"{ideal['target_stock_pct']}%")
+    with ic2:
+        st.metric("Target Cash %", f"{ideal['target_cash_pct']}%")
+    with ic3:
+        st.metric("Regime", ideal['regime_label'])
+
+    st.caption(ideal['rationale'])
+
+    if ideal.get('warnings'):
+        with st.expander("⚠️ Important caveats"):
+            for w in ideal['warnings']:
+                st.markdown(f"- {w}")
+
+    st.markdown("---")
+
+    qp_mode = st.radio(
+        "Mode",
+        ["Fresh Portfolio", "Rebalance from Existing"],
+        horizontal=True,
+        key="qp_mode",
+        help="Fresh: Build a portfolio assuming all cash. Rebalance: Compare your current holdings to optimal and show actions to take."
+    )
+
+    qp_col1, qp_col2 = st.columns([1, 1])
+    with qp_col1:
+        if qp_mode == "Fresh Portfolio":
+            qp_capital = st.number_input("Capital to deploy ($)", min_value=500, max_value=10_000_000, value=7700, step=100, key="qp_capital_fresh")
+        else:
+            qp_new_cash = st.number_input("New cash to add ($)", min_value=0, max_value=10_000_000, value=7700, step=100, key="qp_new_cash")
+    with qp_col2:
+        qp_preset = st.selectbox(
+            "Aggressiveness",
+            ["Conservative", "Balanced", "Aggressive"],
+            index=1,
+            key="qp_preset",
+            help="Conservative: 30 stocks, 25% sector cap. Balanced: 20 stocks, 35% sector cap. Aggressive: 12 stocks, 50% sector cap."
+        )
+
+    # Phased deployment toggle (driven by pullback pressure)
+    if suggested_deploy_pct < 100:
+        qp_apply_phased = st.checkbox(
+            f"🌡️ Apply suggested phased deployment ({suggested_deploy_pct}% now, hold rest for pullback)",
+            value=False,
+            key="qp_apply_phased",
+            help=f"Pullback pressure suggests deploying only {suggested_deploy_pct}% of new capital now. The remaining {100-suggested_deploy_pct}% should be held for opportunistic adds on weakness."
+        )
+    else:
+        qp_apply_phased = False
+        st.caption("✓ Pullback pressure suggests full deployment — no phased adjustment needed.")
+
+    # Show preset details
+    p = PRESETS[qp_preset]
+    st.caption(f"📐 Preset: max **{p['max_positions']} stocks** | sector cap **{p['sector_cap']*100:.0f}%** | min score **{p['score_floor']:.1f}** | min mcap **${p['min_market_cap_b']:.0f}B** | weight = score^{p['weight_power']:.1f}")
+
+    # ── REBALANCE MODE: Load current holdings ──
+    # Recognized cash / money market tickers (treated as $1 NAV, deployable cash)
+    CASH_TICKERS = {
+        "SPAXX", "FDRXX", "FZFXX",      # Fidelity
+        "SWVXX", "SNAXX", "SNVXX",       # Schwab
+        "VMFXX", "VUSXX", "VMRXX",       # Vanguard
+        "ESCXX",                          # E*TRADE
+        "CASH", "$", "USD",               # Generic
+    }
+    qp_current_holdings = []
+    qp_current_total = 0
+    qp_existing_cash = 0  # Cash value from money-market positions, treated as deployable
+    if qp_mode == "Rebalance from Existing":
+        st.markdown("#### Your Current Holdings")
+        st.caption("💡 Cash positions: enter your money market ticker (SPAXX, SWVXX, VMFXX, etc.) with the dollar amount as 'shares'. They will be treated as deployable cash at $1 NAV.")
+        if saved_portfolios := load_portfolios():
+            sel_options = ["(Manual entry below)"] + [p_dict["name"] for p_dict in saved_portfolios]
+            sel = st.selectbox("Load saved portfolio", sel_options, key="qp_load_saved")
+            if sel != "(Manual entry below)":
+                chosen = next((p for p in saved_portfolios if p["name"] == sel), None)
+                if chosen:
+                    qp_current_holdings = chosen.get("holdings", [])
+
+        if not qp_current_holdings:
+            st.info("Enter your current positions below (one per row). Add empty row to add more.")
+            qp_holdings_input = st.session_state.get("qp_holdings_input", [{"ticker": "", "shares": 0.0}])
+            qp_edited = st.data_editor(
+                pd.DataFrame(qp_holdings_input),
+                num_rows="dynamic",
+                use_container_width=True,
+                key="qp_editor",
+                column_config={
+                    "ticker": st.column_config.TextColumn("Ticker", required=False),
+                    "shares": st.column_config.NumberColumn("Shares", min_value=0, step=0.001, format="%.3f"),
+                }
+            )
+            if not qp_edited.empty:
+                for _, r in qp_edited.iterrows():
+                    t = str(r.get("ticker", "")).strip().upper()
+                    s = float(r.get("shares", 0) or 0)
+                    if t and s > 0:
+                        if t in CASH_TICKERS:
+                            # Treat as cash at $1 NAV
+                            qp_existing_cash += s
+                            continue
+                        # Look up current price from scored_df (ticker is index)
+                        if t in scored_df.index:
+                            price = float(scored_df.loc[t, "currentPrice"])
+                            qp_current_holdings.append({"ticker": t, "shares": s, "current_price": price})
+                        else:
+                            st.warning(f"{t} not found in scored universe — skipping")
+        else:
+            # Display loaded holdings, look up prices
+            holdings_with_prices = []
+            for h in qp_current_holdings:
+                t = h.get("ticker", "").upper()
+                s = float(h.get("shares", 0) or 0)
+                if t in CASH_TICKERS:
+                    qp_existing_cash += s
+                    continue
+                if t in scored_df.index and s > 0:
+                    price = float(scored_df.loc[t, "currentPrice"])
+                    holdings_with_prices.append({"ticker": t, "shares": s, "current_price": price, "value": s * price})
+            qp_current_holdings = holdings_with_prices
+            if holdings_with_prices:
+                hold_df = pd.DataFrame(holdings_with_prices)
+                hold_df["value"] = hold_df["value"].round(2)
+                st.dataframe(hold_df, use_container_width=True, hide_index=True)
+
+        qp_current_total = sum(h.get("shares", 0) * h.get("current_price", 0) for h in qp_current_holdings)
+        # Total deployable: existing stock value + existing cash position + new cash to add
+        qp_capital = qp_current_total + qp_existing_cash + qp_new_cash
+
+        if qp_current_total > 0 or qp_existing_cash > 0:
+            metric_cols = st.columns(3)
+            with metric_cols[0]: st.metric("Current stock value", f"${qp_current_total:,.2f}")
+            with metric_cols[1]: st.metric("Existing cash (MM funds)", f"${qp_existing_cash:,.2f}")
+            with metric_cols[2]: st.metric("Total to deploy", f"${qp_capital:,.2f}", delta=f"+${qp_new_cash:,.0f} new")
+        else:
+            st.warning("Add holdings above to use rebalance mode.")
+
+    # ── Build the portfolio ──
+    if st.button("🎯 Build Optimal Portfolio", type="primary", use_container_width=True, key="qp_build_btn"):
+        with st.spinner("Building..."):
+            # Apply phased deployment if toggle is on
+            # In Fresh mode: scale entire capital
+            # In Rebalance mode: scale only the new cash portion (existing positions stay)
+            if qp_apply_phased:
+                if qp_mode == "Fresh Portfolio":
+                    effective_capital = qp_capital * (suggested_deploy_pct / 100.0)
+                    held_back = qp_capital - effective_capital
+                else:
+                    # Rebalance: existing stays at full, only scale new cash + existing cash deployment
+                    deployable_cash = (qp_existing_cash + qp_new_cash) * (suggested_deploy_pct / 100.0)
+                    held_back = (qp_existing_cash + qp_new_cash) - deployable_cash
+                    effective_capital = qp_current_total + deployable_cash
+                st.info(f"📊 Phased deployment: deploying ${effective_capital:,.0f} ({suggested_deploy_pct}% of total). ${held_back:,.0f} held in reserve for opportunistic adds on weakness.")
+            else:
+                effective_capital = qp_capital
+                held_back = 0
+
+            optimal, diag = build_optimal_portfolio(scored_df, effective_capital, preset=qp_preset, min_position_dollars=200, return_diagnostics=True)
+
+            if optimal.empty:
+                st.error("No qualifying stocks found at current preset settings.")
+                with st.expander("📊 Diagnostic info — what got filtered out?", expanded=True):
+                    st.markdown(f"**Score floor:** {diag.get('score_floor')}")
+                    st.markdown(f"**Market cap floor:** ${diag.get('mcap_floor_b')}B")
+                    st.markdown("**Pipeline:**")
+                    st.markdown(f"- Input universe: **{diag.get('input_total', 0)}** stocks")
+                    st.markdown(f"- After dropping NaN rows: **{diag.get('after_dropna', 0)}**")
+                    st.markdown(f"- After score filter (≥ {diag.get('score_floor')}): **{diag.get('after_score_filter', 0)}**")
+                    st.markdown(f"- After market cap filter (≥ ${diag.get('mcap_floor_b')}B): **{diag.get('after_mcap_filter', 0)}**")
+                    st.markdown(f"- After price filter (> 0): **{diag.get('after_price_filter', 0)}**")
+                    st.markdown(f"- After sector cap selection: **{diag.get('after_sector_cap', 0)}**")
+                    st.markdown(f"- After min position $200 filter: **{diag.get('after_min_position', 0)}**")
+                    if "error" in diag:
+                        st.error(f"Error: {diag['error']}")
+            else:
+                st.session_state["qp_optimal"] = optimal
+                st.session_state["qp_capital_used"] = effective_capital
+                st.session_state["qp_held_back"] = held_back
+                st.session_state["qp_preset_used"] = qp_preset
+                st.session_state["qp_holdings_used"] = qp_current_holdings.copy()
+                st.session_state["qp_mode_used"] = qp_mode
+
+    # ── Display results if built ──
+    if "qp_optimal" in st.session_state:
+        optimal = st.session_state["qp_optimal"]
+        cap_used = st.session_state.get("qp_capital_used", qp_capital)
+        mode_used = st.session_state.get("qp_mode_used", qp_mode)
+        holdings_used = st.session_state.get("qp_holdings_used", [])
+
+        st.markdown("---")
+        held_back = st.session_state.get("qp_held_back", 0)
+        if held_back > 0:
+            st.markdown(f"### Optimal Portfolio — ${cap_used:,.0f} deployed | ${held_back:,.0f} reserved")
+        else:
+            st.markdown(f"### Optimal Portfolio — ${cap_used:,.0f}")
+
+        # ── Allocation table ──
+        display_df = optimal.copy()
+        display_df["dollars"] = display_df["dollars"].apply(lambda x: f"${x:,.2f}")
+        display_df["price"] = display_df["price"].apply(lambda x: f"${x:.2f}")
+        display_df["weight_pct"] = display_df["weight_pct"].apply(lambda x: f"{x:.2f}%")
+        display_df["composite_score"] = display_df["composite_score"].apply(lambda x: f"{x:.1f}")
+        display_df["market_cap_b"] = display_df["market_cap_b"].apply(lambda x: f"${x:,.1f}B")
+        display_df["shares"] = display_df["shares"].apply(lambda x: f"{x:.3f}")
+
+        col_rename = {
+            "ticker": "Ticker", "sector": "Sector", "rating": "Rating",
+            "composite_score": "Score", "price": "Price", "weight_pct": "Weight",
+            "dollars": "$ Amount", "shares": "Shares", "market_cap_b": "Market Cap"
+        }
+        display_df = display_df.rename(columns=col_rename)
+        st.dataframe(display_df, use_container_width=True, hide_index=True)
+
+        # ── Diversification stats ──
+        st.markdown("#### Portfolio Stats")
+        stats = compute_diversification_stats(optimal)
+        stat_cols = st.columns(5)
+        with stat_cols[0]: st.metric("Positions", stats["num_positions"])
+        with stat_cols[1]: st.metric("Avg Score", f"{stats['avg_score']:.2f}")
+        with stat_cols[2]: st.metric("Sectors", stats["num_sectors"])
+        with stat_cols[3]: st.metric("Largest", f"{stats['largest_position_pct']:.1f}% ({stats['largest_position_ticker']})")
+        with stat_cols[4]: st.metric("Top Sector", f"{stats['top_sector']} ({stats['top_sector_pct']:.0f}%)")
+
+        # ── Sector breakdown ──
+        col_sec, col_spy = st.columns([2, 1])
+        with col_sec:
+            st.markdown("##### Sector Allocation")
+            sector_df = pd.DataFrame([
+                {"Sector": s, "Weight %": w} for s, w in stats["sector_breakdown"].items()
+            ])
+            import plotly.graph_objects as go
+            fig_sec = go.Figure(data=[go.Pie(
+                labels=sector_df["Sector"],
+                values=sector_df["Weight %"],
+                hole=0.4,
+                textinfo="label+percent",
+            )])
+            fig_sec.update_layout(height=350, margin=dict(t=20, b=20, l=20, r=20), showlegend=False)
+            st.plotly_chart(fig_sec, use_container_width=True)
+
+        with col_spy:
+            st.markdown("##### vs SPY Top 30")
+            spy_overlap = compare_to_spy_overlap(optimal)
+            st.metric("Overlap with SPY", f"{spy_overlap['overlap_count']} stocks")
+            st.metric("Weight in SPY top names", f"{spy_overlap['overlap_pct']:.0f}%")
+            if spy_overlap["overlap_tickers"]:
+                st.caption(f"Shared: {', '.join(spy_overlap['overlap_tickers'])}")
+            non_spy_count = stats["num_positions"] - spy_overlap["overlap_count"]
+            st.caption(f"**{non_spy_count} differentiated picks** vs index")
+
+        # ── REBALANCE: Show actions ──
+        if mode_used == "Rebalance from Existing" and holdings_used:
+            st.markdown("---")
+            st.markdown("### 🎯 Action Items")
+            actions = compute_rebalance_deltas(optimal, holdings_used, scored_df, cap_used)
+
+            if not actions:
+                st.success("Portfolio matches optimal — no actions needed.")
+            else:
+                # Group actions by type
+                inits = [a for a in actions if a["action"] == "INITIATE"]
+                adds = [a for a in actions if a["action"] == "ADD"]
+                trims = [a for a in actions if a["action"] == "TRIM"]
+                exits = [a for a in actions if a["action"] == "EXIT"]
+                holds = [a for a in actions if a["action"] == "HOLD"]
+
+                # Summary metrics
+                buy_total = sum(a["delta_dollars"] for a in inits + adds)
+                sell_total = sum(-a["delta_dollars"] for a in trims + exits)
+                act_cols = st.columns(4)
+                with act_cols[0]: st.metric("New positions", len(inits))
+                with act_cols[1]: st.metric("To buy", f"${buy_total:,.0f}")
+                with act_cols[2]: st.metric("To sell", f"${sell_total:,.0f}")
+                with act_cols[3]: st.metric("Net cash", f"${buy_total - sell_total:,.0f}")
+
+                # Action sections
+                if inits:
+                    st.markdown("#### 🆕 INITIATE — New positions to open")
+                    init_df = pd.DataFrame(inits)[["ticker", "rating", "score", "target_pct", "target_dollars", "reason"]]
+                    init_df["target_pct"] = init_df["target_pct"].apply(lambda x: f"{x:.1f}%")
+                    init_df["target_dollars"] = init_df["target_dollars"].apply(lambda x: f"${x:,.0f}")
+                    init_df["score"] = init_df["score"].apply(lambda x: f"{x:.1f}" if x else "")
+                    init_df.columns = ["Ticker", "Rating", "Score", "Target %", "$ to Buy", "Why"]
+                    st.dataframe(init_df, use_container_width=True, hide_index=True)
+
+                if adds:
+                    st.markdown("#### ➕ ADD — Increase existing positions")
+                    add_df = pd.DataFrame(adds)[["ticker", "current_pct", "target_pct", "delta_dollars", "reason"]]
+                    add_df["current_pct"] = add_df["current_pct"].apply(lambda x: f"{x:.1f}%")
+                    add_df["target_pct"] = add_df["target_pct"].apply(lambda x: f"{x:.1f}%")
+                    add_df["delta_dollars"] = add_df["delta_dollars"].apply(lambda x: f"+${x:,.0f}")
+                    add_df.columns = ["Ticker", "Current %", "Target %", "Add $", "Why"]
+                    st.dataframe(add_df, use_container_width=True, hide_index=True)
+
+                if trims:
+                    st.markdown("#### ✂️ TRIM — Reduce existing positions")
+                    trim_df = pd.DataFrame(trims)[["ticker", "current_pct", "target_pct", "delta_dollars", "reason"]]
+                    trim_df["current_pct"] = trim_df["current_pct"].apply(lambda x: f"{x:.1f}%")
+                    trim_df["target_pct"] = trim_df["target_pct"].apply(lambda x: f"{x:.1f}%")
+                    trim_df["delta_dollars"] = trim_df["delta_dollars"].apply(lambda x: f"-${-x:,.0f}")
+                    trim_df.columns = ["Ticker", "Current %", "Target %", "Trim $", "Why"]
+                    st.dataframe(trim_df, use_container_width=True, hide_index=True)
+
+                if exits:
+                    st.markdown("#### 🚪 EXIT — Close positions")
+                    exit_df = pd.DataFrame(exits)[["ticker", "rating", "score", "current_dollars", "reason"]]
+                    exit_df["current_dollars"] = exit_df["current_dollars"].apply(lambda x: f"${x:,.0f}")
+                    exit_df["score"] = exit_df["score"].apply(lambda x: f"{x:.1f}" if x else "N/A")
+                    exit_df.columns = ["Ticker", "Rating", "Score", "Sell $", "Why"]
+                    st.dataframe(exit_df, use_container_width=True, hide_index=True)
+
+                if holds:
+                    with st.expander(f"✓ HOLD — {len(holds)} positions in target range (no action needed)"):
+                        hold_df = pd.DataFrame(holds)[["ticker", "current_pct", "target_pct", "reason"]]
+                        hold_df["current_pct"] = hold_df["current_pct"].apply(lambda x: f"{x:.1f}%")
+                        hold_df["target_pct"] = hold_df["target_pct"].apply(lambda x: f"{x:.1f}%")
+                        hold_df.columns = ["Ticker", "Current %", "Target %", "Note"]
+                        st.dataframe(hold_df, use_container_width=True, hide_index=True)
+
+        # ── Methodology ──
+        with st.expander("📐 How the Quant Portfolio is constructed"):
+            st.markdown(f"""
+            **Universe:** Stocks with composite score ≥ {PRESETS[qp_preset]['score_floor']:.1f} and market cap ≥ ${PRESETS[qp_preset]['min_market_cap_b']:.0f}B
+
+            **Weighting formula:** `weight ∝ score^{PRESETS[qp_preset]['weight_power']:.1f}`
+            This gives heavy emphasis to top scorers. A stock scoring 9.5 gets ~3-4x the weight of one scoring 8.0.
+
+            **Position constraints:**
+            - Max **{PRESETS[qp_preset]['max_positions']}** positions
+            - Max **{PRESETS[qp_preset]['sector_cap']*100:.0f}%** in any single sector
+            - Max **{PRESETS[qp_preset]['position_ceiling']*100:.0f}%** in any single position
+            - Min **$200** per position (otherwise dropped)
+
+            **Differentiation from SPY:** SPY weights by market cap regardless of quality. This portfolio weights by quality (score) regardless of size. Names that score well but aren't mega-cap (e.g., your portfolio names) get meaningful allocations.
+
+            **Important caveats:**
+            - Scores reflect ~3-12 month outlook; recommend rebalancing monthly
+            - Concentrated portfolios have higher variance than SPY
+            - Tax implications NOT considered — rebalancing creates capital gains
+            - Past performance ≠ future returns
+            """)
+
+        # ── Public Backtest Chart: Validated 21-Year Performance ──
+        st.markdown("---")
+        st.markdown("### 📈 Validated Backtest: Quant Strategy vs SPY")
+        st.caption(
+            "Real point-in-time SEC EDGAR fundamentals. Top 10 picks per quarter, 63-day hold. "
+            "1,326-ticker universe across 86 quarterly checkpoints (2005-2026)."
+        )
+
+        try:
+            import json as _json
+            import os as _os
+            qbt_paths = ["quant_backtest_results.json", "data_cache/quant_backtest_results.json"]
+            qbt_data = None
+            for _p in qbt_paths:
+                if _os.path.exists(_p):
+                    try:
+                        with open(_p) as _f:
+                            qbt_data = _json.load(_f)
+                            break
+                    except Exception:
+                        continue
+        except Exception:
+            qbt_data = None
+
+        if qbt_data and qbt_data.get("monthly_results"):
+            qbt_monthly = qbt_data["monthly_results"]
+            qbt_aggregate = qbt_data.get("aggregate_metrics", {})
+            qbt_realistic = qbt_aggregate.get("realistic_strategy", {})
+            qbt_spy = qbt_aggregate.get("spy_benchmark", {})
+
+            # Headline metrics
+            qbt_quant_total = qbt_realistic.get("total_compounded_pct", 0)
+            qbt_spy_total = qbt_spy.get("total_compounded_pct", 0)
+
+            qbt_h1, qbt_h2, qbt_h3, qbt_h4 = st.columns(4)
+            with qbt_h1:
+                st.metric("Quant Strategy", f"+{qbt_quant_total:,.0f}%", f"$100 → ${100 + qbt_quant_total:,.0f}")
+            with qbt_h2:
+                st.metric("SPY Benchmark", f"+{qbt_spy_total:,.0f}%", f"$100 → ${100 + qbt_spy_total:,.0f}")
+            with qbt_h3:
+                qbt_outperf = qbt_quant_total - qbt_spy_total
+                st.metric("Outperformance", f"+{qbt_outperf:,.0f}%", "absolute over 21 years")
+            with qbt_h4:
+                qbt_winrate = qbt_realistic.get("win_rate_pct", 0)
+                st.metric("Quarterly Win Rate", f"{qbt_winrate:.1f}%", f"{qbt_realistic.get('n_periods', 0)} quarters")
+
+            # Build dueling line chart
+            qbt_rows = []
+            qbt_cum_quant = 100.0
+            qbt_cum_spy = 100.0
+
+            qbt_sorted = sorted(qbt_monthly, key=lambda x: x.get("date", ""))
+            if qbt_sorted:
+                qbt_first_date = qbt_sorted[0].get("date", "")
+                qbt_rows.append({
+                    "Date": qbt_first_date,
+                    "Quant Strategy": qbt_cum_quant,
+                    "SPY Benchmark": qbt_cum_spy,
+                })
+
+            for _m in qbt_sorted:
+                _r_quant = _m.get("portfolio_return_realistic")
+                _r_spy = _m.get("spy_return_pct")
+                if _r_quant is not None:
+                    qbt_cum_quant *= (1 + _r_quant / 100)
+                if _r_spy is not None:
+                    qbt_cum_spy *= (1 + _r_spy / 100)
+                qbt_rows.append({
+                    "Date": _m.get("date"),
+                    "Quant Strategy": qbt_cum_quant,
+                    "SPY Benchmark": qbt_cum_spy,
+                })
+
+            qbt_df = pd.DataFrame(qbt_rows)
+            if not qbt_df.empty:
+                qbt_df["Date"] = pd.to_datetime(qbt_df["Date"])
+                qbt_df = qbt_df.set_index("Date")
+                st.line_chart(qbt_df, height=400)
+                st.caption(
+                    f"Cumulative growth of $100 starting capital, compounded quarterly. "
+                    f"Final values: Quant ${qbt_cum_quant:,.0f} | SPY ${qbt_cum_spy:,.0f}. "
+                    f"For full risk-adjusted metrics (Sharpe, Sortino, Calmar) and methodology, "
+                    f"see [docs/methodology.md](https://github.com/bradleygpt/quant-dashboard-pro/blob/main/docs/methodology.md)."
+                )
+
+            with st.expander("⚠️ Important Caveats — Read Before Drawing Conclusions"):
+                st.markdown("""
+                **What this backtest IS valid for:**
+                - Validating that 5-pillar scoring has predictive value beyond random
+                - Comparing risk/reward to buy-and-hold SPY across multiple market regimes
+                - Showing the strategy was tested with rigorous methodology
+
+                **Limitations:**
+                - **Survivorship bias.** Universe = today's tickers. Inflates 21-year returns by an estimated 1-3 percentage points annualized.
+                - **Pre-2009 data is sparse.** XBRL filings became standard around 2009.
+                - **No transaction costs.** Real friction estimated at -0.1% to -0.3% per quarter.
+                - **No risk overlay.** Strategy buys top 10 every quarter regardless of market conditions.
+                - **Past performance ≠ future returns.**
+                """)
+        else:
+            st.info("Backtest results loading... If this persists, the validated quant_backtest_results.json may not be deployed yet.")
+
+# ═══ TAB: PORTFOLIO ═══════════════════════════════════════════════
+with tab_portfolio:
+    st.markdown("### Portfolio Analyzer")
+
+    # ── Saved Portfolios (Supabase) ──
+    saved_portfolios=load_portfolios()
+    if saved_portfolios:
+        st.markdown("#### Your Saved Portfolios")
+        sp_cols=st.columns([3,1,1])
+        with sp_cols[0]:
+            sp_options=["-- Select --"]+[f"{p['name']} ({len(p['holdings'])} holdings)" for p in saved_portfolios]
+            sp_choice=st.selectbox("Load saved portfolio",sp_options,key="sp_choice")
+        with sp_cols[1]:
+            if sp_choice!="-- Select --" and st.button("Load",key="sp_load"):
+                idx=sp_options.index(sp_choice)-1
+                p=saved_portfolios[idx]
+                st.session_state.portfolio_holdings=p["holdings"]
+                st.session_state.current_portfolio_id=p["id"]
+                st.session_state.current_portfolio_name=p["name"]
+                st.success(f"Loaded: {p['name']}")
+                st.rerun()
+        with sp_cols[2]:
+            if sp_choice!="-- Select --" and st.button("Delete",key="sp_del"):
+                idx=sp_options.index(sp_choice)-1
+                p=saved_portfolios[idx]
+                result=delete_portfolio(p["id"])
+                if "error" in result: st.error(result["error"])
+                else: st.success(f"Deleted: {p['name']}");st.rerun()
+        st.markdown("---")
+
+    inp=st.radio("Input",["Manual Entry","CSV Upload (Fidelity)"],horizontal=True)
+    if inp=="CSV Upload (Fidelity)":
+        up=st.file_uploader("Upload CSV",type=["csv"],key="csv_upload")
+        if up is not None:
+            csv_key=f"csv_processed_{up.name}_{up.size}"
+            if not st.session_state.get(csv_key):
+                try:
+                    csv_text=up.read().decode("utf-8")
+                    parsed=parse_fidelity_csv(csv_text)
+                    if parsed and len(parsed)>0:
+                        st.session_state.portfolio_holdings=parsed
+                        st.session_state[csv_key]=True
+                        st.session_state.current_portfolio_id=None
+                        st.session_state.current_portfolio_name=f"Imported {datetime.now().strftime('%b %d')}"
+                        st.success(f"✓ Parsed {len(parsed)} holdings: {', '.join([h['ticker'] for h in parsed[:10]])}{'...' if len(parsed)>10 else ''}")
+                        st.rerun()
+                    else:
+                        st.error("Could not parse any holdings from this CSV. Make sure it's a Fidelity export with 'Symbol' and 'Quantity' columns.")
+                        with st.expander("CSV preview (first 500 chars)"):
+                            st.code(csv_text[:500])
+                except UnicodeDecodeError:
+                    st.error("Could not decode CSV. Make sure it's UTF-8 encoded.")
+                except Exception as e:
+                    st.error(f"Parse error: {str(e)}")
+        if st.session_state.portfolio_holdings:
+            st.info(f"Currently loaded: {len(st.session_state.portfolio_holdings)} holdings. Scroll down to analyze.")
+    else:
+        nr=st.number_input("Holdings",1,50,min(len(st.session_state.portfolio_holdings) or 5,50),key="n_hold")
+        holdings=[]
+        for i in range(int(nr)):
+            c1,c2,c3=st.columns([1.5,1,1])
+            dt=st.session_state.portfolio_holdings[i]["ticker"] if i<len(st.session_state.portfolio_holdings) else ""
+            ds=st.session_state.portfolio_holdings[i]["shares"] if i<len(st.session_state.portfolio_holdings) else 0.0
+            dcb=st.session_state.portfolio_holdings[i].get("cost_basis") if i<len(st.session_state.portfolio_holdings) else None
+            with c1: t=st.text_input("Ticker",value=dt,key=f"pt_{i}").upper().strip()
+            with c2: s=st.number_input("Shares",value=float(ds),min_value=0.0,key=f"ps_{i}")
+            with c3: cb=st.number_input("Cost ($)",value=float(dcb or 0),min_value=0.0,key=f"pc_{i}")
+            if t and s>0: holdings.append({"ticker":t,"shares":s,"cost_basis":cb if cb>0 else None})
+        if st.button("Analyze",key="ab"): st.session_state.portfolio_holdings=holdings;st.rerun()
+    if st.session_state.portfolio_holdings:
+        # ── Save to Supabase ──
+        st.markdown("---")
+        sv1,sv2,sv3=st.columns([2,1,1])
+        with sv1:
+            default_name=st.session_state.get("current_portfolio_name","Main Portfolio")
+            save_name=st.text_input("Portfolio name",value=default_name,key="save_name")
+        with sv2:
+            current_id=st.session_state.get("current_portfolio_id")
+            save_label="Update" if current_id else "Save"
+            if st.button(save_label,key="save_pf",use_container_width=True):
+                result=save_portfolio(save_name,st.session_state.portfolio_holdings,portfolio_id=current_id)
+                if "error" in result: st.error(result["error"])
+                else:
+                    st.session_state.current_portfolio_id=result["portfolio_id"]
+                    st.session_state.current_portfolio_name=save_name
+                    st.success(f"{save_label}d!")
+                    st.rerun()
+        with sv3:
+            if current_id and st.button("Save as New",key="save_new",use_container_width=True):
+                result=save_portfolio(save_name,st.session_state.portfolio_holdings,portfolio_id=None)
+                if "error" in result: st.error(result["error"])
+                else:
+                    st.session_state.current_portfolio_id=result["portfolio_id"]
+                    st.success("Saved as new portfolio!")
+                    st.rerun()
+
+        analysis=analyze_portfolio(st.session_state.portfolio_holdings,scored_df,sector_stats)
+        if "error" in analysis: st.error(analysis["error"])
+        elif analysis:
+            m1,m2,m3,m4,m5=st.columns(5)
+            with m1: st.metric("Value",f"${analysis['total_value']:,.0f}")
+            with m2: st.metric("Holdings",analysis["num_holdings"])
+            with m3: st.metric("Rating",analysis["weighted_rating"])
+            with m4: st.metric("Score",f"{analysis['weighted_composite']:.1f}/12")
+            with m5: st.metric("Concentration",analysis["concentration_level"])
+            td2=[];
+            for p,t2 in analysis["factor_tilts"].items(): td2.append({"Pillar":p,"Portfolio":t2["portfolio"],"Universe":t2["universe"]})
+            fig_t=go.Figure();tdf=pd.DataFrame(td2)
+            fig_t.add_trace(go.Bar(name="Portfolio",x=tdf["Pillar"],y=tdf["Portfolio"],marker_color="#00D4AA"))
+            fig_t.add_trace(go.Bar(name="Universe",x=tdf["Pillar"],y=tdf["Universe"],marker_color="#555"))
+            fig_t.update_layout(barmode="group",yaxis=dict(range=[0,12]),height=350,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
+            st.plotly_chart(fig_t,use_container_width=True,key="pt")
+
+            # ═══ Portfolio Suggestions v2 (Prescriptive) ═══
+            st.markdown("---")
+            st.markdown("### 🎯 Actionable Recommendations")
+            st.caption("Specific actions with shares, dollar amounts, and reasoning.")
+            sugs=generate_suggestions_v2(analysis,scored_df,max_suggestions=12)
+            if not sugs:
+                st.success("Portfolio looks healthy. No specific actions needed.")
+            else:
+                # Group by type
+                criticals=[s for s in sugs if s["type"]=="critical"]
+                warnings=[s for s in sugs if s["type"]=="warning"]
+                opportunities=[s for s in sugs if s["type"]=="opportunity"]
+                infos=[s for s in sugs if s["type"]=="info"]
+
+                if criticals:
+                    st.markdown("##### ⚠️ Critical")
+                    for sg in criticals:
+                        card=format_suggestion_card(sg)
+                        st.markdown(f'<div style="background:#1A1F2E;border-left:5px solid {card["color"]};padding:14px;margin-bottom:10px;border-radius:6px;"><strong style="color:{card["color"]};font-size:1.05em;">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;font-weight:600;margin-top:8px;display:inline-block;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;margin-top:4px;display:inline-block;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+                if warnings:
+                    st.markdown("##### ⚠ Warnings")
+                    for sg in warnings:
+                        card=format_suggestion_card(sg)
+                        st.markdown(f'<div style="background:#1A1F2E;border-left:5px solid {card["color"]};padding:14px;margin-bottom:10px;border-radius:6px;"><strong style="color:{card["color"]};font-size:1.05em;">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;font-weight:600;margin-top:8px;display:inline-block;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;margin-top:4px;display:inline-block;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+                if opportunities:
+                    st.markdown("##### 💡 Opportunities")
+                    for sg in opportunities:
+                        card=format_suggestion_card(sg)
+                        st.markdown(f'<div style="background:#1A1F2E;border-left:5px solid {card["color"]};padding:14px;margin-bottom:10px;border-radius:6px;"><strong style="color:{card["color"]};font-size:1.05em;">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;font-weight:600;margin-top:8px;display:inline-block;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;margin-top:4px;display:inline-block;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+                if infos:
+                    st.markdown("##### ℹ Info")
+                    for sg in infos:
+                        card=format_suggestion_card(sg)
+                        st.markdown(f'<div style="background:#1A1F2E;border-left:5px solid {card["color"]};padding:14px;margin-bottom:10px;border-radius:6px;"><strong style="color:{card["color"]};font-size:1.05em;">{card["icon"]} {card["title"]}</strong><br><span style="color:#fff;font-weight:600;margin-top:8px;display:inline-block;">→ {card["action"]}</span><br><span style="color:#aaa;font-size:0.9em;margin-top:4px;display:inline-block;">{card["reasoning"]}</span></div>',unsafe_allow_html=True)
+
+            # AI Portfolio Optimization (if available)
+            if is_ai_available():
+                st.markdown("---")
+                st.markdown("### 🤖 AI Portfolio Advisor")
+                ai_obj=st.selectbox("Investment objective",["growth","income","balanced","defensive"],key="ai_obj")
+                if st.button("Get AI Optimization",key="ai_opt"):
+                    with st.spinner("AI analyzing your portfolio..."):
+                        # Pass ALL holdings to AI, not just top 5 — otherwise AI may suggest adding stocks already held
+                        all_holdings = analysis["holdings_df"].sort_values("weight", ascending=False)
+                        holdings_list = ", ".join([f"{r['ticker']} ({r['weight']*100:.1f}%)" for _,r in all_holdings.iterrows()])
+                        port_summary = (
+                            f"Total: ${analysis['total_value']:,.0f} across {analysis['num_holdings']} positions. "
+                            f"ALL CURRENT HOLDINGS (do NOT recommend adding any of these — they are already owned): {holdings_list}"
+                        )
+                        available=scored_df[(~scored_df.index.isin([h["ticker"] for h in st.session_state.portfolio_holdings]))&(scored_df["overall_rating"]=="Strong Buy")&(scored_df["sector"]!="ETF")].nlargest(10,"composite_score")
+                        univ_summary="; ".join([f"{t}({scored_df.loc[t,'sector'][:5]},Score {scored_df.loc[t,'composite_score']:.1f})" for t in available.index[:10]])
+                        ai_opt=generate_portfolio_optimization(port_summary,univ_summary,ai_obj)
+                    if "error" in ai_opt:
+                        st.error(ai_opt["error"])
+                    else:
+                        st.markdown(f"**Overall Assessment:** {ai_opt.get('overall_assessment','')}")
+                        st.info(f"**Biggest Opportunity:** {ai_opt.get('biggest_opportunity','')}")
+                        st.warning(f"**Biggest Risk:** {ai_opt.get('biggest_risk','')}")
+                        if "recommendations" in ai_opt:
+                            st.markdown("**AI Recommendations:**")
+                            for r in ai_opt["recommendations"]:
+                                action_colors={"BUY":"#22C55E","ADD":"#84CC16","HOLD":"#EAB308","TRIM":"#F97316","SELL":"#DC2626"}
+                                ac=action_colors.get(r.get("action","HOLD"),"#666")
+                                st.markdown(f'<div style="background:#1A1F2E;border-left:4px solid {ac};padding:10px;margin-bottom:6px;border-radius:4px;"><strong style="color:{ac};">{r.get("action")} {r.get("ticker")} ({r.get("suggested_allocation_pct",0):.1f}%)</strong><br><span style="color:#ccc;font-size:0.9em;">{r.get("reasoning","")}</span></div>',unsafe_allow_html=True)
+                        st.caption(f"Powered by {ai_opt.get('provider','AI')}")
+            else:
+                st.caption("💡 Configure AI provider (Gemini free tier) in .streamlit/secrets.toml for AI-powered portfolio optimization.")
+
+    # ═══ Watchlist (expandable section) ═══
+    st.markdown("---")
+    with st.expander("⭐ Watchlist - Stocks You're Researching"):
+        st.caption("Track stocks you're researching but don't own yet. Separate from your portfolio.")
+        wl=load_watchlist()
+
+        wlc1,wlc2=st.columns([3,1])
+        with wlc1:
+            wl_options=[""]+sorted([t for t in scored_df.index.tolist() if t not in [w["ticker"] for w in wl]])
+            wl_new=st.selectbox(
+                "Add ticker to watchlist",
+                wl_options,
+                format_func=lambda x: f"{x} -- {scored_df.loc[x,'shortName']}" if x and x in scored_df.index else x,
+                key="wl_add_select"
+            )
+        with wlc2:
+            st.markdown("&nbsp;")  # spacer
+            if wl_new and st.button("➕ Add to Watchlist",key="wl_add_btn",use_container_width=True):
+                add_to_watchlist(wl_new)
+                st.success(f"Added {wl_new}")
+                st.rerun()
+
+        if not wl:
+            st.info("Watchlist is empty. Add tickers above.")
+        else:
+            st.markdown(f"**{len(wl)} stocks watched**")
+            wl_rows=[]
+            for entry in wl:
+                t3=entry["ticker"]
+                if t3 in scored_df.index:
+                    r=scored_df.loc[t3]
+                    wl_rows.append({
+                        "Ticker": t3,
+                        "Company": r.get("shortName","")[:30],
+                        "Sector": r.get("sector",""),
+                        "Price": f"${r.get('currentPrice',0):.2f}",
+                        "Score": f"{r.get('composite_score',0):.1f}",
+                        "Rating": r.get("overall_rating","N/A"),
+                        "1M": f"{r.get('momentum_1m',0)*100:+.1f}%" if pd.notna(r.get('momentum_1m')) else "N/A",
+                        "12M": f"{r.get('momentum_12m',0)*100:+.1f}%" if pd.notna(r.get('momentum_12m')) else "N/A",
+                    })
+            if wl_rows:
+                st.dataframe(pd.DataFrame(wl_rows),use_container_width=True,hide_index=True)
+
+            st.markdown("**Remove from watchlist:**")
+            n_cols=min(len(wl),5)
+            rm_cols=st.columns(n_cols)
+            for i,entry in enumerate(wl):
+                with rm_cols[i%n_cols]:
+                    if st.button(f"❌ {entry['ticker']}",key=f"wl_rm_{entry['ticker']}",use_container_width=True):
+                        remove_from_watchlist(entry["ticker"])
+                        st.rerun()
+
+# ═══ TAB 8: MONTE CARLO v2 ════════════════════════════════════════
+# ═══ MONTE CARLO — folded into Your Portfolio tab as a separate section ═══
+# Was a standalone tab; now appears at the bottom of Your Portfolio.
+with tab_portfolio:
+    st.markdown("---")
+    st.markdown("## 🎲 Monte Carlo Simulation")
+    premium_banner("Monte Carlo Simulation")
+    st.caption("Geometric Brownian Motion with mean reversion, return caps, and macro scenario adjustment.")
+    if not st.session_state.portfolio_holdings: st.info("Enter holdings in Portfolio tab first.")
+    else:
+        analysis=analyze_portfolio(st.session_state.portfolio_holdings,scored_df,sector_stats)
+        if "error" not in analysis and analysis:
+            mc1,mc2,mc3=st.columns(3)
+            with mc1: ns=st.selectbox("Sims",[1000,5000,10000],index=1)
+            with mc2: nd=st.selectbox("Horizon",[63,126,252],index=2,format_func=lambda x:{63:"3 Months",126:"6 Months",252:"1 Year"}[x])
+            with mc3: scenario=st.selectbox("Scenario",["Blended","Bull","Base","Bear"],index=0,help="Bull: +8% drift (expansion). Base: neutral. Bear: -12% drift (recession). Blended: 25/50/25 weighted avg.")
+            if st.button("Run Simulation",key="mcr"):
+                hdf=analysis.get("holdings_df",pd.DataFrame())
+                with st.spinner("Simulating..."):
+                    mc=run_monte_carlo(hdf,scored_df,n_simulations=ns,n_days=nd,scenario=scenario)
+                if mc:
+                    r1,r2,r3,r4,r5=st.columns(5)
+                    with r1: st.metric("Exp. Return",f"{mc['expected_annual_return']}%")
+                    with r2: st.metric("Volatility",f"{mc['estimated_annual_vol']}%")
+                    with r3: st.metric("P(Gain)",f"{mc['prob_positive']}%")
+                    with r4: st.metric("P(Loss>20%)",f"{mc['prob_loss_20']}%")
+                    with r5: st.metric("Scenario",mc["scenario"])
+                    # Fan chart
+                    paths=mc["path_percentiles"];days=list(range(1,nd+1))
+                    fig_f=go.Figure()
+                    fig_f.add_trace(go.Scatter(x=days,y=paths["p95"].tolist(),mode="lines",line=dict(width=0),showlegend=False))
+                    fig_f.add_trace(go.Scatter(x=days,y=paths["p5"].tolist(),mode="lines",line=dict(width=0),fill="tonexty",fillcolor="rgba(0,212,170,0.1)",name="5-95th"))
+                    fig_f.add_trace(go.Scatter(x=days,y=paths["p75"].tolist(),mode="lines",line=dict(width=0),showlegend=False))
+                    fig_f.add_trace(go.Scatter(x=days,y=paths["p25"].tolist(),mode="lines",line=dict(width=0),fill="tonexty",fillcolor="rgba(0,212,170,0.25)",name="25-75th"))
+                    fig_f.add_trace(go.Scatter(x=days,y=paths["p50"].tolist(),mode="lines",line=dict(color="#00D4AA",width=2),name="Median"))
+                    fig_f.add_hline(y=mc["total_value"],line_dash="dash",line_color="#666",annotation_text="Starting Value")
+                    fig_f.update_layout(yaxis=dict(title="Value ($)",tickformat="$,.0f"),xaxis=dict(title="Trading Days"),height=450,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"))
+                    st.plotly_chart(fig_f,use_container_width=True,key="mcf")
+                    # Outcome probabilities
+                    st.markdown("### Outcome Probabilities")
+                    prob_df=pd.DataFrame({"Outcome":["Gain 50%+","Gain 20%+","Any Gain","Loss <10%","Loss 10-20%","Loss >20%"],
+                        "Probability":[f"{mc['prob_gain_50']}%",f"{mc['prob_gain_20']}%",f"{mc['prob_positive']}%",
+                        f"{max(0,100-mc['prob_positive']-mc['prob_loss_10']):.1f}%",f"{max(0,mc['prob_loss_10']-mc['prob_loss_20']):.1f}%",f"{mc['prob_loss_20']}%"]})
+                    st.dataframe(prob_df,use_container_width=True,hide_index=True)
+                    # VaR percentiles
+                    st.markdown("### Value at Risk")
+                    var_df=pd.DataFrame({"Percentile":["5th (worst)","25th","50th (median)","75th","95th (best)"],
+                        "Value":[f"${mc['percentiles']['p5']:,.0f}",f"${mc['percentiles']['p25']:,.0f}",f"${mc['percentiles']['p50']:,.0f}",
+                        f"${mc['percentiles']['p75']:,.0f}",f"${mc['percentiles']['p95']:,.0f}"],
+                        "Return":[f"{(mc['percentiles']['p5']/mc['total_value']-1)*100:+.1f}%",f"{(mc['percentiles']['p25']/mc['total_value']-1)*100:+.1f}%",
+                        f"{(mc['percentiles']['p50']/mc['total_value']-1)*100:+.1f}%",f"{(mc['percentiles']['p75']/mc['total_value']-1)*100:+.1f}%",
+                        f"{(mc['percentiles']['p95']/mc['total_value']-1)*100:+.1f}%"]})
+                    st.dataframe(var_df,use_container_width=True,hide_index=True)
+                    # Per-holding assumptions (transparency)
+                    with st.expander("Model Assumptions (per holding)"):
+                        if mc.get("holding_details"):
+                            ha_df=pd.DataFrame(mc["holding_details"])
+                            ha_df.columns=["Ticker","Exp. Return %","Est. Vol %","Weight %"]
+                            st.dataframe(ha_df,use_container_width=True,hide_index=True)
+                        mp=mc.get("model_params",{})
+                        st.caption(f"Mean reversion: {mp.get('mean_reversion_weight',0)*100:.0f}% long-term / {(1-mp.get('mean_reversion_weight',0))*100:.0f}% trailing")
+                        st.caption(f"Return cap: {mp.get('max_annual_return_cap',0)*100:.0f}% max per holding")
+                        st.caption(f"Long-term equity premium: {mp.get('long_term_premium',0)*100:.0f}%")
+                        st.caption(f"Avg cross-correlation: {mp.get('avg_correlation',0):.2f}")
+                        st.caption(f"Scenario adjustment: {mp.get('scenario_adjustment',0):+.1f}%")
+
+# ═══ TAB: ETF CENTER ══════════════════════════════════════════════
+with tab_etfs:
+    st.markdown("### ETF Center")
+    st.caption("Build portfolios with ETFs, compare options, and find the right ETF for your sector or theme tilt.")
+
+    etf_section=st.radio("",["📊 Portfolio Builder","🔍 ETF Comparison","🗺️ Sector & Theme Map"],horizontal=True,key="etf_section",label_visibility="collapsed")
+    st.markdown("---")
+
+    raw_cache_data=load_raw_cache()
+
+    # ── Section 1: Portfolio Builder ──
+    if etf_section=="📊 Portfolio Builder":
+        st.markdown("#### Portfolio Builder")
+        st.caption("Pre-built ETF allocations across risk profiles. Inspired by Motley Fool's Cautious/Moderate/Aggressive framework.")
+
+        pb1,pb2=st.columns([1,1])
+        with pb1: pb_template=st.selectbox("Risk Profile",list_templates(),key="pb_template")
+        with pb2: pb_amount=st.number_input("Total Investment ($)",min_value=1000,max_value=10000000,value=100000,step=10000,key="pb_amount")
+
+        result=calculate_template_metrics(pb_template,pb_amount)
+        if result:
+            tmpl=result["template"]
+            pmA,pmB,pmC=st.columns(3)
+            with pmA: st.metric("Risk Score",f"{tmpl['risk_score']}/10")
+            with pmB: st.metric("Expected Return",tmpl["expected_annual_return"])
+            with pmC: st.metric("Max Drawdown Est.",tmpl["max_drawdown_estimate"])
+
+            st.info(tmpl["description"])
+
+            # Allocation table
+            alloc_df=pd.DataFrame(result["rows"])
+            alloc_df["Amount"]=alloc_df["Amount"].apply(lambda x: f"${x:,.0f}")
+            alloc_df["Weight %"]=alloc_df["Weight %"].apply(lambda x: f"{x}%")
+            st.dataframe(alloc_df,use_container_width=True,hide_index=True)
+
+            # Donut chart
+            chart_data=pd.DataFrame(result["rows"])
+            fig_alloc=go.Figure(go.Pie(
+                labels=chart_data["Category"],
+                values=chart_data["Weight %"] if "Weight %" not in chart_data.columns or chart_data["Weight %"].dtype!=object else [r["weight"] for r in tmpl["allocations"]],
+                hole=0.5,
+                marker=dict(colors=["#00D4AA","#00A3FF","#A855F7","#FBBF24","#F97316","#EF4444","#22C55E","#6366F1"]),
+                textinfo="label+percent",
+            ))
+            fig_alloc.update_layout(height=400,paper_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),margin=dict(l=20,r=20,t=20,b=20),showlegend=False)
+            st.plotly_chart(fig_alloc,use_container_width=True,key="pb_donut")
+
+            with st.expander("How to use this allocation"):
+                st.markdown(f"""
+                **Implementation steps:**
+                1. Open a brokerage account if you don't have one (Fidelity, Schwab, Vanguard recommended for low fees).
+                2. For each row above, place a buy order for the listed ETF using the dollar amount shown.
+                3. Rebalance quarterly or when any position drifts more than 5% from target.
+                4. The "Alternative" column shows substitute ETFs from different providers if your broker doesn't offer the primary.
+
+                **Notes:**
+                - Expected returns are based on historical averages and are not guaranteed.
+                - Max drawdown estimates reflect what historically happens in market crashes.
+                - Tax-efficient placement: hold bonds/REITs in retirement accounts (IRA, 401k) and equities in taxable accounts when possible.
+                - This is informational only, not financial advice.
+                """)
+
+    # ── Section 2: ETF Comparison ──
+    elif etf_section=="🔍 ETF Comparison":
+        st.markdown("#### ETF Comparison Tool")
+        st.caption("Compare 2-5 ETFs side-by-side: expense ratios, returns across timeframes, AUM, yield, and beta.")
+
+        etf_universe=get_etf_universe(raw_cache_data)
+        if not etf_universe:
+            st.warning("No ETF data in cache. Run build_cache.py to populate.")
+        else:
+            cmp_etfs=st.multiselect(
+                "Select 2-5 ETFs",
+                etf_universe,
+                default=etf_universe[:3] if len(etf_universe)>=3 else etf_universe,
+                max_selections=5,
+                format_func=lambda x: f"{x} -- {raw_cache_data.get(x,{}).get('shortName','')[:40]}",
+                key="etf_cmp"
+            )
+
+            if len(cmp_etfs)>=2:
+                cmp_df=compare_etfs(cmp_etfs,raw_cache_data)
+                if cmp_df is not None and not cmp_df.empty:
+                    # Format the dataframe for display
+                    disp_df=cmp_df.copy()
+                    disp_df["Expense Ratio"]=disp_df["Expense Ratio"].apply(lambda x: f"{x*100:.2f}%" if pd.notna(x) and x else "N/A")
+                    disp_df["AUM ($B)"]=disp_df["AUM ($B)"].apply(lambda x: f"${x:.1f}B" if x>0 else "N/A")
+                    disp_df["Yield %"]=disp_df["Yield %"].apply(lambda x: f"{x:.2f}%" if x>0 else "N/A")
+                    for col in ["1M %","3M %","6M %","12M %","YTD %"]:
+                        disp_df[col]=disp_df[col].apply(lambda x: f"{x:+.1f}%")
+                    disp_df["Beta (3Y)"]=disp_df["Beta (3Y)"].apply(lambda x: f"{x:.2f}" if pd.notna(x) and x else "N/A")
+                    disp_df["Price"]=disp_df["Price"].apply(lambda x: f"${x:.2f}" if x>0 else "N/A")
+                    st.dataframe(disp_df,use_container_width=True,hide_index=True)
+
+                    # Returns visualization
+                    st.markdown("##### Returns Comparison")
+                    ret_data=[]
+                    for _,row in cmp_df.iterrows():
+                        for period in ["1M %","3M %","6M %","12M %","YTD %"]:
+                            ret_data.append({"ETF":row["Ticker"],"Period":period.replace(" %",""),"Return":row[period]})
+                    ret_df=pd.DataFrame(ret_data)
+                    fig_ret=px.bar(ret_df,x="Period",y="Return",color="ETF",barmode="group",
+                        color_discrete_sequence=["#00D4AA","#00A3FF","#A855F7","#FBBF24","#F97316"])
+                    fig_ret.update_layout(height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),yaxis=dict(title="Return %",gridcolor="#2a2f3e"),xaxis=dict(gridcolor="#2a2f3e"))
+                    st.plotly_chart(fig_ret,use_container_width=True,key="etf_cmp_returns")
+
+                    with st.expander("Comparison guide"):
+                        st.markdown("""
+                        **What to look for:**
+                        - **Lower expense ratio** is better (saves money long-term).
+                        - **Higher AUM** means more liquidity, tighter bid/ask spreads.
+                        - **Yield** matters for income-focused investors.
+                        - **Returns** show recent performance, but past performance doesn't predict future.
+                        - **Beta** measures volatility vs. the market (1.0 = market, >1 more volatile, <1 less).
+
+                        **Common comparisons:**
+                        - VTI vs ITOT vs SPTM: Three near-identical broad market ETFs. Pick the one with lowest expense ratio at your broker.
+                        - VOO vs IVV vs SPY: Three S&P 500 ETFs. SPY has highest liquidity for trading; VOO/IVV are best for buy-and-hold.
+                        - QQQ vs QQQM: QQQM is cheaper expense ratio but slightly less liquid.
+                        """)
+            else:
+                st.info("Select at least 2 ETFs to compare.")
+
+    # ── Section 3: Sector & Theme Map ──
+    else:
+        st.markdown("#### Sector & Theme ETF Map")
+        st.caption("Quick reference for which ETF to use when tilting your portfolio toward a specific sector or theme.")
+
+        st.markdown("##### Sector ETFs")
+        sector_map=get_sector_etf_map()
+        sm_rows=[]
+        for s in sector_map:
+            sm_rows.append({
+                "Sector": s["sector"],
+                "Primary ETF": s["ticker"],
+                "Alternative": s["alternative"] or "",
+                "Use Case": s["use_case"],
+            })
+        st.dataframe(pd.DataFrame(sm_rows),use_container_width=True,hide_index=True)
+
+        st.markdown("---")
+        st.markdown("##### Thematic ETFs")
+        theme_map=get_theme_etf_map()
+        tm_rows=[]
+        for t in theme_map:
+            tm_rows.append({
+                "Theme": t["theme"],
+                "Primary ETF": t["ticker"],
+                "Alternative": t["alternative"] or "",
+                "Use Case": t["use_case"],
+            })
+        st.dataframe(pd.DataFrame(tm_rows),use_container_width=True,hide_index=True)
+
+        with st.expander("How to use sector and theme tilts"):
+            st.markdown("""
+            **Sector tilting** means deviating from market-cap-weighted exposure to bet on a specific sector.
+
+            **Example:** Standard S&P 500 has ~30% in Technology. If you believe tech will outperform, you might:
+            1. Hold VTI as your core (40% of portfolio).
+            2. Add 10-15% in XLK to boost tech exposure to ~35-40% of portfolio.
+
+            **Thematic ETFs** are concentrated bets on long-term trends:
+            - Higher conviction needed (these can be volatile)
+            - Generally allocate 2-5% per theme, max 10-15% combined
+            - Examples: AI (BAI), cybersecurity (CIBR), space (ARKX), nuclear (NLR)
+
+            **Risk:** Sector and theme ETFs reduce diversification. The narrower the focus, the higher the volatility and the more your returns depend on being right about a specific narrative.
+            """)
+
+# ═══ TAB: CRYPTO ═══════════════════════════════════════════════════
+with tab_crypto:
+    from crypto_tab import render_crypto_tab
+    render_crypto_tab()
+
+# Prediction Market tab content has been merged into the Pundit Views & Predictions tab.
+
+# ═══ TAB: HELP & GLOSSARY ═══════════════════════════════════════════
+with tab_help:
+    help_section=st.radio(
+        "Topic",
+        ["Getting Started","Best Practices","5-Pillar Methodology","Rating System","Fair Value","Buy Point","Pro Charts","ETF Center","Swing Trader","Doppelganger","Monte Carlo","PGI","Glossary","Data Sources","Disclaimer"],
+        horizontal=True,
+        key="help_section"
+    )
+    st.markdown("---")
+    if help_section=="Getting Started":
+        st.markdown("# Getting Started")
+        st.markdown(GETTING_STARTED)
+    elif help_section=="Best Practices":
+        st.markdown("# Best Practices")
+        st.markdown(BEST_PRACTICES)
+    elif help_section=="5-Pillar Methodology":
+        st.markdown("# 5-Pillar Quant Methodology")
+        st.markdown(PILLAR_METHODOLOGY)
+    elif help_section=="Rating System":
+        st.markdown("# Rating System")
+        st.markdown(RATING_SYSTEM)
+    elif help_section=="Fair Value":
+        st.markdown("# Fair Value Analysis")
+        st.markdown(FAIR_VALUE)
+    elif help_section=="Buy Point":
+        st.markdown("# Buy Point Analysis")
+        st.markdown(BUY_POINT)
+    elif help_section=="Pro Charts":
+        st.markdown("# Pro Charts")
+        st.markdown(PRO_CHARTS)
+    elif help_section=="ETF Center":
+        st.markdown("# ETF Center")
+        st.markdown(ETF_CENTER)
+    elif help_section=="Swing Trader":
+        st.markdown("# IBD-Inspired Swing Trader")
+        st.markdown(SWING_TRADER)
+    elif help_section=="Doppelganger":
+        st.markdown("# Doppelganger Analysis")
+        st.markdown(DOPPELGANGER)
+    elif help_section=="Monte Carlo":
+        st.markdown("# Monte Carlo Simulation")
+        st.markdown(MONTE_CARLO)
+    elif help_section=="PGI":
+        st.markdown("# Potential Growth Indicator (PGI)")
+        st.markdown(PGI)
+    elif help_section=="Glossary":
+        st.markdown("# Glossary of Terms")
+        gloss_search=st.text_input("Search glossary",key="gloss_search",placeholder="e.g. PEG, ROE, RSI...")
+        filtered=GLOSSARY
+        if gloss_search:
+            q=gloss_search.lower().strip()
+            filtered=[g for g in GLOSSARY if q in g["term"].lower() or q in g["definition"].lower()]
+        if not filtered:
+            st.info("No matches. Try a different term.")
+        else:
+            st.caption(f"Showing {len(filtered)} of {len(GLOSSARY)} terms.")
+            for g in filtered:
+                st.markdown(f"**{g['term']}** -- {g['definition']}")
+    elif help_section=="Data Sources":
+        st.markdown("# Data Sources & Limitations")
+        st.markdown(DATA_SOURCES)
+    elif help_section=="Disclaimer":
+        st.markdown("# Disclaimer")
+        st.markdown(DISCLAIMER)
+
+st.markdown("---")
+st.caption(f"Quant Strategy Dashboard Pro v4.0 | AI: {'✓ '+get_provider_status()['provider'] if is_ai_available() else 'Not configured'} | Not financial advice")
