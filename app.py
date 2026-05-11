@@ -308,8 +308,9 @@ with tab_home:
     sc1,sc2,sc3=st.columns(3)
     with sc1: home_sec=st.selectbox("Sector",["All"]+sorted(_stocks_only["sector"].dropna().unique().tolist()),key="home_screen_sec")
     with sc2: home_rat=st.selectbox("Rating",["All","Strong Buy","Buy","Hold","Sell","Strong Sell"],key="home_screen_rat")
-    with sc3: home_top=st.selectbox("Show Top",[50,100,250,500],index=1,key="home_screen_top")
-    home_filtered=get_top_stocks(_stocks_only,home_top,home_sec,home_rat)
+    with sc3: home_top=st.selectbox("Show Top",[50,100,250,500,"All"],index=1,key="home_screen_top")
+    _n_show = len(_stocks_only) if home_top == "All" else home_top
+    home_filtered=get_top_stocks(_stocks_only,_n_show,home_sec,home_rat)
     if not home_filtered.empty:
         hs1,hs2,hs3,hs4,hs5,hs6=st.columns(6)
         with hs1: st.metric("Universe",f"{len(_stocks_only):,}")
