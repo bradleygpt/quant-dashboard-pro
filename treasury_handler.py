@@ -77,7 +77,7 @@ def parse_treasury_row(row: dict) -> Optional[dict]:
     row isn't a Treasury.
     """
     # Lookup keys are case-insensitive
-    lc_row = {k.lower().strip(): v for k, v in row.items()}
+    lc_row = {(k or "").lower().strip(): v for k, v in row.items() if k is not None}
 
     symbol = lc_row.get("symbol") or lc_row.get("account") or ""
     symbol = str(symbol).strip().upper()
@@ -182,7 +182,8 @@ def parse_fidelity_csv_with_treasuries(csv_text: str, stock_parser):
                 treasury_holdings.append(parsed)
         else:
             # Reassemble this row as a CSV line for the stock parser
-            row_values = [row.get(col, "") or "" for col in reader.fieldnames]
+            valid_fields = [f for f in (reader.fieldnames or []) if f is not None]
+            row_values = [(row.get(col) or "") for col in valid_fields]
             row_line = ",".join(
                 f'"{str(v).replace(chr(34), chr(34) + chr(34))}"' if "," in str(v) else str(v)
                 for v in row_values
