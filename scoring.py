@@ -4,11 +4,15 @@ Stocks are ranked within their sector, not the entire universe.
 This means a bank is compared to other banks, not to SaaS companies.
 
 Rating system aligned to the Top25 1Q-reselect backtested strategy:
-- Strong Buy + Buy ALWAYS total 25 stocks (the backtested portfolio size)
-- Split between Strong Buy and Buy uses cliff-detection within the top 25:
-  the largest score gap defines the conviction tier boundary
-- Hold / Sell / Strong Sell use score bands for ranks 26+
-- ETFs use the original score-band logic since they're not part of the portfolio strategy
+- Top 25 non-ETF stocks always classified as Buy or stronger (the validated portfolio size)
+- Within the top 25, tier is determined by current price vs Quant Buy Point (QBP) and Fair Value (FV):
+    Strong Buy+  = price AT OR BELOW QBP AND AT OR BELOW FV   (best entry + deep value)
+    Strong Buy   = price AT OR BELOW FV but ABOVE QBP          (good value, not at technical entry)
+    Buy          = price ABOVE FV  (or missing FV/QBP data)    (quality pick, currently expensive)
+- High composite score alone does NOT grant Strong Buy or Strong Buy+ status.
+  Value-relative-to-price is the gate.
+- Hold / Sell / Strong Sell use score bands for ranks 26+.
+- ETFs use score-band logic since they are not part of the portfolio strategy.
 """
 import numpy as np
 import pandas as pd
@@ -25,9 +29,9 @@ from config import (
 # SB + B must always equal this number.
 TOP_PORTFOLIO_N = 25
 
-# Cliff detection parameters for splitting SB vs B within the top 25
-CLIFF_MIN_ABSOLUTE_GAP = 0.5       # minimum score points to qualify as a cliff
-CLIFF_MIN_RELATIVE_MULTIPLE = 2.0  # cliff must be >= this x the average gap
+# Top 25 tier assignment uses Fair Value (FV) and Quant Buy Point (QBP) comparisons.
+# Tier resolver lives in _classify_top25_tier(). Cliff detection (legacy approach
+# based on score gaps) has been removed.
 
 
 def score_universe(
@@ -35,6 +39,7 @@ def score_universe(
     weights: dict[str, float] | None = None,
     sector_relative: bool = True,
     preset_name: str | None = None,
+    price_histories: dict | None = None,
 ) -> pd.DataFrame:
     """
     Score all tickers across the five pillars.
@@ -119,86 +124,117 @@ def score_universe(
 
     result["composite_score"] = composite.round(2)
 
-    # Rating assignment via Top25 + cliff detection
-    result["overall_rating"] = _assign_ratings_top25(result)
+    # Rating assignment: Top25 selected, then tier-classified by QBP/FV
+    result["overall_rating"] = _assign_ratings_top25(result, price_histories=price_histories)
 
     result = result.sort_values("composite_score", ascending=False)
 
     return result
 
 
-def _assign_ratings_top25(scored_df: pd.DataFrame) -> pd.Series:
+def _assign_ratings_top25(scored_df: pd.DataFrame, price_histories: dict | None = None) -> pd.Series:
     """
     Assign overall_rating aligned with the backtested Top25 1Q-reselect strategy.
 
-    Strong Buy and Buy are EXCLUSIVE to the top 25 non-ETF stocks. SB + B = 25 always
-    (or fewer if the eligible universe has fewer than 25 stocks).
+    Top 25 non-ETF stocks ranked by composite_score are eligible for Buy / Strong Buy /
+    Strong Buy+. The split is determined by current price vs Quant Buy Point (QBP)
+    and Fair Value (FV) — high composite score alone does NOT grant Strong Buy status.
 
-    Algorithm:
-    1. Rank all NON-ETF stocks by composite_score descending.
-    2. Top 25 stocks become Strong Buy or Buy. Within the top 25, find the largest
-       score gap between consecutive ranks. If that gap is >= CLIFF_MIN_ABSOLUTE_GAP
-       AND >= CLIFF_MIN_RELATIVE_MULTIPLE x the average gap, it's a real cliff:
-         - Stocks above the cliff = Strong Buy
-         - Stocks below the cliff = Buy
-       Otherwise (no clear cliff), all 25 = Buy.
-    3. Ranks 26+ and all ETFs get Hold / Sell / Strong Sell based on their composite
-       score, but are CAPPED at Hold maximum (cannot be SB/B regardless of score).
+    Tier definitions:
+      Strong Buy+ = TOP25 AND price <= QBP AND price <= FV
+      Strong Buy  = TOP25 AND price <= FV AND (price > QBP OR QBP missing)
+      Buy         = TOP25 AND (price > FV OR FV missing)
+
+    Ranks 26+ and all ETFs get Hold / Sell / Strong Sell based on composite score
+    bands, capped at Hold maximum.
+
+    Args:
+        scored_df: Scored universe with composite_score, currentPrice, sector.
+        price_histories: Optional dict {ticker: price_history_df} for QBP calculation.
+                         When None, every TOP25 stock falls back to FV-only or Buy.
     """
-    # Step 1: Apply score-band rating to EVERY row, but cap at Hold maximum
-    # (SB/B from score bands are floored to Hold; the top-25 logic is the ONLY
-    # path to SB/B)
+    # Apply Hold/Sell/Strong Sell to all rows by default
     ratings = scored_df["composite_score"].apply(_score_to_rating_band_capped_at_hold)
 
-    # Step 2: Identify non-ETF stocks (the eligible portfolio universe)
+    # Identify non-ETF stocks
     if "sector" in scored_df.columns:
         is_stock = scored_df["sector"] != "ETF"
     else:
         is_stock = pd.Series(True, index=scored_df.index)
 
     stock_df = scored_df[is_stock].copy()
-
     if len(stock_df) == 0:
         return ratings
 
-    # Step 3: Sort eligible stocks by composite descending
+    # Sort eligible stocks by composite descending; take top 25
     stock_df_sorted = stock_df.sort_values("composite_score", ascending=False)
-
-    # Step 4: Take the top N (or all stocks if universe is smaller)
     n_take = min(TOP_PORTFOLIO_N, len(stock_df_sorted))
     top_tickers = stock_df_sorted.index[:n_take].tolist()
-    top_scores = stock_df_sorted["composite_score"].iloc[:n_take].values
 
-    # Step 5: Default — every top-N stock is Buy
-    sb_tickers = []
-    b_tickers = list(top_tickers)
-
-    # Step 6: Cliff detection — find the largest gap in the top N scores
-    if n_take >= 2:
-        # diff in descending-sorted array is negative; flip sign for positive gaps
-        gaps = -np.diff(top_scores)
-        max_gap = float(gaps.max()) if len(gaps) > 0 else 0.0
-        avg_gap = float(gaps.mean()) if len(gaps) > 0 else 0.0
-
-        cliff_qualifies = (
-            max_gap >= CLIFF_MIN_ABSOLUTE_GAP
-            and (avg_gap == 0 or max_gap >= CLIFF_MIN_RELATIVE_MULTIPLE * avg_gap)
-        )
-
-        if cliff_qualifies:
-            cliff_position = int(np.argmax(gaps))
-            # Strong Buy = ranks 0 through cliff_position (inclusive)
-            # Buy = ranks cliff_position+1 through n_take-1
-            sb_tickers = top_tickers[: cliff_position + 1]
-            b_tickers = top_tickers[cliff_position + 1 :]
-
-    # Step 7: Apply SB/B ratings to the top 25
-    for t in sb_tickers:
-        ratings.loc[t] = "Strong Buy"
-    for t in b_tickers:
-        ratings.loc[t] = "Buy"
+    # For each top-N stock, classify into Strong Buy+ / Strong Buy / Buy
+    for ticker in top_tickers:
+        tier = _classify_top25_tier(ticker, scored_df, price_histories)
+        ratings.loc[ticker] = tier
 
     return ratings
+
+
+def _classify_top25_tier(ticker: str, scored_df: pd.DataFrame,
+                          price_histories: dict | None) -> str:
+    """Classify a TOP25 stock into Strong Buy+ / Strong Buy / Buy based on QBP and FV.
+
+    Returns the rating string. Defaults to Buy when data is missing.
+    """
+    # Get current price
+    if ticker not in scored_df.index:
+        return "Buy"
+    current_price = scored_df.loc[ticker].get("currentPrice")
+    if not current_price or not isinstance(current_price, (int, float)) or current_price <= 0:
+        return "Buy"
+
+    # Compute Fair Value (in-process, no external calls)
+    fv_price = None
+    try:
+        from fairvalue import compute_fair_value
+        fv_result = compute_fair_value(ticker, scored_df)
+        if fv_result and "error" not in fv_result:
+            cfv = fv_result.get("composite_fair_value")
+            if cfv and cfv > 0:
+                fv_price = float(cfv)
+    except Exception:
+        pass
+
+    # If no FV, can't be Strong Buy or Strong Buy+ — stay at Buy
+    if fv_price is None:
+        return "Buy"
+
+    # Price must be at or below FV to qualify for Strong Buy
+    at_or_below_fv = current_price <= fv_price
+    if not at_or_below_fv:
+        return "Buy"
+
+    # Compute QBP if price history available
+    qbp_price = None
+    if price_histories and ticker in price_histories:
+        try:
+            from buy_point import compute_buy_point
+            bp_result = compute_buy_point(
+                ticker, scored_df, fair_value=fv_price,
+                price_history=price_histories[ticker]
+            )
+            if bp_result and "error" not in bp_result:
+                qbp = bp_result.get("buy_point")
+                if qbp and qbp > 0:
+                    qbp_price = float(qbp)
+        except Exception:
+            pass
+
+    # If FV passed but QBP missing or not at/below QBP, classify as Strong Buy
+    if qbp_price is None or current_price > qbp_price:
+        return "Strong Buy"
+
+    # Both gates passed: price at or below FV and QBP
+    return "Strong Buy+"
 
 
 def _score_to_rating_band_capped_at_hold(score: float) -> str:

@@ -11,6 +11,10 @@ Also outputs:
 - Current signal strength (how close is current price to buy point)
 - Distance to buy point as percentage
 - Bollinger Band position (0-100, where 0 = at/below lower band)
+
+Performance: Accepts optional pre-fetched price_history DataFrame to avoid yfinance
+calls. When called in batch from scoring.py, callers should pass histories from
+prices_cache.parquet via price_cache.get_prices().
 """
 
 import numpy as np
@@ -18,21 +22,41 @@ import pandas as pd
 import yfinance as yf
 
 
-def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: float = None) -> dict:
+def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: float = None,
+                       price_history: pd.DataFrame = None) -> dict:
     """
     Compute a quant buy point for a stock.
     Uses 1 year of daily price history for technical calculations.
+
+    Args:
+        ticker: Stock ticker symbol.
+        scored_df: Optional scored universe DataFrame (used to compute fair value if needed).
+        fair_value: Optional pre-computed fair value (skips internal FV computation).
+        price_history: Optional pre-fetched DataFrame with columns including 'close' (lowercase)
+                       or 'Close' (yfinance style). If None, fetches live from yfinance.
+                       Pass this to avoid yfinance HTTP calls when running in batch.
     """
     try:
-        t = yf.Ticker(ticker)
-        hist = t.history(period="1y")
+        # Use pre-fetched history if provided, else fetch live from yfinance
+        if price_history is not None and len(price_history) > 0:
+            # Handle either 'close' (parquet) or 'Close' (yfinance) column naming
+            if "close" in price_history.columns:
+                close = price_history["close"].astype(float).reset_index(drop=True)
+            elif "Close" in price_history.columns:
+                close = price_history["Close"].astype(float).reset_index(drop=True)
+            else:
+                return {"error": f"price_history missing 'close' or 'Close' column for {ticker}"}
+        else:
+            t = yf.Ticker(ticker)
+            hist = t.history(period="1y")
+            if hist.empty or len(hist) < 50:
+                return {"error": f"Insufficient price history for {ticker}."}
+            close = hist["Close"].astype(float)
 
-        if hist.empty or len(hist) < 50:
-            return {"error": f"Insufficient price history for {ticker}."}
+        if len(close) < 50:
+            return {"error": f"Insufficient price history for {ticker} (need >=50 rows, got {len(close)})."}
 
-        close = hist["Close"].astype(float)
         current_price = float(close.iloc[-1])
-
         components = {}
 
         # ── Component 1: Bollinger Band Lower (30%) ────────────────
@@ -47,7 +71,6 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
         # ── Component 2: Mean Reversion / 50-SMA (25%) ─────────────
         sma50 = float(close.rolling(50).mean().iloc[-1]) if len(close) >= 50 else None
         if sma50 and sma50 > 0:
-            # Buy point is 5% below the 50-SMA (mean reversion target)
             mr_target = sma50 * 0.95
             components["Mean Reversion (50-SMA)"] = {
                 "price": round(mr_target, 2),
@@ -66,7 +89,6 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
 
         # ── Component 4: Fair Value Discount (25%) ─────────────────
         if fair_value and fair_value > 0:
-            # Buy point at 10% discount to fair value
             fv_buy = fair_value * 0.90
             components["Fair Value Discount"] = {
                 "price": round(fv_buy, 2),
@@ -74,7 +96,6 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
                 "description": f"10% below fair value (${fair_value:.2f}). Margin of safety.",
             }
         elif scored_df is not None and ticker in scored_df.index:
-            # Try computing fair value
             try:
                 from fairvalue import compute_fair_value
                 fv_result = compute_fair_value(ticker, scored_df)
@@ -92,11 +113,9 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
         if not components:
             return {"error": "Could not compute buy point components."}
 
-        # ── Weighted Buy Point ─────────────────────────────────────
         total_w = sum(c["weight"] for c in components.values())
         buy_point = sum(c["price"] * c["weight"] for c in components.values()) / total_w
 
-        # ── Signal Strength ────────────────────────────────────────
         distance_pct = ((current_price - buy_point) / buy_point) * 100
 
         if distance_pct <= 0:
@@ -120,7 +139,6 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
             signal_color = "#FF5722"
             signal_score = 10
 
-        # ── Additional Technical Context ───────────────────────────
         sma200 = float(close.rolling(200).mean().iloc[-1]) if len(close) >= 200 else None
         rsi = _compute_rsi(close)
 
@@ -158,27 +176,20 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
 
 
 def _bollinger_bands(close: pd.Series, window: int = 20, num_std: float = 2.0) -> dict | None:
-    """Compute Bollinger Bands and current position within them."""
     if len(close) < window:
         return None
-
     sma = float(close.rolling(window).mean().iloc[-1])
     std = float(close.rolling(window).std().iloc[-1])
-
     if std <= 0:
         return None
-
     upper = sma + (num_std * std)
     lower = sma - (num_std * std)
     current = float(close.iloc[-1])
-
-    # Position: 0 = at lower band, 50 = at SMA, 100 = at upper band
     if upper > lower:
         position = ((current - lower) / (upper - lower)) * 100
         position = max(0, min(100, position))
     else:
         position = 50
-
     return {
         "upper": round(upper, 2),
         "lower": round(lower, 2),
@@ -189,50 +200,46 @@ def _bollinger_bands(close: pd.Series, window: int = 20, num_std: float = 2.0) -
 
 
 def _compute_support(close: pd.Series) -> float | None:
-    """Compute support level from recent price floors."""
     if len(close) < 60:
         return None
-
-    # Use recent 6 months (~126 trading days)
     recent = close.iloc[-126:] if len(close) >= 126 else close
-
-    # Support = average of the bottom 10th percentile prices
     q10 = recent.quantile(0.10)
     support_prices = recent[recent <= q10]
-
     if len(support_prices) > 0:
         support = float(support_prices.mean())
         return round(support, 2)
-
     return round(float(recent.min()), 2)
 
 
 def _compute_rsi(close: pd.Series, periods: int = 14) -> float | None:
-    """Compute RSI (Relative Strength Index)."""
     if len(close) < periods + 1:
         return None
-
     delta = close.diff()
     gain = delta.where(delta > 0, 0.0)
     loss = (-delta).where(delta < 0, 0.0)
-
     avg_gain = gain.rolling(window=periods, min_periods=periods).mean().iloc[-1]
     avg_loss = loss.rolling(window=periods, min_periods=periods).mean().iloc[-1]
-
     if avg_loss == 0:
         return 100.0
-
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
-
     return round(float(rsi), 1)
 
 
-def compute_buy_points_batch(tickers: list[str], scored_df: pd.DataFrame = None) -> dict:
-    """Compute buy points for multiple tickers."""
+def compute_buy_points_batch(tickers: list[str], scored_df: pd.DataFrame = None,
+                              price_histories: dict = None) -> dict:
+    """Compute buy points for multiple tickers.
+
+    Args:
+        tickers: List of ticker symbols.
+        scored_df: Optional scored DataFrame for fair-value lookup.
+        price_histories: Optional dict {ticker: DataFrame} of pre-fetched price histories.
+                         Pass this to avoid yfinance HTTP calls in batch.
+    """
     results = {}
     for ticker in tickers:
-        bp = compute_buy_point(ticker, scored_df)
+        ph = (price_histories or {}).get(ticker)
+        bp = compute_buy_point(ticker, scored_df, price_history=ph)
         if "error" not in bp:
             results[ticker] = {
                 "buy_point": bp["buy_point"],

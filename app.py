@@ -276,11 +276,50 @@ def _cache_file_mtime():
             return os.path.getmtime(p)
     return 0
 
+def _load_top25_price_histories(scored_preview):
+    """Load 1y of daily price history from prices_cache.parquet for TOP25 tickers.
+
+    Returns dict {ticker: DataFrame with 'close' column}. Used to feed QBP
+    calculation in scoring without yfinance HTTP calls. Falls back to empty
+    dict if parquet unavailable — QBP will fall back to yfinance individually.
+    """
+    try:
+        import price_cache
+        from datetime import datetime, timedelta
+        # Identify TOP25 non-ETF tickers from preliminary score
+        stocks = scored_preview[scored_preview["sector"] != "ETF"].copy()
+        top25 = stocks.sort_values("composite_score", ascending=False).head(25).index.tolist()
+        # Build 1y date range
+        end = datetime.now().date()
+        start = end - timedelta(days=400)  # extra buffer for SMA200 etc
+        histories = {}
+        for ticker in top25:
+            try:
+                prices = price_cache.get_prices(ticker, start, end)
+                if prices is not None and len(prices) >= 50:
+                    histories[ticker] = prices
+            except Exception:
+                continue
+        return histories
+    except Exception:
+        return {}
+
+
 @st.cache_data(ttl=43200,show_spinner=False)
 def load_and_score(mcap,wt,sr,preset,_file_mtime):
     w=dict(zip(DEFAULT_PILLAR_WEIGHTS.keys(),wt));tickers=get_broad_universe(mcap)
     progress=st.progress(0,text="Loading...");raw=fetch_universe_data(tickers,mcap,lambda p,m:progress.progress(p,text=m));progress.empty()
-    scored=score_universe(raw,w,sector_relative=sr,preset_name=preset);ss=get_sector_stats(scored) if not scored.empty else {}
+    # First-pass score (without tier assignment) to identify TOP25 for price loading
+    progress=st.progress(0.7,text="Identifying TOP25 for tier classification...")
+    scored_preview=score_universe(raw,w,sector_relative=sr,preset_name=preset)
+    # Load price histories for those TOP25 from prices_cache.parquet
+    progress.progress(0.8,text="Loading price histories for QBP calculation...")
+    price_histories=_load_top25_price_histories(scored_preview) if not scored_preview.empty else {}
+    # Second-pass score WITH tier classification (Strong Buy+ / Strong Buy / Buy via QBP/FV)
+    progress.progress(0.9,text="Classifying Strong Buy+ / Strong Buy / Buy tiers...")
+    scored=score_universe(raw,w,sector_relative=sr,preset_name=preset,price_histories=price_histories)
+    progress.empty()
+    ss=get_sector_stats(scored) if not scored.empty else {}
     return raw,scored,ss
 
 try: raw_data,scored_df,sector_stats=load_and_score(market_cap_floor,tuple(st.session_state.weights.values()),st.session_state.sector_relative,st.session_state.get("preset_name",DEFAULT_PRESET),_cache_file_mtime())
@@ -365,7 +404,7 @@ with tab_home:
 
     # Top movers today
     st.markdown("#### Top Rated Opportunities")
-    top5=scored_df[(scored_df["overall_rating"]=="Strong Buy")&(scored_df["sector"]!="ETF")].nlargest(5,"composite_score")
+    top5=scored_df[(scored_df["overall_rating"].isin(["Strong Buy+","Strong Buy"]))&(scored_df["sector"]!="ETF")].nlargest(5,"composite_score")
     if not top5.empty:
         top_cols=st.columns(5)
         for i,(tk,rw) in enumerate(top5.iterrows()):
@@ -395,24 +434,43 @@ with tab_home:
         st.caption(f"Breadth indicator unavailable: {_bi_err}")
     sc1,sc2,sc3=st.columns(3)
     with sc1: home_sec=st.selectbox("Sector",["All"]+sorted(_stocks_only["sector"].dropna().unique().tolist()),key="home_screen_sec")
-    with sc2: home_rat=st.selectbox("Rating",["All","Strong Buy","Buy","Hold","Sell","Strong Sell"],key="home_screen_rat")
+    with sc2: home_rat=st.selectbox("Rating",["All","Strong Buy+","Strong Buy","Buy","Hold","Sell","Strong Sell"],key="home_screen_rat")
     with sc3: home_top=st.selectbox("Show Top",[50,100,250,500,"All"],index=1,key="home_screen_top")
     _n_show = len(_stocks_only) if home_top == "All" else home_top
-    home_filtered=get_top_stocks(_stocks_only,_n_show,home_sec,home_rat)
+    # Sort by tier first (Strong Buy+ > Strong Buy > Buy > Hold > Sell > Strong Sell)
+    # then by composite_score within tier
+    _tier_order = {"Strong Buy+": 0, "Strong Buy": 1, "Buy": 2, "Hold": 3, "Sell": 4, "Strong Sell": 5}
+    _stocks_sorted = _stocks_only.copy()
+    _stocks_sorted["_tier_rank"] = _stocks_sorted["overall_rating"].map(lambda r: _tier_order.get(r, 99))
+    _stocks_sorted = _stocks_sorted.sort_values(["_tier_rank", "composite_score"], ascending=[True, False])
+    _stocks_sorted = _stocks_sorted.drop(columns=["_tier_rank"])
+    home_filtered=get_top_stocks(_stocks_sorted,_n_show,home_sec,home_rat)
     if not home_filtered.empty:
-        hs1,hs2,hs3,hs4,hs5,hs6=st.columns(6)
+        hs1,hs2,hs3,hs4,hs5,hs6,hs7=st.columns(7)
         with hs1: st.metric("Universe",f"{len(_stocks_only):,}")
-        with hs2: st.metric("Strong Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Buy"]))
-        with hs3: st.metric("Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Buy"]))
-        with hs4: st.metric("Holds",len(_stocks_only[_stocks_only["overall_rating"]=="Hold"]))
-        with hs5: st.metric("Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Sell"]))
-        with hs6: st.metric("Strong Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Sell"]))
+        with hs2: st.metric("Strong Buy+",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Buy+"]))
+        with hs3: st.metric("Strong Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Buy"]))
+        with hs4: st.metric("Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Buy"]))
+        with hs5: st.metric("Holds",len(_stocks_only[_stocks_only["overall_rating"]=="Hold"]))
+        with hs6: st.metric("Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Sell"]))
+        with hs7: st.metric("Strong Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Sell"]))
         hdc=["shortName","sector","marketCapB","currentPrice"]
         for p in PILLAR_METRICS: hdc.append(f"{p}_grade")
         hdc+=["composite_score","overall_rating"]
         hdd=home_filtered[hdc].copy()
         hdd.columns=["Company","Sector","Mkt Cap ($B)","Price","Valuation","Growth","Profit","Momentum","EPS Rev","Score","Rating"]
-        st.dataframe(hdd,use_container_width=True,height=500)
+        # Color-code the Rating column based on RATING_COLORS
+        from config import RATING_COLORS as _RC
+        def _style_rating(val):
+            color = _RC.get(val, "#ffffff")
+            # Use a darker background tint of the same color for readability
+            return f"color: {color}; font-weight: 600;"
+        try:
+            _styled = hdd.style.applymap(_style_rating, subset=["Rating"])
+            st.dataframe(_styled, use_container_width=True, height=500)
+        except Exception:
+            # If styling fails, fall back to unstyled
+            st.dataframe(hdd, use_container_width=True, height=500)
 
     # AI Status Diagnostic
     st.markdown("---")
@@ -658,7 +716,7 @@ with tab_screener:
     st.markdown("---")
     fc1,fc2,fc3=st.columns(3)
     preset=PRESET_SCREENS.get(selected_preset,{}) if selected_preset!="Custom" else {}
-    with fc1: adv_ratings=st.multiselect("Rating",["Strong Buy","Buy","Hold","Sell","Strong Sell"],default=preset.get("rating_filter",[]),key="adv_rat")
+    with fc1: adv_ratings=st.multiselect("Rating",["Strong Buy+","Strong Buy","Buy","Hold","Sell","Strong Sell"],default=preset.get("rating_filter",[]),key="adv_rat")
     with fc2: adv_sectors=st.multiselect("Sector",sorted(scored_df["sector"].dropna().unique().tolist()),key="adv_sec")
     with fc3: adv_fv=st.multiselect("Fair Value Verdict",["Deeply Undervalued","Undervalued","Fairly Valued","Overvalued","Significantly Overvalued"],default=preset.get("fair_value_filter",[]),key="adv_fv")
     if preset: st.info(preset.get("description",""))
@@ -836,10 +894,10 @@ with tab_sectors:
         st.caption("Percentage of A-rated stocks (Strong Buy + Buy) by sector. This shows where the highest-conviction opportunities are concentrated.")
         # % of strong buy + buy per sector
         rating_dist=non_etf_universe.groupby(["sector","overall_rating"]).size().unstack(fill_value=0)
-        for col in ["Strong Buy","Buy","Hold","Sell","Strong Sell"]:
+        for col in ["Strong Buy+","Strong Buy","Buy","Hold","Sell","Strong Sell"]:
             if col not in rating_dist.columns: rating_dist[col]=0
         rating_dist["Total"]=rating_dist.sum(axis=1)
-        rating_dist["A-rated %"]=(rating_dist["Strong Buy"]+rating_dist["Buy"])/rating_dist["Total"]*100
+        rating_dist["A-rated %"]=(rating_dist.get("Strong Buy+",0)+rating_dist["Strong Buy"]+rating_dist["Buy"])/rating_dist["Total"]*100
         rating_dist=rating_dist.sort_values("A-rated %",ascending=False).reset_index()
         fig_q=go.Figure()
         fig_q.add_trace(go.Bar(x=rating_dist["sector"],y=rating_dist["A-rated %"],marker=dict(color=rating_dist["A-rated %"],colorscale=[[0,"#D32F2F"],[0.5,"#FFC107"],[1,"#00C805"]],cmin=0,cmax=50),text=rating_dist["A-rated %"].apply(lambda x: f"{x:.0f}%"),textposition="outside",hovertemplate="<b>%{x}</b><br>A-rated: %{y:.1f}%<extra></extra>"))
@@ -848,7 +906,7 @@ with tab_sectors:
 
         st.markdown("---")
         st.markdown("#### Full Sector Detail")
-        rc=["Rank","Sector","Stocks","composite_avg","Strong Buy","Buy","Hold","Sell","Strong Sell"]
+        rc=["Rank","Sector","Stocks","composite_avg","Strong Buy+","Strong Buy","Buy","Hold","Sell","Strong Sell"]
         for p in PILLAR_METRICS: rc.append(f"{p}_grade")
         rc+=["best_stock","worst_stock"];ac=[c for c in rc if c in overview.columns]
         rn2={"composite_avg":"Avg Score","best_stock":"Best","worst_stock":"Worst"}
@@ -2363,7 +2421,7 @@ with tab_portfolio:
                             f"Total: ${analysis['total_value']:,.0f} across {analysis['num_holdings']} positions. "
                             f"ALL CURRENT HOLDINGS (do NOT recommend adding any of these — they are already owned): {holdings_list}"
                         )
-                        available=scored_df[(~scored_df.index.isin([h["ticker"] for h in st.session_state.portfolio_holdings]))&(scored_df["overall_rating"]=="Strong Buy")&(scored_df["sector"]!="ETF")].nlargest(10,"composite_score")
+                        available=scored_df[(~scored_df.index.isin([h["ticker"] for h in st.session_state.portfolio_holdings]))&(scored_df["overall_rating"].isin(["Strong Buy+","Strong Buy"]))&(scored_df["sector"]!="ETF")].nlargest(10,"composite_score")
                         univ_summary="; ".join([f"{t}({scored_df.loc[t,'sector'][:5]},Score {scored_df.loc[t,'composite_score']:.1f})" for t in available.index[:10]])
                         ai_opt=generate_portfolio_optimization(port_summary,univ_summary,ai_obj)
                     if "error" in ai_opt:

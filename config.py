@@ -6,92 +6,12 @@ DEFAULT_MARKET_CAP_FLOOR_B = 10
 MIN_MARKET_CAP_FLOOR_B = 1
 MAX_MARKET_CAP_FLOOR_B = 50
 
-# ── Pillar Weight Presets ──────────────────────────────────────────
-# IMPORTANT: Backtest universes differ. Read carefully before selecting.
-#
-# equal:   Validated at $10B+ MC floor on 2015-2026 dashboard data.
-#          +26.27% CAGR  Sharpe 1.21  MaxDD -35.67%
-#          This is the default — only validated preset at the dashboard's
-#          actual operating universe ($10B+ market cap).
-#
-# m_heavy: +30.12% CAGR  Sharpe 1.30  MaxDD -32.04%
-#          BUT: validated on FULL universe (no MC floor) 1996-2026.
-#          Includes sub-$10B caps where momentum-driven returns are explosive.
-#          UNTESTED at $10B+ filter. Performance at large-cap-only is unknown.
-#
-# v_heavy: +28.18% CAGR  Sharpe 1.35  MaxDD -37.39%
-#          BUT: validated on FULL universe (no MC floor) 1996-2026.
-#          UNTESTED at $10B+ filter.
-#
-# 5-pillar dashboard tests on 4 pillars (V/G/P/M) because EPS Revisions
-# history pre-2010 is unreliable. Non-equal presets set EPS Revisions to 0%.
-
-WEIGHT_PRESETS = {
-    "equal": {
-        "label": "Equal weight (validated, default)",
-        "weights": {
-            "Valuation": 0.20,
-            "Growth": 0.20,
-            "Profitability": 0.20,
-            "Momentum": 0.20,
-            "EPS Revisions": 0.20,
-        },
-        "backtest_cagr": 26.27,
-        "backtest_sharpe": 1.21,
-        "backtest_max_dd": -35.67,
-        "backtest_universe": "$10B+ MC floor, 2015-2026",
-        "validated_at_floor": True,
-    },
-    "m_heavy": {
-        "label": "Growth/Momentum (untested at $10B+)",
-        "weights": {
-            "Valuation": 0.05,
-            "Growth": 0.15,
-            "Profitability": 0.00,
-            "Momentum": 0.80,
-            "EPS Revisions": 0.00,
-        },
-        "backtest_cagr": 30.12,
-        "backtest_sharpe": 1.30,
-        "backtest_max_dd": -32.04,
-        "backtest_universe": "Full universe (no MC floor), 1996-2026",
-        "validated_at_floor": False,
-    },
-    "v_heavy": {
-        "label": "Value/Quality (untested at $10B+)",
-        "weights": {
-            "Valuation": 0.45,
-            "Growth": 0.10,
-            "Profitability": 0.25,
-            "Momentum": 0.20,
-            "EPS Revisions": 0.00,
-        },
-        "backtest_cagr": 28.18,
-        "backtest_sharpe": 1.35,
-        "backtest_max_dd": -37.39,
-        "backtest_universe": "Full universe (no MC floor), 1996-2026",
-        "validated_at_floor": False,
-    },
-}
-
-DEFAULT_PRESET = "equal"
-DEFAULT_PILLAR_WEIGHTS = WEIGHT_PRESETS[DEFAULT_PRESET]["weights"]
-
-# ── Absolute Threshold Breadth Indicator ──────────────────────────
-# Median quarterly TOP25 cutoff composite score across 1996-2026 history.
-# When the count of stocks above this threshold contracts, market breadth
-# is thinning. When it expands, breadth is broadening. Display in screener.
-
-ABSOLUTE_THRESHOLDS = {
-    "m_heavy": 10.617,
-    "v_heavy": 8.723,
-    "equal":    8.5,
-}
-
-ABSOLUTE_THRESHOLD_STATS = {
-    "m_heavy": {"median_count": 153, "min_count": 35, "max_count": 246, "mean_count": 156.2},
-    "v_heavy": {"median_count": 25,  "min_count": 0,  "max_count": 76,  "mean_count": 28.9},
-    "equal":   {"median_count": None, "min_count": None, "max_count": None, "mean_count": None},
+DEFAULT_PILLAR_WEIGHTS = {
+    "Valuation": 0.20,
+    "Growth": 0.20,
+    "Profitability": 0.20,
+    "Momentum": 0.20,
+    "EPS Revisions": 0.20,
 }
 
 PILLAR_METRICS = {
@@ -147,68 +67,29 @@ GRADE_SCORES = {
     "D+": 3, "D": 2, "F": 1,
 }
 
-# ── Rating Thresholds (LEGACY DEFAULT — used by equal-weight only) ──
-# Equal-weight composite distribution → mean ~7.0, SD ~1.5
-# Produces approximately 25% buy zone / 50% hold / 25% sell zone
+# ── Rating Thresholds ──────────────────────────────────────────────
+# REBALANCED for ~12% Strong Buy, 13% Buy, 50% Hold, 13% Sell, 12% Strong Sell
+# With sector-relative scoring, mean composite is ~7.0 with SD ~1.5
+# These thresholds produce approximately 25% buy zone / 50% hold / 25% sell zone
+# Note: Strong Buy+ and Strong Buy tiers are now assigned by _classify_top25_tier()
+# in scoring.py based on price vs Fair Value and Quant Buy Point. The score bands
+# below are used only as a fallback for ranks 26+ and ETFs.
 OVERALL_RATING_MAP = {
-    "Strong Buy": (9.0, 12.0),
-    "Buy": (8.0, 9.0),
-    "Hold": (6.0, 8.0),
-    "Sell": (5.0, 6.0),
-    "Strong Sell": (0.0, 5.0),
+    "Strong Buy+": (9.0, 12.0),  # Informational only — actual assignment via QBP/FV
+    "Strong Buy": (9.0, 12.0),   # Top ~8-12% (legacy score band, now overridden)
+    "Buy": (8.0, 9.0),           # Next ~12-17%
+    "Hold": (6.0, 8.0),          # Middle ~45-55%
+    "Sell": (5.0, 6.0),          # Next ~12-17%
+    "Strong Sell": (0.0, 5.0),   # Bottom ~8-12%
 }
-
-# ── Per-Preset Rating Maps ──────────────────────────────────────────
-# Each weight scheme produces a different composite distribution. Rating
-# thresholds are calibrated so Strong Buy + Buy averages ~25 stocks over
-# the 1996-2026 backtest universe with variance preserved as breadth signal.
-#
-# m_heavy: M=0.80 inflates composite in bull markets. Calibrated against
-#          current distribution: 8 stocks ≥ 11.0, 27 stocks ≥ 10.617.
-#          Median 1996-2026 TOP25 cutoff = 10.617 → Buy threshold.
-#
-# v_heavy: V-heavy composite stays close to historical equal-weight range.
-#          Median TOP25 cutoff = 8.723 → Buy threshold. Strong Buy ≥ 9.0
-#          gives historical median of 11 Strong Buys.
-#
-# equal:   Preserved as-is (existing dashboard behavior).
-
-RATING_MAPS_PER_PRESET = {
-    "m_heavy": {
-        "Strong Buy": (11.0, 12.0),     # ~5-10 stocks elite tier
-        "Buy": (10.617, 11.0),          # SB + Buy ≈ 25 average
-        "Hold": (8.5, 10.617),
-        "Sell": (7.0, 8.5),
-        "Strong Sell": (0.0, 7.0),
-    },
-    "v_heavy": {
-        "Strong Buy": (9.0, 12.0),      # median 11 historically
-        "Buy": (8.723, 9.0),            # SB + Buy ≈ 25 average
-        "Hold": (6.5, 8.723),
-        "Sell": (5.0, 6.5),
-        "Strong Sell": (0.0, 5.0),
-    },
-    "equal": {
-        "Strong Buy": (9.0, 12.0),      # existing
-        "Buy": (8.0, 9.0),
-        "Hold": (6.0, 8.0),
-        "Sell": (5.0, 6.0),
-        "Strong Sell": (0.0, 5.0),
-    },
-}
-
-
-def get_rating_map(preset_name: str = None) -> dict:
-    """Return the rating threshold map for the given preset.
-    Falls back to OVERALL_RATING_MAP if preset is None or unknown."""
-    if preset_name and preset_name in RATING_MAPS_PER_PRESET:
-        return RATING_MAPS_PER_PRESET[preset_name]
-    return OVERALL_RATING_MAP
-
 
 RATING_COLORS = {
-    "Strong Buy": "#00C805", "Buy": "#8BC34A", "Hold": "#FFC107",
-    "Sell": "#FF5722", "Strong Sell": "#D32F2F",
+    "Strong Buy+": "#00FF00",      # Bright lime green — top conviction (at FV AND QBP)
+    "Strong Buy": "#00C805",       # Vivid green — at FV
+    "Buy": "#8BC34A",              # Light green
+    "Hold": "#FFC107",             # Amber
+    "Sell": "#FF5722",             # Orange-red
+    "Strong Sell": "#D32F2F",      # Deep red
 }
 
 GRADE_COLORS = {
