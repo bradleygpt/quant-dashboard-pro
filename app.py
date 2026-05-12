@@ -455,21 +455,38 @@ with tab_home:
         with hs6: st.metric("Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Sell"]))
         with hs7: st.metric("Strong Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Sell"]))
         hdc=["shortName","sector","marketCapB","currentPrice"]
+        # Add FV and QBP columns (computed by scoring.py for TOP25 stocks; NaN for others)
+        if "fair_value" in home_filtered.columns: hdc.append("fair_value")
+        if "buy_point" in home_filtered.columns: hdc.append("buy_point")
         for p in PILLAR_METRICS: hdc.append(f"{p}_grade")
         hdc+=["composite_score","overall_rating"]
         hdd=home_filtered[hdc].copy()
-        hdd.columns=["Company","Sector","Mkt Cap ($B)","Price","Valuation","Growth","Profit","Momentum","EPS Rev","Score","Rating"]
+        # Build matching column labels
+        _col_labels = ["Company","Sector","Mkt Cap ($B)","Price"]
+        if "fair_value" in hdc: _col_labels.append("Fair Value")
+        if "buy_point" in hdc: _col_labels.append("Buy Point")
+        _col_labels += ["Valuation","Growth","Profit","Momentum","EPS Rev","Score","Rating"]
+        hdd.columns = _col_labels
         # Color-code the Rating column based on RATING_COLORS
         from config import RATING_COLORS as _RC
         def _style_rating(val):
             color = _RC.get(val, "#ffffff")
-            # Use a darker background tint of the same color for readability
             return f"color: {color}; font-weight: 600;"
+        # Format FV and Buy Point columns to 2 decimals with $ prefix; show — for NaN
+        def _fmt_price(val):
+            if val is None or (isinstance(val, float) and val != val):  # NaN check
+                return "—"
+            try:
+                return f"${float(val):,.2f}"
+            except Exception:
+                return "—"
         try:
             _styled = hdd.style.applymap(_style_rating, subset=["Rating"])
+            for _price_col in ["Fair Value", "Buy Point"]:
+                if _price_col in hdd.columns:
+                    _styled = _styled.format({_price_col: _fmt_price})
             st.dataframe(_styled, use_container_width=True, height=500)
         except Exception:
-            # If styling fails, fall back to unstyled
             st.dataframe(hdd, use_container_width=True, height=500)
 
     # AI Status Diagnostic

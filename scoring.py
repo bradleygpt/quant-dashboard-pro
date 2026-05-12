@@ -132,7 +132,7 @@ def score_universe(
     return result
 
 
-def _assign_ratings_top25(scored_df: pd.DataFrame, price_histories: dict | None = None) -> pd.Series:
+def _assign_ratings_top25(scored_df: pd.DataFrame, price_histories: dict | None = None):
     """
     Assign overall_rating aligned with the backtested Top25 1Q-reselect strategy.
 
@@ -145,16 +145,23 @@ def _assign_ratings_top25(scored_df: pd.DataFrame, price_histories: dict | None 
       Strong Buy  = TOP25 AND price <= FV AND (price > QBP OR QBP missing)
       Buy         = TOP25 AND (price > FV OR FV missing)
 
-    Ranks 26+ and all ETFs get Hold / Sell / Strong Sell based on composite score
-    bands, capped at Hold maximum.
+    Side effect: writes fair_value and buy_point columns to scored_df for TOP25 stocks.
+    Other rows get NaN in those columns.
 
     Args:
         scored_df: Scored universe with composite_score, currentPrice, sector.
         price_histories: Optional dict {ticker: price_history_df} for QBP calculation.
                          When None, every TOP25 stock falls back to FV-only or Buy.
+
+    Returns:
+        Series of ratings indexed by ticker.
     """
     # Apply Hold/Sell/Strong Sell to all rows by default
     ratings = scored_df["composite_score"].apply(_score_to_rating_band_capped_at_hold)
+
+    # Initialize fair_value and buy_point columns with NaN
+    scored_df["fair_value"] = float("nan")
+    scored_df["buy_point"] = float("nan")
 
     # Identify non-ETF stocks
     if "sector" in scored_df.columns:
@@ -172,25 +179,31 @@ def _assign_ratings_top25(scored_df: pd.DataFrame, price_histories: dict | None 
     top_tickers = stock_df_sorted.index[:n_take].tolist()
 
     # For each top-N stock, classify into Strong Buy+ / Strong Buy / Buy
+    # AND write FV/QBP back to scored_df for screener display
     for ticker in top_tickers:
-        tier = _classify_top25_tier(ticker, scored_df, price_histories)
+        tier, fv_val, qbp_val = _classify_top25_tier(ticker, scored_df, price_histories)
         ratings.loc[ticker] = tier
+        if fv_val is not None:
+            scored_df.loc[ticker, "fair_value"] = fv_val
+        if qbp_val is not None:
+            scored_df.loc[ticker, "buy_point"] = qbp_val
 
     return ratings
 
 
 def _classify_top25_tier(ticker: str, scored_df: pd.DataFrame,
-                          price_histories: dict | None) -> str:
+                          price_histories: dict | None):
     """Classify a TOP25 stock into Strong Buy+ / Strong Buy / Buy based on QBP and FV.
 
-    Returns the rating string. Defaults to Buy when data is missing.
+    Returns:
+        (tier_string, fair_value_or_None, buy_point_or_None)
     """
     # Get current price
     if ticker not in scored_df.index:
-        return "Buy"
+        return "Buy", None, None
     current_price = scored_df.loc[ticker].get("currentPrice")
     if not current_price or not isinstance(current_price, (int, float)) or current_price <= 0:
-        return "Buy"
+        return "Buy", None, None
 
     # Compute Fair Value (in-process, no external calls)
     fv_price = None
@@ -204,16 +217,8 @@ def _classify_top25_tier(ticker: str, scored_df: pd.DataFrame,
     except Exception:
         pass
 
-    # If no FV, can't be Strong Buy or Strong Buy+ — stay at Buy
-    if fv_price is None:
-        return "Buy"
-
-    # Price must be at or below FV to qualify for Strong Buy
-    at_or_below_fv = current_price <= fv_price
-    if not at_or_below_fv:
-        return "Buy"
-
-    # Compute QBP if price history available
+    # Compute QBP if price history available (regardless of FV outcome, we want
+    # to display QBP in the screener)
     qbp_price = None
     if price_histories and ticker in price_histories:
         try:
@@ -229,12 +234,21 @@ def _classify_top25_tier(ticker: str, scored_df: pd.DataFrame,
         except Exception:
             pass
 
+    # Apply tier logic
+    # If no FV, can't be Strong Buy or Strong Buy+ — stay at Buy
+    if fv_price is None:
+        return "Buy", fv_price, qbp_price
+
+    # Price must be at or below FV to qualify for Strong Buy
+    if current_price > fv_price:
+        return "Buy", fv_price, qbp_price
+
     # If FV passed but QBP missing or not at/below QBP, classify as Strong Buy
     if qbp_price is None or current_price > qbp_price:
-        return "Strong Buy"
+        return "Strong Buy", fv_price, qbp_price
 
     # Both gates passed: price at or below FV and QBP
-    return "Strong Buy+"
+    return "Strong Buy+", fv_price, qbp_price
 
 
 def _score_to_rating_band_capped_at_hold(score: float) -> str:
