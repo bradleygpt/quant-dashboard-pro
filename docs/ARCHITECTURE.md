@@ -323,7 +323,124 @@ PHASE 6 (parallel track): Zero-cost AI feature layer
 ├── ⏳ EDGAR Form 4 insider trading signal
 ├── ⏳ Morning Note generator (best ROI, post-BH)
 └── ⏳ SEC EDGAR full-text search
+
+PHASE 7 (frontend rewrite): Streamlit → React/FastAPI migration
+├── ⏳ FastAPI backend exposing all current Python logic
+├── ⏳ React frontend with proper routing + state management
+├── ⏳ Vercel or Cloudflare deployment (free tier)
+├── ⏳ WebSocket for live updates (price ticks, screener changes)
+├── ⏳ Mobile-first responsive design
+└── ⏳ Sunset Streamlit deployment
 ```
+
+---
+
+## Phase 7 — React/FastAPI Migration
+
+**Status:** Planned for near-term execution. Streamlit's reload-per-interaction model has become the dashboard's primary performance constraint.
+
+### The problem with Streamlit
+
+Streamlit re-executes the entire Python script on every user interaction — tab clicks, button presses, dropdown changes. Mitigations exist (`@st.cache_data`, `st.session_state`) but they only partially solve the issue:
+
+- **Cache hits are still slow.** Even cached calls deserialize from disk on every script rerun. With ~1,200 stocks scored and FV/QBP joined, deserialization alone adds 300-800ms per interaction.
+- **Mobile UX is broken.** Streamlit's layout doesn't reflow well below ~800px width. Buttons rerun the full backend even on phone.
+- **State management is fragile.** Session state survives within a session but resets on browser refresh. URL routing isn't first-class.
+- **No real-time updates.** Streamlit can't push data — every refresh is client-pull.
+- **Compute and render are conflated.** Heavy calculation (scoring 1,200 stocks) blocks UI rendering. Can't show skeleton screens or progressive enhancement.
+
+These problems compound as features grow. The dashboard currently has 14+ tabs and Streamlit's architecture doesn't scale to that complexity without painful latency.
+
+### Target architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│  FRONTEND: React + TypeScript                       │
+│  - Vite or Next.js                                   │
+│  - TanStack Query for data fetching/caching         │
+│  - Tailwind + shadcn/ui or Radix                    │
+│  - Recharts or Plotly.js for charts                 │
+│  - Hosted on Vercel or Cloudflare Pages (free tier) │
+└─────────────────────────────────────────────────────┘
+                          ↕ REST / WebSocket
+┌─────────────────────────────────────────────────────┐
+│  BACKEND: FastAPI                                   │
+│  - All existing Python modules (scoring, data       │
+│    fetcher, fairvalue, buy_point, etc.) preserved   │
+│  - Wrapped in FastAPI route handlers                │
+│  - Pydantic schemas for typed API contracts         │
+│  - Hosted on Fly.io, Railway, or self-hosted VPS    │
+└─────────────────────────────────────────────────────┘
+                          ↕
+┌─────────────────────────────────────────────────────┐
+│  DATA: Existing (preserved)                         │
+│  - Supabase (auth + portfolio persistence)          │
+│  - fundamentals_cache.json (or move to S3/R2)       │
+│  - prices_cache.parquet (or move to S3/R2)          │
+│  - SEC EDGAR cache                                  │
+└─────────────────────────────────────────────────────┘
+```
+
+### What this unlocks
+
+1. **<100ms tab switches.** Pre-loaded data, client-side state, instant routing.
+2. **Mobile-first UX.** A real responsive design where the dashboard is genuinely usable on a phone.
+3. **Progressive loading.** Skeleton screens while heavy queries run. No "blank screen for 8 seconds" experience.
+4. **Live updates.** WebSocket push for price ticks, screener changes, portfolio P&L.
+5. **Proper URL routing.** Deep links to specific tickers, screener states, portfolio views. Shareable URLs.
+6. **Separated compute and render.** Backend computes; frontend renders. Heavy calculations don't freeze the UI.
+7. **Better caching primitives.** TanStack Query handles request deduplication, stale-while-revalidate, background refetch. No more 12-hour stale cache problem.
+8. **Foundation for slash commands and Morning Note.** The features architected in Phase 6 are dramatically easier to build in a React frontend than in Streamlit.
+
+### Migration approach
+
+The Python logic doesn't need to be rewritten — only the UI layer. The plan:
+
+1. **Wrap existing Python modules in FastAPI endpoints.**
+   - `POST /api/score` → returns scored_df as JSON
+   - `GET /api/screener?floor=1&preset=equal` → returns filtered/sorted picks
+   - `GET /api/stock/{ticker}` → returns full Stock Detail data
+   - `POST /api/portfolio/analyze` → returns analysis dict
+   - `GET /api/backtest?config=...` → returns historical curves
+
+2. **Build React frontend tab by tab.** Start with the highest-value tabs (Quant Portfolio, Stock Detail, Screener). Streamlit version stays live in parallel until React reaches feature parity.
+
+3. **Migrate data flows.** Replace `@st.cache_data` with TanStack Query. Replace `st.session_state` with React context + URL state.
+
+4. **Sunset Streamlit** once React covers all features.
+
+### Effort estimate
+
+- **Backend wrapping:** 8-12 hours (most code unchanged, just FastAPI route handlers + Pydantic schemas)
+- **Frontend core (auth, layout, routing, theme):** 6-8 hours
+- **Per-tab UI rewrite:** 3-5 hours per tab × 12 tabs = 40-60 hours
+- **Charts (Plotly.js + Recharts):** 8-10 hours
+- **Testing + polish:** 10-15 hours
+- **Total:** 70-100 hours of focused work
+
+### Risks and mitigations
+
+- **Risk: Backend deployment cost.** Streamlit Cloud is free; FastAPI hosting may not be.
+  - Mitigation: Fly.io free tier (3 shared-cpu-1x VMs, 256MB RAM) handles this comfortably. Cloudflare Workers also viable for stateless endpoints.
+
+- **Risk: Authentication migration.** Current Supabase auth is wired through Streamlit.
+  - Mitigation: Supabase has first-class React SDK. Same database, different client library.
+
+- **Risk: Chart rendering parity.** Plotly is heavy in JS. Recharts is lighter but covers fewer chart types.
+  - Mitigation: Plotly.js for complex charts (Monte Carlo paths, candlesticks). Recharts for simple ones (bar, line). Acceptable JS bundle size with code splitting.
+
+- **Risk: Half-migrated dead time.** Two codebases to maintain during transition.
+  - Mitigation: Migrate tab by tab. Each completed tab can ship independently. The user picks which UI to use during transition.
+
+### What to preserve from Streamlit version
+
+- The Python scoring engine. It's validated, tested, and works.
+- The Supabase schema. No reason to change auth or persistence layers.
+- All backtest infrastructure. Lives in quant-historical/ separately anyway.
+- The fundamentals cache build pipeline. Background job, frontend-agnostic.
+- The architecture documented here. Nothing about Phases 1-6 changes — only the frontend.
+
+The migration is a UI rewrite, not a strategy rewrite.
 
 ---
 
