@@ -1861,7 +1861,7 @@ with tab_quantport:
                 effective_capital = qp_capital
                 held_back = 0
 
-            optimal, diag = build_optimal_portfolio(scored_df, effective_capital, preset=qp_preset, min_position_dollars=200, return_diagnostics=True)
+            optimal, diag = build_optimal_portfolio(scored_df, effective_capital, preset=qp_preset, min_position_dollars=200, return_diagnostics=True, weight_scheme=st.session_state.get("preset_name", "equal"))
 
             if optimal.empty:
                 st.error("No qualifying stocks found at current preset settings.")

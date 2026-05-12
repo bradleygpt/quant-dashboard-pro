@@ -50,14 +50,50 @@ PRESETS = {
 }
 
 
+# ── Weight-Preset-Aware Power Adjustment ─────────────────────────
+# Backtest data (1996-2026, no MC floor, TOP25):
+#   equal weights + 2x Strong Buy concentration: +0.52% CAGR vs 1x equal
+#   m_heavy weights + 2x Strong Buy concentration: -1.38% CAGR vs 1x equal (HURTS)
+#   mature_bull weights + 2x Strong Buy concentration: +0.63% CAGR vs 1x equal
+#
+# Translation to score^power:
+#   For stable signals (equal, mature_bull, v_heavy): concentration on top
+#     scorers adds alpha. Keep the preset's default power (1.5/2.0/2.5).
+#   For momentum signals (m_heavy): concentration hurts. Override to power=1.0
+#     so weighting is roughly equal across the top-N picks.
+
+def _resolve_weight_power(aggressiveness_preset: str, weight_scheme: str) -> float:
+    """Return the score^power to apply, adjusted for the active weight scheme.
+
+    m_heavy is the only scheme where concentration hurts — override power to 1.0
+    regardless of aggressiveness level so allocation stays equal-weight in TOP25.
+    Other schemes keep their preset-defined power.
+    """
+    base_power = PRESETS.get(aggressiveness_preset, PRESETS["Balanced"])["weight_power"]
+    if weight_scheme == "m_heavy":
+        return 1.0
+    return base_power
+
+
+
 # ── Core Construction ──────────────────────────────────────────────
 
-def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_dollars=200, return_diagnostics=False):
+def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_dollars=200, return_diagnostics=False, weight_scheme="equal"):
     """
     Build the optimal score-weighted portfolio from current scored universe.
 
-    Returns DataFrame with: ticker, sector, score, rating, price, weight_pct, dollars, shares, market_cap_b
+    Args:
+        scored_df: Scored universe with composite_score.
+        capital: Total capital to deploy.
+        preset: Aggressiveness preset (Conservative/Balanced/Aggressive).
+        min_position_dollars: Minimum position size.
+        return_diagnostics: If True, returns (df, diag) tuple.
+        weight_scheme: Active weight preset from sidebar (equal/m_heavy/v_heavy/mature_bull).
+                       Used to adjust allocation tilt — m_heavy is forced to power=1.0
+                       since concentration hurts momentum-weighted scoring (-1.38% CAGR
+                       per backtest). Other schemes keep preset-defined power.
 
+    Returns DataFrame with: ticker, sector, score, rating, price, weight_pct, dollars, shares, market_cap_b
     If return_diagnostics=True, returns tuple (DataFrame, diagnostics_dict).
     """
     diag = {
@@ -117,7 +153,7 @@ def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_
         candidates,
         max_positions=settings["max_positions"],
         sector_cap=settings["sector_cap"],
-        weight_power=settings["weight_power"],
+        weight_power=_resolve_weight_power(preset, weight_scheme),
     )
     diag["after_sector_cap"] = len(selected) if not selected.empty else 0
 
@@ -126,7 +162,8 @@ def build_optimal_portfolio(scored_df, capital, preset="Balanced", min_position_
 
     # Step 4: Compute weights using score^power
     selected = selected.copy()
-    selected["raw_weight"] = selected["composite_score"] ** settings["weight_power"]
+    _power = _resolve_weight_power(preset, weight_scheme)
+    selected["raw_weight"] = selected["composite_score"] ** _power
 
     # Step 5: Normalize and apply ceiling
     total_raw = selected["raw_weight"].sum()
