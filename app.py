@@ -1275,13 +1275,23 @@ with tab_detail:
                         with st.spinner(f"Fetching SEC 8-K filings for {sel} and generating review (~10-30s)..."):
                             try:
                                 from earnings_reviewer import generate_earnings_review
+                                # Compute FV inline for review context (the FV section
+                                # is rendered AFTER this block, so fv variable doesn't
+                                # exist yet at this point in execution).
+                                _fv_for_review = None
+                                try:
+                                    _fv_inline = compute_fair_value(sel, scored_df)
+                                    if _fv_inline and "error" not in _fv_inline:
+                                        _fv_for_review = _fv_inline.get("composite_fair_value")
+                                except Exception:
+                                    pass
                                 _context = {
                                     "sector": row.get("sector", "unknown"),
                                     "quant_rating": row.get("overall_rating", "Hold"),
                                     "composite_score": row.get("composite_score", 0),
                                     "current_price": row.get("currentPrice", 0),
-                                    "fair_value": fv["composite_fair_value"] if "error" not in fv else None,
-                                    "buy_point": None,  # Will be filled in by buy_point section below; review is OK without it
+                                    "fair_value": _fv_for_review,
+                                    "buy_point": None,  # Buy point section is later; review can run without it
                                 }
                                 _review_to_show = generate_earnings_review(
                                     sel, _company_name, _context, force_regenerate=_force
