@@ -166,7 +166,7 @@ def _get_cik(ticker: str) -> Optional[str]:
 def _list_recent_8ks(cik: str, limit: int = 10) -> List[Dict]:
     """Return list of recent 8-K filings for a CIK.
 
-    Each item: {accession, filing_date, items, primary_doc_url}
+    Each item: {accession, filing_date, items, primary_doc_url, filing_index_url}
     """
     try:
         url = f"https://data.sec.gov/submissions/CIK{cik}.json"
@@ -193,11 +193,14 @@ def _list_recent_8ks(cik: str, limit: int = 10) -> List[Dict]:
             accession = accessions[i]
             accession_clean = accession.replace("-", "")
             primary_doc = primary_docs[i] if i < len(primary_docs) else ""
+            base_url = f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{accession_clean}"
             out.append({
                 "accession": accession,
                 "filing_date": dates[i] if i < len(dates) else "",
                 "items": items,
-                "primary_doc_url": f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{accession_clean}/{primary_doc}",
+                "primary_doc_url": f"{base_url}/{primary_doc}",
+                "filing_index_url": f"{base_url}/{accession}-index.htm",
+                "base_url": base_url,
             })
             if len(out) >= limit:
                 break
@@ -206,7 +209,49 @@ def _list_recent_8ks(cik: str, limit: int = 10) -> List[Dict]:
         return []
 
 
-def _fetch_8k_text(url: str, max_chars: int = 20000) -> str:
+def _find_press_release_exhibit_url(base_url: str) -> Optional[str]:
+    """Find Exhibit 99.1 (press release) URL from a filing's index page.
+
+    EX-99.1 is the SEC standard for press releases attached to 8-K filings.
+    The actual earnings numbers (revenue, EPS, guidance) live in EX-99.1,
+    not in the primary 8-K cover document.
+
+    Returns full URL to the exhibit, or None if not found.
+    """
+    try:
+        # Try the JSON index first (more reliable than scraping HTML)
+        index_json_url = f"{base_url}/index.json"
+        r = requests.get(index_json_url, headers=_SEC_HEADERS, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            items = data.get("directory", {}).get("item", [])
+            # Look for exhibit 99.1 - common naming patterns:
+            #   ex991.htm, ex-991.htm, ex99-1.htm, ex_991.htm, exhibit991.htm
+            #   a99-1.htm, vrtearningsrelease.htm (varies by company)
+            ex991_candidates = []
+            ex99_any_candidates = []
+            for item in items:
+                name = item.get("name", "").lower()
+                if not (name.endswith(".htm") or name.endswith(".html")):
+                    continue
+                # Strong match: ex991 / ex-991 / ex99-1 / ex_99_1 patterns
+                if re.search(r"ex[-_]?99[-_]?1\b", name):
+                    ex991_candidates.append(item["name"])
+                # Weaker match: anything mentioning 99 in an exhibit context
+                elif "ex" in name and "99" in name:
+                    ex99_any_candidates.append(item["name"])
+            # Prefer exact 99.1 match; fall back to any 99-prefixed exhibit
+            picked = ex991_candidates[0] if ex991_candidates else (
+                ex99_any_candidates[0] if ex99_any_candidates else None
+            )
+            if picked:
+                return f"{base_url}/{picked}"
+    except Exception:
+        pass
+    return None
+
+
+def _fetch_8k_text(url: str, max_chars: int = 25000) -> str:
     """Fetch an 8-K primary document and extract readable text.
 
     SEC docs are HTML; we strip tags and limit length to control LLM token usage.
@@ -230,10 +275,42 @@ def _fetch_8k_text(url: str, max_chars: int = 20000) -> str:
         return ""
 
 
+def _fetch_filing_text(filing_meta: Dict) -> str:
+    """Fetch the most informative text for an earnings 8-K filing.
+
+    Strategy:
+      1. Try Exhibit 99.1 (press release) first — has the actual numbers
+      2. Fall back to primary doc (8-K cover) if exhibit not found
+      3. If both yield text, concatenate them so the LLM sees full picture
+
+    The primary doc usually has filing metadata + signed cover page;
+    the press release has revenue/EPS/guidance. Both can be useful.
+    """
+    base_url = filing_meta.get("base_url", "")
+    primary_url = filing_meta.get("primary_doc_url", "")
+
+    exhibit_text = ""
+    if base_url:
+        exhibit_url = _find_press_release_exhibit_url(base_url)
+        if exhibit_url:
+            exhibit_text = _fetch_8k_text(exhibit_url, max_chars=20000)
+
+    primary_text = ""
+    if primary_url:
+        primary_text = _fetch_8k_text(primary_url, max_chars=5000)
+
+    # Prefer exhibit (where the numbers live). Append primary as context if both exist.
+    if exhibit_text and primary_text:
+        return f"[PRESS RELEASE / EXHIBIT 99.1]\n{exhibit_text}\n\n[8-K COVER]\n{primary_text}"
+    return exhibit_text or primary_text
+
+
 def get_recent_earnings_8ks(ticker: str, n: int = 2) -> List[Dict]:
     """Get the N most recent earnings-related 8-Ks for a ticker.
 
     Returns list of dicts with: filing_date, items, text (truncated), url.
+    The text is sourced from EX-99.1 (press release) when available, since the
+    actual earnings numbers live there. Falls back to primary doc if no exhibit.
     """
     cik = _get_cik(ticker)
     if not cik:
@@ -244,7 +321,7 @@ def get_recent_earnings_8ks(ticker: str, n: int = 2) -> List[Dict]:
     filings = _list_recent_8ks(cik, limit=30)
     out = []
     for f in filings[:n]:
-        text = _fetch_8k_text(f["primary_doc_url"])
+        text = _fetch_filing_text(f)
         if text:
             out.append({
                 "filing_date": f["filing_date"],
@@ -320,11 +397,11 @@ def _build_prompt(
     context: Dict,
 ) -> str:
     """Construct the LLM prompt for an earnings review."""
-    current_text = current_8k.get("text", "")[:8000]
+    current_text = current_8k.get("text", "")[:15000]
     current_date = current_8k.get("filing_date", "unknown")
 
     if prior_8k:
-        prior_text = prior_8k.get("text", "")[:8000]
+        prior_text = prior_8k.get("text", "")[:15000]
         prior_date = prior_8k.get("filing_date", "unknown")
     else:
         prior_text = "(No prior 8-K available — this is the earliest available filing or prior filings could not be retrieved.)"
