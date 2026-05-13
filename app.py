@@ -276,24 +276,24 @@ def _cache_file_mtime():
             return os.path.getmtime(p)
     return 0
 
-def _load_top25_price_histories(scored_preview):
-    """Load 1y of daily price history from prices_cache.parquet for TOP25 tickers.
+def _load_universe_price_histories(scored_preview):
+    """Load 1y of daily price history from prices_cache.parquet for ALL non-ETF tickers.
 
-    Returns dict {ticker: DataFrame with 'close' column}. Used to feed QBP
-    calculation in scoring without yfinance HTTP calls. Falls back to empty
-    dict if parquet unavailable — QBP will fall back to yfinance individually.
+    Returns dict {ticker: DataFrame with 'close' column}. Used to feed QBP+FV
+    calculation in scoring for the entire universe. Falls back to empty dict
+    if parquet unavailable.
     """
     try:
         import price_cache
         from datetime import datetime, timedelta
-        # Identify TOP25 non-ETF tickers from preliminary score
+        # ALL non-ETF tickers (was: head(25))
         stocks = scored_preview[scored_preview["sector"] != "ETF"].copy()
-        top25 = stocks.sort_values("composite_score", ascending=False).head(25).index.tolist()
+        all_tickers = stocks.index.tolist()
         # Build 1y date range
         end = datetime.now().date()
         start = end - timedelta(days=400)  # extra buffer for SMA200 etc
         histories = {}
-        for ticker in top25:
+        for ticker in all_tickers:
             try:
                 prices = price_cache.get_prices(ticker, start, end)
                 if prices is not None and len(prices) >= 50:
@@ -309,14 +309,14 @@ def _load_top25_price_histories(scored_preview):
 def load_and_score(mcap,wt,sr,preset,_file_mtime):
     w=dict(zip(DEFAULT_PILLAR_WEIGHTS.keys(),wt));tickers=get_broad_universe(mcap)
     progress=st.progress(0,text="Loading...");raw=fetch_universe_data(tickers,mcap,lambda p,m:progress.progress(p,text=m));progress.empty()
-    # First-pass score (without tier assignment) to identify TOP25 for price loading
-    progress=st.progress(0.7,text="Identifying TOP25 for tier classification...")
+    # First-pass score (without tier assignment)
+    progress=st.progress(0.6,text="First-pass scoring...")
     scored_preview=score_universe(raw,w,sector_relative=sr,preset_name=preset)
-    # Load price histories for those TOP25 from prices_cache.parquet
-    progress.progress(0.8,text="Loading price histories for QBP calculation...")
-    price_histories=_load_top25_price_histories(scored_preview) if not scored_preview.empty else {}
-    # Second-pass score WITH tier classification (Strong Buy+ / Strong Buy / Buy via QBP/FV)
-    progress.progress(0.9,text="Classifying Strong Buy+ / Strong Buy / Buy tiers...")
+    # Load price histories for ALL non-ETF stocks (was: top 25 only)
+    progress.progress(0.7,text="Loading price histories for universe-wide FV/QBP...")
+    price_histories=_load_universe_price_histories(scored_preview) if not scored_preview.empty else {}
+    # Second-pass score WITH FV/QBP computed for ALL stocks (heavy: 1-3 min)
+    progress.progress(0.8,text="Computing Fair Value and Buy Point for entire universe...")
     scored=score_universe(raw,w,sector_relative=sr,preset_name=preset,price_histories=price_histories)
     progress.empty()
     ss=get_sector_stats(scored) if not scored.empty else {}
@@ -731,11 +731,12 @@ with tab_screener:
     preset_names=["Custom"]+list(PRESET_SCREENS.keys())
     selected_preset=st.selectbox("Quick Screens",preset_names,key="adv_preset")
     st.markdown("---")
-    fc1,fc2,fc3=st.columns(3)
+    fc1,fc2,fc3,fc4=st.columns(4)
     preset=PRESET_SCREENS.get(selected_preset,{}) if selected_preset!="Custom" else {}
     with fc1: adv_ratings=st.multiselect("Rating",["Strong Buy+","Strong Buy","Buy","Hold","Sell","Strong Sell"],default=preset.get("rating_filter",[]),key="adv_rat")
     with fc2: adv_sectors=st.multiselect("Sector",sorted(scored_df["sector"].dropna().unique().tolist()),key="adv_sec")
     with fc3: adv_fv=st.multiselect("Fair Value Verdict",["Deeply Undervalued","Undervalued","Fairly Valued","Overvalued","Significantly Overvalued"],default=preset.get("fair_value_filter",[]),key="adv_fv")
+    with fc4: adv_qbp=st.checkbox("Under QBP",value=False,key="adv_qbp",help="Show only stocks trading at or below their Quant Buy Point")
     if preset: st.info(preset.get("description",""))
     st.markdown("#### Metric Filters")
     active_filters=dict(preset.get("metric_filters",{}))
@@ -754,7 +755,7 @@ with tab_screener:
                             vals=st.slider(f"{m['name']}{' (%)' if is_pct else ''}",float(m["default_min"]),float(m["default_max"]),(float(m["default_min"]),float(m["default_max"])),step=float(m["step"]),key=f"am_{i}")
                             active_filters[m["key"]]=vals
     if st.button("Run Screen",key="adv_run"):
-        results=apply_advanced_filters(scored_df,rating_filter=adv_ratings or None,sector_filter=adv_sectors or None,metric_filters=active_filters or None)
+        results=apply_advanced_filters(scored_df,rating_filter=adv_ratings or None,sector_filter=adv_sectors or None,metric_filters=active_filters or None,qbp_filter=adv_qbp)
         if results.empty: st.warning("No stocks match all filters.")
         else:
             # Always compute fair values

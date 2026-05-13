@@ -54,6 +54,7 @@ def apply_advanced_filters(
     sort_by="composite_score",
     sort_ascending=False,
     max_results=500,
+    qbp_filter=False,
 ):
     if scored_df.empty:
         return pd.DataFrame()
@@ -65,6 +66,12 @@ def apply_advanced_filters(
 
     if sector_filter and "All" not in sector_filter:
         df = df[df["sector"].isin(sector_filter)]
+
+    # QBP filter: keep only stocks trading at or below their Quant Buy Point
+    if qbp_filter and "buy_point" in df.columns and "currentPrice" in df.columns:
+        bp = pd.to_numeric(df["buy_point"], errors="coerce")
+        cp = pd.to_numeric(df["currentPrice"], errors="coerce")
+        df = df[(cp <= bp) & bp.notna() & cp.notna()]
 
     if metric_filters:
         for metric_key, (min_val, max_val) in metric_filters.items():
