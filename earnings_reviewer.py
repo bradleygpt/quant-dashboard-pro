@@ -33,8 +33,12 @@ _SEC_HEADERS = {
     "Accept-Encoding": "gzip, deflate",
 }
 
-# Approved earnings-related 8-K item types
-_EARNINGS_8K_ITEMS = {"2.02", "7.01", "8.01"}
+# Approved earnings-related 8-K item types.
+# Item 2.02 is "Results of Operations and Financial Condition" — the SEC's designated
+# item code for earnings releases. Other item codes (7.01 Reg FD, 8.01 Other Events)
+# cover unrelated material events (M&A, debt tenders, leadership changes, etc.) and
+# would pull in non-earnings filings. Restrict to 2.02 only.
+_EARNINGS_8K_ITEMS = {"2.02"}
 
 
 # ───────────────────────────────────────────────────────────────
@@ -234,7 +238,10 @@ def get_recent_earnings_8ks(ticker: str, n: int = 2) -> List[Dict]:
     cik = _get_cik(ticker)
     if not cik:
         return []
-    filings = _list_recent_8ks(cik, limit=n * 2)  # Fetch more, then prune
+    # Fetch a wider window of recent 8-Ks because the 2.02-only filter is strict;
+    # most companies file ~4 earnings 8-Ks per year but file ~20-40 8-Ks total.
+    # 30 covers ~7-8 quarters which is more than enough to find the latest 2.
+    filings = _list_recent_8ks(cik, limit=30)
     out = []
     for f in filings[:n]:
         text = _fetch_8k_text(f["primary_doc_url"])
