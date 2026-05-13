@@ -966,7 +966,7 @@ with tab_detail:
         # ═══ Combined Price + Quarterly Earnings Chart ═══
         st.markdown("---")
         st.markdown("### Price & Quarterly Earnings")
-        st.caption("Stock price line with quarterly EPS bars overlaid. Bars colored green when EPS beat analyst estimates, red when missed, gray when no estimate available. (Bar height already shows growth/decline visually.)")
+        st.caption("Stock price line with quarterly EPS bars overlaid. Bar colors: green = beat estimate OR YoY EPS growth; red = miss estimate OR YoY EPS decline; gray = first 4 quarters (no YoY baseline available).")
         chart_period=st.selectbox("Period",["1y","2y","3y","5y","10y","max"],index=3,key="price_period")
         try:
             t_obj=yf.Ticker(sel)
@@ -1051,9 +1051,10 @@ with tab_detail:
                         n_with_surprise = surprises_series.dropna().shape[0] if hasattr(surprises_series, 'dropna') else 0
 
                     bar_colors=[]
-                    # Per-bar coloring: ONLY based on beat/miss vs analyst estimates
-                    # Gray when no estimate available (don't fall back to QoQ direction —
-                    # the bar height already shows growth/decline visually)
+                    # Per-bar coloring:
+                    #   1. If we have a surprise vs analyst estimate, use that (green=beat, red=miss)
+                    #   2. Else, fall back to YoY comparison (green if EPS > 4 quarters ago, red if <)
+                    #   3. Else, gray (first 4 quarters, no YoY baseline)
                     eps_values=eps_sorted.values
                     eps_index=eps_sorted.index
                     for i,idx in enumerate(eps_index):
@@ -1061,10 +1062,23 @@ with tab_detail:
                         if surprises_series is not None and hasattr(surprises_series,"get"):
                             s=surprises_series.get(idx)
                         if s is not None and not pd.isna(s):
-                            if s>0: bar_colors.append("#22C55E")  # Beat
-                            else: bar_colors.append("#EF4444")     # Miss
+                            if s>0: bar_colors.append("#22C55E")  # Beat estimate
+                            else: bar_colors.append("#EF4444")     # Miss estimate
+                        elif i >= 4:
+                            # YoY comparison fallback
+                            current_eps = eps_values[i]
+                            yoy_eps = eps_values[i-4]
+                            if pd.notna(current_eps) and pd.notna(yoy_eps):
+                                if current_eps > yoy_eps:
+                                    bar_colors.append("#22C55E")  # YoY growth
+                                elif current_eps < yoy_eps:
+                                    bar_colors.append("#EF4444")  # YoY decline
+                                else:
+                                    bar_colors.append("#888888")
+                            else:
+                                bar_colors.append("#888888")
                         else:
-                            bar_colors.append("#888888")           # No estimate available
+                            bar_colors.append("#888888")           # No YoY baseline yet
 
                     fig_combo.add_trace(
                         go.Bar(
@@ -1105,30 +1119,9 @@ with tab_detail:
 
                 st.plotly_chart(fig_combo,use_container_width=True,key="price_earnings_combo")
 
-                # ── Diagnostic: show actual earnings dates and source detail ──
-                if quarterly_eps is not None and not quarterly_eps.empty:
-                    with st.expander(f"🔍 Earnings data details ({len(quarterly_eps)} quarters fetched)"):
-                        earnings_table_rows = []
-                        for idx in eps_sorted.index:
-                            eps_val = float(eps_sorted.loc[idx])
-                            surprise_val = None
-                            if surprises_series is not None and hasattr(surprises_series, "get"):
-                                s = surprises_series.get(idx)
-                                if s is not None and not pd.isna(s):
-                                    surprise_val = float(s)
-                            earnings_table_rows.append({
-                                "Quarter Date": idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx),
-                                "EPS ($)": f"${eps_val:.2f}",
-                                "Surprise %": f"{surprise_val:+.1f}%" if surprise_val is not None else "n/a",
-                                "Color": "🟢 Beat" if surprise_val is not None and surprise_val > 0 else ("🔴 Miss" if surprise_val is not None else "⚪ No estimate"),
-                            })
-                        st.dataframe(pd.DataFrame(earnings_table_rows), use_container_width=True, hide_index=True)
-                        st.caption(f"Source: {source_label}. If you see fewer rows than expected, the data source returned incomplete data — try a different `chart_period` (e.g., '10y' for older data) or check fetch errors below.")
-                        if fetch_errors:
-                            st.markdown("**Fetch errors by source:**")
-                            for k, v in fetch_errors.items():
-                                if v:
-                                    st.caption(f"- {k}: {v[:200]}")
+                # ── Diagnostic table removed (redundant with chart) ──
+                # If a developer needs to inspect raw earnings rows, query
+                # earnings_data.get_earnings_data(ticker) directly.
 
                 # Source badge
                 if eps_source=="finnhub":
@@ -1242,15 +1235,86 @@ with tab_detail:
                 # extraction misses most filings. Removed in favor of an empty UI rather than
                 # showing "No data available" boxes that imply broken functionality.
 
-                # ── M&A Analysis: target profile + historical filings ──
+                # ── M&A Analysis sections removed from Stock Detail ──
+                # The ma_analysis module (render_ma_target_panel, render_ma_history_panel)
+                # remains in the codebase but is no longer surfaced here. Can be
+                # re-activated in a dedicated tab or section later.
+
+                # ═══ AI Earnings Review (LLM-driven thesis-check) ═══
                 st.markdown("---")
+                st.markdown("### 🤖 AI Earnings Review")
+                st.caption("LLM-generated review of the most recent earnings filing with a thesis-check vs prior quarter's guidance. Reads SEC 8-K directly. Reviews are cached per filing date.")
+
+                # Check cache state first
+                _company_name = row.get("shortName", sel)
+                _cached_check = None
                 try:
-                    from ma_analysis import render_ma_target_panel, render_ma_history_panel
-                    render_ma_target_panel(sel, row.to_dict() if hasattr(row, 'to_dict') else dict(row), sector_stats)
-                    st.markdown("")
-                    render_ma_history_panel(sel)
-                except Exception as e:
-                    st.caption(f"M&A analysis unavailable: {str(e)[:120]}")
+                    from earnings_reviewer import get_cached_review, get_recent_earnings_8ks
+                    _filings_preview = get_recent_earnings_8ks(sel, n=1)
+                    if _filings_preview:
+                        _cached_check = get_cached_review(sel, _filings_preview[0]["filing_date"])
+                except Exception:
+                    pass
+
+                _btn_label = "Refresh review" if _cached_check else f"Generate review for {sel}"
+                _force = False
+
+                if _cached_check:
+                    # Cached review exists; show it inline immediately
+                    _review_to_show = _cached_check
+                    st.caption(f"📂 Cached review (filed {_review_to_show.get('filing_date', 'unknown')}). Click below to regenerate from current 8-K.")
+                    if st.button("Regenerate from current 8-K", key=f"ai_earnings_regen_{sel}"):
+                        _force = True
+                else:
+                    _review_to_show = None
+
+                if (st.button(_btn_label, key=f"ai_earnings_gen_{sel}") and not _cached_check) or _force:
+                    if not is_ai_available():
+                        st.warning("AI provider not configured. Set GEMINI_API_KEY (or ANTHROPIC_API_KEY) in environment to use this feature.")
+                    else:
+                        with st.spinner(f"Fetching SEC 8-K filings for {sel} and generating review (~10-30s)..."):
+                            try:
+                                from earnings_reviewer import generate_earnings_review
+                                _context = {
+                                    "sector": row.get("sector", "unknown"),
+                                    "quant_rating": row.get("overall_rating", "Hold"),
+                                    "composite_score": row.get("composite_score", 0),
+                                    "current_price": row.get("currentPrice", 0),
+                                    "fair_value": fv["composite_fair_value"] if "error" not in fv else None,
+                                    "buy_point": None,  # Will be filled in by buy_point section below; review is OK without it
+                                }
+                                _review_to_show = generate_earnings_review(
+                                    sel, _company_name, _context, force_regenerate=_force
+                                )
+                            except Exception as e:
+                                _review_to_show = {"ok": False, "error": f"Review generation failed: {str(e)[:200]}"}
+
+                # Render review (whether cached or freshly generated)
+                if _review_to_show and _review_to_show.get("ok"):
+                    try:
+                        from earnings_reviewer import get_verdict_color
+                        _verdict = _review_to_show.get("verdict", "HOLD")
+                        _vcolor = get_verdict_color(_verdict)
+                        st.markdown(
+                            f'<div style="background:{_vcolor};padding:8px 16px;border-radius:6px;'
+                            f'font-weight:700;color:#111;display:inline-block;margin-bottom:12px;">'
+                            f'{_verdict}</div>',
+                            unsafe_allow_html=True,
+                        )
+                        st.markdown(_review_to_show.get("full_text", ""))
+                        _src_line = f"Filed: {_review_to_show.get('filing_date','?')}"
+                        if _review_to_show.get("prior_filing_date") and _review_to_show.get("prior_filing_date") != "n/a":
+                            _src_line += f" | Compared to prior 8-K: {_review_to_show['prior_filing_date']}"
+                        _src_line += f" | AI: {_review_to_show.get('provider','?')}"
+                        if _review_to_show.get("cached"):
+                            _src_line += " | from cache"
+                        st.caption(_src_line)
+                        if _review_to_show.get("filing_url"):
+                            st.caption(f"[View source 8-K filing]({_review_to_show['filing_url']})")
+                    except Exception as _e:
+                        st.error(f"Render error: {str(_e)[:120]}")
+                elif _review_to_show and not _review_to_show.get("ok"):
+                    st.warning(_review_to_show.get("error", "Review generation failed."))
 
                 # ── Earnings summary ──
                 if quarterly_eps is None or quarterly_eps.empty:
