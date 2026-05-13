@@ -351,13 +351,19 @@ def compute_pgi() -> dict:
             from fred_data import get_money_market_total_t
             mm = get_money_market_total_t()
             if mm:
-                money_market_t = mm["value_t"]
-                money_market_date = mm["date"]
-                money_market_source = "FRED"
+                _candidate = mm["value_t"]
+                # Sanity check: MMF AUM has been $3T-$8T historically.
+                # Anything outside [1T, 20T] is a unit-conversion bug, not real data.
+                if 1.0 <= _candidate <= 20.0:
+                    money_market_t = _candidate
+                    money_market_date = mm["date"]
+                    money_market_source = "FRED"
+                else:
+                    money_market_source = "fallback (FRED returned implausible value)"
         except Exception:
             pass
 
-        # Fallback if FRED unavailable (update manually if FRED stays broken)
+        # Fallback if FRED unavailable or returned bad data
         if money_market_t is None:
             money_market_t = 7.0  # rough estimate as of May 2026
 

@@ -782,12 +782,10 @@ with tab_regime:
 
     st.caption(fed.get("note", ""))
 
-    # Economic calendar - real release dates with countdown + FRED historical data
-    st.markdown("---")
-    from economic_calendar import render_economic_calendar_panel
-    render_economic_calendar_panel()
-
     st.caption(f"Macro data last updated: {macro['last_updated']}.")
+
+    # NOTE: Economic Calendar (Key Economic Releases) moved to BOTTOM of tab,
+    # after the Sentiment section. See end of this tab.
 
     # ═══ SENTIMENT SECTION (merged from former Market Sentiment tab) ═══
     st.markdown("---")
@@ -819,6 +817,14 @@ with tab_regime:
     with st.expander("Coming Soon"):
         for ind in COMING_SOON_INDICATORS:
             st.markdown(f"**{ind['name']}** -- *{ind.get('status','Planned')}*");st.caption(ind["description"])
+
+    # ═══ Economic Calendar (Key Economic Releases) — moved to bottom ═══
+    # Previously sat between Fed Outlook and Sentiment. Now anchors the tab.
+    # Sub-session 2 Commit 3 will replace this with the monthly calendar widget
+    # that integrates S&P 100 bellwether earnings.
+    st.markdown("---")
+    from economic_calendar import render_economic_calendar_panel
+    render_economic_calendar_panel()
 
 # ═══ TAB: PUNDIT VIEWS & PREDICTIONS (merged) ════════════════════
 with tab_voices:

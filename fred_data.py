@@ -101,18 +101,23 @@ def get_latest_observation(series_id: str) -> Optional[Dict]:
 def get_money_market_total_t() -> Optional[Dict]:
     """Total money market fund financial assets (trillions USD).
 
-    Uses series MMMFFAQ027S — Money Market Funds; Total Financial Assets
-    (quarterly, billions of dollars). Convert to trillions for dashboard display.
+    Uses series MMMFFAQ027S — Money Market Funds; Total Financial Assets.
+    FRED publishes this in MILLIONS of dollars (despite some FRED docs being
+    ambiguous about the unit). Convert millions -> trillions = divide by 1e6.
 
-    Returns: {value_t: float, date: str, raw_billions: float} or None.
+    Sanity check: ICI reports total MMF AUM at ~$7-8T as of Q4 2025/Q1 2026.
+    If get_money_market_total_t() returns a value < $1T or > $20T, the unit
+    is wrong and something needs to be re-examined.
+
+    Returns: {value_t: float, date: str, raw_millions: float} or None.
     """
     obs = get_latest_observation("MMMFFAQ027S")
     if not obs:
         return None
-    raw_b = obs["value"]
+    raw_millions = obs["value"]
     return {
-        "value_t": round(raw_b / 1000.0, 2),  # billions -> trillions
-        "raw_billions": raw_b,
+        "value_t": round(raw_millions / 1_000_000.0, 2),  # millions -> trillions
+        "raw_millions": raw_millions,
         "date": obs["date"],
     }
 
