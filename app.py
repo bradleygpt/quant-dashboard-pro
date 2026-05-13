@@ -592,12 +592,38 @@ with tab_regime:
     st.caption("📊 For full 1W/1M/ATH comparisons across all indexes/commodities/currencies/rates, see Markets at a Glance on the Home tab.")
     st.markdown("---")
 
-    # Earnings + IPO calendar (earnings filtered to tracked universe)
-    from earnings_calendar import render_earnings_calendar_panel, render_ipo_calendar_panel
-    render_earnings_calendar_panel(compact=False, universe_tickers=set(scored_df.index))
-    st.markdown("")
-    render_ipo_calendar_panel(compact=False, days_out=21)
-    st.markdown("---")
+    # ═══ POTENTIAL GROWTH INDICATOR (PGI) — MOVED TO TOP ═══
+    # Money market cash positioning vs total US market cap.
+    # High PGI = high cash on sidelines = contrarian buy signal.
+    # Auto-updates from FRED (MMMFFAQ027S series).
+    pgi_data = compute_pgi()
+    if pgi_data:
+        st.markdown("### Potential Growth Indicator (PGI)")
+        st.caption("Measures cash sitting in money markets vs total US stock market cap. Higher PGI = more cash on sidelines = contrarian bullish signal.")
+        pg1, pg2 = st.columns([1, 2])
+        with pg1:
+            st.plotly_chart(
+                make_gauge(pgi_data["score"], f"PGI: {pgi_data['pgi']:.1f}%", 0, 100),
+                use_container_width=True,
+                key="pgi_g_top",
+            )
+        with pg2:
+            st.markdown(
+                f'### <span style="color:{pgi_data["color"]}">{pgi_data["level"]}</span>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"**PGI: {pgi_data['pgi']:.2f}%** "
+                f"(Money Markets: ${pgi_data['money_market_t']}T / US Market Cap: ${pgi_data['total_mkt_cap_t']}T)"
+            )
+            st.caption(pgi_data["interpretation"])
+            st.caption("Above 11.5% = Eager to invest (others fearful) | 9.5-11.5% = Neutral | Below 9.5% = Cautious (others greedy)")
+            st.caption(pgi_data["note"])
+        st.markdown("---")
+
+    # NOTE: Earnings calendar and IPO calendar sections previously here have
+    # been removed. Earnings will surface via the new Monthly Economic Calendar
+    # (Commit 3 of Sub-session 2) which integrates S&P 100 bellwether earnings.
 
     macro=get_macro_summary()
     health=macro["health_score"]
@@ -647,19 +673,114 @@ with tab_regime:
     fig_sf.update_layout(yaxis=dict(title="Earnings Growth %"),height=400,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#e0e0e0"),coloraxis_showscale=False,showlegend=False)
     st.plotly_chart(fig_sf,use_container_width=True,key="sf_bar")
 
-    # Fed rate outlook
+    # ═══ Federal Reserve Rate Outlook (FRED-driven, live data) ═══
     st.markdown("---")
     st.markdown("### Federal Reserve Rate Outlook")
-    fr1,fr2,fr3,fr4=st.columns(4)
-    with fr1: st.metric("Current Rate",fed["current_rate"])
-    with fr2: st.metric("Next Meeting",fed["next_meeting"])
-    with fr3: st.metric("Year-End Dots",fed["year_end_dots"])
-    with fr4: st.markdown(f"**Bias:** {fed['bias']}")
-    fp1,fp2,fp3=st.columns(3)
-    with fp1: st.metric("Cut Probability",f"{fed['cut_probability']}%")
-    with fp2: st.metric("Hold Probability",f"{fed['hold_probability']}%")
-    with fp3: st.metric("Hike Probability",f"{fed['hike_probability']}%")
-    st.caption(fed["note"])
+
+    # Pull live data from FRED and the FOMC calendar scraper
+    _fed_live_target = None
+    _fed_next_meeting = None
+    _fed_dot_plot = None
+    try:
+        from fred_data import get_fed_funds_target_range, get_sep_dot_plot, is_fred_available
+        from fed_calendar import get_next_fomc_meeting
+        if is_fred_available():
+            _fed_live_target = get_fed_funds_target_range()
+            _fed_dot_plot = get_sep_dot_plot()
+        _fed_next_meeting = get_next_fomc_meeting()
+    except Exception as _e:
+        st.caption(f"Live Fed data fetch error: {str(_e)[:80]}")
+
+    # Top row: current rate, next meeting, year-end dot, bias
+    fr1, fr2, fr3, fr4 = st.columns(4)
+    with fr1:
+        if _fed_live_target:
+            st.metric("Current Target Range", _fed_live_target["range_str"])
+            st.caption(f"FRED, {_fed_live_target['date']}")
+        else:
+            # Fall back to legacy fed dict
+            st.metric("Current Rate", fed.get("current_rate", "—"))
+            st.caption("Source: hardcoded (FRED unavailable)")
+    with fr2:
+        if _fed_next_meeting and _fed_next_meeting.get("next_meeting"):
+            st.metric("Next FOMC Meeting", _fed_next_meeting["next_meeting"])
+            _src_lbl = "live" if _fed_next_meeting["source"] == "scraped" else _fed_next_meeting["source"]
+            _has_sep_lbl = " (SEP release)" if _fed_next_meeting.get("has_sep") else ""
+            st.caption(f"{_fed_next_meeting['days_until']} days · {_src_lbl}{_has_sep_lbl}")
+        else:
+            st.metric("Next Meeting", fed.get("next_meeting", "—"))
+            st.caption("Source: hardcoded")
+    with fr3:
+        if _fed_dot_plot:
+            _current_year_median = _fed_dot_plot["median_values"][0]
+            st.metric("Current-Year Median Dot", f"{_current_year_median:.2f}%")
+            st.caption(f"FOMC SEP, {_fed_dot_plot.get('as_of','?')}")
+        else:
+            st.metric("Year-End Dots", fed.get("year_end_dots", "—"))
+    with fr4:
+        st.markdown(f"**Bias:** {fed.get('bias', '—')}")
+        st.caption("Per FOMC statement language")
+
+    # Probabilities row - these are heuristic until we hook up a CME FedWatch source
+    fp1, fp2, fp3 = st.columns(3)
+    with fp1: st.metric("Cut Probability", f"{fed.get('cut_probability', 0)}%")
+    with fp2: st.metric("Hold Probability", f"{fed.get('hold_probability', 0)}%")
+    with fp3: st.metric("Hike Probability", f"{fed.get('hike_probability', 0)}%")
+    st.caption(
+        "Probabilities are heuristic estimates based on the SEP and FOMC statement bias. "
+        "For market-implied probabilities derived from Fed Funds futures, see CME FedWatch."
+    )
+
+    # ═══ FOMC Dot Plot ═══
+    if _fed_dot_plot:
+        st.markdown("#### FOMC Median Dot Plot")
+        st.caption(
+            f"Median FOMC participant's projection for year-end Fed Funds Rate. "
+            f"Source: {_fed_dot_plot.get('source', '?')}. As of: {_fed_dot_plot.get('as_of', '?')}."
+        )
+        try:
+            _dot_fig = go.Figure()
+            _years = _fed_dot_plot["year_labels"]
+            _medians = _fed_dot_plot["median_values"]
+            _current = _fed_dot_plot.get("current_target")
+            # Line + markers for median dots
+            _dot_fig.add_trace(go.Scatter(
+                x=_years,
+                y=_medians,
+                mode="lines+markers+text",
+                name="Median Dot",
+                line=dict(color="#4ECDC4", width=2),
+                marker=dict(size=14, color="#4ECDC4", line=dict(color="#fff", width=1)),
+                text=[f"{v:.2f}%" for v in _medians],
+                textposition="top center",
+                textfont=dict(size=12, color="#e0e0e0"),
+                hovertemplate="<b>%{x}</b><br>Median: %{y:.2f}%<extra></extra>",
+            ))
+            # Current target horizontal line
+            if _current is not None:
+                _dot_fig.add_hline(
+                    y=_current,
+                    line_dash="dash",
+                    line_color="#FF6B6B",
+                    annotation_text=f"Current target midpoint: {_current:.2f}%",
+                    annotation_position="bottom right",
+                    annotation_font_color="#FF6B6B",
+                )
+            _dot_fig.update_layout(
+                yaxis=dict(title="Fed Funds Rate (%)", tickformat=".2f", gridcolor="#2a2f3e"),
+                xaxis=dict(title="Year-End Projection", gridcolor="#2a2f3e"),
+                height=380,
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#e0e0e0"),
+                margin=dict(l=60, r=40, t=30, b=40),
+                showlegend=False,
+            )
+            st.plotly_chart(_dot_fig, use_container_width=True, key="fomc_dot_plot")
+        except Exception as _dot_e:
+            st.caption(f"Dot plot render error: {str(_dot_e)[:80]}")
+
+    st.caption(fed.get("note", ""))
 
     # Economic calendar - real release dates with countdown + FRED historical data
     st.markdown("---")
@@ -691,21 +812,7 @@ with tab_regime:
     with g3:
         if breadth_data: st.plotly_chart(make_gauge(breadth_data["pct_above_200sma"],f"Above 200-SMA: {breadth_data['pct_above_200sma']:.0f}%",0,100),use_container_width=True,key="s2g")
     st.markdown("---")
-    # PGI (Potential Growth Indicator)
-    pgi_data=compute_pgi()
-    if pgi_data:
-        st.markdown("### Potential Growth Indicator (PGI)")
-        st.caption("Measures cash sitting in money markets vs total US stock market cap. Higher PGI = more fear = contrarian buy signal.")
-        pg1,pg2=st.columns([1,2])
-        with pg1:
-            st.plotly_chart(make_gauge(pgi_data["score"],f"PGI: {pgi_data['pgi']:.1f}%",0,100),use_container_width=True,key="pgi_g")
-        with pg2:
-            st.markdown(f'### <span style="color:{pgi_data["color"]}">{pgi_data["level"]}</span>',unsafe_allow_html=True)
-            st.markdown(f"**PGI: {pgi_data['pgi']:.2f}%** (Money Markets: ${pgi_data['money_market_t']}T / US Market Cap: ${pgi_data['total_mkt_cap_t']}T)")
-            st.caption(pgi_data["interpretation"])
-            st.caption("Above 11.5% = Eager to invest (others fearful) | 9.5-11.5% = Neutral | Below 9.5% = Cautious (others greedy)")
-            st.caption(pgi_data["note"])
-    st.markdown("---")
+    # PGI was moved to the top of this tab. See PGI section near the start.
     if index_data:
         idf=pd.DataFrame(index_data);dc=["name","current_price","all_time_high","distance_from_ath_pct","change_1d_pct","change_5d_pct","change_1m_pct","change_ytd_pct"]
         st.dataframe(idf[dc].rename(columns={"name":"Asset","current_price":"Price","all_time_high":"ATH","distance_from_ath_pct":"From ATH %","change_1d_pct":"1D%","change_5d_pct":"5D%","change_1m_pct":"1M%","change_ytd_pct":"YTD%"}),use_container_width=True,hide_index=True)

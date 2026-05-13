@@ -335,15 +335,33 @@ COMING_SOON_INDICATORS = [
 def compute_pgi() -> dict:
     """
     Compute the Potential Growth Indicator.
-    Uses Wilshire 5000 as total market cap proxy and estimates money market
-    assets from publicly available data.
 
-    Since FRED API requires a key, we use a simplified approach:
-    - Total US market cap from Wilshire 5000 (yfinance: ^W5000)
-    - Money market estimate: ~$6.7T as of early 2026 (updated manually)
+    Money market AUM is pulled from FRED (series MMMFFAQ027S — Money Market
+    Funds; Total Financial Assets, quarterly). Falls back to a hardcoded
+    estimate if FRED is unavailable.
+
+    Total US market cap proxy: Wilshire 5000 (yfinance ^W5000).
     """
     try:
-        # Wilshire 5000 Total Market Index
+        # ── Money Market AUM: try FRED first, fall back to hardcoded ──
+        money_market_t = None
+        money_market_date = None
+        money_market_source = "fallback"
+        try:
+            from fred_data import get_money_market_total_t
+            mm = get_money_market_total_t()
+            if mm:
+                money_market_t = mm["value_t"]
+                money_market_date = mm["date"]
+                money_market_source = "FRED"
+        except Exception:
+            pass
+
+        # Fallback if FRED unavailable (update manually if FRED stays broken)
+        if money_market_t is None:
+            money_market_t = 7.0  # rough estimate as of May 2026
+
+        # ── Total Market Cap: Wilshire 5000 ──
         w5000 = yf.Ticker("^W5000")
         hist = w5000.history(period="5d")
         if hist.empty:
@@ -355,11 +373,7 @@ def compute_pgi() -> dict:
         # Wilshire 5000 full cap in trillions (index ~48000 = ~$48T market cap)
         total_mkt_cap_t = w5000_level / 1000
 
-        # Money market fund assets (updated periodically)
-        # Source: ICI, Federal Reserve. As of early 2026 ~$6.7T
-        # This should be updated manually when new data is available
-        money_market_t = 6.7  # Trillions
-
+        # ── PGI ratio ──
         pgi = (money_market_t / total_mkt_cap_t) * 100 if total_mkt_cap_t > 0 else 0
 
         # Interpretation
@@ -379,15 +393,22 @@ def compute_pgi() -> dict:
             color = "#F97316"
             score = max(0, pgi * 5)
 
+        # Note text adapts to data source
+        if money_market_source == "FRED":
+            note = f"Money market AUM from FRED ({money_market_date}). Auto-updates quarterly."
+        else:
+            note = "Money market AUM estimated (FRED unavailable). Update manually if needed."
+
         return {
             "pgi": round(pgi, 2),
             "level": level,
             "interpretation": interpretation,
             "color": color,
             "score": round(score),
-            "money_market_t": money_market_t,
+            "money_market_t": round(money_market_t, 2),
             "total_mkt_cap_t": round(total_mkt_cap_t, 1),
-            "note": "Money market assets updated manually (~$6.7T as of early 2026). Update sentiment.py when new ICI data is released.",
+            "money_market_source": money_market_source,
+            "note": note,
         }
     except Exception:
         return None
