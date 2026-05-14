@@ -818,13 +818,15 @@ with tab_regime:
         for ind in COMING_SOON_INDICATORS:
             st.markdown(f"**{ind['name']}** -- *{ind.get('status','Planned')}*");st.caption(ind["description"])
 
-    # ═══ Economic Calendar (Key Economic Releases) — moved to bottom ═══
-    # Previously sat between Fed Outlook and Sentiment. Now anchors the tab.
-    # Sub-session 2 Commit 3 will replace this with the monthly calendar widget
-    # that integrates S&P 100 bellwether earnings.
+    # ═══ Monthly Economic & Earnings Calendar (lazy-loaded) ═══
+    # Replaces the prior text-list `render_economic_calendar_panel()`.
+    # New widget: month-grid view with major US economic releases and
+    # bellwether (top-100 by market cap) earnings dates.
+    # Lazy-loaded via expander to keep page load fast; first expansion fetches
+    # earnings dates (~30-50s for 100 tickers) and caches for 24 hours.
     st.markdown("---")
-    from economic_calendar import render_economic_calendar_panel
-    render_economic_calendar_panel()
+    from monthly_calendar import render_monthly_calendar
+    render_monthly_calendar(scored_df, n_bellwethers=100)
 
 # ═══ TAB: PUNDIT VIEWS & PREDICTIONS (merged) ════════════════════
 with tab_voices:
