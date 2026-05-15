@@ -55,6 +55,104 @@ from etf_center import PORTFOLIO_TEMPLATES, get_portfolio_template, list_templat
 from risk_metrics import compute_full_metrics, daily_returns_from_prices, current_drawdown_pct, format_sharpe, format_drawdown
 from prediction_market_tab import render_prediction_market_tab
 
+# ═══════════════════════════════════════════════════════════════════
+# Display rating helper - handles "Insufficient Data" relabel for
+# Strong Sell picks with sparse pillar coverage.
+# Based on diagnostic finding: Strong Sells with 2+ NaN pillars have
+# materially different (often POSITIVE) forward returns vs complete-data
+# Strong Sells. Showing them as "Sell" is misleading.
+# ═══════════════════════════════════════════════════════════════════
+
+_SPARSE_DATA_PILLARS = [
+    "trailingPE", "priceToBook", "priceToSalesTrailing12Months",
+    "enterpriseToEbitda",
+    "revenue_growth_yoy", "earnings_growth_yoy",
+    "operating_margin", "roe",
+    # Also check column aliases used elsewhere in the codebase
+    "trailing_pe", "price_to_book", "price_to_sales", "ev_to_ebitda",
+    "operatingMargins", "returnOnEquity",
+]
+_SPARSE_DATA_THRESHOLD = 2  # MODERATE threshold from diagnostic
+
+def _count_nan_pillars(row):
+    """Count NaN/missing pillar fields from a row dict-like."""
+    if row is None:
+        return 0
+    n_nan = 0
+    n_checked = 0
+    seen_pillars = set()
+    # Map of "logical pillar name" -> possible column aliases
+    pillar_aliases = {
+        "pe": ["trailingPE", "trailing_pe"],
+        "pb": ["priceToBook", "price_to_book"],
+        "ps": ["priceToSalesTrailing12Months", "price_to_sales"],
+        "ev_ebitda": ["enterpriseToEbitda", "ev_to_ebitda"],
+        "rev_growth": ["revenue_growth_yoy"],
+        "earn_growth": ["earnings_growth_yoy"],
+        "op_margin": ["operating_margin", "operatingMargins"],
+        "roe": ["roe", "returnOnEquity"],
+    }
+    for pname, aliases in pillar_aliases.items():
+        # Find first available alias in row
+        val = None
+        found = False
+        for a in aliases:
+            try:
+                if hasattr(row, "get"):
+                    if a in row.index if hasattr(row, "index") else (a in row):
+                        val = row.get(a, None)
+                        found = True
+                        break
+            except Exception:
+                continue
+        if found:
+            n_checked += 1
+            if val is None or pd.isna(val):
+                n_nan += 1
+    # If we couldn't check enough pillars, return 0 (conservative — keep original rating)
+    if n_checked < 4:
+        return 0
+    return n_nan
+
+
+def compute_display_rating(rating, row, short=False):
+    """Return (display_label, color) for a rating, applying sparse-data relabel.
+
+    Args:
+        rating: raw overall_rating string
+        row: dict-like (pandas Series or dict) with pillar columns
+        short: if True, returns compact label for tables; else full label for badges
+
+    Returns:
+        (label_string, hex_color_string)
+    """
+    if rating == "Strong Sell":
+        n_nan = _count_nan_pillars(row)
+        if n_nan >= _SPARSE_DATA_THRESHOLD:
+            if short:
+                return ("Score Unavailable", "#888888")
+            else:
+                return ("Score Unavailable - High Variance", "#888888")
+    # Default: return original rating with its color
+    return (rating, RATING_COLORS.get(rating, "#666"))
+
+
+def count_sparse_data_strong_sells(df):
+    """Count Strong Sells that would be relabeled to 'Score Unavailable'."""
+    if df is None or len(df) == 0 or "overall_rating" not in df.columns:
+        return 0
+    ss = df[df["overall_rating"] == "Strong Sell"]
+    if len(ss) == 0:
+        return 0
+    count = 0
+    for _, row in ss.iterrows():
+        if _count_nan_pillars(row) >= _SPARSE_DATA_THRESHOLD:
+            count += 1
+    return count
+
+
+
+
 st.set_page_config(page_title="Quant Dashboard Pro", page_icon="📊", layout="wide", initial_sidebar_state="expanded")
 st.markdown("""<style>
 .main-header{font-size:1.8em;font-weight:800;background:linear-gradient(90deg,#00D4AA,#00A3FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0}
@@ -456,14 +554,19 @@ with tab_home:
     _stocks_sorted = _stocks_sorted.drop(columns=["_tier_rank"])
     home_filtered=get_top_stocks(_stocks_sorted,_n_show,home_sec,home_rat)
     if not home_filtered.empty:
-        hs1,hs2,hs3,hs4,hs5,hs6,hs7=st.columns(7)
+        # Split Strong Sells: data-complete (true Strong Sell) vs data-poor (Score Unavailable)
+        _n_score_unavail = count_sparse_data_strong_sells(_stocks_only)
+        _n_strong_sell_raw = len(_stocks_only[_stocks_only["overall_rating"]=="Strong Sell"])
+        _n_strong_sell_clean = _n_strong_sell_raw - _n_score_unavail
+        hs1,hs2,hs3,hs4,hs5,hs6,hs7,hs8=st.columns(8)
         with hs1: st.metric("Universe",f"{len(_stocks_only):,}")
         with hs2: st.metric("Strong Buy+",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Buy+"]))
         with hs3: st.metric("Strong Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Buy"]))
         with hs4: st.metric("Buys",len(_stocks_only[_stocks_only["overall_rating"]=="Buy"]))
         with hs5: st.metric("Holds",len(_stocks_only[_stocks_only["overall_rating"]=="Hold"]))
         with hs6: st.metric("Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Sell"]))
-        with hs7: st.metric("Strong Sells",len(_stocks_only[_stocks_only["overall_rating"]=="Strong Sell"]))
+        with hs7: st.metric("Strong Sells",_n_strong_sell_clean)
+        with hs8: st.metric("Score Unavail",_n_score_unavail,help="Strong Sell rating with sparse pillar data (2+ missing). Historical analysis shows these have asymmetric upside/risk profile distinct from data-complete Strong Sells.")
         hdc=["shortName","sector","marketCapB","currentPrice"]
         # Add FV and QBP columns (computed by scoring.py for TOP25 stocks; NaN for others)
         if "fair_value" in home_filtered.columns: hdc.append("fair_value")
@@ -1086,7 +1189,7 @@ with tab_detail:
             st.caption(caption)
         with h2: st.metric("Price",f"${row.get('currentPrice',0):.2f}")
         with h3: st.metric("Mkt Cap",fmt_mcap(row.get("marketCapB",0)))
-        with h4: rat=row.get("overall_rating","Hold");st.metric("Score",f"{row.get('composite_score',0):.1f}/12");st.markdown(f'<span style="background:{RATING_COLORS.get(rat,"#666")};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{rat}</span>',unsafe_allow_html=True)
+        with h4: rat=row.get("overall_rating","Hold");_disp_label,_disp_color=compute_display_rating(rat,row,short=False);st.metric("Score",f"{row.get('composite_score',0):.1f}/12");st.markdown(f'<span style="background:{_disp_color};padding:4px 14px;border-radius:6px;font-weight:700;color:#111;">{_disp_label}</span>',unsafe_allow_html=True)
         st.markdown(f"**Sector:** {row.get('sector','N/A')} | **Industry:** {row.get('industry','N/A')}")
         # ═══ Combined Price + Quarterly Earnings Chart ═══
         st.markdown("---")
@@ -1659,7 +1762,9 @@ with tab_detail:
                                 st.metric("VWAP","N/A")
                         with q6:
                             if pc_ticker in scored_df.index:
-                                st.metric("Quant Score",f"{scored_df.loc[pc_ticker,'composite_score']:.1f}/12",scored_df.loc[pc_ticker,"overall_rating"])
+                                _pc_rat = scored_df.loc[pc_ticker,"overall_rating"]
+                                _pc_disp,_ = compute_display_rating(_pc_rat, scored_df.loc[pc_ticker], short=True)
+                                st.metric("Quant Score",f"{scored_df.loc[pc_ticker,'composite_score']:.1f}/12",_pc_disp)
                 else:
                     st.error(f"Could not load chart data for {pc_ticker}.")
 
@@ -1708,7 +1813,7 @@ with tab_detail:
                         "VWAP": f"${q['vwap']}" if q.get("vwap") else "N/A",
                         "vs VWAP": f"{q['vs_vwap_pct']:+.2f}%" if q.get("vs_vwap_pct") is not None else "N/A",
                         "Score": f"{score_data['composite_score']:.1f}" if score_data is not None else "N/A",
-                        "Rating": score_data["overall_rating"] if score_data is not None else "N/A",
+                        "Rating": (compute_display_rating(score_data["overall_rating"], score_data, short=True)[0] if score_data is not None else "N/A"),
                     })
                 mon_df=pd.DataFrame(rows)
                 # Simple display - format change column inline (avoids Styler API issues)
@@ -1740,7 +1845,7 @@ with tab_detail:
                         "Sector": m.get("sector",""),
                         "1M %": f"{m['m_1m_pct']:+.1f}%",
                         "Score": f"{m.get('composite_score',0):.1f}",
-                        "Rating": m.get("overall_rating",""),
+                        "Rating": compute_display_rating(m.get("overall_rating",""), m, short=True)[0],
                     })
                 st.dataframe(pd.DataFrame(gn_rows),use_container_width=True,hide_index=True)
             else:
@@ -1757,7 +1862,7 @@ with tab_detail:
                         "Sector": m.get("sector",""),
                         "1M %": f"{m['m_1m_pct']:+.1f}%",
                         "Score": f"{m.get('composite_score',0):.1f}",
-                        "Rating": m.get("overall_rating",""),
+                        "Rating": compute_display_rating(m.get("overall_rating",""), m, short=True)[0],
                     })
                 st.dataframe(pd.DataFrame(ls_rows),use_container_width=True,hide_index=True)
             else:
@@ -2813,7 +2918,7 @@ with tab_portfolio:
                         "Sector": r.get("sector",""),
                         "Price": f"${r.get('currentPrice',0):.2f}",
                         "Score": f"{r.get('composite_score',0):.1f}",
-                        "Rating": r.get("overall_rating","N/A"),
+                        "Rating": compute_display_rating(r.get("overall_rating","N/A"), r, short=True)[0],
                         "1M": f"{r.get('momentum_1m',0)*100:+.1f}%" if pd.notna(r.get('momentum_1m')) else "N/A",
                         "12M": f"{r.get('momentum_12m',0)*100:+.1f}%" if pd.notna(r.get('momentum_12m')) else "N/A",
                     })
