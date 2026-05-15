@@ -1510,7 +1510,26 @@ with tab_detail:
             st.caption(f"Chart unavailable: {str(e)[:80]}")
         # Fair Value
         st.markdown("---");st.markdown("### Fair Value Analysis")
-        fv=compute_fair_value(sel,scored_df);fv_price=None
+        # === SHARED CURRENT PRICE FIX ===
+        # Fetch current price ONCE here and pass to both compute_fair_value and compute_buy_point.
+        # Prevents the FV/QBP price mismatch bug where each function fetched its own price
+        # (FV used scored_df cached price, QBP used yfinance daily close) producing 5%+ drift.
+        _shared_current_price = None
+        try:
+            import yfinance as yf
+            _yf_t = yf.Ticker(sel)
+            _yf_hist = _yf_t.history(period="5d")
+            if not _yf_hist.empty:
+                _shared_current_price = float(_yf_hist["Close"].iloc[-1])
+        except Exception:
+            _shared_current_price = None
+        # Fall back to scored_df cached price if yfinance fetch failed
+        if _shared_current_price is None or _shared_current_price <= 0:
+            try:
+                _shared_current_price = float(scored_df.loc[sel].get("currentPrice", 0))
+            except Exception:
+                _shared_current_price = None
+        fv=compute_fair_value(sel,scored_df,current_price=_shared_current_price);fv_price=None
         if "error" not in fv:
             fv_price=fv["composite_fair_value"]
             f1,f2,f3,f4=st.columns(4)
@@ -1535,7 +1554,7 @@ with tab_detail:
         # Buy Point
         st.markdown("---");st.markdown("### Quant Buy Point")
         with st.spinner(f"Computing buy point..."):
-            bp=compute_buy_point(sel,scored_df,fair_value=fv_price)
+            bp=compute_buy_point(sel,scored_df,fair_value=fv_price,current_price=_shared_current_price)
         if "error" not in bp:
             bp1,bp2,bp3,bp4=st.columns(4)
             with bp1: st.metric("Current",f"${bp['current_price']:.2f}")

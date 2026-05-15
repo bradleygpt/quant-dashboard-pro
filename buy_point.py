@@ -23,7 +23,8 @@ import yfinance as yf
 
 
 def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: float = None,
-                       price_history: pd.DataFrame = None) -> dict:
+                       price_history: pd.DataFrame = None,
+                       current_price: float = None) -> dict:
     """
     Compute a quant buy point for a stock.
     Uses 1 year of daily price history for technical calculations.
@@ -35,6 +36,11 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
         price_history: Optional pre-fetched DataFrame with columns including 'close' (lowercase)
                        or 'Close' (yfinance style). If None, fetches live from yfinance.
                        Pass this to avoid yfinance HTTP calls when running in batch.
+        current_price: Optional override for current price. If provided, used INSTEAD of
+                       close.iloc[-1] (which is the last daily close from price_history
+                       or yfinance). Pass this to ensure FV and QBP share a single price
+                       source on the dashboard (prevents ~5% drift between live yfinance
+                       current vs daily-close history).
     """
     try:
         # Use pre-fetched history if provided, else fetch live from yfinance
@@ -56,7 +62,14 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
         if len(close) < 50:
             return {"error": f"Insufficient price history for {ticker} (need >=50 rows, got {len(close)})."}
 
-        current_price = float(close.iloc[-1])
+        # Use explicit current_price override if provided; otherwise use last close
+        # from price history. This is the FIX for the FV/QBP price mismatch bug:
+        # when called from the dashboard, app.py passes the same current_price to
+        # both compute_fair_value and compute_buy_point so they show identical prices.
+        if current_price is not None and current_price > 0:
+            current_price = float(current_price)
+        else:
+            current_price = float(close.iloc[-1])
         components = {}
 
         # ── Component 1: Bollinger Band Lower (30%) ────────────────

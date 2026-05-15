@@ -36,13 +36,31 @@ SECTOR_RELATIVE_METRIC = {
 DEFAULT_RELATIVE_METRIC = {"key": "trailingPE", "name": "P/E", "label": "Trailing P/E"}
 
 
-def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = None) -> dict:
+def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = None,
+                        current_price: float = None) -> dict:
+    """
+    Compute fair value for a ticker.
+
+    Args:
+        ticker: stock ticker
+        scored_df: scored universe DataFrame
+        raw_cache: optional raw data cache
+        current_price: Optional override for current price. If provided, uses this
+                        value instead of scored_df["currentPrice"]. Pass this when
+                        you need FV and QBP to share a single price source (avoids
+                        the ~5% mismatch between cached scored_df price and live
+                        yfinance price on the dashboard).
+    """
     if ticker not in scored_df.index:
         if raw_cache and ticker in raw_cache: data = raw_cache[ticker]
         else: return {"error": "Ticker not found."}
     else: data = scored_df.loc[ticker].to_dict()
 
-    price = data.get("currentPrice", 0)
+    # Use explicit current_price if provided; otherwise fall back to scored_df cached
+    if current_price is not None and current_price > 0:
+        price = float(current_price)
+    else:
+        price = data.get("currentPrice", 0)
     if not price or price <= 0: return {"error": "No price data."}
 
     sector = data.get("sector", "Unknown")
