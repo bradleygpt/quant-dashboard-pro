@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-05-10T12:32:42.995494+00:00",
+  "last_run_utc": "2026-05-17T10:24:34.440186+00:00",
   "parameters": {
     "start_year": 2005,
     "hold_days": 14,
@@ -10,32 +10,32 @@
     "realistic_strategy": {
       "n_periods": 257,
       "win_rate_pct": 54.86381322957199,
-      "avg_return_pct": 0.3241561886326509,
-      "avg_win_pct": 1.544225165715514,
+      "avg_return_pct": 0.3256177909325446,
+      "avg_win_pct": 1.5468892209713485,
       "avg_loss_pct": -1.1588586886835877,
       "best_period_pct": 8.129709290742687,
       "worst_period_pct": -6.2023069048297135,
-      "total_compounded_pct": 120.52389885059335
+      "total_compounded_pct": 121.34295698372313
     },
     "theoretical_max_strategy": {
       "n_periods": 257,
       "win_rate_pct": 98.44357976653697,
-      "avg_return_pct": 3.859122262340397,
-      "avg_win_pct": 3.932361414993045,
+      "avg_return_pct": 3.8652704010924195,
+      "avg_win_pct": 3.938606757519803,
       "avg_loss_pct": -0.7732541429395834,
       "best_period_pct": 11.453343100736237,
       "worst_period_pct": -1.0217566817643324,
-      "total_compounded_pct": 1587773.6365290002
+      "total_compounded_pct": 1612223.4868675324
     },
     "spy_benchmark": {
       "n_periods": 257,
       "win_rate_pct": 63.035019455252915,
-      "avg_return_pct": 0.4973482482200906,
-      "avg_win_pct": 2.754827908905147,
+      "avg_return_pct": 0.49818514278779663,
+      "avg_win_pct": 2.756155574978606,
       "avg_loss_pct": -3.352248646842847,
       "best_period_pct": 16.449328359106417,
       "worst_period_pct": -22.18771317208354,
-      "total_compounded_pct": 184.3297253396912
+      "total_compounded_pct": 184.92719775959853
     }
   },
   "monthly_results": [
@@ -30729,7 +30729,7 @@
           "stop_price": 492.6428724016462,
           "realistic_return_pct": 3.391125034288986,
           "realistic_exit_reason": "target",
-          "max_return_pct": 1.3529150698639016
+          "max_return_pct": 2.4184848072229848
         },
         {
           "ticker": "KLAC",
@@ -30738,9 +30738,9 @@
           "entry_price": 1750.3499755859375,
           "target_price": 1897.7427804129463,
           "stop_price": 1676.6535731724332,
-          "realistic_return_pct": 6.789497384974698,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": 6.789497384974698
+          "realistic_return_pct": 8.420761955200899,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.146368886746771
         },
         {
           "ticker": "APD",
@@ -30751,7 +30751,7 @@
           "stop_price": 294.36427307128906,
           "realistic_return_pct": -1.8949224972482817,
           "realistic_exit_reason": "stop",
-          "max_return_pct": 1.2931194936390604
+          "max_return_pct": 2.049666610320261
         },
         {
           "ticker": "MSFT",
@@ -30760,9 +30760,9 @@
           "entry_price": 407.7799987792969,
           "target_price": 433.12142508370533,
           "stop_price": 395.1092856270926,
-          "realistic_return_pct": 1.7999892981174042,
+          "realistic_return_pct": 3.467559637737532,
           "realistic_exit_reason": "timeout",
-          "max_return_pct": 3.185538837917743
+          "max_return_pct": 3.467559637737532
         },
         {
           "ticker": "NVDA",
@@ -30773,7 +30773,7 @@
           "stop_price": 193.3042940412249,
           "realistic_return_pct": 6.279213361770002,
           "realistic_exit_reason": "target",
-          "max_return_pct": 7.831832966078498
+          "max_return_pct": 18.12396494538582
         },
         {
           "ticker": "JPM",
@@ -30793,9 +30793,9 @@
           "entry_price": 113.66999816894531,
           "target_price": 118.35713849748885,
           "stop_price": 111.32642800467355,
-          "realistic_return_pct": -0.5014513099375969,
+          "realistic_return_pct": 2.762381842376317,
           "realistic_exit_reason": "timeout",
-          "max_return_pct": 0.6949950983136132
+          "max_return_pct": 2.762381842376317
         },
         {
           "ticker": "FTV",
@@ -30804,7 +30804,7 @@
           "entry_price": 59.790000915527344,
           "target_price": 62.73342950003487,
           "stop_price": 58.31828662327358,
-          "realistic_return_pct": 1.0704120753445765,
+          "realistic_return_pct": -1.7895963847465706,
           "realistic_exit_reason": "timeout",
           "max_return_pct": 1.8564987344954158
         },
@@ -30831,9 +30831,9 @@
           "max_return_pct": 2.496817360005308
         }
       ],
-      "portfolio_return_realistic": 1.1354185362276006,
-      "portfolio_return_max": 2.6163390303835072,
-      "spy_return_pct": 2.3548144214555102
+      "portfolio_return_realistic": 1.5110503273002853,
+      "portfolio_return_max": 4.1964106896531845,
+      "spy_return_pct": 2.56989632535595
     }
   ],
   "universe_size": 197,
