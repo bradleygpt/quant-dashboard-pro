@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-05-24T08:10:43.770886+00:00",
+  "last_run_utc": "2026-05-31T08:40:55.146784+00:00",
   "parameters": {
     "start_year": 2005,
     "hold_days": 14,
@@ -8,34 +8,34 @@
   },
   "aggregate_metrics": {
     "realistic_strategy": {
-      "n_periods": 15,
-      "win_rate_pct": 60.0,
-      "avg_return_pct": 0.5606485429823671,
-      "avg_win_pct": 1.5098058693537946,
-      "avg_loss_pct": -0.8630874465747742,
-      "best_period_pct": 2.2084159452251924,
+      "n_periods": 20,
+      "win_rate_pct": 65.0,
+      "avg_return_pct": 0.6737351649579216,
+      "avg_win_pct": 1.4528546776500981,
+      "avg_loss_pct": -0.7732010728989775,
+      "best_period_pct": 2.7170674313326812,
       "worst_period_pct": -2.081375768534698,
-      "total_compounded_pct": 8.599335021531541
+      "total_compounded_pct": 14.183017211862792
     },
     "theoretical_max_strategy": {
-      "n_periods": 15,
+      "n_periods": 20,
       "win_rate_pct": 100.0,
-      "avg_return_pct": 4.0915473763238746,
-      "avg_win_pct": 4.0915473763238746,
+      "avg_return_pct": 4.141047909183192,
+      "avg_win_pct": 4.141047909183192,
       "avg_loss_pct": 0,
-      "best_period_pct": 9.601984029561779,
+      "best_period_pct": 9.606350267683235,
       "worst_period_pct": 0.7305135843712579,
-      "total_compounded_pct": 81.92131609199609
+      "total_compounded_pct": 124.06055883035361
     },
     "spy_benchmark": {
-      "n_periods": 15,
-      "win_rate_pct": 60.0,
-      "avg_return_pct": 0.2895459740682676,
-      "avg_win_pct": 1.5850840049832364,
-      "avg_loss_pct": -1.6537610723041858,
+      "n_periods": 20,
+      "win_rate_pct": 55.00000000000001,
+      "avg_return_pct": -0.039187257070449004,
+      "avg_win_pct": 1.6303392015973708,
+      "avg_loss_pct": -2.079719595442229,
       "best_period_pct": 3.8509415486043856,
-      "worst_period_pct": -2.3001629118449585,
-      "total_compounded_pct": 4.166655922265505
+      "worst_period_pct": -3.9307059166718132,
+      "total_compounded_pct": -1.2239979381326482
     }
   },
   "monthly_results": [
@@ -1842,52 +1842,607 @@
     {
       "date": "2006-04-01",
       "n_candidates_screened": 197,
-      "n_qualified": 78,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": null
+      "n_qualified": 94,
+      "top_picks": [
+        {
+          "ticker": "DUK",
+          "swing_score": 80,
+          "weight": 0.11331444759206799,
+          "entry_price": 50.817195892333984,
+          "target_price": 52.19191251482282,
+          "stop_price": 50.12983758108957,
+          "realistic_return_pct": -1.3526096809842036,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.5437389834404327
+        },
+        {
+          "ticker": "ICE",
+          "swing_score": 73,
+          "weight": 0.10339943342776203,
+          "entry_price": 13.8100004196167,
+          "target_price": 15.313714844839913,
+          "stop_price": 13.058143207005093,
+          "realistic_return_pct": -5.444295363985759,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.33308852700828373
+        },
+        {
+          "ticker": "DHR",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "entry_price": 21.356578826904297,
+          "target_price": 22.05894333975656,
+          "stop_price": 21.005396570478165,
+          "realistic_return_pct": 3.2887501249378386,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.388667748266099
+        },
+        {
+          "ticker": "CVS",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "entry_price": 29.8700008392334,
+          "target_price": 31.14142908368792,
+          "stop_price": 29.234286717006135,
+          "realistic_return_pct": 4.256539031577588,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.620017147619265
+        },
+        {
+          "ticker": "CI",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "entry_price": 43.540000915527344,
+          "target_price": 44.83047703334264,
+          "stop_price": 42.8947628566197,
+          "realistic_return_pct": -1.4819431450161906,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.1866476837148177
+        },
+        {
+          "ticker": "ECL",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "entry_price": 38.20000076293945,
+          "target_price": 39.254286084856304,
+          "stop_price": 37.67285810198103,
+          "realistic_return_pct": -1.37995458227803,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.5445029863986073
+        },
+        {
+          "ticker": "JCI",
+          "swing_score": 70,
+          "weight": 0.09915014164305949,
+          "entry_price": 55.96669387817383,
+          "target_price": 57.453903743198936,
+          "stop_price": 55.223088945661274,
+          "realistic_return_pct": -1.328656172064058,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.11161221683128589
+        },
+        {
+          "ticker": "TT",
+          "swing_score": 68,
+          "weight": 0.09631728045325778,
+          "entry_price": 25.89495277404785,
+          "target_price": 27.018279484340123,
+          "stop_price": 25.333289418901717,
+          "realistic_return_pct": 4.338014129989376,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.27446933147953
+        },
+        {
+          "ticker": "OXY",
+          "swing_score": 68,
+          "weight": 0.09631728045325778,
+          "entry_price": 44.38219451904297,
+          "target_price": 46.4433958871024,
+          "stop_price": 43.351593835013254,
+          "realistic_return_pct": 4.644207863978051,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 10.80410151646917
+        },
+        {
+          "ticker": "IBM",
+          "swing_score": 67,
+          "weight": 0.09490084985835694,
+          "entry_price": 78.84320831298828,
+          "target_price": 80.96011788504464,
+          "stop_price": 77.7847535269601,
+          "realistic_return_pct": -1.3424806126944653,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.06136225985779
+        }
+      ],
+      "portfolio_return_realistic": 0.354155844887478,
+      "portfolio_return_max": 3.497513179404459,
+      "spy_return_pct": 0.9404156793972231
     },
     {
       "date": "2006-05-01",
       "n_candidates_screened": 197,
-      "n_qualified": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": null
+      "n_qualified": 88,
+      "top_picks": [
+        {
+          "ticker": "MS",
+          "swing_score": 80,
+          "weight": 0.11065006915629322,
+          "entry_price": 64.30000305175781,
+          "target_price": 66.55999919346401,
+          "stop_price": 63.170004980904714,
+          "realistic_return_pct": -1.7573841636422856,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.2550495791967897
+        },
+        {
+          "ticker": "GS",
+          "swing_score": 75,
+          "weight": 0.1037344398340249,
+          "entry_price": 160.2899932861328,
+          "target_price": 167.3471396309989,
+          "stop_price": 156.76142011369978,
+          "realistic_return_pct": -2.201368345018388,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 3.406330365315169
+        },
+        {
+          "ticker": "MNST",
+          "swing_score": 75,
+          "weight": 0.1037344398340249,
+          "entry_price": 2.697082996368408,
+          "target_price": 2.9069940362657825,
+          "stop_price": 2.592127476419721,
+          "realistic_return_pct": 7.78289137486748,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 55.30667005174682
+        },
+        {
+          "ticker": "ROP",
+          "swing_score": 73,
+          "weight": 0.10096818810511757,
+          "entry_price": 47.459999084472656,
+          "target_price": 49.67142759050641,
+          "stop_price": 46.35428483145578,
+          "realistic_return_pct": 4.659562892316324,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.79435325126188
+        },
+        {
+          "ticker": "NVDA",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 0.4869999885559082,
+          "target_price": 0.5252622876848493,
+          "stop_price": 0.46786883899143766,
+          "realistic_return_pct": 7.856735118700834,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.049895575597295
+        },
+        {
+          "ticker": "XOM",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 63.08000183105469,
+          "target_price": 65.63428824288505,
+          "stop_price": 61.80285862513951,
+          "realistic_return_pct": -2.0246404071701134,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.5206028721258846
+        },
+        {
+          "ticker": "NFLX",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 0.423429012298584,
+          "target_price": 0.45734758036477224,
+          "stop_price": 0.4064697282654899,
+          "realistic_return_pct": 8.010449704913073,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.284539890427311
+        },
+        {
+          "ticker": "INTU",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 27.084999084472656,
+          "target_price": 28.46285683768136,
+          "stop_price": 26.396070207868306,
+          "realistic_return_pct": -2.543580948464204,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 4.301277293360582
+        },
+        {
+          "ticker": "LMT",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 75.9000015258789,
+          "target_price": 78.3500006539481,
+          "stop_price": 74.6750019618443,
+          "realistic_return_pct": -1.6139651375592237,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.4229272850362849
+        },
+        {
+          "ticker": "FCX",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 32.290000915527344,
+          "target_price": 35.37285777500697,
+          "stop_price": 30.74857248578753,
+          "realistic_return_pct": 9.547404063395886,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.113963634559337
+        }
+      ],
+      "portfolio_return_realistic": 2.7170674313326812,
+      "portfolio_return_max": 9.606350267683235,
+      "spy_return_pct": -3.2131863559271854
     },
     {
       "date": "2006-06-01",
       "n_candidates_screened": 197,
-      "n_qualified": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": null
+      "n_qualified": 50,
+      "top_picks": [
+        {
+          "ticker": "NEE",
+          "swing_score": 72,
+          "weight": 0.10572687224669604,
+          "entry_price": 9.957500457763672,
+          "target_price": 10.29250076838902,
+          "stop_price": 9.790000302450999,
+          "realistic_return_pct": 3.3643012324860626,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.94601384745579
+        },
+        {
+          "ticker": "MO",
+          "swing_score": 72,
+          "weight": 0.10572687224669604,
+          "entry_price": 72.3499984741211,
+          "target_price": 74.95999908447266,
+          "stop_price": 71.04499816894531,
+          "realistic_return_pct": -1.8037323188646197,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.6910850180305743
+        },
+        {
+          "ticker": "WMT",
+          "swing_score": 70,
+          "weight": 0.1027900146842878,
+          "entry_price": 16.149999618530273,
+          "target_price": 16.778094836643763,
+          "stop_price": 15.835952009473528,
+          "realistic_return_pct": -1.9445672846729445,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.43343465311232654
+        },
+        {
+          "ticker": "ORCL",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "entry_price": 14.220000267028809,
+          "target_price": 14.998571668352398,
+          "stop_price": 13.830714566367014,
+          "realistic_return_pct": -2.737592780250584,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.49226226096861253
+        },
+        {
+          "ticker": "C",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "entry_price": 493.0,
+          "target_price": 507.22855922154014,
+          "stop_price": 485.8857203892299,
+          "realistic_return_pct": -1.4430587445781131,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.7038527173396298
+        },
+        {
+          "ticker": "BIIB",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "entry_price": 46.630001068115234,
+          "target_price": 49.51571546282087,
+          "stop_price": 45.18714387076242,
+          "realistic_return_pct": -3.0942679912126683,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 3.1953631345472244
+        },
+        {
+          "ticker": "JCI",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "entry_price": 56.44557571411133,
+          "target_price": 58.42951474870954,
+          "stop_price": 55.453606196812224,
+          "realistic_return_pct": -1.7573910882285728,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.323863244312023
+        },
+        {
+          "ticker": "AVB",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "entry_price": 106.30000305175781,
+          "target_price": 111.4271469116211,
+          "stop_price": 103.73643112182617,
+          "realistic_return_pct": 4.823277246160433,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.0009357671029417
+        },
+        {
+          "ticker": "ETR",
+          "swing_score": 67,
+          "weight": 0.09838472834067548,
+          "entry_price": 35.05500030517578,
+          "target_price": 36.24571337018694,
+          "stop_price": 34.459643772670205,
+          "realistic_return_pct": 3.39669962814222,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.423194273263994
+        },
+        {
+          "ticker": "KO",
+          "swing_score": 65,
+          "weight": 0.09544787077826726,
+          "entry_price": 22.014999389648438,
+          "target_price": 22.564284460885183,
+          "stop_price": 21.740356854030065,
+          "realistic_return_pct": -1.2475246115496652,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.2498310547382648
+        }
+      ],
+      "portfolio_return_realistic": -0.2338828308441976,
+      "portfolio_return_max": 2.0078077960494864,
+      "spy_return_pct": -3.9307059166718132
     },
     {
       "date": "2006-07-01",
       "n_candidates_screened": 197,
-      "n_qualified": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": null
+      "n_qualified": 72,
+      "top_picks": [
+        {
+          "ticker": "GIS",
+          "swing_score": 80,
+          "weight": 0.11510791366906475,
+          "entry_price": 25.829999923706055,
+          "target_price": 26.801428386143275,
+          "stop_price": 25.344285692487443,
+          "realistic_return_pct": 1.9357336487682835,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.18738109069476
+        },
+        {
+          "ticker": "PG",
+          "swing_score": 75,
+          "weight": 0.1079136690647482,
+          "entry_price": 55.599998474121094,
+          "target_price": 57.418569292340955,
+          "stop_price": 54.69071306501116,
+          "realistic_return_pct": 1.8705052950881107,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.9676287251103
+        },
+        {
+          "ticker": "STZ",
+          "swing_score": 73,
+          "weight": 0.10503597122302158,
+          "entry_price": 25.0,
+          "target_price": 26.32999965122768,
+          "stop_price": 24.33500017438616,
+          "realistic_return_pct": -2.659999302455361,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.44000244140625
+        },
+        {
+          "ticker": "WELL",
+          "swing_score": 72,
+          "weight": 0.10359712230215827,
+          "entry_price": 34.95000076293945,
+          "target_price": 35.885716029575896,
+          "stop_price": 34.482143129621235,
+          "realistic_return_pct": 2.6772968418034018,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.004289596966055
+        },
+        {
+          "ticker": "CMG",
+          "swing_score": 70,
+          "weight": 0.10071942446043165,
+          "entry_price": 1.218999981880188,
+          "target_price": 1.2973714045115878,
+          "stop_price": 1.179814270564488,
+          "realistic_return_pct": -3.214578498619811,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.9187818981424573
+        },
+        {
+          "ticker": "ORCL",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "entry_price": 14.489999771118164,
+          "target_price": 15.465714182172501,
+          "stop_price": 14.002142565590995,
+          "realistic_return_pct": -3.366854473659675,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 4.002760061198381
+        },
+        {
+          "ticker": "MO",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "entry_price": 73.43000030517578,
+          "target_price": 75.41714477539064,
+          "stop_price": 72.43642807006836,
+          "realistic_return_pct": 2.706175217154115,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.1555176689108775
+        },
+        {
+          "ticker": "ELV",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "entry_price": 72.7699966430664,
+          "target_price": 77.2028547014509,
+          "stop_price": 70.55356761387416,
+          "realistic_return_pct": 6.091601295692603,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 6.01897084631765
+        },
+        {
+          "ticker": "SO",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "entry_price": 32.04999923706055,
+          "target_price": 32.97571236746652,
+          "stop_price": 31.58714267185756,
+          "realistic_return_pct": 2.8883405692426325,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 3.307336656861129
+        },
+        {
+          "ticker": "FISV",
+          "swing_score": 65,
+          "weight": 0.09352517985611511,
+          "entry_price": 11.34000015258789,
+          "target_price": 11.798571450369698,
+          "stop_price": 11.110714503696986,
+          "realistic_return_pct": -2.0219192751825448,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.2865984708244624
+        }
+      ],
+      "portfolio_return_realistic": 0.6878256608940304,
+      "portfolio_return_max": 2.7374763705514042,
+      "spy_return_pct": -1.6510176525559486
     },
     {
       "date": "2006-08-01",
       "n_candidates_screened": 197,
-      "n_qualified": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": null
+      "n_qualified": 100,
+      "top_picks": [
+        {
+          "ticker": "MET",
+          "swing_score": 80,
+          "weight": 0.11188811188811189,
+          "entry_price": 46.34580993652344,
+          "target_price": 48.09523555210659,
+          "stop_price": 45.47109712873186,
+          "realistic_return_pct": -1.8873611422253849,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 4.134616745886751
+        },
+        {
+          "ticker": "NOC",
+          "swing_score": 75,
+          "weight": 0.1048951048951049,
+          "entry_price": 59.80266571044922,
+          "target_price": 61.92718178885323,
+          "stop_price": 58.74040767124721,
+          "realistic_return_pct": -1.7762720550706161,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 0.24172493176270068
+        },
+        {
+          "ticker": "CVX",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "entry_price": 65.77999877929688,
+          "target_price": 68.7114268711635,
+          "stop_price": 64.31428473336356,
+          "realistic_return_pct": 2.2499291340811025,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 3.1468527413164313
+        },
+        {
+          "ticker": "KO",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "entry_price": 22.25,
+          "target_price": 22.76999991280692,
+          "stop_price": 21.99000004359654,
+          "realistic_return_pct": -1.1685391299031833,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": -0.38201835718047755
+        },
+        {
+          "ticker": "GILD",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "entry_price": 15.380000114440918,
+          "target_price": 16.276785850524902,
+          "stop_price": 14.931607246398926,
+          "realistic_return_pct": 3.4622903970515715,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 4.031208588723861
+        },
+        {
+          "ticker": "TJX",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "entry_price": 6.09250020980835,
+          "target_price": 6.439643042428154,
+          "stop_price": 5.918928793498448,
+          "realistic_return_pct": 5.697871492247746,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 10.668848521069158
+        },
+        {
+          "ticker": "USB",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "entry_price": 32.0,
+          "target_price": 32.78428622654506,
+          "stop_price": 31.60785688672747,
+          "realistic_return_pct": 1.5625,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 1.5625
+        },
+        {
+          "ticker": "TFC",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "entry_price": 41.9900016784668,
+          "target_price": 43.37571661812918,
+          "stop_price": 41.2971442086356,
+          "realistic_return_pct": 2.4291417058682288,
+          "realistic_exit_reason": "timeout",
+          "max_return_pct": 2.4291417058682288
+        },
+        {
+          "ticker": "WELL",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "entry_price": 36.189998626708984,
+          "target_price": 37.16999871390207,
+          "stop_price": 35.699998583112446,
+          "realistic_return_pct": 2.7079307111932924,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.752697667785286
+        },
+        {
+          "ticker": "AIZ",
+          "swing_score": 70,
+          "weight": 0.0979020979020979,
+          "entry_price": 48.16999816894531,
+          "target_price": 49.541425977434436,
+          "stop_price": 47.484284264700754,
+          "realistic_return_pct": 2.8470580457137498,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.563629659640612
+        }
+      ],
+      "portfolio_return_realistic": 1.539809048152935,
+      "portfolio_return_max": 3.598599925117146,
+      "spy_return_pct": 2.7275594933247294
     },
     {
       "date": "2006-09-01",
       "n_candidates_screened": 197,
-      "n_qualified": 0,
+      "n_qualified": 88,
       "top_picks": [],
       "portfolio_return_realistic": null,
       "portfolio_return_max": null,
