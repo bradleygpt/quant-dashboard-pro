@@ -407,14 +407,27 @@ def fetch_quarterly_history(t, max_quarters=12):
         return []
 
 
+def _retry(fn, tries=3, base_delay=1.5):
+    """Retry a yfinance call through transient rate-limit/session failures.
+    Reduces wholesale drops when Yahoo throttles a batch (a recurring cause of
+    near-empty cache builds). Re-raises after the final attempt."""
+    for i in range(tries):
+        try:
+            return fn()
+        except Exception:
+            if i == tries - 1:
+                raise
+            time.sleep(base_delay * (i + 1) + random.random())
+
+
 def fetch_stock(ticker):
     try:
         t = yf.Ticker(ticker)
-        info = t.info or {}
+        info = _retry(lambda: t.info) or {}
         if not info.get("marketCap"):
             return None
-        hist = t.history(period="1y")
-        if hist.empty or len(hist) < 20:
+        hist = _retry(lambda: t.history(period="1y"))
+        if hist is None or hist.empty or len(hist) < 20:
             return None
         close = hist["Close"]
         price = float(close.iloc[-1])
