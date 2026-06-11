@@ -48,7 +48,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
-          git add fundamentals_cache.json
+          git add fundamentals_cache.json fundamentals_cache_meta.json
           # Show what we're about to commit (visible in logs)
           echo "=== Status before commit ==="
           git status

@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 edgar_cache.tar.gz.part-*
 *.bak
+
+# build_cache.py incremental scratch (promoted to fundamentals_cache.json on success)
+fundamentals_cache.partial.json

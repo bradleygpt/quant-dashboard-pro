@@ -128,9 +128,28 @@ _n_total = len(base_raw)
 _n_price = sum(1 for v in base_raw.values() if isinstance(v, dict) and num(v.get("currentPrice")) is not None)
 _null_rate = 1.0 - (_n_price / _n_total) if _n_total else 1.0
 log(f"  currentPrice present {_n_price}/{_n_total} (null rate {_null_rate:.1%})")
+
+# Pull build_cache.py's diagnostic sidecar so a guard trip self-diagnoses the
+# upstream cause (rate-limit vs HTTP vs empty-info) instead of just "null prices".
+def _build_diag():
+    import json as _dj
+    for _p in (os.path.join(ROOT, "fundamentals_cache_meta.json"), "fundamentals_cache_meta.json"):
+        try:
+            with open(_p) as _f:
+                _m = _dj.load(_f)
+            _fm = _m.get("failure_modes") or {}
+            _modes = ", ".join(f"{k}={v}" for k, v in sorted(_fm.items(), key=lambda x: -x[1])) or "none recorded"
+            return (f"build meta (built {_m.get('built_at')}): fresh={_m.get('n_fresh')} "
+                    f"rescued={_m.get('n_rescued')} batch_prices={_m.get('n_batch_prices')} "
+                    f"backoffs={_m.get('backoff_pauses')} · failure modes: {_modes}")
+        except Exception:
+            continue
+    return "no build_cache meta sidecar found (fundamentals_cache_meta.json) — update build_cache.py"
+
 if _n_total == 0 or _null_rate > 0.50:
     log(f"FATAL: currentPrice null for {_null_rate:.0%} of the universe (>50%). Refusing to write — "
         f"keeping the previous bake. Re-run build_cache.py / check the prefetch, then re-bake.")
+    log(f"  ↳ {_build_diag()}")
     sys.exit(2)
 
 base_preview = score_universe(base_raw, EQUAL, sector_relative=True, preset_name="equal")

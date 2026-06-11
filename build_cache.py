@@ -420,16 +420,156 @@ def _retry(fn, tries=3, base_delay=1.5):
             time.sleep(base_delay * (i + 1) + random.random())
 
 
+# ── Failure instrumentation + batch price preload (rate-limit resilience) ──────
+# Two near-empty cache builds in three days (2026-06-10, 2026-06-11; CI run
+# 27335709194 had 21/1261 prices present) traced to the shared GitHub Actions
+# runner IP being throttled by Yahoo's quoteSummary/.info (crumb) endpoint — this
+# loop fires ~6k such requests across 1,261 tickers. Mitigations:
+#   * classify_exc tallies every failure (rate-limit / HTTP status / empty-info /
+#     no-history) so a bad run self-diagnoses instead of silently dropping tickers;
+#   * preload_batch_prices pulls prices/history for the WHOLE universe via batched
+#     yf.download — the keyless v8 chart endpoint, far more lenient, a few dozen
+#     requests instead of thousands;
+#   * build_rescue_record MERGES: when a ticker's .info is throttled, it stays in
+#     the cache with a fresh batch price + technicals and its LAST-KNOWN
+#     fundamentals, so a throttled run degrades to "fresh prices, stale
+#     fundamentals" rather than a blank universe.
+# NB: yfinance 1.3 uses curl_cffi (browser-TLS impersonation) by default — the
+# right anti-throttle transport. We deliberately do NOT inject a requests.Session
+# (yfinance rejects it, and it would disable the impersonation).
+import collections as _collections
+
+FAILS = _collections.Counter()
+BATCH_PRICE: dict = {}
+BATCH_HIST: dict = {}
+PREV_CACHE: dict = {}
+
+
+def classify_exc(e):
+    """Map an exception to a short, countable failure-mode label."""
+    name = type(e).__name__
+    if "RateLimit" in name:
+        return "rate_limit_429"
+    st = getattr(getattr(e, "response", None), "status_code", None)
+    if st:
+        return "rate_limit_429" if st == 429 else f"http_{st}"
+    s = str(e)
+    for code in ("429", "401", "403", "404", "503", "500"):
+        if code in s:
+            return "rate_limit_429" if code == "429" else f"http_{code}"
+    return name[:40]
+
+
+def load_prev_cache():
+    """Last committed cache — the fundamentals fallback for throttled tickers."""
+    try:
+        with open("fundamentals_cache.json") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+
+def _close_series(df, ticker, multi):
+    try:
+        sub = df[ticker] if multi else df
+        c = sub["Close"].dropna()
+        return c if len(c) else None
+    except Exception:
+        return None
+
+
+def preload_batch_prices(tickers, chunk=120):
+    """One chart-API request per ~120 tickers (vs 1+/ticker for .info). Fills
+    BATCH_PRICE/BATCH_HIST so currentPrice survives even total .info throttling."""
+    import warnings
+    warnings.filterwarnings("ignore")
+    for i in range(0, len(tickers), chunk):
+        part = tickers[i:i + chunk]
+        df = None
+        for attempt in range(4):
+            try:
+                df = yf.download(part, period="1y", interval="1d", group_by="ticker",
+                                 threads=False, progress=False, auto_adjust=True)
+                break
+            except Exception as e:
+                FAILS[f"batch_{classify_exc(e)}"] += 1
+                time.sleep(min(30, 2 ** attempt) + random.random())  # exponential backoff
+        if df is None or len(df) == 0:
+            continue
+        multi = len(part) > 1
+        for t in part:
+            c = _close_series(df, t, multi)
+            if c is not None:
+                BATCH_HIST[t] = c
+                BATCH_PRICE[t] = float(c.iloc[-1])
+        time.sleep(0.6 + random.uniform(0, 0.4))
+    return len(BATCH_PRICE)
+
+
+def _price_fields(close):
+    """Recompute price-derived fields from a Close series (batch history)."""
+    out = {}
+    try:
+        price = float(close.iloc[-1])
+        out["currentPrice"] = round(price, 2)
+
+        def pr(days):
+            if len(close) >= days + 1:
+                past = float(close.iloc[-(days + 1)])
+                if past > 0:
+                    return round((price - past) / past, 4)
+            return None
+
+        sma50 = float(close.rolling(50).mean().iloc[-1]) if len(close) >= 50 else None
+        sma200 = float(close.rolling(200).mean().iloc[-1]) if len(close) >= 200 else None
+        out["momentum_1m"] = pr(21)
+        out["momentum_3m"] = pr(63)
+        out["momentum_6m"] = pr(126)
+        out["momentum_12m"] = pr(252) if len(close) >= 253 else pr(max(len(close) - 2, 1))
+        out["momentum_vs_sma50"] = round((price - sma50) / sma50, 4) if sma50 and sma50 > 0 else None
+        out["momentum_vs_sma200"] = round((price - sma200) / sma200, 4) if sma200 and sma200 > 0 else None
+    except Exception:
+        pass
+    return out
+
+
+def build_rescue_record(ticker, kind="stock"):
+    """A fresh fetch failed (throttled). Keep the ticker alive: last-known
+    fundamentals from the committed cache + a fresh batch price/technicals.
+    Returns None only when we have neither — then the ticker is genuinely dropped."""
+    prev = PREV_CACHE.get(ticker)
+    close = BATCH_HIST.get(ticker)
+    if not prev and close is None:
+        return None
+    rec = dict(prev) if prev else {"ticker": ticker, "type": kind, "sector": "Unknown",
+                                    "industry": "Unknown", "marketCap": 0}
+    if close is not None:
+        rec.update(_price_fields(close))
+        rec["price_source"] = "batch"
+    else:
+        rec["price_source"] = "prev"
+    rec["stale_fundamentals"] = bool(prev)
+    rec["lastUpdated"] = datetime.now().isoformat()
+    return rec
+
+
 def fetch_stock(ticker):
     try:
         t = yf.Ticker(ticker)
         info = _retry(lambda: t.info) or {}
         if not info.get("marketCap"):
+            FAILS["empty_info_no_marketcap"] += 1
             return None
-        hist = _retry(lambda: t.history(period="1y"))
-        if hist is None or hist.empty or len(hist) < 20:
-            return None
-        close = hist["Close"]
+        # prefer the batched chart-API history (already fetched → fewer requests);
+        # fall back to a per-ticker history call only if the batch missed it.
+        close = BATCH_HIST.get(ticker)
+        if close is None or len(close) < 20:
+            hist = _retry(lambda: t.history(period="1y"))
+            if hist is None or hist.empty or len(hist) < 20:
+                FAILS["no_history"] += 1
+                return None
+            close = hist["Close"]
         price = float(close.iloc[-1])
 
         def pct_ret(days):
@@ -501,16 +641,21 @@ def fetch_stock(ticker):
             "lastUpdated": datetime.now().isoformat(),
         }
     except Exception as e:
+        FAILS[classify_exc(e)] += 1
         return None
 
 
 def fetch_etf(ticker):
     try:
         t = yf.Ticker(ticker)
-        info = t.info or {}
-        hist = t.history(period="1y")
-        if hist.empty or len(hist) < 20: return None
-        close = hist["Close"]
+        info = _retry(lambda: t.info) or {}
+        close = BATCH_HIST.get(ticker)
+        if close is None or len(close) < 20:
+            hist = _retry(lambda: t.history(period="1y"))
+            if hist is None or hist.empty or len(hist) < 20:
+                FAILS["no_history"] += 1
+                return None
+            close = hist["Close"]
         price = float(close.iloc[-1])
 
         def pct_ret(days):
@@ -553,7 +698,9 @@ def fetch_etf(ticker):
             "earnings_surprise_pct": None, "analyst_count": 0,
             "lastUpdated": datetime.now().isoformat(),
         }
-    except: return None
+    except Exception as e:
+        FAILS[classify_exc(e)] += 1
+        return None
 
 
 # ── Main ───────────────────────────────────────────────────────────
@@ -574,66 +721,103 @@ def main():
     results = {}
     failures = []
     consecutive_fails = 0
+    rescued = 0
+    fresh_ok = 0
+    backoff_pauses = 0
+    PARTIAL = "fundamentals_cache.partial.json"  # incremental scratch; never the canonical file
+
+    # ── PHASE 0: last-known cache + batched price preload ──────────
+    # The committed cache is the fundamentals fallback for throttled tickers; the
+    # batch preload is the reliable currentPrice source (chart endpoint, not the
+    # throttle-prone .info crumb endpoint).
+    global PREV_CACHE
+    PREV_CACHE = load_prev_cache()
+    print(f"PHASE 0: prev cache {len(PREV_CACHE)} records; batch-preloading prices…")
+    n_batch = preload_batch_prices(ALL_STOCKS + ALL_ETFS)
+    print(f"  batch prices: {n_batch}/{len(ALL_STOCKS) + len(ALL_ETFS)} tickers")
 
     # ── PHASE 1: Stocks ────────────────────────────────────────────
     print("PHASE 1: Fetching stocks...")
     for i, ticker in enumerate(ALL_STOCKS):
         try:
             data = fetch_stock(ticker)
-            if data:
-                results[ticker] = data
-                consecutive_fails = 0
-                status = "OK"
+        except Exception as e:
+            FAILS[classify_exc(e)] += 1
+            data = None
+        if data:
+            results[ticker] = data
+            fresh_ok += 1
+            consecutive_fails = 0
+            status = "OK"
+        else:
+            # Don't drop — keep the ticker with a fresh batch price + last-known
+            # fundamentals so a throttled run never blanks the universe.
+            rescue = build_rescue_record(ticker, "stock")
+            if rescue:
+                results[ticker] = rescue
+                rescued += 1
+                status = "RESC"
             else:
                 failures.append(ticker)
-                consecutive_fails += 1
                 status = "SKIP"
-        except Exception as e:
-            failures.append(ticker)
             consecutive_fails += 1
-            status = "ERR"
 
         if (i + 1) % 20 == 0 or i == total_stocks - 1:
             elapsed = time.time() - start_time
             rate = (i + 1) / elapsed if elapsed > 0 else 0
             remaining = (total_stocks - i - 1) / rate / 60 if rate > 0 else 0
             pct = (i + 1) / total_stocks * 100
-            print(f"  [{pct:5.1f}%] {i+1}/{total_stocks} | {len(results)} ok | ~{remaining:.0f}m left | Last: {ticker} ({status})")
+            print(f"  [{pct:5.1f}%] {i+1}/{total_stocks} | {fresh_ok} fresh / {rescued} resc | ~{remaining:.0f}m left | Last: {ticker} ({status})")
 
-        # Save every 100
+        # Save every 100 to a PARTIAL scratch file — never the committed cache,
+        # so a mid-run throttle can't poison the good file before the final gate.
         if (i + 1) % 100 == 0:
             try:
-                with open("fundamentals_cache.json", "w") as f:
+                with open(PARTIAL, "w") as f:
                     json.dump(results, f, default=str)
-            except: pass
+            except Exception:
+                pass
 
-        # Rate limit handling
-        if consecutive_fails >= 10:
-            print(f"  ** Rate limited. Pausing 15s...")
-            time.sleep(15)
+        # Exponential backoff when failures cluster (rate-limit signature).
+        if consecutive_fails >= 8:
+            backoff = min(180, 12 * (2 ** min(backoff_pauses, 4)))
+            print(f"  ** {consecutive_fails} consecutive failures — backing off {backoff}s (rate-limit?)")
+            time.sleep(backoff)
+            backoff_pauses += 1
             consecutive_fails = 0
         else:
-            # Fast delay: 0.3s base + small random jitter
-            time.sleep(0.3 + random.uniform(0, 0.2))
+            time.sleep(0.3 + random.uniform(0, 0.25))
 
-    stock_count = len(results)
-    print(f"\n  Stocks: {stock_count} fetched in {(time.time()-start_time)/60:.1f} min")
+    stock_count = fresh_ok
+    print(f"\n  Stocks: {fresh_ok} fresh + {rescued} rescued in {(time.time()-start_time)/60:.1f} min")
 
     # ── PHASE 2: ETFs ──────────────────────────────────────────────
     print(f"\nPHASE 2: Fetching ETFs...")
     etf_start = time.time()
     etf_ok = 0
+    etf_resc = 0
     for i, ticker in enumerate(ALL_ETFS):
         try:
             data = fetch_etf(ticker)
-            if data: results[ticker] = data; etf_ok += 1
-            else: failures.append(ticker)
-        except: failures.append(ticker)
+        except Exception as e:
+            FAILS[classify_exc(e)] += 1
+            data = None
+        if data:
+            results[ticker] = data
+            etf_ok += 1
+        else:
+            rescue = build_rescue_record(ticker, "etf")
+            if rescue:
+                results[ticker] = rescue
+                etf_resc += 1
+            else:
+                failures.append(ticker)
 
         if (i + 1) % 10 == 0 or i == total_etfs - 1:
-            print(f"  [{(i+1)/total_etfs*100:5.1f}%] {i+1}/{total_etfs} | {etf_ok} ok")
+            print(f"  [{(i+1)/total_etfs*100:5.1f}%] {i+1}/{total_etfs} | {etf_ok} fresh / {etf_resc} resc")
 
         time.sleep(0.4 + random.uniform(0, 0.2))
+    rescued += etf_resc
 
     print(f"  ETFs: {etf_ok} fetched in {(time.time()-etf_start)/60:.1f} min")
 
@@ -643,15 +827,52 @@ def main():
             results[ticker].update(overrides)
             print(f"  Fixed {ticker} -> {overrides['sector']}")
 
-    # ── PHASE 4: Save ──────────────────────────────────────────────
+    # ── PHASE 4: Save (regression-gated) + diagnostic meta ─────────
     output_file = "fundamentals_cache.json"
+    n_price = sum(1 for v in results.values() if isinstance(v, dict) and v.get("currentPrice") is not None)
+    prev_price = sum(1 for v in PREV_CACHE.values() if isinstance(v, dict) and v.get("currentPrice") is not None)
+
+    # Always write the diagnostic sidecar so the bake guard (and the next run) can
+    # self-diagnose, even when we refuse to overwrite the cache.
+    meta = {
+        "built_at": datetime.now().isoformat(),
+        "n_target": len(ALL_STOCKS) + len(ALL_ETFS),
+        "n_records": len(results),
+        "n_price": n_price,
+        "n_fresh": fresh_ok + etf_ok,
+        "n_rescued": rescued,
+        "n_batch_prices": len(BATCH_PRICE),
+        "prev_n_price": prev_price,
+        "backoff_pauses": backoff_pauses,
+        "failure_modes": dict(FAILS),
+    }
     try:
-        with open(output_file, "w") as f:
-            json.dump(results, f, default=str)
-        file_size = os.path.getsize(output_file) / 1024 / 1024
-    except Exception as e:
-        print(f"  !! SAVE ERROR: {e}")
-        file_size = 0
+        with open("fundamentals_cache_meta.json", "w") as f:
+            json.dump(meta, f, indent=2, default=str)
+    except Exception:
+        pass
+
+    # Anti-poison: refuse to overwrite a healthy committed cache with a degenerate
+    # run (the 06-10/06-11 failure mode). The merge means results normally ⊇ prev,
+    # so this only triggers on a catastrophic batch+info failure.
+    if prev_price > 100 and n_price < 0.5 * prev_price:
+        print(f"  !! REGRESSION GUARD: new n_price {n_price} < 50% of prev {prev_price}. "
+              f"REFUSING to overwrite fundamentals_cache.json — keeping the committed cache.")
+        print(f"  !! failure modes: {dict(FAILS)}")
+        file_size = os.path.getsize(output_file) / 1024 / 1024 if os.path.exists(output_file) else 0
+    else:
+        try:
+            with open(output_file, "w") as f:
+                json.dump(results, f, default=str)
+            file_size = os.path.getsize(output_file) / 1024 / 1024
+            try:
+                if os.path.exists("fundamentals_cache.partial.json"):
+                    os.remove("fundamentals_cache.partial.json")
+            except Exception:
+                pass
+        except Exception as e:
+            print(f"  !! SAVE ERROR: {e}")
+            file_size = 0
 
     total_time = (time.time() - start_time) / 60
 
@@ -659,7 +880,11 @@ def main():
     print(f"DONE! Total time: {total_time:.1f} minutes")
     print(f"{'='*60}")
     print(f"  Stocks: {stock_count}  |  ETFs: {etf_ok}  |  Total: {len(results)}")
-    print(f"  Failed: {len(failures)}  |  File: {file_size:.1f} MB")
+    print(f"  currentPrice present: {n_price}/{len(results)}  |  rescued (stale fundamentals): {rescued}  |  batch prices: {len(BATCH_PRICE)}")
+    print(f"  Failed (dropped): {len(failures)}  |  File: {file_size:.1f} MB")
+    if FAILS:
+        modes = ", ".join(f"{k}={v}" for k, v in FAILS.most_common())
+        print(f"  Failure modes: {modes}")
     print(f"{'='*60}")
     print(f"\nNext steps:")
     print(f"  cd quant-dashboard-pro")
