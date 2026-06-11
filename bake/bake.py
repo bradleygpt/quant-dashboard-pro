@@ -433,6 +433,49 @@ try:
 except Exception as e:
     log(f"market_static.json skipped: {e}")
 
+# ── PGI money-market AUM (FRED MMMFFAQ027S, quarterly) — baked with an as-of date ──
+# The Potential Growth Indicator card divides money-market fund AUM by total market
+# cap. The live /api/market edge fetch to FRED is unreliable from Vercel edge IPs and
+# was silently freezing on a hardcoded $7.00T "fallback estimate" for months. We have
+# proven FRED's keyless CSV is reachable from the bake host, so bake the REAL latest
+# observation (value + its observation date) here; the card prefers a live FRED hit
+# when it succeeds, else this dated baked value, and only shows the hardcoded estimate
+# (clearly flagged) when both are absent. Quarterly series → publish-lag is expected
+# and surfaced via the as-of date, never hidden.
+try:
+    import urllib.request as _ur3
+    _u3 = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=MMMFFAQ027S"
+    _req3 = _ur3.Request(_u3, headers={"User-Agent": "Mozilla/5.0 (compatible; QuantDashboard/2.0)"})
+    with _ur3.urlopen(_req3, timeout=20) as _r3:
+        _txt3 = _r3.read().decode()
+    _mm_asof, _mm_val = None, None
+    for _ln in reversed(_txt3.strip().split("\n")[1:]):  # skip header; walk newest→oldest
+        _parts = _ln.split(",")
+        if len(_parts) < 2:
+            continue
+        try:
+            _mm_val = float(_parts[1])
+        except ValueError:
+            continue
+        _mm_asof = _parts[0]
+        break
+    if _mm_val is not None and 1e6 <= _mm_val <= 20e6:  # series is in $millions; sane $1T–$20T band
+        _mm_t = round(_mm_val / 1e6, 3)
+        json.dump({
+            "ok": True,
+            "money_market_t": _mm_t,
+            "as_of": _mm_asof,
+            "source": "FRED MMMFFAQ027S",
+            "source_desc": "Money market funds; total financial assets (quarterly)",
+            "units": "USD trillions",
+            "fetched_at": datetime.now().date().isoformat(),
+        }, open(f"{OUT}/pgi_money_market.json", "w"))
+        log(f"wrote pgi_money_market.json (MMMFFAQ027S = ${_mm_t}T as-of {_mm_asof})")
+    else:
+        log(f"pgi_money_market.json skipped: MMMFFAQ027S value out-of-band ({_mm_val})")
+except Exception as e:
+    log(f"pgi_money_market.json skipped: {e}")
+
 # ── Realistic swing backtest: strategy equity curve vs REAL buy-&-hold SPY ──
 # Source = the monthly swing backtest (top-10 basket, ~63-day holds, after costs).
 # This is a DIFFERENT, stricter record than the validated TOP-25 quarterly CAGR
