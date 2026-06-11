@@ -411,9 +411,64 @@ except Exception as e:
     log(f"etf.json skipped: {e}")
 
 # ── market regime static (network-free pieces; live market data via /api/market) ──
+# Macro inputs (CPI/Unemployment) were hardcoded in macro.MACRO_DATA (last_updated
+# 2026-04-20) and had drifted off the app's own FRED feed — CPI especially (static
+# 2.4% vs live ~4%+ YoY), which materially skews the earnings forecast. We now VERIFY
+# each against live FRED AT BAKE TIME and override with the real value + its as-of
+# date. ISM is NOT published on FRED (delisted years ago), so it stays a manual
+# constant but is labeled with its source + last-updated date — never silently stale.
 try:
     import macro as _mc, sentiment as _sent
-    _md = _mc.MACRO_DATA
+    import urllib.request as _ur4
+    _md = dict(_mc.MACRO_DATA)  # copy — don't mutate the imported module dict
+
+    def _fred_rows(sid):
+        _u = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}"
+        _rq = _ur4.Request(_u, headers={"User-Agent": "Mozilla/5.0 (compatible; QuantDashboard/2.0)"})
+        with _ur4.urlopen(_rq, timeout=20) as _r:
+            _txt = _r.read().decode()
+        _out = []
+        for _ln in _txt.strip().split("\n")[1:]:
+            _p = _ln.split(",")
+            if len(_p) < 2 or _p[1] in ("", "."):
+                continue
+            try:
+                _out.append((_p[0], float(_p[1])))
+            except ValueError:
+                continue
+        return _out
+
+    _static_asof = _md.get("last_updated")
+    # Unemployment — UNRATE, direct latest value.
+    try:
+        _un = _fred_rows("UNRATE")
+        if _un:
+            _md["unemployment_current"], _md["unemployment_asof"] = _un[-1][1], _un[-1][0]
+            if len(_un) >= 2:
+                _md["unemployment_prior"] = _un[-2][1]
+            _md["unemployment_source"] = "FRED UNRATE (live)"
+    except Exception as _e:
+        _md["unemployment_source"] = f"static (FRED UNRATE fetch failed: {_e})"
+        _md.setdefault("unemployment_asof", _static_asof)
+    # CPI YoY — CPIAUCNS index, headline (NSA) year-over-year, date-aligned 12-mo prior.
+    try:
+        _cpi = _fred_rows("CPIAUCNS")
+        def _yoy(rows, idx):
+            _d, _v = rows[idx]
+            _ty = f"{int(_d[:4]) - 1}{_d[4:]}"  # same month, prior year
+            _prev = next((vv for dd, vv in rows if dd == _ty), None)
+            return round((_v / _prev - 1) * 100, 1) if _prev else None
+        if len(_cpi) >= 13:
+            _md["cpi_current"], _md["cpi_asof"] = _yoy(_cpi, -1), _cpi[-1][0]
+            _md["cpi_prior"] = _yoy(_cpi, -2)
+            _md["cpi_source"] = "FRED CPIAUCNS YoY (live)"
+    except Exception as _e:
+        _md["cpi_source"] = f"static (FRED CPIAUCNS fetch failed: {_e})"
+        _md.setdefault("cpi_asof", _static_asof)
+    # ISM — not on FRED; keep the manual constant but label it honestly.
+    _md["ism_source"] = "ISM PMI (manual — not published on FRED)"
+    _md["ism_asof"] = _static_asof
+
     market_static = {
         "macro_data": _md,
         "earnings_forecast": _mc.compute_earnings_forecast(
@@ -423,6 +478,9 @@ try:
         "coming_soon_indicators": getattr(_sent, "COMING_SOON_INDICATORS", []),
         "us_gdp_trillions": _mc.MACRO_DATA.get("us_gdp_trillions", 29.7),
     }
+    log(f"  macro verified vs FRED: CPI={_md.get('cpi_current')}% ({_md.get('cpi_source')}, "
+        f"as-of {_md.get('cpi_asof')}), Unemp={_md.get('unemployment_current')}% "
+        f"(as-of {_md.get('unemployment_asof')}), ISM={_md.get('ism_composite')} (manual)")
     try:
         from fed_calendar import _FALLBACK_2026_MEETINGS, _FALLBACK_2027_MEETINGS
         market_static["fomc_meetings"] = list(_FALLBACK_2026_MEETINGS) + list(_FALLBACK_2027_MEETINGS)
