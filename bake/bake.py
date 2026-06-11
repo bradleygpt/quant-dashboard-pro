@@ -433,17 +433,27 @@ try:
 except Exception as e:
     log(f"market_static.json skipped: {e}")
 
-# ── Quant strategy backtest: cumulative-growth curve (quant vs SPY) + headline ──
-# Mirrors app.py's "Validated Backtest: Quant Strategy vs SPY" chart, which reads
-# quant_backtest_results.json and compounds $100 by portfolio_return_realistic /
-# spy_return_pct per checkpoint. The in-repo canonical file is sometimes a
-# degenerate placeholder; fall back to the populated sibling and record which was
-# used + the populated coverage so the UI can label it honestly (no fabrication).
+# ── Realistic swing backtest: strategy equity curve vs REAL buy-&-hold SPY ──
+# Source = the monthly swing backtest (top-10 basket, ~63-day holds, after costs).
+# This is a DIFFERENT, stricter record than the validated TOP-25 quarterly CAGR
+# table the UI shows separately — labeled as such, never conflated.
+# Source selection is PROGRAMMATIC and defensive — a file is NEVER trusted by name:
+#   * only canonical result files are considered (research variants are excluded),
+#   * candidates below a populated-checkpoint sanity floor are REFUSED (this is what
+#     stops a 6-row placeholder from winning just because it has the canonical name),
+#   * among survivors, prefer most-populated, breaking ties by latest end-date,
+#   * the chosen file name + checkpoint count + full date range is logged every bake.
+# The SPY line is a TRUE buy-&-hold curve pulled from the app's own Yahoo v8 feed
+# (simulated-market consistent), NOT the file's spy_return_pct — those are overlapping
+# ~63-day forward returns sampled monthly and do not compound to a valid wealth curve.
+# Live fetch failure falls back to the file's series, explicitly flagged as such.
 try:
-    import json as _json
+    import json as _json, urllib.request as _ur, calendar as _cal, datetime as _dt
+    _BT_FLOOR = 24  # ≥2y of monthly checkpoints; rejects degenerate placeholders
+    # Canonical files only. backtest_variant_*.json are hypothesis runs, NOT headline.
     _bt_candidates = ["quant_backtest_results.json", "backtest_results.json",
                       "quant_backtest_results_quarterly_full.json"]
-    best = None
+    _cands = []
     for _name in _bt_candidates:
         _p = os.path.join(ROOT, _name)
         if not os.path.exists(_p):
@@ -452,44 +462,101 @@ try:
             _d = _json.load(open(_p))
         except Exception:
             continue
-        _rows = _d.get("monthly_results") or []
-        _nn = sum(1 for r in _rows if r.get("portfolio_return_realistic") is not None)
-        # prefer the file with the most populated realistic checkpoints
-        if best is None or _nn > best[2]:
-            best = (_name, _d, _nn)
-    if best:
-        _name, _d, _nn = best
-        _rows = sorted(_d.get("monthly_results") or [], key=lambda x: x.get("date", ""))
-        curve, cum_q, cum_spy = [], 100.0, 100.0
-        if _rows:
-            curve.append({"date": _rows[0].get("date"), "quant": cum_q, "spy": cum_spy})
+        _pop = [r for r in (_d.get("monthly_results") or []) if r.get("portfolio_return_realistic") is not None]
+        if len(_pop) < _BT_FLOOR:
+            log(f"  backtest candidate {_name} REJECTED ({len(_pop)} populated < floor {_BT_FLOOR})")
+            continue
+        _end = max((r.get("date") or "") for r in _pop)
+        _cands.append((len(_pop), _end, _name, _d, _pop))
+    if not _cands:
+        log("quant_backtest.json skipped: no candidate cleared the sanity floor")
+    else:
+        _cands.sort(key=lambda c: (c[0], c[1]), reverse=True)  # most-populated, then latest end
+        _nn, _end_date, _name, _d, _pop = _cands[0]
+        _rows = sorted(_pop, key=lambda x: x.get("date", ""))
+        _start_date, _end_date = _rows[0].get("date"), _rows[-1].get("date")
+
+        # Strategy equity curve: compound realistic per-checkpoint returns from $100.
+        curve, cum_q = [{"date": _start_date, "quant": 100.0, "spy": 100.0}], 100.0
         for m in _rows:
-            rq, rs = m.get("portfolio_return_realistic"), m.get("spy_return_pct")
+            rq = m.get("portfolio_return_realistic")
             if rq is not None:
                 cum_q *= (1 + rq / 100)
-            if rs is not None:
-                cum_spy *= (1 + rs / 100)
-            curve.append({"date": m.get("date"), "quant": round(cum_q, 2), "spy": round(cum_spy, 2)})
-        _agg = _d.get("aggregate_metrics", {}) or {}
-        _real, _spy = _agg.get("realistic_strategy", {}) or {}, _agg.get("spy_benchmark", {}) or {}
-        _populated_dates = [r.get("date") for r in _rows if r.get("portfolio_return_realistic") is not None]
+            curve.append({"date": m.get("date"), "quant": round(cum_q, 2), "spy": None})
+
+        # Real buy-&-hold SPY over the same span, from the app's own Yahoo v8 feed.
+        spy_source, spy_asof = "overlapping_fallback", None
+        def _ep(s):
+            y, mo, d = (int(x) for x in s[:10].split("-"))
+            return int(_cal.timegm(_dt.date(y, mo, d).timetuple()))
+        try:
+            _u = (f"https://query1.finance.yahoo.com/v8/finance/chart/SPY"
+                  f"?period1={_ep(_start_date) - 45 * 86400}&period2={_ep(_end_date) + 45 * 86400}&interval=1mo")
+            _req = _ur.Request(_u, headers={"User-Agent": "Mozilla/5.0 (compatible; QuantDashboard/2.0)"})
+            with _ur.urlopen(_req, timeout=12) as _resp:
+                _r0 = _json.load(_resp)["chart"]["result"][0]
+            _adj = (_r0.get("indicators", {}).get("adjclose") or [{}])[0].get("adjclose")
+            _vals = _adj or _r0["indicators"]["quote"][0]["close"]
+            _by_ym = {}
+            for _t, _v in zip(_r0["timestamp"], _vals):
+                if _v:
+                    _by_ym[_dt.datetime.utcfromtimestamp(_t).strftime("%Y-%m")] = _v
+            _ordered = sorted(_by_ym)
+            def _spy_at(ym):  # nearest month at-or-before ym (forward fill)
+                _prev = None
+                for _k in _ordered:
+                    if _k <= ym:
+                        _prev = _k
+                    else:
+                        break
+                return _by_ym.get(_prev or (_ordered[0] if _ordered else None))
+            _base = _spy_at(_start_date[:7]) if _ordered else None
+            if _base:
+                for _pt in curve:
+                    _sv = _spy_at(_pt["date"][:7])
+                    _pt["spy"] = round(100.0 * _sv / _base, 2) if _sv else None
+                spy_source, spy_asof = "buyhold_yahoo_v8", _ordered[-1]
+        except Exception as _e:
+            log(f"  SPY buy-&-hold fetch failed ({_e}); falling back to file spy_return_pct")
+        if spy_source == "overlapping_fallback":  # not a true wealth curve; flagged
+            cum_spy = 100.0
+            curve[0]["spy"] = 100.0
+            for _i, m in enumerate(_rows, start=1):
+                rs = m.get("spy_return_pct")
+                if rs is not None:
+                    cum_spy *= (1 + rs / 100)
+                curve[_i]["spy"] = round(cum_spy, 2)
+
+        # Honest total-return + CAGR over the populated span.
+        def _yrs(a, b):
+            return max((int(b[:4]) + (int(b[5:7]) - 1) / 12) - (int(a[:4]) + (int(a[5:7]) - 1) / 12), 1e-6)
+        _span = _yrs(_start_date, _end_date)
+        _q_end = curve[-1]["quant"]
+        _s_end = next((c["spy"] for c in reversed(curve) if c["spy"] is not None), None)
+        _real = (_d.get("aggregate_metrics", {}) or {}).get("realistic_strategy", {}) or {}
         json.dump({
+            "ok": True,
             "source_file": _name,
             "n_checkpoints": len(_rows),
             "n_populated": _nn,
-            "populated_range": [_populated_dates[0], _populated_dates[-1]] if _populated_dates else None,
-            "date_range": [_rows[0].get("date"), _rows[-1].get("date")] if _rows else None,
+            "populated_range": [_start_date, _end_date],
+            "date_range": [_start_date, _end_date],
+            "span_years": round(_span, 1),
+            "spy_source": spy_source,
+            "spy_asof": spy_asof,
+            "strategy_label": "Realistic swing strategy · top-10 · ~63-day holds · after costs",
             "headline": {
-                "quant_total_pct": _real.get("total_compounded_pct"),
-                "spy_total_pct": _spy.get("total_compounded_pct"),
+                "quant_total_pct": round(_q_end - 100, 1),
+                "spy_total_pct": round(_s_end - 100, 1) if _s_end is not None else None,
+                "quant_cagr_pct": round(((_q_end / 100) ** (1 / _span) - 1) * 100, 1),
+                "spy_cagr_pct": round(((_s_end / 100) ** (1 / _span) - 1) * 100, 1) if _s_end else None,
                 "win_rate_pct": _real.get("win_rate_pct"),
-                "n_periods": _real.get("n_periods"),
+                "n_periods": _nn,
             },
             "curve": curve,
         }, open(f"{OUT}/quant_backtest.json", "w"))
-        log(f"wrote quant_backtest.json (src={_name}, {len(_rows)} checkpoints, {_nn} populated)")
-    else:
-        log("quant_backtest.json skipped: no backtest file found")
+        log(f"wrote quant_backtest.json (src={_name}, {len(_rows)} checkpoints, "
+            f"{_nn} populated, {_start_date}→{_end_date}, spy={spy_source})")
 except Exception as e:
     log(f"quant_backtest.json skipped: {e}")
 
