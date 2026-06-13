@@ -810,4 +810,110 @@ try:
 except Exception as e:
     log(f"mlpred.json skipped: {e}")
 
+
+# ── system_status.json: the landing page's single source of truth ──────────────
+# The de-IP TRI-STAR landing reads this instead of the old hardcoded mock (which
+# shipped a fake PPI 55 and a fabricated c78q P&L). Every field here traces to a
+# real baked artifact or returns null/false honestly when the source is missing —
+# NO invented values (DATA_INTEGRITY_STANDARD).
+#   bake     : did THIS bake run, and when (fresh = this process reached here).
+#   ppi      : the live c78q PPI (c78q.json ppi block) — score + level, verbatim.
+#   c78q     : nextRebalance from the strategy state; pnl is null unless we can
+#              mark live positions to a price newer than entry (we can't today:
+#              positions are stale-marked and the baked chart closes predate the
+#              2026-06-01 deployment) — so pnl stays null rather than fabricated.
+#   engines  : binary = c78q P(beat) target as-of; return = MLPred effective date.
+#              `current` = source dated within 10 days of this bake.
+#   market   : a bake-time snapshot of the US session (rth/pre/after/closed). The
+#              landing recomputes this client-side from the live clock; this is the
+#              SSR/fallback default only.
+try:
+    from datetime import timezone as _tz
+    try:
+        from zoneinfo import ZoneInfo as _ZI
+        _et_now = datetime.now(_tz.utc).astimezone(_ZI("America/New_York"))
+    except Exception:
+        _et_now = datetime.now(_tz.utc) - timedelta(hours=4)  # crude EDT fallback
+    _bake_now = datetime.now()
+
+    def _session(dt):
+        # weekend → closed (market holidays handled client-side via calendar)
+        if dt.weekday() >= 5:
+            return "closed"
+        _mins = dt.hour * 60 + dt.minute
+        if 4 * 60 <= _mins < 9 * 60 + 30:   return "pre"
+        if 9 * 60 + 30 <= _mins < 16 * 60:  return "rth"
+        if 16 * 60 <= _mins < 20 * 60:      return "after"
+        return "closed"
+
+    def _is_current(iso_date, days=10):
+        if not iso_date:
+            return False, None
+        try:
+            _d = datetime.fromisoformat(str(iso_date)[:10])
+            return (_bake_now - _d).days <= days, _d.strftime("%Y-%m-%d")
+        except Exception:
+            return False, None
+
+    # --- PPI + c78q from the freshly-copied c78q.json (canonical PPI computation) -
+    _ppi = {"score": None, "level": None}
+    _c78q = {"pnl": None, "nextRebalance": None}
+    _ppi_as_of = None
+    _binary_asof = None
+    try:
+        _c = json.load(open(f"{OUT}/c78q.json"))
+        _p = _c.get("ppi") or {}
+        if _p.get("score") is not None:
+            _ppi = {"score": _p.get("score"), "level": _p.get("level")}
+            _ppi_as_of = _p.get("as_of")
+        _st = _c.get("state") or {}
+        _c78q["nextRebalance"] = _st.get("next_rebalance")
+        _binary_asof = (_c.get("target") or {}).get("as_of")
+    except Exception as _ce:
+        log(f"  system_status: c78q.json unreadable ({_ce}) — ppi/c78q stay null")
+
+    # --- engine currency: binary = c78q target, return = mlpred effective date ----
+    _mlpred_eff = _eff if "_eff" in dir() else None
+    _bin_cur, _bin_d = _is_current(_binary_asof)
+    _ret_cur, _ret_d = _is_current(_mlpred_eff)
+
+    _status = {
+        "bake": {"fresh": True, "at": _bake_now.replace(microsecond=0).isoformat()},
+        "engines": {
+            "binary": {"current": _bin_cur, "asOf": _bin_d},
+            "return": {"current": _ret_cur, "asOf": _ret_d},
+        },
+        "ppi": _ppi,
+        "c78q": _c78q,
+        "market": {"state": _session(_et_now)},
+        "_meta": {
+            "ppi_as_of": _ppi_as_of,
+            "source": "c78q.json (ppi+state), mlpred effective_date, US session snapshot",
+            "pnl_note": "null — no live mark newer than entry; not fabricated",
+        },
+    }
+    json.dump(deep_clean(_status), open(f"{OUT}/system_status.json", "w"), indent=2)
+    log(f"wrote system_status.json (ppi={_ppi.get('score')} {_ppi.get('level')}, "
+        f"market={_status['market']['state']}, mlpred_asof={_ret_d}, c78q_rebal={_c78q['nextRebalance']})")
+
+    # keep the freshness manifest in sync (upsert, never clobber sibling entries)
+    try:
+        _mp = f"{OUT}/freshness_manifest.json"
+        _man = json.load(open(_mp)) if os.path.exists(_mp) else {}
+        _man.setdefault("sources", {})["system_status"] = {
+            "source": "bake.py system_status block (c78q.json ppi+state, mlpred effective_date, US session snapshot)",
+            "as_of": _bake_now.strftime("%Y-%m-%d"),
+            "ppi": f"{_ppi.get('score')} {_ppi.get('level')} (live c78q PPI, as-of {_ppi_as_of})",
+            "c78q_pnl": "null — no live mark newer than entry; not fabricated"
+                        if _c78q["pnl"] is None else _c78q["pnl"],
+            "consumed_by": "TRI-STAR landing (LandingDemoTab)",
+            "check_status": "ok",
+        }
+        json.dump(_man, open(_mp, "w"), indent=2)
+        log("  refreshed freshness_manifest.json: system_status")
+    except Exception as _me:
+        log(f"  freshness_manifest system_status upsert skipped: {_me}")
+except Exception as e:
+    log(f"system_status.json skipped: {e}")
+
 log("DONE")
