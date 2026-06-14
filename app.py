@@ -1563,12 +1563,20 @@ with tab_detail:
                         if not sc.empty:
                             beat_count=int((sc>0).sum())
                             miss_count=int((sc<=0).sum())
-                            avg_surprise=float(sc.mean())
+                            # Surprise% = (actual-estimate)/|estimate|; a near-zero estimate
+                            # makes it blow up (Intel showed +1244.7%). Exclude |surprise|>200%
+                            # from the AVERAGE and flag it — never display a four-digit %. Beat/
+                            # miss direction is still valid, so the counts use the full series.
+                            SANE_SURPRISE_BOUND=200.0
+                            sc_sane=sc[sc.abs()<=SANE_SURPRISE_BOUND]
+                            n_excluded=int(len(sc)-len(sc_sane))
+                            avg_surprise=float(sc_sane.mean()) if not sc_sane.empty else None
                             ec1,ec2,ec3,ec4=st.columns(4)
                             with ec1: st.metric("Quarters",len(quarterly_eps))
                             with ec2: st.metric("Beats",beat_count,f"{beat_count/(beat_count+miss_count)*100:.0f}%" if (beat_count+miss_count)>0 else "")
                             with ec3: st.metric("Misses",miss_count,f"{miss_count/(beat_count+miss_count)*100:.0f}%" if (beat_count+miss_count)>0 else "",delta_color="inverse")
-                            with ec4: st.metric("Avg Surprise",f"{avg_surprise:+.1f}%")
+                            with ec4: st.metric("Avg Surprise",f"{avg_surprise:+.1f}%" if avg_surprise is not None else "n/a",
+                                                help=(f"{n_excluded} quarter(s) excluded: |surprise|>{SANE_SURPRISE_BOUND:.0f}% (near-zero estimate artifact)." if n_excluded else None))
                     else:
                         eps_sorted=quarterly_eps.sort_index()
                         latest=float(eps_sorted.iloc[-1])

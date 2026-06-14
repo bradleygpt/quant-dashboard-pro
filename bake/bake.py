@@ -702,13 +702,22 @@ except Exception as e:
 
 
 # ── AI earnings reviews: pre-bake the LLM cache so Vercel == Streamlit ─────────
-# earnings_reviewer.py caches generated 8-K reviews to ai_earnings_cache.json
-# (parent root), keyed {TICKER}_{filing_date}. Vercel has no live LLM key, so we
-# copy the cache to web/public/data/earnings_reviews.json. The React Stock Detail
-# tab looks reviews up by {ticker}_{YYYY-MM of the reported quarter}, which is NOT
-# the filing-date key — so we ALSO emit a month-aliased index using each review's
-# best available period field, leaving the originals intact. Graceful skip when
-# the cache is empty/absent (no reviews generated yet) — never fabricates.
+# earnings_reviewer.py caches generated 8-K reviews to ai_earnings_cache.json,
+# keyed {TICKER}_{filing_date}; each entry carries full_text + verdict + filing_date.
+# Vercel has no live LLM key, so we copy the cache to earnings_reviews.json.
+# INTEGRITY GUARD (handoff): an 8-K whose figures the parser couldn't extract yields
+# a review full of "Not disclosed" fields (Intel's exhibit layout) — that is NOT real
+# analysis, so we EXCLUDE such reviews (and any not ok / too-short) rather than ship an
+# empty HOLD to a public portfolio piece. React keys lookups by {TICKER}_{reported-
+# quarter YYYY-MM}, which won't equal the filing-date month — so besides the filing-date
+# key we emit a per-ticker {TICKER}_LATEST (newest by filing_date), which is what the
+# single-ticker Stock Detail view actually wants. Graceful skip when absent/empty.
+def _is_empty_review(_txt):
+    if not _txt or len(str(_txt).strip()) < 120:
+        return True
+    import re as _re
+    return len(_re.findall(r"not disclosed|not in the provided 8-?k|not provided in|not specified|\bn/a\b",
+                           str(_txt), _re.I)) >= 4
 try:
     _ae_candidates = [
         os.path.join(ROOT, "ai_earnings_cache.json"),
@@ -717,30 +726,38 @@ try:
     _ae_src = next((p for p in _ae_candidates if os.path.exists(p)), None)
     if _ae_src:
         _cache = json.load(open(_ae_src))
-        # Build a flat map React can read directly: prefer a {TICKER}_{YYYY-MM}
-        # key derived from the review's reported-period/quarter/filing date.
         _reviews = {}
+        _latest = {}  # ticker -> (filing_date, review) newest kept
+        _skipped = []
         for _k, _rv in (_cache or {}).items():
             if not isinstance(_rv, dict):
                 continue
-            _reviews[_k] = _rv  # keep the original filing-date key too
+            _txt = _rv.get("full_text") or _rv.get("text") or ""
+            if _rv.get("ok") is False or _is_empty_review(_txt):
+                _skipped.append(_k)
+                continue  # never bake unparsed/empty reviews
             _tk = str(_rv.get("ticker") or _k.split("_")[0]).upper()
-            _datefield = (_rv.get("reported_period") or _rv.get("quarter")
-                          or _rv.get("period") or "")
-            _ym = str(_datefield)[:7]
-            if _tk and len(_ym) == 7 and "-" in _ym:
-                _reviews[f"{_tk}_{_ym}"] = _rv
+            _fd = str(_rv.get("filing_date") or "")
+            _reviews[_k] = _rv  # original {TICKER}_{filing_date} key
+            if len(_fd) >= 7:
+                _reviews[f"{_tk}_{_fd[:7]}"] = _rv  # filing-month alias
+            if _tk and (_tk not in _latest or _fd > _latest[_tk][0]):
+                _latest[_tk] = (_fd, _rv)
+        for _tk, (_fd, _rv) in _latest.items():
+            _reviews[f"{_tk}_LATEST"] = _rv
         json.dump(deep_clean(_reviews), open(f"{OUT}/earnings_reviews.json", "w"), indent=2)
-        log(f"wrote earnings_reviews.json ({len(_cache)} cached reviews, "
-            f"{len(_reviews)} keys incl month aliases, from {_ae_src})")
+        log(f"wrote earnings_reviews.json ({len(_cache)} cached, {len(_latest)} kept, "
+            f"{len(_skipped)} skipped empty/unparsed{(' ' + ','.join(_skipped[:8])) if _skipped else ''}, "
+            f"{len(_reviews)} keys, from {_ae_src})")
         try:
             _mp = f"{OUT}/freshness_manifest.json"
             _man = json.load(open(_mp)) if os.path.exists(_mp) else {}
             _man.setdefault("sources", {})["earnings_reviews"] = {
                 "source": f"ai_earnings_cache.json ({os.path.basename(_ae_src)}) — pre-baked LLM 8-K reviews",
-                "n_reviews": len(_cache),
-                "n_keys": len(_reviews),
-                "note": "Vercel reads baked reviews (no live LLM key); keyed {TICKER}_{YYYY-MM} + original filing-date keys",
+                "n_cached": len(_cache),
+                "n_kept": len(_latest),
+                "n_skipped_empty": len(_skipped),
+                "note": "empty/unparsed reviews excluded; keyed {TICKER}_{filing-YYYY-MM} + {TICKER}_LATEST",
                 "check_status": "ok",
             }
             json.dump(_man, open(_mp, "w"), indent=2)

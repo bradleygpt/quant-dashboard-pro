@@ -264,12 +264,23 @@ def _fetch_8k_text(url: str, max_chars: int = 25000) -> str:
         # Strip HTML tags
         text = re.sub(r"<style[^>]*>.*?</style>", " ", text, flags=re.DOTALL | re.IGNORECASE)
         text = re.sub(r"<script[^>]*>.*?</script>", " ", text, flags=re.DOTALL | re.IGNORECASE)
+        # Preserve TABLE structure before the generic strip: earnings press releases
+        # (e.g. Intel) put revenue/EPS/guidance in tables. Stripping every tag collapses
+        # "Revenue 12,724 11,723" into a structureless run the LLM reads as "not disclosed".
+        # Keep cell/row boundaries so the figures stay associated. Only ADDS separators.
+        text = re.sub(r"</t[dh]>", " | ", text, flags=re.IGNORECASE)
+        text = re.sub(r"</tr>", "\n", text, flags=re.IGNORECASE)
+        text = re.sub(r"</table>", "\n\n", text, flags=re.IGNORECASE)
+        text = re.sub(r"<br\s*/?>", "\n", text, flags=re.IGNORECASE)
         text = re.sub(r"<[^>]+>", " ", text)
         # Decode common HTML entities
         text = (text.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
                      .replace("&nbsp;", " ").replace("&#160;", " ").replace("&quot;", '"'))
-        # Collapse whitespace
-        text = re.sub(r"\s+", " ", text).strip()
+        # Collapse horizontal whitespace but KEEP newlines (the table row boundaries
+        # added above), so tabular figures stay on their own lines for the LLM.
+        text = re.sub(r"[ \t\r\f\v]+", " ", text)
+        text = re.sub(r" *\n *", "\n", text)
+        text = re.sub(r"\n{3,}", "\n\n", text).strip()
         return text[:max_chars]
     except Exception:
         return ""
