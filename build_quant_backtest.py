@@ -43,7 +43,7 @@ import numpy as np
 
 START_YEAR = int(os.environ.get("START_YEAR", "2005"))
 HOLD_DAYS_TRADING = int(os.environ.get("HOLD_DAYS", "21"))  # 21 = monthly, 63 = quarterly
-TOP_N_PICKS = 10
+TOP_N_PICKS = int(os.environ.get("TOP_N", "10"))  # 25 = the validated TOP-25 record
 MAX_UNIVERSE_SIZE = int(os.environ.get("MAX_UNIVERSE_SIZE", "2000"))  # 2000 = effectively all of 1326-ticker universe
 VARIANT_NAME = os.environ.get("VARIANT_NAME", "")
 RESULTS_FILE = f"quant_backtest_results{('_' + VARIANT_NAME) if VARIANT_NAME else ''}.json"
@@ -511,8 +511,13 @@ def run_monthly_quant_backtest(checkpoint_date, universe, top_n=10):
     candidates.sort(key=lambda x: x["composite_score"], reverse=True)
     top = candidates[:top_n]
 
-    total_score = sum(c["composite_score"] for c in top)
-    weights = [c["composite_score"] / total_score for c in top]
+    # Portfolio weighting: score-weighted by default; EQUAL_WEIGHT=1 matches the
+    # validated "Equal" record (TOP-25 equal-rebalance, the 26.27% claim).
+    if os.environ.get("EQUAL_WEIGHT", "0") == "1":
+        weights = [1.0 / len(top)] * len(top) if top else []
+    else:
+        total_score = sum(c["composite_score"] for c in top)
+        weights = [c["composite_score"] / total_score for c in top] if total_score else []
 
     realistic_returns = []
     max_returns = []
@@ -620,10 +625,12 @@ def main():
                 flush=True
             )
 
-            # Bail early if pace would exceed timeout (5h 30min = 19800s)
+            # Bail early if pace would exceed the timeout safety margin (default
+            # 5h 30min = 19800s; override with BACKTEST_TIMEOUT_SEC for long runs).
+            _timeout_sec = int(os.environ.get("BACKTEST_TIMEOUT_SEC", "19800"))
             projected_total = avg_per_checkpoint * len(checkpoint_dates)
-            if i >= 5 and projected_total > 19800:
-                print(f"\nWARNING: Projected runtime {projected_total/60:.0f}min exceeds 5h 30min timeout safety margin", flush=True)
+            if i >= 5 and projected_total > _timeout_sec:
+                print(f"\nWARNING: Projected runtime {projected_total/60:.0f}min exceeds {_timeout_sec/60:.0f}min timeout safety margin", flush=True)
                 print(f"Saving partial results and exiting cleanly", flush=True)
                 break
         except Exception as e:

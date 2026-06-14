@@ -1,89 +1,749 @@
 {
-  "last_run_utc": "2026-06-07T13:51:36.481042+00:00",
-  "parameters": {
-    "start_year": 2005,
-    "hold_trading_days": 21,
-    "top_n_picks": 10,
-    "min_data_quality": 20,
-    "max_universe_sample": 2000
-  },
-  "aggregate_metrics": {
-    "realistic_strategy": {},
-    "theoretical_max_strategy": {},
-    "spy_benchmark": {
-      "n_periods": 6,
-      "win_rate_pct": 33.33333333333333,
-      "avg_return_pct": -0.28912995411318687,
-      "avg_win_pct": 2.2733210302274487,
-      "avg_loss_pct": -1.5703554462835048,
-      "best_period_pct": 2.646049648349806,
-      "worst_period_pct": -2.5158813555236708,
-      "total_compounded_pct": -1.830148809948695
-    },
-    "avg_data_quality_across_run": 0.0
-  },
+  "schema": "quant_backtest_results_v1",
   "monthly_results": [
     {
-      "date": "2005-01-01",
-      "n_candidates_screened": 1359,
-      "n_qualified": 0,
-      "avg_data_quality": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": -1.7788855655537474
+      "date": "1996-02-15",
+      "portfolio_return_realistic": 17.5426,
+      "spy_return_pct": 2.9474,
+      "n_universe": 586
     },
     {
-      "date": "2005-02-01",
-      "n_candidates_screened": 1359,
-      "n_qualified": 0,
-      "avg_data_quality": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": 1.9005924121050917
+      "date": "1996-05-15",
+      "portfolio_return_realistic": -3.8959,
+      "spy_return_pct": 0.1059,
+      "n_universe": 592
     },
     {
-      "date": "2005-03-01",
-      "n_candidates_screened": 1359,
-      "n_qualified": 0,
-      "avg_data_quality": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": -2.5158813555236708
+      "date": "1996-08-15",
+      "portfolio_return_realistic": 10.5705,
+      "spy_return_pct": 12.1252,
+      "n_universe": 596
     },
     {
-      "date": "2005-04-01",
-      "n_candidates_screened": 1359,
-      "n_qualified": 0,
-      "avg_data_quality": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": -1.4306397860936857
+      "date": "1996-11-15",
+      "portfolio_return_realistic": 12.7889,
+      "spy_return_pct": 10.2054,
+      "n_universe": 601
     },
     {
-      "date": "2005-05-01",
-      "n_candidates_screened": 1359,
-      "n_qualified": 0,
-      "avg_data_quality": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": 2.646049648349806
+      "date": "1997-02-15",
+      "portfolio_return_realistic": -5.4396,
+      "spy_return_pct": 2.8945,
+      "n_universe": 611
     },
     {
-      "date": "2005-06-01",
-      "n_candidates_screened": 1359,
-      "n_qualified": 0,
-      "avg_data_quality": 0,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": -0.5560150779629149
+      "date": "1997-05-15",
+      "portfolio_return_realistic": 16.2884,
+      "spy_return_pct": 10.2052,
+      "n_universe": 614
+    },
+    {
+      "date": "1997-08-15",
+      "portfolio_return_realistic": 7.6879,
+      "spy_return_pct": 4.0349,
+      "n_universe": 624
+    },
+    {
+      "date": "1997-11-15",
+      "portfolio_return_realistic": 9.5198,
+      "spy_return_pct": 10.0399,
+      "n_universe": 636
+    },
+    {
+      "date": "1998-02-15",
+      "portfolio_return_realistic": 8.3144,
+      "spy_return_pct": 9.1669,
+      "n_universe": 646
+    },
+    {
+      "date": "1998-05-15",
+      "portfolio_return_realistic": -7.1624,
+      "spy_return_pct": -4.1146,
+      "n_universe": 656
+    },
+    {
+      "date": "1998-08-15",
+      "portfolio_return_realistic": -0.2948,
+      "spy_return_pct": 7.0612,
+      "n_universe": 664
+    },
+    {
+      "date": "1998-11-15",
+      "portfolio_return_realistic": 31.8743,
+      "spy_return_pct": 9.554,
+      "n_universe": 666
+    },
+    {
+      "date": "1999-02-15",
+      "portfolio_return_realistic": 9.5526,
+      "spy_return_pct": 8.8072,
+      "n_universe": 672
+    },
+    {
+      "date": "1999-05-15",
+      "portfolio_return_realistic": 0.3246,
+      "spy_return_pct": -0.1667,
+      "n_universe": 680
+    },
+    {
+      "date": "1999-08-15",
+      "portfolio_return_realistic": 18.5142,
+      "spy_return_pct": 5.2475,
+      "n_universe": 688
+    },
+    {
+      "date": "1999-11-15",
+      "portfolio_return_realistic": 38.3423,
+      "spy_return_pct": -0.1682,
+      "n_universe": 691
+    },
+    {
+      "date": "2000-02-15",
+      "portfolio_return_realistic": -2.8468,
+      "spy_return_pct": 4.2403,
+      "n_universe": 694
+    },
+    {
+      "date": "2000-05-15",
+      "portfolio_return_realistic": 10.4894,
+      "spy_return_pct": 2.9952,
+      "n_universe": 700
+    },
+    {
+      "date": "2000-08-15",
+      "portfolio_return_realistic": -3.5043,
+      "spy_return_pct": -6.491,
+      "n_universe": 709
+    },
+    {
+      "date": "2000-11-15",
+      "portfolio_return_realistic": 3.0214,
+      "spy_return_pct": -5.0855,
+      "n_universe": 712
+    },
+    {
+      "date": "2001-02-15",
+      "portfolio_return_realistic": 10.1696,
+      "spy_return_pct": -2.8815,
+      "n_universe": 716
+    },
+    {
+      "date": "2001-05-15",
+      "portfolio_return_realistic": 11.2745,
+      "spy_return_pct": -5.057,
+      "n_universe": 716
+    },
+    {
+      "date": "2001-08-15",
+      "portfolio_return_realistic": 4.5715,
+      "spy_return_pct": -2.6639,
+      "n_universe": 727
+    },
+    {
+      "date": "2001-11-15",
+      "portfolio_return_realistic": 13.3672,
+      "spy_return_pct": -2.1107,
+      "n_universe": 729
+    },
+    {
+      "date": "2002-02-15",
+      "portfolio_return_realistic": 16.2835,
+      "spy_return_pct": 0.2956,
+      "n_universe": 733
+    },
+    {
+      "date": "2002-05-15",
+      "portfolio_return_realistic": -17.1617,
+      "spy_return_pct": -15.7093,
+      "n_universe": 738
+    },
+    {
+      "date": "2002-08-15",
+      "portfolio_return_realistic": 0.8725,
+      "spy_return_pct": -2.5275,
+      "n_universe": 741
+    },
+    {
+      "date": "2002-11-15",
+      "portfolio_return_realistic": 1.8035,
+      "spy_return_pct": -7.4797,
+      "n_universe": 746
+    },
+    {
+      "date": "2003-02-15",
+      "portfolio_return_realistic": 13.691,
+      "spy_return_pct": 13.1938,
+      "n_universe": 750
+    },
+    {
+      "date": "2003-05-15",
+      "portfolio_return_realistic": 17.755,
+      "spy_return_pct": 4.7932,
+      "n_universe": 750
+    },
+    {
+      "date": "2003-08-15",
+      "portfolio_return_realistic": 21.7159,
+      "spy_return_pct": 6.2686,
+      "n_universe": 753
+    },
+    {
+      "date": "2003-11-15",
+      "portfolio_return_realistic": 23.2467,
+      "spy_return_pct": 9.6852,
+      "n_universe": 757
+    },
+    {
+      "date": "2004-02-15",
+      "portfolio_return_realistic": -7.6984,
+      "spy_return_pct": -4.086,
+      "n_universe": 761
+    },
+    {
+      "date": "2004-05-15",
+      "portfolio_return_realistic": -12.2231,
+      "spy_return_pct": -2.2344,
+      "n_universe": 768
+    },
+    {
+      "date": "2004-08-15",
+      "portfolio_return_realistic": 27.4754,
+      "spy_return_pct": 11.2832,
+      "n_universe": 776
+    },
+    {
+      "date": "2004-11-15",
+      "portfolio_return_realistic": 5.6384,
+      "spy_return_pct": 2.1225,
+      "n_universe": 784
+    },
+    {
+      "date": "2005-02-15",
+      "portfolio_return_realistic": -8.6115,
+      "spy_return_pct": -2.5494,
+      "n_universe": 788
+    },
+    {
+      "date": "2005-05-15",
+      "portfolio_return_realistic": 17.9269,
+      "spy_return_pct": 6.7722,
+      "n_universe": 793
+    },
+    {
+      "date": "2005-08-15",
+      "portfolio_return_realistic": 0.9019,
+      "spy_return_pct": 0.3202,
+      "n_universe": 801
+    },
+    {
+      "date": "2005-11-15",
+      "portfolio_return_realistic": 10.2201,
+      "spy_return_pct": 4.209,
+      "n_universe": 803
+    },
+    {
+      "date": "2006-02-15",
+      "portfolio_return_realistic": 10.6018,
+      "spy_return_pct": -0.6596,
+      "n_universe": 810
+    },
+    {
+      "date": "2006-05-15",
+      "portfolio_return_realistic": -0.2414,
+      "spy_return_pct": -1.4117,
+      "n_universe": 812
+    },
+    {
+      "date": "2006-08-15",
+      "portfolio_return_realistic": 15.0519,
+      "spy_return_pct": 9.0212,
+      "n_universe": 816
+    },
+    {
+      "date": "2006-11-15",
+      "portfolio_return_realistic": 5.9369,
+      "spy_return_pct": 4.5717,
+      "n_universe": 822
+    },
+    {
+      "date": "2007-02-15",
+      "portfolio_return_realistic": 0.2732,
+      "spy_return_pct": 4.1839,
+      "n_universe": 828
+    },
+    {
+      "date": "2007-05-15",
+      "portfolio_return_realistic": -9.5688,
+      "spy_return_pct": -4.6116,
+      "n_universe": 836
+    },
+    {
+      "date": "2007-08-15",
+      "portfolio_return_realistic": 15.781,
+      "spy_return_pct": 5.1975,
+      "n_universe": 842
+    },
+    {
+      "date": "2007-11-15",
+      "portfolio_return_realistic": -5.5643,
+      "spy_return_pct": -6.6322,
+      "n_universe": 848
+    },
+    {
+      "date": "2008-02-15",
+      "portfolio_return_realistic": 4.2835,
+      "spy_return_pct": 6.0872,
+      "n_universe": 852
+    },
+    {
+      "date": "2008-05-15",
+      "portfolio_return_realistic": -0.5776,
+      "spy_return_pct": -8.6593,
+      "n_universe": 858
+    },
+    {
+      "date": "2008-08-15",
+      "portfolio_return_realistic": -32.9583,
+      "spy_return_pct": -33.0711,
+      "n_universe": 861
+    },
+    {
+      "date": "2008-11-15",
+      "portfolio_return_realistic": -1.9931,
+      "spy_return_pct": -3.6807,
+      "n_universe": 863
+    },
+    {
+      "date": "2009-02-15",
+      "portfolio_return_realistic": 9.335,
+      "spy_return_pct": 7.9566,
+      "n_universe": 864
+    },
+    {
+      "date": "2009-05-15",
+      "portfolio_return_realistic": 25.3029,
+      "spy_return_pct": 14.2592,
+      "n_universe": 865
+    },
+    {
+      "date": "2009-08-15",
+      "portfolio_return_realistic": 2.9975,
+      "spy_return_pct": 9.2788,
+      "n_universe": 867
+    },
+    {
+      "date": "2009-11-15",
+      "portfolio_return_realistic": 0.9223,
+      "spy_return_pct": -0.9107,
+      "n_universe": 875
+    },
+    {
+      "date": "2010-02-15",
+      "portfolio_return_realistic": 12.2062,
+      "spy_return_pct": 5.9045,
+      "n_universe": 189
+    },
+    {
+      "date": "2010-05-15",
+      "portfolio_return_realistic": -1.0875,
+      "spy_return_pct": -4.447,
+      "n_universe": 200
+    },
+    {
+      "date": "2010-08-15",
+      "portfolio_return_realistic": 18.1482,
+      "spy_return_pct": 11.5718,
+      "n_universe": 411
+    },
+    {
+      "date": "2010-11-15",
+      "portfolio_return_realistic": 18.8727,
+      "spy_return_pct": 11.7485,
+      "n_universe": 469
+    },
+    {
+      "date": "2011-02-15",
+      "portfolio_return_realistic": 4.1544,
+      "spy_return_pct": 0.5552,
+      "n_universe": 479
+    },
+    {
+      "date": "2011-05-15",
+      "portfolio_return_realistic": -3.3447,
+      "spy_return_pct": -11.4402,
+      "n_universe": 501
+    },
+    {
+      "date": "2011-08-15",
+      "portfolio_return_realistic": 7.4483,
+      "spy_return_pct": 4.5507,
+      "n_universe": 709
+    },
+    {
+      "date": "2011-11-15",
+      "portfolio_return_realistic": 7.7839,
+      "spy_return_pct": 7.9056,
+      "n_universe": 756
+    },
+    {
+      "date": "2012-02-15",
+      "portfolio_return_realistic": 3.6624,
+      "spy_return_pct": -0.853,
+      "n_universe": 764
+    },
+    {
+      "date": "2012-05-15",
+      "portfolio_return_realistic": 0.8086,
+      "spy_return_pct": 6.1343,
+      "n_universe": 792
+    },
+    {
+      "date": "2012-08-15",
+      "portfolio_return_realistic": -1.1209,
+      "spy_return_pct": -3.0468,
+      "n_universe": 820
+    },
+    {
+      "date": "2012-11-15",
+      "portfolio_return_realistic": 17.8788,
+      "spy_return_pct": 13.0215,
+      "n_universe": 833
+    },
+    {
+      "date": "2013-02-15",
+      "portfolio_return_realistic": 10.3099,
+      "spy_return_pct": 10.2377,
+      "n_universe": 835
+    },
+    {
+      "date": "2013-05-15",
+      "portfolio_return_realistic": 2.1828,
+      "spy_return_pct": 2.1146,
+      "n_universe": 847
+    },
+    {
+      "date": "2013-08-15",
+      "portfolio_return_realistic": 13.8123,
+      "spy_return_pct": 8.2725,
+      "n_universe": 857
+    },
+    {
+      "date": "2013-11-15",
+      "portfolio_return_realistic": 4.1588,
+      "spy_return_pct": 2.7598,
+      "n_universe": 866
+    },
+    {
+      "date": "2014-02-15",
+      "portfolio_return_realistic": -1.739,
+      "spy_return_pct": 2.641,
+      "n_universe": 870
+    },
+    {
+      "date": "2014-05-15",
+      "portfolio_return_realistic": 9.4206,
+      "spy_return_pct": 4.9616,
+      "n_universe": 888
+    },
+    {
+      "date": "2014-08-15",
+      "portfolio_return_realistic": 7.0835,
+      "spy_return_pct": 4.8409,
+      "n_universe": 897
+    },
+    {
+      "date": "2014-11-15",
+      "portfolio_return_realistic": 8.9087,
+      "spy_return_pct": 3.2794,
+      "n_universe": 905
+    },
+    {
+      "date": "2015-02-15",
+      "portfolio_return_realistic": 7.9935,
+      "spy_return_pct": 1.72,
+      "n_universe": 909
+    },
+    {
+      "date": "2015-05-15",
+      "portfolio_return_realistic": 1.2014,
+      "spy_return_pct": -0.9421,
+      "n_universe": 922
+    },
+    {
+      "date": "2015-08-15",
+      "portfolio_return_realistic": -3.452,
+      "spy_return_pct": -2.7824,
+      "n_universe": 930
+    },
+    {
+      "date": "2015-11-15",
+      "portfolio_return_realistic": -14.3578,
+      "spy_return_pct": -7.3068,
+      "n_universe": 937
+    },
+    {
+      "date": "2016-02-15",
+      "portfolio_return_realistic": 7.2972,
+      "spy_return_pct": 11.3682,
+      "n_universe": 941
+    },
+    {
+      "date": "2016-05-15",
+      "portfolio_return_realistic": 13.2779,
+      "spy_return_pct": 7.2456,
+      "n_universe": 947
+    },
+    {
+      "date": "2016-08-15",
+      "portfolio_return_realistic": 5.1224,
+      "spy_return_pct": -0.6417,
+      "n_universe": 952
+    },
+    {
+      "date": "2016-11-15",
+      "portfolio_return_realistic": 15.2445,
+      "spy_return_pct": 7.6953,
+      "n_universe": 965
+    },
+    {
+      "date": "2017-02-15",
+      "portfolio_return_realistic": 11.9423,
+      "spy_return_pct": 0.8198,
+      "n_universe": 969
+    },
+    {
+      "date": "2017-05-15",
+      "portfolio_return_realistic": 3.2478,
+      "spy_return_pct": 3.0971,
+      "n_universe": 979
+    },
+    {
+      "date": "2017-08-15",
+      "portfolio_return_realistic": 13.2816,
+      "spy_return_pct": 5.0704,
+      "n_universe": 983
+    },
+    {
+      "date": "2017-11-15",
+      "portfolio_return_realistic": 7.886,
+      "spy_return_pct": 5.6652,
+      "n_universe": 984
+    },
+    {
+      "date": "2018-02-15",
+      "portfolio_return_realistic": 10.8699,
+      "spy_return_pct": 0.0254,
+      "n_universe": 991
+    },
+    {
+      "date": "2018-05-15",
+      "portfolio_return_realistic": 4.3445,
+      "spy_return_pct": 5.1917,
+      "n_universe": 1002
+    },
+    {
+      "date": "2018-08-15",
+      "portfolio_return_realistic": -4.2789,
+      "spy_return_pct": -3.6755,
+      "n_universe": 1010
+    },
+    {
+      "date": "2018-11-15",
+      "portfolio_return_realistic": 4.7221,
+      "spy_return_pct": 1.085,
+      "n_universe": 1017
+    },
+    {
+      "date": "2019-02-15",
+      "portfolio_return_realistic": 6.539,
+      "spy_return_pct": 3.5076,
+      "n_universe": 1019
+    },
+    {
+      "date": "2019-05-15",
+      "portfolio_return_realistic": 0.844,
+      "spy_return_pct": 0.0774,
+      "n_universe": 1031
+    },
+    {
+      "date": "2019-08-15",
+      "portfolio_return_realistic": 5.4926,
+      "spy_return_pct": 9.2498,
+      "n_universe": 1043
+    },
+    {
+      "date": "2019-11-15",
+      "portfolio_return_realistic": 7.5745,
+      "spy_return_pct": 8.8104,
+      "n_universe": 1048
+    },
+    {
+      "date": "2020-02-15",
+      "portfolio_return_realistic": -13.7811,
+      "spy_return_pct": -14.7028,
+      "n_universe": 1049
+    },
+    {
+      "date": "2020-05-15",
+      "portfolio_return_realistic": 27.4321,
+      "spy_return_pct": 18.1788,
+      "n_universe": 1055
+    },
+    {
+      "date": "2020-08-15",
+      "portfolio_return_realistic": 4.2045,
+      "spy_return_pct": 6.7372,
+      "n_universe": 1059
+    },
+    {
+      "date": "2020-11-15",
+      "portfolio_return_realistic": 22.1965,
+      "spy_return_pct": 10.1127,
+      "n_universe": 1071
+    },
+    {
+      "date": "2021-02-15",
+      "portfolio_return_realistic": -0.509,
+      "spy_return_pct": 6.1738,
+      "n_universe": 1075
+    },
+    {
+      "date": "2021-05-15",
+      "portfolio_return_realistic": 4.037,
+      "spy_return_pct": 7.3932,
+      "n_universe": 1092
+    },
+    {
+      "date": "2021-08-15",
+      "portfolio_return_realistic": 11.9219,
+      "spy_return_pct": 5.1236,
+      "n_universe": 1121
+    },
+    {
+      "date": "2021-11-15",
+      "portfolio_return_realistic": -8.2299,
+      "spy_return_pct": -5.748,
+      "n_universe": 1140
+    },
+    {
+      "date": "2022-02-15",
+      "portfolio_return_realistic": -8.2015,
+      "spy_return_pct": -8.1846,
+      "n_universe": 1145
+    },
+    {
+      "date": "2022-05-15",
+      "portfolio_return_realistic": 5.869,
+      "spy_return_pct": 6.7771,
+      "n_universe": 1156
+    },
+    {
+      "date": "2022-08-15",
+      "portfolio_return_realistic": -1.7859,
+      "spy_return_pct": -7.4889,
+      "n_universe": 1165
+    },
+    {
+      "date": "2022-11-15",
+      "portfolio_return_realistic": 11.3986,
+      "spy_return_pct": 4.0264,
+      "n_universe": 1169
+    },
+    {
+      "date": "2023-02-15",
+      "portfolio_return_realistic": -3.1519,
+      "spy_return_pct": 0.6847,
+      "n_universe": 1171
+    },
+    {
+      "date": "2023-05-15",
+      "portfolio_return_realistic": 13.8307,
+      "spy_return_pct": 8.9016,
+      "n_universe": 1173
+    },
+    {
+      "date": "2023-08-15",
+      "portfolio_return_realistic": 5.7233,
+      "spy_return_pct": 1.676,
+      "n_universe": 1180
+    },
+    {
+      "date": "2023-11-15",
+      "portfolio_return_realistic": 45.5402,
+      "spy_return_pct": 11.3217,
+      "n_universe": 1188
+    },
+    {
+      "date": "2024-02-15",
+      "portfolio_return_realistic": 11.2905,
+      "spy_return_pct": 5.6418,
+      "n_universe": 1190
+    },
+    {
+      "date": "2024-05-15",
+      "portfolio_return_realistic": 5.3565,
+      "spy_return_pct": 2.9681,
+      "n_universe": 1193
+    },
+    {
+      "date": "2024-08-15",
+      "portfolio_return_realistic": 25.024,
+      "spy_return_pct": 7.612,
+      "n_universe": 1200
+    },
+    {
+      "date": "2024-11-15",
+      "portfolio_return_realistic": 5.4986,
+      "spy_return_pct": 4.4391,
+      "n_universe": 1202
+    },
+    {
+      "date": "2025-02-15",
+      "portfolio_return_realistic": -5.4744,
+      "spy_return_pct": -2.2491,
+      "n_universe": 1204
+    },
+    {
+      "date": "2025-05-15",
+      "portfolio_return_realistic": 7.1774,
+      "spy_return_pct": 9.5513,
+      "n_universe": 1209
+    },
+    {
+      "date": "2025-08-15",
+      "portfolio_return_realistic": 6.5529,
+      "spy_return_pct": 4.7173,
+      "n_universe": 1211
+    },
+    {
+      "date": "2025-11-15",
+      "portfolio_return_realistic": 9.0664,
+      "spy_return_pct": 1.7613,
+      "n_universe": 1213
+    },
+    {
+      "date": "2026-02-15",
+      "portfolio_return_realistic": 4.8765,
+      "spy_return_pct": 8.4906,
+      "n_universe": 1213
     }
   ],
-  "universe_size": 1359,
-  "n_checkpoints": 6
+  "aggregate_metrics": {
+    "realistic_strategy": {
+      "n_periods": 121,
+      "total_return_pct": 114447.6,
+      "cagr_pct": 26.22,
+      "win_rate_pct": 75.2
+    }
+  },
+  "strategy_label": "Validated TOP-25 \u00b7 equal-weight \u00b7 1Q reselect \u00b7 no MC floor (gross)",
+  "source": "backtest_three_periods.py on historical_scores_combined.parquet (1996-2026, 121 rebalances)",
+  "scheme": "equal",
+  "caveat": "Survivorship caveat: scores the CURRENT universe back to 1996 (survivors only) \u2014 pre-2010 is biased upward. Survivorship-free Era-2 rebuild is separate. Coverage (n_universe) declines toward 1996.",
+  "coverage": {
+    "first_date": "1996-02-15",
+    "last_date": "2026-02-15",
+    "min_n": 189,
+    "max_n": 1213
+  }
 }
