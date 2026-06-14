@@ -64,6 +64,33 @@ WEIGHT_PRESETS = {
         "backtest_universe": "Full universe (no MC floor), 1996-2026",
         "validated_at_floor": True,
     },
+    # RESEARCH PRIOR — NOT a validated record, NOT the default. Derived from the
+    # walk-forward-OOS sweep on EDGAR-era 2011-2026 data (q_full_sweep). Shows the
+    # ~26% OOS CAGR (the realizable number), NOT the ~32% in-sample. Survivorship
+    # caveat applies (current-universe scores). Added alongside the validated
+    # 1996-2026 presets; it does not replace or alter them.
+    "research_vq": {
+        "label": "⚗ Research Prior · Value+Quality (2011-26 OOS)",
+        "weights": {
+            "Valuation": 0.50,
+            "Growth": 0.20,
+            "Profitability": 0.25,
+            "Momentum": 0.05,
+            "EPS Revisions": 0.00,
+        },
+        "backtest_cagr": 26.7,
+        "backtest_sharpe": 1.48,
+        "backtest_max_dd": -29.8,
+        "backtest_universe": "EDGAR-era 2011-2026, walk-forward OOS, S&P PIT-restricted (survivorship-biased), top-7, ~42-day hold",
+        "validated_at_floor": False,
+        "is_research_prior": True,
+        "top_n": 7,
+        "hold_days": 42,
+        "in_sample_cagr": 32.0,
+        "caveat": ("Research prior, not a validated record. Walk-forward OOS on EDGAR-era "
+                   "2011-2026 (NOT the 1996-2026 TOP-25 record): ~26.7% OOS vs ~32% in-sample. "
+                   "Survivorship-biased (current-universe scores). Top-7, ~42-day hold."),
+    },
 }
 
 DEFAULT_PRESET = "equal"
