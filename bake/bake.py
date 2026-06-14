@@ -277,7 +277,7 @@ def bake_floor(floor):
 
         row = {
             "ticker": tk,
-            "name": r.get("shortName"),
+            "name": clean(r.get("shortName")) or tk,   # never NaN/None — fall back to the ticker
             "sector": sector,
             "industry": r.get("industry"),
             "marketCapB": num(r.get("marketCapB")),
@@ -309,7 +309,11 @@ def bake_floor(floor):
         "n_etf": int((scored["sector"] == "ETF").sum()),
         "sectors": sorted([s for s in scored["sector"].dropna().unique().tolist()]),
     }
-    json.dump({"meta": meta, "rows": rows}, open(f"{OUT}/universe_floor{floor}.json", "w"))
+    # deep_clean the WHOLE payload (incl. row scalars like a NaN ticker name) so we
+    # never emit bare NaN/Infinity — invalid JSON that the browser refuses to parse,
+    # blanking the entire universe ("0 stocks scored"). allow_nan=False is a backstop.
+    json.dump(deep_clean({"meta": meta, "rows": rows}),
+              open(f"{OUT}/universe_floor{floor}.json", "w"), allow_nan=False)
     log(f"  wrote universe_floor{floor}.json ({len(rows)} rows) + {n_detail} detail shards")
     return meta
 
