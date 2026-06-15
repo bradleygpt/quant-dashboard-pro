@@ -66,11 +66,22 @@ def score_universe(
             col = pd.to_numeric(df[yf_key], errors="coerce")
 
             if sector_relative and "sector" in df.columns:
-                # Rank within each sector
+                # Rank within each sector — BUT a sector too small to be a real peer
+                # group (e.g. a lone "Unknown"-sector IPO like MCW, the only such name
+                # in 1,359) makes a 1-element group where rank(pct) is a constant 1.0,
+                # awarding a deterministic A+ on every higher-is-better metric (and F on
+                # inverted valuation) → a junk composite that floats to row 1. For those
+                # under-populated sectors, fall back to a universe-wide rank so the grade
+                # reflects the real percentile instead of a singleton artifact.
+                MIN_SECTOR = 10
+                sec_n = df["sector"].map(df["sector"].value_counts())
                 if higher_is_better:
-                    pct = col.groupby(df["sector"]).rank(pct=True, na_option="bottom") * 100
+                    sec_pct = col.groupby(df["sector"]).rank(pct=True, na_option="bottom") * 100
+                    uni_pct = col.rank(pct=True, na_option="bottom") * 100
                 else:
-                    pct = (1 - col.groupby(df["sector"]).rank(pct=True, na_option="bottom")) * 100
+                    sec_pct = (1 - col.groupby(df["sector"]).rank(pct=True, na_option="bottom")) * 100
+                    uni_pct = (1 - col.rank(pct=True, na_option="bottom")) * 100
+                pct = sec_pct.where(sec_n >= MIN_SECTOR, uni_pct)
             else:
                 # Universe-wide rank
                 if higher_is_better:
