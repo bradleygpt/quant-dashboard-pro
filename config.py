@@ -70,7 +70,7 @@ WEIGHT_PRESETS = {
     # caveat applies (current-universe scores). Added alongside the validated
     # 1996-2026 presets; it does not replace or alter them.
     "research_vq": {
-        "label": "⚗ Research Prior · Value+Quality (2011-26 OOS)",
+        "label": "⚗ Project Axia · Research Prior · Value+Quality (2011-26 OOS)",
         "weights": {
             "Valuation": 0.50,
             "Growth": 0.20,
