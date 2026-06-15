@@ -931,22 +931,43 @@ try:
         except Exception:
             return False, None
 
-    # --- PPI + c78q from the freshly-copied c78q.json (canonical PPI computation) -
+    # --- PPI: computed LIVE/daily, DECOUPLED from the monthly c78q ETL. Inputs are
+    # only live market data (SPY/VIX/VVIX from keyless Yahoo) + baked-universe breadth
+    # — NO c78q.json, NO quant-historical — so it runs in CI on every bake (previously
+    # CI lacked c78q.json, leaving system_status.ppi=None and the landing on a fallback).
     _ppi = {"score": None, "level": None}
-    _c78q = {"pnl": None, "nextRebalance": None}
     _ppi_as_of = None
+    _ppi_breadth = None
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import ppi as _ppimod
+        _uni = json.load(open(f"{OUT}/universe_floor0.json"))   # breadth from the rows we just baked
+        _m50 = [(r.get("raw") or {}).get("momentum_vs_sma50") for r in _uni.get("rows", [])]
+        _m50 = [v for v in _m50 if isinstance(v, (int, float))]
+        _ppi_breadth = (100.0 * sum(1 for v in _m50 if v > 0) / len(_m50)) if _m50 else None
+        _spy, _vix, _vvix = _ppimod.fetch_market()
+        _pr = _ppimod.compute_ppi(_spy, _vix, _vvix, _ppi_breadth)
+        if _pr:
+            _ppi = {"score": _pr["score"], "level": _pr["level"]}
+            _ppi_as_of = _bake_now.strftime("%Y-%m-%d")
+            log(f"  PPI computed live: {_pr['score']} {_pr['level']} "
+                f"(breadth {_ppi_breadth:.0f}% >50SMA, SPY {len(_spy or [])}d, VIX {len(_vix or [])}d)")
+        else:
+            log("  PPI: insufficient market data (SPY fetch failed?) — ppi stays null")
+    except Exception as _pe:
+        log(f"  PPI compute failed ({_pe}) — ppi stays null")
+
+    # --- c78q STRATEGY data stays MONTHLY (nextRebalance, binary target as-of). When
+    # c78q.json is absent (CI), these stay null — they do NOT block the decoupled PPI.
+    _c78q = {"pnl": None, "nextRebalance": None}
     _binary_asof = None
     try:
         _c = json.load(open(f"{OUT}/c78q.json"))
-        _p = _c.get("ppi") or {}
-        if _p.get("score") is not None:
-            _ppi = {"score": _p.get("score"), "level": _p.get("level")}
-            _ppi_as_of = _p.get("as_of")
         _st = _c.get("state") or {}
         _c78q["nextRebalance"] = _st.get("next_rebalance")
         _binary_asof = (_c.get("target") or {}).get("as_of")
-    except Exception as _ce:
-        log(f"  system_status: c78q.json unreadable ({_ce}) — ppi/c78q stay null")
+    except Exception:
+        pass
 
     # --- engine currency: binary = c78q target, return = mlpred effective date ----
     _mlpred_eff = _eff if "_eff" in dir() else None
@@ -964,7 +985,9 @@ try:
         "market": {"state": _session(_et_now)},
         "_meta": {
             "ppi_as_of": _ppi_as_of,
-            "source": "c78q.json (ppi+state), mlpred effective_date, US session snapshot",
+            "ppi_breadth_pct": round(_ppi_breadth, 1) if _ppi_breadth is not None else None,
+            "source": "PPI computed live (SPY/VIX/VVIX + baked-universe breadth, decoupled from c78q); "
+                      "c78q nextRebalance from monthly ETL; mlpred effective_date; US session snapshot",
             "pnl_note": "null — no live mark newer than entry; not fabricated",
         },
     }
