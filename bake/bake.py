@@ -58,6 +58,29 @@ def shard_filename(ticker) -> str:
     return urllib.parse.quote(name, safe="") + ".json"
 
 
+# Curated sector backfill for names whose upstream yfinance .info intermittently returns
+# a missing/"Unknown" sector. Without a sector a name becomes a lone "Unknown"-sector group
+# (singleton) whose grades inflate and which sorts to row 1 with a junk display (no sector,
+# FV "—", mcap 0). MCW (Mister Car Wash) is the recurring offender; its authoritative sector
+# is Consumer Cyclical (per the historical scores panel). Values use the yfinance sector
+# taxonomy so they merge into the real peer group (>= MIN_SECTOR members → ranked normally).
+SECTOR_OVERRIDES = {
+    "MCW": "Consumer Cyclical",
+}
+_MISSING_SECTORS = {None, "", "Unknown", "unknown", "N/A", "nan"}
+
+def apply_sector_overrides(raw):
+    """Fill a missing/Unknown sector from SECTOR_OVERRIDES. Returns the list of tickers fixed.
+    Only fills when the cached sector is genuinely absent — never overrides a real sector."""
+    fixed = []
+    for tk, ov in SECTOR_OVERRIDES.items():
+        rec = raw.get(tk)
+        if isinstance(rec, dict) and rec.get("sector") in _MISSING_SECTORS:
+            rec["sector"] = ov
+            fixed.append(tk)
+    return fixed
+
+
 def unrounded_pillars(raw):
     """Reproduce scoring.score_universe's pillar averages WITHOUT the .round(2)
     that scoring applies when writing result columns. Uses scoring's own
@@ -65,6 +88,15 @@ def unrounded_pillars(raw):
     full-precision pillar scores for exact client-side composite recompute."""
     from scoring import _percentile_to_grade
     df = pd.DataFrame.from_dict(raw, orient="index")
+    # MIRROR scoring.score_universe's MIN_SECTOR guard EXACTLY: rank within sector, but for
+    # under-populated sectors (<10 members — e.g. a lone "Unknown"-sector name like MCW, the
+    # only such row) fall back to a universe-wide rank. Without this, a singleton sector makes
+    # rank(pct) a constant 1.0 → deterministic A+ on every higher-is-better metric (and F on
+    # inverted valuation) → an inflated junk composite that floats MCW to row 1. This block
+    # previously omitted the guard, so the DISPLAYED pillars diverged from score_universe's
+    # (guarded) composite — keep them identical here.
+    MIN_SECTOR = 10
+    sec_n = df["sector"].map(df["sector"].value_counts())
     out = {}
     for pillar_name, metrics in PILLAR_METRICS.items():
         metric_scores = []
@@ -73,9 +105,12 @@ def unrounded_pillars(raw):
                 continue
             col = pd.to_numeric(df[yf_key], errors="coerce")
             if higher:
-                pct = col.groupby(df["sector"]).rank(pct=True, na_option="bottom") * 100
+                sec_pct = col.groupby(df["sector"]).rank(pct=True, na_option="bottom") * 100
+                uni_pct = col.rank(pct=True, na_option="bottom") * 100
             else:
-                pct = (1 - col.groupby(df["sector"]).rank(pct=True, na_option="bottom")) * 100
+                sec_pct = (1 - col.groupby(df["sector"]).rank(pct=True, na_option="bottom")) * 100
+                uni_pct = (1 - col.rank(pct=True, na_option="bottom")) * 100
+            pct = sec_pct.where(sec_n >= MIN_SECTOR, uni_pct)
             grades = pct.apply(_percentile_to_grade)
             metric_scores.append(grades.map(GRADE_SCORES).fillna(1))
         if metric_scores:
@@ -116,6 +151,9 @@ def deep_clean(o):
 log("Loading no-floor universe for price histories...")
 base_tickers = get_broad_universe(0)
 base_raw = fetch_universe_data(base_tickers, 0, lambda p, m: None)
+_sec_fixed = apply_sector_overrides(base_raw)
+if _sec_fixed:
+    log(f"  sector backfill (base): filled {len(_sec_fixed)} missing/Unknown sectors -> {_sec_fixed}")
 
 # ── Fail-loud price guard ────────────────────────────────────────────────
 # The cache build (build_cache.py / prefetch) can lose currentPrice for nearly
@@ -188,6 +226,9 @@ def bake_floor(floor):
     log(f"=== floor {floor} ===")
     tickers = get_broad_universe(floor)
     raw = fetch_universe_data(tickers, floor, lambda p, m: None)
+    _sec_fixed = apply_sector_overrides(raw)
+    if _sec_fixed:
+        log(f"  sector backfill (floor {floor}): filled {len(_sec_fixed)} missing/Unknown sectors -> {_sec_fixed}")
     ph = {t: PH[t] for t in PH if t in raw}
     # ── Price robustness ──────────────────────────────────────────────────
     # The upstream currentPrice source intermittently returns null for nearly the
@@ -256,7 +297,7 @@ def bake_floor(floor):
         if not is_etf:
             fv_comp = None
             try:
-                fv = compute_fair_value(tk, scored)
+                fv = compute_fair_value(tk, scored, pred_12m=PRED12.get(tk), pred_12m_median=PRED12_MED)
                 if "error" not in fv:
                     d["fv"] = deep_clean(fv)
                     fv_comp = fv.get("composite_fair_value")
@@ -318,6 +359,28 @@ def bake_floor(floor):
     return meta
 
 
+# ML 12-month forecast for FV: load pred_12m + cohort median so compute_fair_value folds in the
+# "ML 12-Month Target" method (demeaned relative tilt). Must precede the bake_floor pass.
+def _load_pred12():
+    import glob as _g, pandas as _pd, math as _m, statistics as _st
+    _qh = os.path.join(os.path.dirname(ROOT), "quant-historical")
+    for _d in (os.path.join(_qh, "mlpred_v7_data", "reports", "predictions"), os.path.join(_qh, "reports", "predictions")):
+        if not os.path.isdir(_d): continue
+        _cs = sorted(_g.glob(os.path.join(_d, "universe_predictions_*.csv")))
+        if not _cs: continue
+        _df = _pd.read_csv(_cs[-1])
+        if "pred_12m" not in _df.columns: continue
+        _p = {}
+        for _, _r in _df.iterrows():
+            try: _f = float(_r.get("pred_12m"))
+            except Exception: continue
+            if not (_m.isnan(_f) or _m.isinf(_f)): _p[str(_r.get("ticker", ""))] = _f
+        if _p:
+            _med = _st.median(_p.values()); log(f"  FV<-ML: {len(_p)} pred_12m loaded, cohort median {_med*100:.2f}%")
+            return _p, _med
+    log("  FV<-ML: no universe_predictions CSV found; FV baked without the ML method")
+    return {}, None
+PRED12, PRED12_MED = _load_pred12()
 metas = {str(f): bake_floor(f) for f in FLOORS}
 
 meta = {

@@ -37,7 +37,8 @@ DEFAULT_RELATIVE_METRIC = {"key": "trailingPE", "name": "P/E", "label": "Trailin
 
 
 def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = None,
-                        current_price: float = None) -> dict:
+                        current_price: float = None,
+                        pred_12m: float = None, pred_12m_median: float = None) -> dict:
     """
     Compute fair value for a ticker.
 
@@ -78,10 +79,16 @@ def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = N
     r4 = _analyst_target(data)
     if r4: methods["Analyst Consensus"] = r4
 
+    # MLPred 12-month forecast as a forward target, RELATIVE (demeaned vs cohort median) so the
+    # all-positive pred_12m ranking signal tilts FV up/down by conviction rather than shifting every
+    # FV up. Weight 0.20 — same as Analyst Consensus, the other 12-month forward target.
+    r5 = _ml_target(price, pred_12m, pred_12m_median)
+    if r5: methods["ML 12-Month Target"] = r5
+
     if not methods:
         return {"ticker": ticker, "current_price": price, "error": "Insufficient data.", "methods": {}}
 
-    weights = {"PEG Fair Value": 0.30, "Earnings Capitalization": 0.25, "Analyst Consensus": 0.20}
+    weights = {"PEG Fair Value": 0.30, "Earnings Capitalization": 0.25, "Analyst Consensus": 0.20, "ML 12-Month Target": 0.20}
     for mn in methods:
         if "Quality-Adj" in mn: weights[mn] = 0.25
 
@@ -278,6 +285,24 @@ def _analyst_target(data: dict) -> dict | None:
         "assumptions": {
             "target": round(target, 2), "upside": f"{float(upside)*100:+.1f}%",
             "analysts": cnt, "method": f"Consensus of {cnt} analysts",
+        },
+    }
+
+
+def _ml_target(price: float, pred_12m: float, median: float) -> dict | None:
+    """ML 12-month forecast as a forward fair-value target, demeaned vs the cohort median so the
+    all-positive pred_12m signal tilts FV by relative conviction (neutral on average)."""
+    if pred_12m is None or median is None or not price or price <= 0: return None
+    tilt = float(pred_12m) - float(median)
+    fv = round(price * (1 + tilt), 2)
+    if fv <= 0 or not np.isfinite(fv): return None
+    return {
+        "fair_value": fv,
+        "premium_discount_pct": round((price / fv - 1) * 100, 1),
+        "assumptions": {
+            "pred_12m": f"{pred_12m*100:.1f}%", "cohort_median": f"{median*100:.1f}%",
+            "relative_tilt": f"{tilt*100:+.1f}%", "source": "MLPred v7 12-month forecast",
+            "method": "price * (1 + (pred_12m - cohort median)); demeaned relative tilt",
         },
     }
 
