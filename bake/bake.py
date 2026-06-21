@@ -439,6 +439,20 @@ try:
 except Exception as e:
     log(f"pundits.json skipped: {e}")
 
+# ── risk radar cache (LLM "what to watch" — narrative half of Macro Outlook) ──
+# build_risk_radar_cache.py (daily, Gemini-grounded) writes risk_radar_cache.json;
+# the bake copies it verbatim. Absent → skip (the tab shows a "pending" state until
+# the first CI generation). Same cache-backed model as pundits.
+try:
+    import shutil as _shr
+    for _p in ("risk_radar_cache.json", os.path.join("data_cache", "risk_radar_cache.json")):
+        if os.path.exists(_p):
+            _shr.copyfile(_p, f"{OUT}/risk_radar.json"); log("wrote risk_radar.json"); break
+    else:
+        log("risk_radar.json skipped: cache not found (run build_risk_radar_cache.py)")
+except Exception as e:
+    log(f"risk_radar.json skipped: {e}")
+
 # ── quarterly history (for Stock Detail quarterly earnings/margins trend) ──
 try:
     qmap = {}
@@ -584,10 +598,107 @@ try:
         market_static["fomc_meetings"] = list(_FALLBACK_2026_MEETINGS) + list(_FALLBACK_2027_MEETINGS)
     except Exception:
         market_static["fomc_meetings"] = []
+
+    # ── Macro signals + forward earnings path (keyless FRED, CI-safe) ──────────
+    # Idea #4: yield curve / credit spreads / breakevens / jobless claims — the
+    # free FRED series the Market Regime tab was missing (curve was hardcoded).
+    # Idea #3: a 1-year-ahead earnings TRAJECTORY from the Fed SEP's forward macro
+    # projections instead of a single static point estimate. Both best-effort and
+    # keyless (CI has no FRED_API_KEY); absent → omitted, never invented.
+    try:
+        import macro_forecasts as _mf2
+        market_static["macro_signals"] = _mf2.build_macro_signals()
+        _sep = _mf2.fetch_fred_sep()
+        if _sep:
+            _fedvals = _sep["row"]["values"]
+            _fwd = []
+            for _yr in (str(end.year), str(end.year + 1), str(end.year + 2)):
+                _infl = _fedvals.get("inflation", {}).get(_yr)
+                _unemp = _fedvals.get("unemployment", {}).get(_yr)
+                if _infl is None or _unemp is None:
+                    continue
+                _ef = _mc.compute_earnings_forecast(_infl, _unemp, _md.get("ism_composite"))
+                _fwd.append({"year": _yr, "pce_inflation": _infl, "unemployment": _unemp,
+                             "ism_assumed": _md.get("ism_composite"),
+                             "sp500_earnings_growth": _ef["sp500_earnings_growth"]})
+            if _fwd:
+                market_static["forward_earnings"] = {
+                    "as_of": _sep["row"].get("as_of"),
+                    "source": "Fed SEP forward projections (FRED Release 326); ISM held at current level",
+                    "note": ("Model's inflation term fed with SEP PCE (the Fed's gauge); "
+                             "the Fed does not project ISM, so it is held at the current reading."),
+                    "path": _fwd,
+                }
+        log(f"  macro_signals: {len(market_static['macro_signals']['signals'])} series; "
+            f"forward_earnings: {len(market_static.get('forward_earnings', {}).get('path', []))} yrs")
+    except Exception as _se:
+        log(f"  macro_signals/forward_earnings skipped: {_se}")
+
     json.dump(deep_clean(market_static), open(f"{OUT}/market_static.json", "w"), indent=2)
     log("wrote market_static.json")
 except Exception as e:
     log(f"market_static.json skipped: {e}")
+
+# ── Macro forecasts: cross-institution consensus panel + FOMC dot plot ─────────
+# Fed SEP (FRED Release 326, keyless), World Bank GEP (Data360), IMF WEO
+# (DataMapper) fetched live at bake time; bank/strategist house views are dated
+# curated snapshots (macro_house_views.json). Each forecaster row carries
+# source + as_of + live; missing cells stay null (DATA_INTEGRITY_STANDARD).
+# Powers the Macro Outlook tab (consensus table + dot plot).
+try:
+    import macro_forecasts as _mf
+    _fc = _mf.build_macro_forecasts()
+    json.dump(deep_clean(_fc), open(f"{OUT}/macro_forecasts.json", "w"), indent=2)
+    _n_live = sum(1 for s in _fc.get("sources", []) if s.get("live"))
+    log(f"wrote macro_forecasts.json ({len(_fc['consensus']['forecasters'])} forecasters, "
+        f"{_n_live} live, dot_plot={'yes' if _fc.get('dot_plot') else 'no'}, "
+        f"years={_fc['consensus']['years']})")
+    try:
+        _mp = f"{OUT}/freshness_manifest.json"
+        _man = json.load(open(_mp)) if os.path.exists(_mp) else {}
+        _man.setdefault("sources", {})["macro_forecasts"] = {
+            "source": ("macro_forecasts.build_macro_forecasts — FRED SEP (Release 326) + "
+                       "World Bank GEP + IMF WEO live; bank house views curated"),
+            "as_of": datetime.now().strftime("%Y-%m-%d"),
+            "forecasters": [s["name"] for s in _fc.get("sources", [])],
+            "n_live": _n_live,
+            "consumed_by": "Macro Outlook tab (consensus panel + FOMC dot plot)",
+            "check_status": "ok",
+        }
+        json.dump(_man, open(_mp, "w"), indent=2)
+    except Exception as _me:
+        log(f"  freshness_manifest macro_forecasts upsert skipped: {_me}")
+except Exception as e:
+    log(f"macro_forecasts.json skipped: {e}")
+
+# ── Mirror macro artifacts into the pro-v2 frontend (parity; pro-v2 has no bake) ──
+# quant-dashboard-pro-v2 is a second React frontend that CONSUMES baked data but
+# produces none. Keep its Macro Outlook tab + Market Regime additions fed: copy
+# macro_forecasts.json verbatim and MERGE the macro_signals + forward_earnings keys
+# into its market_static.json (preserving any pro-v2-specific fields — never a blind
+# overwrite). Best-effort and guarded: absent sibling dir → skip, never fail the bake.
+try:
+    _v2 = os.path.join(os.path.dirname(ROOT), "quant-dashboard-pro-v2", "public", "data")
+    if os.path.isdir(_v2):
+        import shutil as _sh2
+        for _fn in ("macro_forecasts.json", "risk_radar.json"):
+            _srcf = f"{OUT}/{_fn}"
+            if os.path.exists(_srcf):
+                _sh2.copyfile(_srcf, os.path.join(_v2, _fn))
+        _src_ms_p = f"{OUT}/market_static.json"
+        if os.path.exists(_src_ms_p):
+            _src_ms = json.load(open(_src_ms_p))
+            _v2_ms_p = os.path.join(_v2, "market_static.json")
+            _v2_ms = json.load(open(_v2_ms_p)) if os.path.exists(_v2_ms_p) else {}
+            for _k in ("macro_signals", "forward_earnings"):
+                if _k in _src_ms:
+                    _v2_ms[_k] = _src_ms[_k]
+            json.dump(_v2_ms, open(_v2_ms_p, "w"), indent=2)
+        log("mirrored macro artifacts -> quant-dashboard-pro-v2 (macro_forecasts.json + risk_radar.json + market_static macro keys)")
+    else:
+        log("pro-v2 mirror skipped: quant-dashboard-pro-v2/public/data not found")
+except Exception as e:
+    log(f"pro-v2 mirror skipped: {e}")
 
 # ── PGI money-market AUM (FRED MMMFFAQ027S, quarterly) — baked with an as-of date ──
 # The Potential Growth Indicator card divides money-market fund AUM by total market

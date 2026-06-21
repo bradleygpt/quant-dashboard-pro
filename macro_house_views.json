@@ -1,0 +1,20 @@
+{
+  "_note": "Curated bank/strategist house views for the Forecast Consensus panel. These outlooks are narrative PDFs with NO data feed, so figures are transcribed by hand from the published report and dated. NEVER invent numbers — only transcribe what the report states, and set as_of to the report's publication month. macro_forecasts.load_house_views() reads the 'forecasters' array and forces live=false.",
+  "_schema": {
+    "id": "short-slug (e.g. jpmorgan_wm)",
+    "name": "Display name (e.g. JPMorgan WM)",
+    "kind": "house",
+    "as_of": "YYYY-MM (report publication month)",
+    "source": "Report title",
+    "url": "https://… link to the PDF/page",
+    "notes": "any caveats (e.g. inflation = CPI; S&P target is year-end)",
+    "values": {
+      "gdp": {"2026": 0.0, "2027": 0.0},
+      "inflation": {"2026": 0.0},
+      "unemployment": {"2026": 0.0},
+      "fed_funds": {"2026": 0.0},
+      "sp500_target": {"2026": 0}
+    }
+  },
+  "forecasters": []
+}

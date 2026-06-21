@@ -189,6 +189,52 @@ def get_fed_funds_target_range() -> Optional[Dict]:
 # a hardcoded snapshot of the latest SEP (updated quarterly).
 
 
+# ───────────────────────────────────────────────────────────────
+# Free macro-signal series (yield curve, credit, inflation expectations, labor)
+# All free on FRED with the existing key. These fill the gaps the Market Regime
+# tab was missing (curve/spreads/breakevens were hardcoded or absent).
+# ───────────────────────────────────────────────────────────────
+
+# (series_id, label, unit, "good" direction for risk — higher_is_riskier)
+MACRO_SIGNALS = [
+    ("T10Y2Y",        "10Y–2Y Treasury spread",    "%",  "lower"),   # inversion = recession risk
+    ("T10Y3M",        "10Y–3M Treasury spread",    "%",  "lower"),   # Fed's preferred recession gauge
+    ("DGS10",         "10-Year Treasury",          "%",  None),
+    ("DGS2",          "2-Year Treasury",           "%",  None),
+    ("BAMLH0A0HYM2",  "High-Yield OAS",            "%",  "higher"),  # credit stress
+    ("BAMLC0A0CM",    "Investment-Grade OAS",      "%",  "higher"),
+    ("T5YIE",         "5Y breakeven inflation",    "%",  None),
+    ("T10YIE",        "10Y breakeven inflation",   "%",  None),
+    ("T5YIFR",        "5Y5Y forward inflation",    "%",  None),
+    ("ICSA",          "Initial jobless claims",    "k",  "higher"),  # labor-market stress
+]
+
+
+@_cache_data
+def get_macro_signals() -> Dict:
+    """Latest value + date for each free macro-signal series.
+
+    Returns {"signals": [{id, label, unit, risk_dir, value, date}...],
+             "as_of": <newest obs date>} — entries with a failed fetch are omitted
+    (graceful, never invented). Initial claims (ICSA) is scaled to thousands.
+    """
+    out = []
+    newest = ""
+    for sid, label, unit, risk_dir in MACRO_SIGNALS:
+        obs = get_latest_observation(sid)
+        if not obs:
+            continue
+        val = obs["value"]
+        if sid == "ICSA":  # FRED reports claims in persons → thousands for display
+            val = round(val / 1000.0, 1)
+        out.append({"id": sid, "label": label, "unit": unit, "risk_dir": risk_dir,
+                    "value": round(val, 3), "date": obs.get("date", "")})
+        if obs.get("date", "") > newest:
+            newest = obs["date"]
+    return {"signals": out, "as_of": newest or None,
+            "source": "FRED (free series)"}
+
+
 @_cache_data
 def get_sep_dot_plot() -> Optional[Dict]:
     """Fetch SEP median projection data from FRED, with hardcoded fallback.

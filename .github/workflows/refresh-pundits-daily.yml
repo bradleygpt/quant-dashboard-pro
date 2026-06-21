@@ -1,6 +1,6 @@
 name: Daily Pundits Refresh
 # Runs at 6 AM ET on weekdays (10 AM UTC during EDT)
-# Single Gemini call per section (equity + crypto) = 2 API calls/day total
+# Single Gemini call per section (equity + crypto + macro risk radar) = 3 API calls/day total
 
 on:
   schedule:
@@ -45,18 +45,30 @@ jobs:
           ls -lh pundits_cache.json
           echo "Cache size: $(wc -c < pundits_cache.json) bytes"
 
+      # Macro Risk Radar — narrative "what to watch" for the Macro Outlook tab.
+      # Secondary to pundits: continue-on-error so a radar failure never blocks
+      # the pundits commit. Same single grounded Gemini call pattern.
+      - name: Run risk radar cache builder
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "Starting risk radar refresh at $(date)"
+          python build_risk_radar_cache.py || echo "risk radar build failed (non-blocking)"
+          [ -f risk_radar_cache.json ] && ls -lh risk_radar_cache.json || echo "no risk_radar_cache.json"
+
       - name: Commit and push updated cache
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
-          git add pundits_cache.json
+          git add pundits_cache.json risk_radar_cache.json 2>/dev/null || git add pundits_cache.json
           echo "=== Status before commit ==="
           git status
           if git diff --staged --quiet; then
             echo "No changes detected. Nothing to commit."
             exit 0
           fi
-          git commit -m "chore: pundits refresh $(date -u +%Y-%m-%d)"
+          git commit -m "chore: pundits + risk radar refresh $(date -u +%Y-%m-%d)"
           git fetch origin main
           git rebase origin/main || (echo "Rebase failed"; git rebase --abort 2>/dev/null || true)
           echo "=== Pushing ==="
