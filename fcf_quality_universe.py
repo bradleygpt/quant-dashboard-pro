@@ -60,10 +60,16 @@ def main(limit=None):
         time.sleep(0.04)
     out.sort(key=lambda x: (x["sbc_pct_mktcap"] is None, -(x["sbc_pct_mktcap"] or 0)))
     n_sbc = sum(1 for x in out if x["sbc"] is not None)
+    # slim rows for the client fetch (the panel + a future screen need ~these fields, not the
+    # full nested schema) — keeps fcf_distortion.json ~halved.
+    KEEP = ["ticker", "name", "sector", "market_cap", "fcf_reported", "fcf_fully_adjusted", "sbc",
+            "sbc_pct_ocf", "sbc_pct_mktcap", "reported_fcf_yield", "true_fcf_yield",
+            "total_distortion_usd", "total_distortion_pct_mktcap", "cash_tax_below_normal",
+            "fully_adjusted_complete", "applicable", "exclude_reason"]
     payload = {"generated_at": target.strftime("%Y-%m-%d"), "version": VERSION,
                "n": len(out), "n_with_sbc": n_sbc, "sort": "sbc_pct_mktcap desc",
                "note": "true FCF = OCF-capex-SBC (SBC expensed). EDGAR point-in-time TTM; price/mktcap from the baked universe. Cash-tax flagged not subtracted (v1).",
-               "rows": out}
+               "rows": [{k: r.get(k) for k in KEEP} for r in out]}
     for repo in DASH:
         if repo.exists():
             json.dump(payload, open(repo / "fcf_distortion.json", "w"), separators=(",", ":"), default=str)
