@@ -14,7 +14,7 @@ web/public/data/. Outputs:
 Preset/custom-weight switching is done CLIENT-SIDE: composite = Σ(pillar×weight),
 ratings re-derived from composite + FV/QBP (all preset-independent here).
 """
-import json, math, sys, os
+import json, math, sys, os, time as _time
 from datetime import datetime, timedelta
 
 # Run the repo's real modules: make the repo root importable and the cwd, so
@@ -508,21 +508,33 @@ try:
     import urllib.request as _ur4
     _md = dict(_mc.MACRO_DATA)  # copy — don't mutate the imported module dict
 
-    def _fred_rows(sid):
+    def _fred_rows(sid, _retries=4):
+        # Retry with backoff: the keyless fredgraph endpoint intermittently times out from CI/bake
+        # IPs, and a single failure used to drop CPI/Unemp back to stale static values. Keep trying.
         _u = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}"
-        _rq = _ur4.Request(_u, headers={"User-Agent": "Mozilla/5.0 (compatible; QuantDashboard/2.0)"})
-        with _ur4.urlopen(_rq, timeout=20) as _r:
-            _txt = _r.read().decode()
-        _out = []
-        for _ln in _txt.strip().split("\n")[1:]:
-            _p = _ln.split(",")
-            if len(_p) < 2 or _p[1] in ("", "."):
-                continue
+        _last = None
+        for _a in range(_retries):
             try:
-                _out.append((_p[0], float(_p[1])))
-            except ValueError:
-                continue
-        return _out
+                _rq = _ur4.Request(_u, headers={"User-Agent": "Mozilla/5.0 (compatible; QuantDashboard/2.0)"})
+                with _ur4.urlopen(_rq, timeout=30) as _r:
+                    _txt = _r.read().decode()
+                _out = []
+                for _ln in _txt.strip().split("\n")[1:]:
+                    _p = _ln.split(",")
+                    if len(_p) < 2 or _p[1] in ("", "."):
+                        continue
+                    try:
+                        _out.append((_p[0], float(_p[1])))
+                    except ValueError:
+                        continue
+                if _out:
+                    return _out
+            except Exception as _e:
+                _last = _e
+                _time.sleep(1.5 * (_a + 1))
+        if _last:
+            raise _last
+        return []
 
     _static_asof = _md.get("last_updated")
     # Unemployment — UNRATE, direct latest value.
