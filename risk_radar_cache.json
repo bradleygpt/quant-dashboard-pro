@@ -1,0 +1,10 @@
+{
+  "last_updated_utc": "2026-06-22T15:26:07.652151+00:00",
+  "last_updated_human": "2026-06-22 15:26 UTC",
+  "as_of_window": null,
+  "risks": [],
+  "consensus_note": "",
+  "themes": [],
+  "status": "failed",
+  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
+}

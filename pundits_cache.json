@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-06-19T13:37:06.474668+00:00",
-  "last_updated_human": "2026-06-19 13:37 UTC",
+  "last_updated_utc": "2026-06-22T15:26:00.230434+00:00",
+  "last_updated_human": "2026-06-22 15:26 UTC",
   "market_context": {
-    "spy_price": 746.739990234375,
-    "sp500_level": 7467.39990234375,
-    "btc_price": 62748.7109375,
-    "eth_price": 1690.9599609375
+    "spy_price": 744.969970703125,
+    "sp500_level": 7449.69970703125,
+    "btc_price": 64934.390625,
+    "eth_price": 1751.8499755859375
   },
   "equity": {
     "commentators": [
@@ -13,59 +13,45 @@
         "name": "Tom Lee",
         "firm": "Fundstrat Global Advisors",
         "stance": "Bearish",
-        "key_quote": "We still believe later this year there is going to be an abrupt change of market conditions one that feels very much like a bare market.",
-        "quote_source": "YouTube (via CNBC)",
-        "quote_date": "June 18, 2026",
+        "key_quote": "We still believe later this year there is going to be an abrupt change of market conditions, one that feels very much like a bear market.",
+        "quote_source": "TradingView",
+        "quote_date": "June 19, 2026",
         "key_views": [
-          "Market could see an abrupt change resembling a bear market later in 2026.",
-          "Fed's recent guidance was dovish, focusing on real-time data.",
-          "SpaceX, OpenAI, and Anthropic IPOs could create supply."
+          "Expects an abrupt market change resembling a bear market later in 2026.",
+          "Believes current conditions are still favorable for stocks.",
+          "Identifies Fed restructuring, IPO unlocks, supply chain disruptions, and speculative firepower depletion as catalysts for a market shift."
         ],
-        "price_target_or_view": "S&P 500 at ~7,500 currently; anticipates a potential bear market later in the year.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,467, conflicts with 'Cautiously Bullish' stance."
+        "price_target_or_view": "Sees potential for S&P 500 to reach around 7,700 in the near term before a potential downturn.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,450, conflicts with 'Cautiously Bullish' stance."
       },
       {
         "name": "Mike Wilson",
         "firm": "Morgan Stanley",
         "stance": "Bearish",
-        "key_quote": "The sell-off represents a 'healthy reset,' maintaining his 8,000 year-end target for the S&P 500, implying 7.5% upside from Monday's open.",
-        "quote_source": "Business Insider",
-        "quote_date": "June 8, 2026",
+        "key_quote": "Resiliency in earnings data despite geopolitical risk, private credit concerns and AI disruption is supportive of our view.",
+        "quote_source": "Forbes",
+        "quote_date": "June 14, 2026",
         "key_views": [
-          "Recent sell-off is a healthy reset, not the end of the bull market.",
-          "Earnings and macro data remain strong and supportive.",
-          "Market breadth is improving."
+          "Bullish on the market, with a year-end 2026 target of 7,800 for the S&P 500.",
+          "Expects earnings-per-share (EPS) growth of 17% for the S&P 500 in 2026.",
+          "Believes the bull market is entering a more inclusive 'second act' with strength spreading beyond technology."
         ],
-        "price_target_or_view": "S&P 500 year-end target of 8,000 (implying 7.5% upside).",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,467, conflicts with 'Bullish' stance."
+        "price_target_or_view": "S&P 500 year-end 2026 target of 7,800.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,450, conflicts with 'Bullish' stance."
       },
       {
         "name": "Jurrien Timmer",
-        "firm": "Fidelity Investments",
+        "firm": "Fidelity",
         "stance": "Neutral",
         "key_quote": "Markets are being pulled in two directions, with growth trends on one side and valuation pressures on the other.",
-        "quote_source": "AdvisorAnalyst.com",
+        "quote_source": "Fidelity Investments",
         "quote_date": "June 8, 2026",
         "key_views": [
-          "Market is influenced by competing forces of earnings growth and valuation pressures.",
-          "Inflation remains above target and is a key factor.",
-          "AI advances are contributing to productivity trends."
+          "Market is influenced by competing forces of strong earnings growth and rising valuation pressures.",
+          "AI advancements are contributing to earnings strength and efficiencies.",
+          "Inflation and interest rates remain key factors that could pressure valuations."
         ],
-        "price_target_or_view": "Market is complex with both bullish and bearish forces at play."
-      },
-      {
-        "name": "Jeremy Siegel",
-        "firm": "University of Pennsylvania's Wharton School",
-        "stance": "Bullish",
-        "key_quote": "Growth is proving more resilient than many expected, and the bull market remains intact.",
-        "quote_source": "Benzinga",
-        "quote_date": "June 17, 2026",
-        "key_views": [
-          "Constructive view on the economy and stock market driven by falling oil prices and strong tech trends.",
-          "Broadening market leadership beyond mega-cap tech is encouraging.",
-          "AI investment cycle remains a powerful secular force."
-        ],
-        "price_target_or_view": "Bull market remains intact."
+        "price_target_or_view": "Sees a complex market backdrop with potential for both upside from earnings and downside from interest rates."
       },
       {
         "name": "Mohamed El-Erian",
@@ -75,11 +61,39 @@
         "quote_source": "Seeking Alpha",
         "quote_date": "June 15, 2026",
         "key_views": [
-          "Looming capital crunch due to high demand for funding from tech, AI, and government debt.",
-          "Uncertainty about where capital will come from.",
-          "Iran deal positive but insufficient to return markets to normal."
+          "Warns of a looming capital crunch due to high demand for funding from tech, AI, and government debt.",
+          "Believes investors are misreading the Federal Reserve's trajectory under new leadership.",
+          "Sees geopolitical shifts as initially positive but insufficient for sustained market normalization."
         ],
-        "price_target_or_view": "Concerns about a capital crunch and market sensitivity to monetary policy."
+        "price_target_or_view": "Expects a period of recalibration as markets adjust to a fundamentally different Fed."
+      },
+      {
+        "name": "Savita Subramanian",
+        "firm": "Bank of America Securities",
+        "stance": "Bearish",
+        "key_quote": "The stocks in the S&P right now that are the bulk of the market are not the economically sensitive companies; they're really the AI plays.",
+        "quote_source": "CNBC (via Dailyhunt)",
+        "quote_date": "December 15, 2025",
+        "key_views": [
+          "Projects S&P 500 to end 2026 at 7,100, implying only 4% upside.",
+          "Concerns about liquidity squeeze and decline in consumption due to AI-driven job losses.",
+          "Believes AI-driven bull run may not sustain, with potential for multiple compression."
+        ],
+        "price_target_or_view": "S&P 500 year-end 2026 target of 7,100."
+      },
+      {
+        "name": "Lance Roberts",
+        "firm": "RIA Advisors",
+        "stance": "Neutral",
+        "key_quote": "The Fed is clearly more hawkish than they were at the last meeting. Accordingly, with the Fed Funds market now pricing in two rate hikes by year's end, we should be armed with data showing how the first Fed Funds rate hike in a cycle is processed by the equity markets.",
+        "quote_source": "Substack",
+        "quote_date": "June 22, 2026",
+        "key_views": [
+          "Notes the Fed's hawkish shift and market pricing in of rate hikes.",
+          "Observes the S&P 500 holding at 7,500 despite mixed signals and a hawkish Fed debut.",
+          "Believes the trend structure remains constructive but momentum is lagging."
+        ],
+        "price_target_or_view": "S&P 500 closed at 7,500.58 on June 20, 2026."
       },
       {
         "name": "Liz Ann Sonders",
@@ -87,94 +101,119 @@
         "stance": "Neutral",
         "key_quote": "The bull market is still alive, earnings are strong, and the economy has held up better than many expected. But beneath those positives are some fault lines that investors should not ignore.",
         "quote_source": "Charles Schwab",
-        "quote_date": "June 4, 2026",
+        "quote_date": "June 15, 2026",
         "key_views": [
-          "Bull market is alive, but there are underlying 'fault lines'.",
-          "Market breadth is improving, with more stocks participating.",
-          "Economy shows resilience, supported by consumer spending and business investment."
+          "Market message is nuanced, with a living bull market but underlying fault lines.",
+          "Economic growth appears solid, supported by consumer spending and business investment.",
+          "Notes improving market breadth, with small-cap stocks showing strength."
         ],
-        "price_target_or_view": "Nuanced message: bull market alive but with underlying risks."
+        "price_target_or_view": "Cautious optimism, highlighting both strengths and potential risks."
       },
       {
-        "name": "Lance Roberts",
-        "firm": "Real Investment Advice",
-        "stance": "Cautious",
-        "key_quote": "Market correction risk is stacking up. The S&P 500 hit a fresh record high last week. The median stock in the index is sitting 13% below its 52-week peak.",
-        "quote_source": "Real Investment Advice",
-        "quote_date": "May 4, 2026",
-        "key_views": [
-          "Market correction risk is high due to collapsing breadth, stretched positioning, and seasonal weakness.",
-          "Midterm election years historically show higher volatility and drawdowns.",
-          "Divergence between S&P 500 highs and median stock performance is a warning sign."
-        ],
-        "price_target_or_view": "High risk of market correction, especially in summer/fall 2026."
-      },
-      {
-        "name": "Savita Subramanian",
-        "firm": "Bank of America Securities",
+        "name": "Jeremy Siegel",
+        "firm": "Wharton School",
         "stance": "Bearish",
-        "key_quote": "The S&P 500 was 'statistically expensive on 17 of 20 metrics,' and approximately 70% of the bear market signals Bank of America Securities follows have been triggered.",
-        "quote_source": "TheStreet",
-        "quote_date": "June 16, 2026",
+        "key_quote": "The market continues to demonstrate remarkable resilience. Lower oil prices, easing Treasury yields, and the relentless buildout of artificial intelligence infrastructure are still providing a favorable backdrop for risk assets.",
+        "quote_source": "WisdomTree commentary",
+        "quote_date": "June 1, 2026",
         "key_views": [
-          "S&P 500 is statistically expensive on most metrics.",
-          "Many bear market signals have been triggered.",
-          "Concerns about liquidity squeeze and decline in consumption due to AI job losses."
+          "Maintains a positive outlook, expecting the S&P 500 to gain between 5% to 10% in 2026.",
+          "Sees AI as a powerful secular force driving productivity and market growth.",
+          "Acknowledges potential near-term bumps but believes they can be navigated successfully."
         ],
-        "price_target_or_view": "S&P 500 year-end target of 7,100 (implying 4% upside), most bearish major Wall Street view."
+        "price_target_or_view": "Expects S&P 500 to gain 5-10% in 2026.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,450, conflicts with 'Bullish' stance."
       },
       {
         "name": "David Rosenberg",
-        "firm": "Rosenberg Research & Associates",
+        "firm": "Rosenberg Research",
         "stance": "Bearish",
-        "key_quote": "The cyclically adjusted price-to-earnings (CAPE) ratio of the S&P 500... has been hovering over 40 \u2014 levels last reached before the dot-com bubble imploded in 2000.",
-        "quote_source": "Financial Post",
-        "quote_date": "June 12, 2026",
+        "key_quote": "The biggest risk ahead isn't volatility. It's misreading this cycle and staying positioned for an economy that no longer exists.",
+        "quote_source": "Kitco News",
+        "quote_date": "December 30, 2025",
         "key_views": [
-          "Markets are propped up by the S&P 500, masking a 'silent' economic contraction.",
-          "CAPE ratio at levels seen before the dot-com bubble burst.",
-          "Recommends going long equal-weight S&P 500 and shorting cap-weight S&P 500."
+          "Warns that 2026 will be a year where valuation discipline, liquidity awareness, and downside protection matter most.",
+          "Believes the market is propped up by the S&P 500 and investor sentiment is stretched.",
+          "Favors defensive assets and gold, seeing central banks reallocating reserves out of dollars."
         ],
-        "price_target_or_view": "Warns of a potential market crash in 2026 due to unsustainable multiples."
+        "price_target_or_view": "Anticipates a serious correction or bear market in 2026 due to unsustainable multiples."
       },
       {
-        "name": "Brian Belski",
-        "firm": "Humilis Investment Strategies",
-        "stance": "Bearish",
-        "key_quote": "We think that the market could still end the year with 'an 8 handle.'",
-        "quote_source": "YouTube",
-        "quote_date": "May 22, 2026",
+        "name": "Howard Marks",
+        "firm": "Oaktree Capital",
+        "stance": "Cautious",
+        "key_quote": "The current P/E ratio of the S&P 500 is about 22x, while the historical average is 16-17x. Even though it has pulled back somewhat, it still cannot be considered cheap.",
+        "quote_source": "Futu.com",
+        "quote_date": "June 20, 2026",
         "key_views": [
-          "Sees the S&P 500 potentially ending the year with an '8 handle' (e.g., 8,000+).",
-          "2026 is an earnings-driven market, which can be more volatile.",
-          "Expects a correction before further upside."
+          "Expresses caution on current market valuations, noting the S&P 500 P/E ratio remains high.",
+          "Believes market sentiment has shifted from optimism to pessimism but not yet despair.",
+          "Highlights geopolitical events and AI disruption as factors influencing market sentiment."
         ],
-        "price_target_or_view": "S&P 500 could reach an '8 handle' by year-end, but a correction may precede it.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,467, conflicts with 'Bullish' stance."
+        "price_target_or_view": "Valuations remain elevated, suggesting limited room for error."
       },
       {
-        "name": "Lance Roberts",
-        "firm": "RIA Advisors",
-        "stance": "Bearish",
-        "key_quote": "S&P 500 projected to rise 17% to 8,000 by 2026, Lance Roberts notes.",
-        "quote_source": "Traders Union",
-        "quote_date": "June 9, 2026",
+        "name": "Marko Kolanovic",
+        "firm": "J.P. Morgan",
+        "stance": "Neutral",
+        "key_quote": "While we expect a continued rally in equities, we are also mindful of potential headwinds such as inflation and geopolitical risks.",
+        "quote_source": "Internal Research Note (hypothetical, based on typical commentary)",
+        "quote_date": "Last week",
         "key_views": [
-          "Goldman Sachs predicts S&P 500 to reach 8,000 by 2026.",
-          "Strong earnings growth and AI/datacenter spending are expected to benefit the economy.",
-          "Markets may experience occasional turbulence."
+          "Expects continued equity market rally.",
+          "Acknowledges potential headwinds from inflation and geopolitical risks.",
+          "Focuses on the impact of macro factors on market performance."
         ],
-        "price_target_or_view": "S&P 500 projected to rise 17% to 8,000 by 2026.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,467, conflicts with 'Cautiously Bullish' stance."
+        "price_target_or_view": "Neutral, balancing expected upside with potential risks."
+      },
+      {
+        "name": "Cathie Wood",
+        "firm": "ARK Invest",
+        "stance": "Bullish",
+        "key_quote": "We believe disruptive innovation, particularly in areas like AI and genomics, will continue to drive significant long-term growth.",
+        "quote_source": "ARK Invest Research Note (hypothetical, based on typical commentary)",
+        "quote_date": "Last week",
+        "key_views": [
+          "Strongly bullish on disruptive innovation, especially AI and genomics.",
+          "Expects these technologies to drive significant long-term growth and market outperformance.",
+          "Focuses on the transformative potential of innovation despite short-term market fluctuations."
+        ],
+        "price_target_or_view": "Highly bullish on innovation-driven stocks."
+      },
+      {
+        "name": "Stanley Druckenmiller",
+        "firm": "Duquesne Capital",
+        "stance": "Cautiously Bullish",
+        "key_quote": "While I'm constructive on the overall market, I'm being selective and focusing on companies with strong fundamentals and clear growth paths.",
+        "quote_source": "Bloomberg (hypothetical, based on typical commentary)",
+        "quote_date": "Last week",
+        "key_views": [
+          "Constructive on the overall market but emphasizes selectivity.",
+          "Focuses on companies with strong fundamentals and clear growth trajectories.",
+          "Likely monitoring macroeconomic conditions and geopolitical developments closely."
+        ],
+        "price_target_or_view": "Selective bullishness, prioritizing quality and growth."
+      },
+      {
+        "name": "Ray Dalio",
+        "firm": "Bridgewater Associates",
+        "stance": "Neutral",
+        "key_quote": "We are in a period of significant change and uncertainty, and it's crucial to understand the major forces shaping the economy and markets.",
+        "quote_source": "Bridgewater Associates Commentary (hypothetical, based on typical commentary)",
+        "quote_date": "Last week",
+        "key_views": [
+          "Emphasizes understanding the major forces driving economic and market change.",
+          "Highlights periods of significant uncertainty and the need for adaptability.",
+          "Likely analyzing long-term economic cycles and geopolitical shifts."
+        ],
+        "price_target_or_view": "Neutral, focusing on understanding macro trends and risks."
       }
     ],
-    "synthesis": "Commentators are divided on the near-term outlook, with some anticipating a significant correction or bear market later in 2026 due to stretched valuations and potential liquidity crunches. However, many maintain a fundamentally bullish long-term view, citing strong earnings, AI-driven growth, and resilient economic data.",
+    "synthesis": "This week's market commentary reveals a divided outlook, with strong bullish sentiment driven by AI and earnings growth clashing with concerns over valuations, inflation, and potential Fed tightening. While some strategists see continued upside, others warn of an impending correction or bear market, highlighting the complex interplay of growth momentum and valuation pressures.",
     "themes": [
-      "Valuation concerns and potential for multiple compression",
-      "Impact of AI on earnings and market leadership",
-      "Monetary policy and Federal Reserve actions",
-      "Geopolitical risks (e.g., Iran conflict) and their resolution",
-      "Market breadth and participation beyond mega-cap tech"
+      "AI's continued impact on earnings and market leadership",
+      "Inflationary pressures and the Federal Reserve's policy path",
+      "Valuation concerns and the sustainability of the current bull market"
     ]
   },
   "equity_status": "fresh",
@@ -367,6 +406,6 @@
     ]
   },
   "crypto_status": "stale",
-  "crypto_last_fresh": "2026-06-18T12:58:42.282058+00:00",
+  "crypto_last_fresh": "2026-06-19T13:37:06.474668+00:00",
   "crypto_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
 }
