@@ -12,6 +12,7 @@ LLM). Reads names/context from the baked universe.
   python build_earnings_reviews.py MU CRM SNOW # specific tickers
 """
 import sys, json, time, logging
+from pathlib import Path
 logging.getLogger("streamlit").setLevel(logging.ERROR)  # silence the bare-mode ScriptRunContext warnings
 
 # The Streamlit app gates ai_assistant.call_llm behind a login (auth.is_logged_in()), which can't
@@ -91,9 +92,30 @@ def run(tickers):
           f"-> ai_earnings_cache.json (bake copies it to earnings_reviews.json)", file=sys.stderr)
 
 
+def current_holdings():
+    """The current combined-book holdings across the 5 strategies (your actual positions) —
+    the high-value subset that fits the Gemini free tier in a single daily run."""
+    base = Path(UNIVERSE).parent
+    h = set()
+    try:
+        c = json.load(open(base / "c78q.json"))
+        h.update(r["ticker"] for r in c["target"]["rows"])
+    except Exception:
+        pass
+    for s in ("aristeia", "auxo", "prosodos", "pronoia"):
+        try:
+            d = json.load(open(base / f"{s}_strategy.json"))
+            h.update(d.get("current_holdings", {}).get("tickers", []))
+        except Exception:
+            pass
+    return sorted(h)
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
-    if args and args[0].isdigit():
+    if args and args[0] == "--holdings":
+        tks = current_holdings()
+    elif args and args[0].isdigit():
         tks = list(rowmap)[: int(args[0])]
     elif args:
         tks = [a.upper() for a in args]
