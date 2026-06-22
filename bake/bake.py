@@ -453,6 +453,19 @@ try:
 except Exception as e:
     log(f"risk_radar.json skipped: {e}")
 
+# ── house-views freshness (twice-monthly staleness watchdog status board) ──
+# build_house_views_freshness.py writes house_views_freshness.json; the bake copies it
+# so the consensus panel can badge a stale bank view. Absent → skip (no badge).
+try:
+    import shutil as _shr
+    if os.path.exists("house_views_freshness.json"):
+        _shr.copyfile("house_views_freshness.json", f"{OUT}/house_views_freshness.json")
+        log("wrote house_views_freshness.json")
+    else:
+        log("house_views_freshness.json skipped: not found (run build_house_views_freshness.py)")
+except Exception as e:
+    log(f"house_views_freshness.json skipped: {e}")
+
 # ── quarterly history (for Stock Detail quarterly earnings/margins trend) ──
 try:
     qmap = {}
@@ -681,7 +694,7 @@ try:
     _v2 = os.path.join(os.path.dirname(ROOT), "quant-dashboard-pro-v2", "public", "data")
     if os.path.isdir(_v2):
         import shutil as _sh2
-        for _fn in ("macro_forecasts.json", "risk_radar.json"):
+        for _fn in ("macro_forecasts.json", "risk_radar.json", "house_views_freshness.json"):
             _srcf = f"{OUT}/{_fn}"
             if os.path.exists(_srcf):
                 _sh2.copyfile(_srcf, os.path.join(_v2, _fn))

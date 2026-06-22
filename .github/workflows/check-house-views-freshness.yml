@@ -1,0 +1,98 @@
+name: House-Views Freshness Watchdog
+# Twice-monthly (1st + 15th, 09:00 UTC). One grounded Gemini call per tracked
+# institution (JPM / Wells Fargo / Guggenheim / KPMG) to detect when a NEWER outlook
+# exists than what's transcribed in macro_house_views.json. Drafts UNVERIFIED candidate
+# figures (each with a verbatim source quote) into macro_house_views_candidates.json for
+# human verification — it never touches the live panel. Zero cost (shares GEMINI_API_KEY).
+# Opens/updates a GitHub issue listing what needs re-transcription.
+
+on:
+  schedule:
+    - cron: '0 9 1,15 * *'   # 09:00 UTC on the 1st and the 15th
+  workflow_dispatch:
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      # Non-blocking: a Gemini hiccup must not fail the commit/issue steps. The script
+      # only exits non-zero if EVERY institution check failed.
+      - name: Run freshness watchdog
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "Starting house-views freshness check at $(date)"
+          python build_house_views_freshness.py || echo "freshness build failed (non-blocking)"
+          [ -f house_views_freshness.json ] && cat house_views_freshness.json || echo "no freshness file"
+
+      - name: Commit freshness + candidate staging files
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add house_views_freshness.json macro_house_views_candidates.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No changes detected. Nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore: house-views freshness check $(date -u +%Y-%m-%d)"
+          # push-race guard (required on all main-pushing workflows in this repo)
+          git fetch origin main
+          git rebase origin/main || (echo "Rebase failed"; git rebase --abort 2>/dev/null || true)
+          git push origin main
+
+      - name: Open / update review issue when anything is stale or new
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let f;
+            try { f = JSON.parse(fs.readFileSync('house_views_freshness.json', 'utf8')); }
+            catch (e) { core.info('no freshness file to report on'); return; }
+            const action = (f.forecasters || []).filter(r => r.status === 'stale' || r.status === 'new');
+            if (!action.length) { core.info('all house views current — no issue needed'); return; }
+            const lines = action.map(r =>
+              `- **${r.name}** — \`${r.status}\` (latest report ${r.report_month || '?'} vs transcribed ${r.prior_as_of || 'none'})` +
+              (r.url ? `\n  - ${r.report_title || 'report'}: ${r.url}` : '')
+            );
+            const body = [
+              `### House-views freshness — ${f.checked_human || ''}`,
+              ``,
+              `${action.length} source(s) need re-transcription. Drafted candidate figures (with verbatim source quotes) are staged in \`macro_house_views_candidates.json\` — **verify each quote against the cited PDF**, then promote the verified rows into \`macro_house_views.json\`.`,
+              ``,
+              ...lines,
+              ``,
+              `_Never merge a figure whose quote doesn't plainly state the number. The live consensus panel reads only \`macro_house_views.json\`, never the candidates file._`,
+            ].join('\n');
+            const title = '⚠ House-views may be stale — verify + re-transcribe';
+            const open = (await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'house-views-stale',
+            })).data[0];
+            if (open) {
+              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: open.number, body });
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: open.number,
+                body: `Re-checked ${f.checked_human || ''}: ${action.length} source(s) still need action.` });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['house-views-stale'] });
+            }

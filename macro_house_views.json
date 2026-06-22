@@ -1,5 +1,5 @@
 {
-  "_note": "Curated bank/strategist house views for the Forecast Consensus panel. These outlooks are narrative PDFs with NO data feed, so figures are transcribed by hand from the published report and dated. NEVER invent numbers — only transcribe what the report states, and set as_of to the report's publication month. macro_forecasts.load_house_views() reads the 'forecasters' array and forces live=false.",
+  "_note": "Curated bank/strategist house views for the Forecast Consensus panel. These outlooks are narrative PDFs/HTML with NO data feed, so figures are transcribed by hand from the published report and dated. NEVER invent numbers — only transcribe what the report states, and set as_of to the report's publication month. macro_forecasts.load_house_views() reads the 'forecasters' array and forces live=false. Ranges (fed-funds target range, S&P target range) are stored as the midpoint with the exact published range preserved in 'notes', because the UI formats values as single numbers.",
   "_schema": {
     "id": "short-slug (e.g. jpmorgan_wm)",
     "name": "Display name (e.g. JPMorgan WM)",
@@ -16,5 +16,127 @@
       "sp500_target": {"2026": 0}
     }
   },
-  "forecasters": []
+  "forecasters": [
+    {
+      "id": "wells_fargo_ii",
+      "name": "Wells Fargo Inv. Institute",
+      "kind": "house",
+      "as_of": "2026-06",
+      "source": "WFII 2026 Midyear Outlook",
+      "url": "https://sites.wf.com/outlook/",
+      "notes": "Released Jun 16, 2026. Inflation = CPI. Fed funds = year-end target range 3.50–3.75% for both 2026 and 2027 (midpoint shown). S&P 500 = year-end target range (midpoint shown): 7,800–8,000 (2026), 8,600–8,800 (2027).",
+      "values": {
+        "gdp": {"2026": 2.2, "2027": 2.4},
+        "inflation": {"2026": 3.4, "2027": 2.8},
+        "unemployment": {"2026": 4.7, "2027": 4.9},
+        "fed_funds": {"2026": 3.625, "2027": 3.625},
+        "sp500_target": {"2026": 7900, "2027": 8700}
+      }
+    },
+    {
+      "id": "fannie_mae_esr",
+      "name": "Fannie Mae (ESR)",
+      "kind": "house",
+      "as_of": "2026-06",
+      "source": "Fannie Mae ESR Economic Forecast: June 2026",
+      "url": "https://www.fanniemae.com/research-and-insights/forecast",
+      "notes": "June 10, 2026 ESR forecast (rates as of May 29, 2026). GDP & CPI are Q4/Q4; unemployment & fed funds are annual averages. Inflation = headline CPI (3.6% 2026 / 1.9% 2027); ESR also publishes core CPI 3.0/2.5, PCE 3.6/2.0, core PCE 3.3/2.2. Fed funds flat at 3.6% (annual avg) through 2027.",
+      "values": {
+        "gdp": {"2026": 2.0, "2027": 2.4},
+        "inflation": {"2026": 3.6, "2027": 1.9},
+        "unemployment": {"2026": 4.3, "2027": 4.3},
+        "fed_funds": {"2026": 3.6, "2027": 3.6}
+      }
+    },
+    {
+      "id": "kpmg",
+      "name": "KPMG Economics",
+      "kind": "house",
+      "as_of": "2026-06",
+      "source": "KPMG Economic Compass (midyear 2026–27)",
+      "url": "https://kpmg.com/us/en/articles/2026/june-2026-economic-compass.html",
+      "notes": "GDP is Q4/Q4 basis (2.2% 2026, 2.1% 2027). Inflation = PCE (the Fed's gauge), expected to plateau at ~4% later in 2026 (no 2027 point published). KPMG expects the Fed to hike in H2 2026 (no explicit rate level given); unemployment seen in the low-4% range.",
+      "values": {
+        "gdp": {"2026": 2.2, "2027": 2.1},
+        "inflation": {"2026": 4.0}
+      }
+    },
+    {
+      "id": "guggenheim",
+      "name": "Guggenheim Investments",
+      "kind": "house",
+      "as_of": "2026-06",
+      "source": "Economic Outlook & Key Themes (Monthly Commentary, Jun 2026)",
+      "url": "https://portal.guggenheiminvestments.com/GuggenheimInvestments/media/PDF/Economic-Outlook-and-Key-Themes-Monthly-Commentary.pdf",
+      "notes": "GDP = 'real GDP growth holding around 2 percent in 2026' (qualitative point). Fed funds = current target range 3.50–3.75% (midpoint shown), expected held through mid-2027 with rising rate-hike odds. Core PCE seen ending 2026 above 3% (no point figure published); unemployment expected to remain near current levels.",
+      "values": {
+        "gdp": {"2026": 2.0},
+        "fed_funds": {"2026": 3.625}
+      }
+    },
+    {
+      "id": "ubs_cio",
+      "name": "UBS CIO GWM",
+      "kind": "house",
+      "as_of": "2025-11",
+      "source": "UBS Year Ahead 2026 ('Escape velocity?')",
+      "url": "https://www.ubs.com/global/en/media/display-page-ndp/en-20251120-year-ahead-2026.html",
+      "notes": "Forecast table as of Nov 12, 2025; S&P 500 year-end target 7,700 reaffirmed Jan 13, 2026. GDP = annual average. Inflation table labeled simply 'Inflation (%)' — treated as CPI (not explicitly labeled in the doc). Fed funds = year-end (Dec-26) policy rate (3.33%). UBS did not publish an unemployment forecast, nor 2027 S&P/fed-funds figures, in this report.",
+      "values": {
+        "gdp": {"2026": 1.7, "2027": 1.9},
+        "inflation": {"2026": 3.0, "2027": 2.4},
+        "fed_funds": {"2026": 3.33},
+        "sp500_target": {"2026": 7700}
+      }
+    },
+    {
+      "id": "goldman_sachs",
+      "name": "Goldman Sachs Research",
+      "kind": "house",
+      "as_of": "2026-06",
+      "source": "Goldman Sachs Research (mid-2026 updates)",
+      "url": "https://www.goldmansachs.com/insights/articles/s-and-p-500-forecast-to-climb-as-earnings-growth-powers-stocks-higher",
+      "notes": "S&P 500 year-end 2026 target 8,000 (raised from 7,600; as of May 26, 2026). Unemployment 4.4% by end-2026 (Jun 9, 2026 update). Core PCE seen 3%+ through 2026 and ~2% in 2027 (ranges, no point). GDP for 2026 (2.8% full-year / 2.5% Q4/Q4) is from the older Jan-2026 vintage so it is not shown here. No 2026 rate cuts expected (policy held at 3.50–3.75%); first cuts seen in 2027 toward a 3–3.25% terminal.",
+      "values": {
+        "sp500_target": {"2026": 8000},
+        "unemployment": {"2026": 4.4}
+      }
+    },
+    {
+      "id": "morgan_stanley",
+      "name": "Morgan Stanley Research",
+      "kind": "house",
+      "as_of": "2026-05",
+      "source": "Morgan Stanley 2026 Midyear Investment Outlook",
+      "url": "https://www.morganstanley.com/insights/articles/investment-outlook-midyear-2026",
+      "notes": "S&P 500 year-end 2026 target 8,000 (raised from 7,800; May 15, 2026). MS's detailed US GDP/inflation/unemployment figures are in gated research; the public midyear articles publish only global GDP (3.2% 2026 / 3.4% 2027) and a 2027 Fed terminal of 3–3.25%. The 8,300 figure is a mid-2027 (12-month-forward) S&P level, not a year-end 2027 target, so it is omitted.",
+      "values": {
+        "sp500_target": {"2026": 8000}
+      }
+    },
+    {
+      "id": "yardeni",
+      "name": "Yardeni Research",
+      "kind": "house",
+      "as_of": "2026-05",
+      "source": "Yardeni Research Market Call (May 2026)",
+      "url": "https://www.yardeniquicktakes.com/market-call-raising-our-2026-s-p-500-target-range-due-to-earnings-led-meltup/",
+      "notes": "Yardeni publishes a year-end 2026 S&P 500 RANGE of 6,750–8,250 (forward P/E 18.0–22.0); the midpoint (7,500) is shown here, with 8,250 the top/raised target. No GDP/inflation/unemployment/fed-funds point forecasts in this note.",
+      "values": {
+        "sp500_target": {"2026": 7500}
+      }
+    },
+    {
+      "id": "vanguard",
+      "name": "Vanguard (VEMO)",
+      "kind": "house",
+      "as_of": "2025-12",
+      "source": "Vanguard 2026 Economic & Market Outlook",
+      "url": "https://corporate.vanguard.com/content/corporatesite/us/en/corp/vemo/vemo-united-states.html",
+      "notes": "GDP 2.25% is Q4/Q4 (Dec-10-2025 VEMO baseline, still standing at the Jun-17-2026 update). The mid-2026 update revised core PCE inflation above 3% (from 2.6%), unemployment to the mid-4% range (from 4.2%), and removed the 2026 rate cut (policy rate now seen in its current range through 2027) — those revisions are qualitative, so no updated point figures are shown.",
+      "values": {
+        "gdp": {"2026": 2.25}
+      }
+    }
+  ]
 }
