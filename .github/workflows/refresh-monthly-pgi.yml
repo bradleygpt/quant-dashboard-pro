@@ -46,7 +46,11 @@ jobs:
             echo "No changes to commit (PGI value unchanged)"
           else
             git commit -m "chore: monthly PGI refresh $(date -u +%Y-%m)"
-            git push
+            # Rebase onto any concurrent push before pushing — avoids the non-fast-forward
+            # failure that fells bare-push refresh jobs when main advances mid-run (cf. #2).
+            git fetch origin main
+            git rebase origin/main || (echo "Rebase failed; aborting"; git rebase --abort 2>/dev/null || true)
+            git push origin main
             echo "Pushed updated PGI. Streamlit Cloud will redeploy automatically."
           fi
 
