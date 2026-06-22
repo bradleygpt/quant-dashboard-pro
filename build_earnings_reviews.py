@@ -50,6 +50,10 @@ def context_for(r: dict) -> dict:
     }
 
 
+def _is(err, *needles):
+    e = str(err or "").lower()
+    return any(s in e for s in needles)
+
 def run(tickers):
     ok = newc = fail = 0
     t0 = time.time()
@@ -58,19 +62,28 @@ def run(tickers):
         if not r:
             print(f"  {tk}: not in universe", file=sys.stderr)
             continue
-        try:
-            res = generate_earnings_review(tk, r.get("name") or tk, context_for(r))
-            if res.get("ok"):
-                ok += 1
-                if not res.get("cached"):
-                    newc += 1
-                tag = "cached" if res.get("cached") else f"NEW {res.get('verdict', '')}"
-            else:
-                fail += 1
-                tag = f"FAIL {str(res.get('error', ''))[:48]}"
-        except Exception as e:
+        # retry transient Gemini 503/overload (common on the free tier); stop on a daily quota cap
+        res = {"ok": False, "error": "no attempt"}
+        for attempt in range(3):
+            try:
+                res = generate_earnings_review(tk, r.get("name") or tk, context_for(r))
+            except Exception as e:
+                res = {"ok": False, "error": f"EXC {e!r}"}
+            if res.get("ok") or not _is(res.get("error"), "503", "overloaded", "unavailable", "timeout", "timed out", "deadline"):
+                break
+            time.sleep(4 * (attempt + 1))
+        err = res.get("error")
+        if _is(err, "quota", "resource_exhausted", "rate limit", "429"):
+            print(f"  {tk}: QUOTA/RATE cap hit — stopping. Re-run later; cached names skip. ({str(err)[:70]})", file=sys.stderr)
+            break
+        if res.get("ok"):
+            ok += 1
+            if not res.get("cached"):
+                newc += 1
+            tag = "cached" if res.get("cached") else f"NEW {res.get('verdict', '')}"
+        else:
             fail += 1
-            tag = f"EXC {e!r}"[:60]
+            tag = f"FAIL {str(err)[:48]}"
         if i % 10 == 0 or "NEW" in tag or "FAIL" in tag:
             print(f"  {i+1}/{len(tickers)} {tk}: {tag}  ({time.time()-t0:.0f}s)", file=sys.stderr)
         time.sleep(0.5)  # gentle on SEC EDGAR + the LLM free tier
