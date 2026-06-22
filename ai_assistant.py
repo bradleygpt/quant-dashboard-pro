@@ -124,21 +124,23 @@ def _call_claude(prompt, max_tokens=800, temperature=0.7):
 
 
 def _call_ollama(prompt, max_tokens=800, temperature=0.7):
-    """Call local Ollama (free, requires Ollama running locally)."""
+    """Call local Ollama (free + unlimited, requires Ollama running locally). Model via OLLAMA_MODEL
+    env (default llama3.2 — but use a 7B+ model like qwen2.5:7b for number-heavy 8-K extraction)."""
+    model = os.getenv("OLLAMA_MODEL", "llama3.2")
     try:
         resp = requests.post(
             f"{_ollama_host()}/api/generate",
             json={
-                "model": "llama3.2",
+                "model": model,
                 "prompt": prompt,
                 "stream": False,
                 "options": {"temperature": temperature, "num_predict": max_tokens},
             },
-            timeout=60,
+            timeout=180,
         )
         resp.raise_for_status()
         data = resp.json()
-        return {"text": data["response"], "provider": "ollama", "model": "llama3.2"}
+        return {"text": data["response"], "provider": "ollama", "model": model}
     except Exception as e:
         return {"error": f"Ollama call failed (is Ollama running at {_ollama_host()}?): {str(e)}"}
 
