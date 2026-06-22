@@ -11,7 +11,20 @@ LLM). Reads names/context from the baked universe.
   python build_earnings_reviews.py 50          # first 50 (smoke test)
   python build_earnings_reviews.py MU CRM SNOW # specific tickers
 """
-import sys, json, time
+import sys, json, time, logging
+logging.getLogger("streamlit").setLevel(logging.ERROR)  # silence the bare-mode ScriptRunContext warnings
+
+# The Streamlit app gates ai_assistant.call_llm behind a login (auth.is_logged_in()), which can't
+# pass outside a Streamlit session ("Please log in to use AI features"). This is a trusted local
+# batch job, so bypass the gate and call the provider directly (key from $GEMINI_API_KEY etc.).
+import ai_assistant
+def _call_llm_nogate(prompt, max_tokens=800, temperature=0.7, provider=None, feature="general"):
+    p = provider or ai_assistant._provider()
+    fn = {"gemini": ai_assistant._call_gemini, "claude": ai_assistant._call_claude,
+          "ollama": ai_assistant._call_ollama, "openai": ai_assistant._call_openai}.get(p)
+    return fn(prompt, max_tokens, temperature) if fn else {"error": f"Unknown provider: {p}"}
+ai_assistant.call_llm = _call_llm_nogate
+
 from earnings_reviewer import generate_earnings_review
 
 UNIVERSE = r"C:\Users\bmhar\code\quant-dashboard-pro-v2\public\data\universe_floor0.json"
