@@ -590,9 +590,20 @@ try:
     except Exception as _e:
         _md["cpi_source"] = f"static (FRED CPIAUCNS fetch failed: {_e})"
         _md.setdefault("cpi_asof", _static_asof)
-    # ISM — not on FRED; keep the manual constant but label it honestly.
+    # ISM — not on FRED. Prefer the monthly grounded fetch (build_manual_macro.py -> manual_macro.json,
+    # source-gated); fall back to the labeled manual constant from macro.py.
     _md["ism_source"] = "ISM PMI (manual — not published on FRED)"
     _md["ism_asof"] = _static_asof
+    try:
+        _mmj = json.load(open(os.path.join(ROOT, "manual_macro.json")))
+        _mfg, _svc = _mmj.get("ism_mfg") or {}, _mmj.get("ism_svcs") or {}
+        if isinstance(_mfg.get("value"), (int, float)) and isinstance(_svc.get("value"), (int, float)):
+            _md["ism_manufacturing"], _md["ism_services"] = _mfg["value"], _svc["value"]
+            _md["ism_composite"] = round(0.11 * _mfg["value"] + 0.89 * _svc["value"], 1)
+            _md["ism_asof"] = _svc.get("ref_month") or _mfg.get("ref_month") or _static_asof
+            _md["ism_source"] = f"ISM PMI (grounded monthly fetch — {_svc.get('source') or _mfg.get('source')})"
+    except Exception:
+        pass  # manual_macro.json absent or unparseable → keep the macro.py constant
 
     market_static = {
         "macro_data": _md,
@@ -755,6 +766,25 @@ try:
         log(f"pgi_money_market.json skipped: MMMFFAQ027S value out-of-band ({_mm_val})")
 except Exception as e:
     log(f"pgi_money_market.json skipped: {e}")
+
+# PGI freshness override: FRED's MMMFFAQ027S is quarterly (~6wk lag); prefer the fresher ICI
+# money-market total from the monthly grounded fetch (build_manual_macro.py) when present.
+try:
+    _mmj = json.load(open(os.path.join(ROOT, "manual_macro.json")))
+    _mmf = _mmj.get("mmf_total_t") or {}
+    if isinstance(_mmf.get("value"), (int, float)) and 4.0 <= _mmf["value"] <= 12.0:
+        json.dump({
+            "ok": True,
+            "money_market_t": round(_mmf["value"], 3),
+            "as_of": _mmf.get("as_of"),
+            "source": "ICI weekly money market fund assets",
+            "source_desc": _mmf.get("source") or "ICI total money market fund net assets (weekly)",
+            "units": "USD trillions",
+            "fetched_at": datetime.now().date().isoformat(),
+        }, open(f"{OUT}/pgi_money_market.json", "w"))
+        log(f"pgi_money_market.json overridden with fresher ICI ${round(_mmf['value'], 3)}T as-of {_mmf.get('as_of')}")
+except Exception as _e:
+    log(f"PGI ICI override skipped: {_e}")
 
 # ── Realistic swing backtest: strategy equity curve vs REAL buy-&-hold SPY ──
 # Source = the monthly swing backtest (top-10 basket, ~63-day holds, after costs).

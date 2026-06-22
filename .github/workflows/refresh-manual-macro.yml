@@ -1,0 +1,55 @@
+name: Manual-Macro Monthly Refresh
+# Monthly (5th, 14:00 UTC — after ISM Mfg [1st biz day] + ISM Svcs [3rd biz day] release).
+# One grounded Gemini call fetches the latest ISM PMIs + ICI money-market total (source-gated),
+# writing manual_macro.json. The bake reads it to override the stale ISM constants + the quarterly
+# PGI money-market figure. Zero cost (shares GEMINI_API_KEY). Non-blocking.
+
+on:
+  schedule:
+    - cron: '0 14 5 * *'   # 14:00 UTC on the 5th of each month
+  workflow_dispatch:
+
+jobs:
+  manual-macro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run manual-macro fetch
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "Starting manual-macro fetch at $(date)"
+          python build_manual_macro.py || echo "manual-macro fetch failed (non-blocking)"
+          [ -f manual_macro.json ] && cat manual_macro.json || echo "no manual_macro.json"
+
+      - name: Commit manual_macro.json
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add manual_macro.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No changes detected. Nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore: manual-macro refresh (ISM + money-market) $(date -u +%Y-%m-%d)"
+          # push-race guard (required on all main-pushing workflows in this repo)
+          git fetch origin main
+          git rebase origin/main || (echo "Rebase failed"; git rebase --abort 2>/dev/null || true)
+          git push origin main
