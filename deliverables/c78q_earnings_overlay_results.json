@@ -1,0 +1,92 @@
+{
+  "study": "c78q earnings interaction + overlay counterfactuals",
+  "engine": "top-8 monthly broad-universe (identical to _c78q_broad_recompute.py)",
+  "earnings_source": "EDGAR 10-K/10-Q filing dates (stage5_output/_filing_calendar_cache.parquet) via cik_ticker_map; filing date = earnings-event proxy (assumed scheduled/known in advance for exit logic)",
+  "data_coverage": {
+    "held_name_months": 1480,
+    "name_months_with_earnings": 477,
+    "coverage_pct": 32.2,
+    "held_tickers_mapped_pct": 100.0,
+    "event_rows": 480
+  },
+  "baseline": {
+    "cagr": 0.2991,
+    "sharpe": 1.1433,
+    "max_drawdown": -0.3802,
+    "hit_rate": 0.6162,
+    "n_months": 185,
+    "spy_cagr": 0.1398
+  },
+  "baseline_on_file": {
+    "cagr": 0.2991,
+    "sharpe": 1.143,
+    "max_drawdown": -0.3802
+  },
+  "variants": {
+    "exit_[0]_redistribute": {
+      "cagr": 0.2831,
+      "sharpe": 1.1211,
+      "max_drawdown": -0.3774,
+      "hit_rate": 0.6162,
+      "n_months": 185,
+      "spy_cagr": 0.1398
+    },
+    "exit_[0]_cash": {
+      "cagr": 0.285,
+      "sharpe": 1.1415,
+      "max_drawdown": -0.3623,
+      "hit_rate": 0.6216,
+      "n_months": 185,
+      "spy_cagr": 0.1398
+    },
+    "exit_[-1,+1]_redistribute": {
+      "cagr": 0.2918,
+      "sharpe": 1.1735,
+      "max_drawdown": -0.3845,
+      "hit_rate": 0.6216,
+      "n_months": 185,
+      "spy_cagr": 0.1398
+    },
+    "exit_[-1,+1]_cash": {
+      "cagr": 0.2674,
+      "sharpe": 1.1308,
+      "max_drawdown": -0.3347,
+      "hit_rate": 0.6216,
+      "n_months": 185,
+      "spy_cagr": 0.1398
+    },
+    "exit_[0,+2]_redistribute": {
+      "cagr": 0.28,
+      "sharpe": 1.1053,
+      "max_drawdown": -0.4224,
+      "hit_rate": 0.6108,
+      "n_months": 185,
+      "spy_cagr": 0.1398
+    },
+    "exit_[0,+2]_cash": {
+      "cagr": 0.2691,
+      "sharpe": 1.0977,
+      "max_drawdown": -0.3822,
+      "hit_rate": 0.6216,
+      "n_months": 185,
+      "spy_cagr": 0.1398
+    }
+  },
+  "attribution": {
+    "earnings_window": "[-1,+1] around filing date",
+    "earnings_window_share_of_arith_return_pct": 8.55,
+    "earnings_window_pct_of_name_days": 6.06,
+    "avg_daily_return_earnings_window_pct": 0.1725,
+    "avg_daily_return_normal_pct": 0.1191,
+    "earnings_vs_normal_daily_ratio": 1.449,
+    "n_earnings_window_name_days": 1876,
+    "n_normal_name_days": 29060,
+    "total_compounded_reconstructed_pct": 5546.8
+  },
+  "verdict": "Dodging earnings HURTS c78q. The hold-through baseline earns 29.9% CAGR / Sharpe 1.14. The best earnings-overlay variant (exit_[-1,+1]_redistribute) gives 29.2% CAGR / Sharpe 1.17, a -0.7pp CAGR change. Attribution: earnings-window [-1,+1] held-name-days are 8.6% of arithmetic return while being 6.1% of held name-days; avg earnings-window day return 0.173% vs normal 0.119% (1.45x). Because earnings days carry disproportionately positive return, flattening into earnings forfeits alpha -> hold through.",
+  "caveats": [
+    "Filing date proxies the earnings call; actual call typically 0-3 trading days earlier. Windows anchored on filing date so true earnings-day effect may be slightly shifted.",
+    "Earnings dates assumed known in advance for overlay exits (realistic: earnings are pre-scheduled).",
+    "Pre-2010 survivorship caveat inherited from the underlying panel (study window 2011-2026)."
+  ]
+}
