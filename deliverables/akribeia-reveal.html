@@ -6,46 +6,49 @@
   html,body{margin:0;background:#04060A;}
   #stage{position:relative;width:760px;height:440px;background:#04060A;overflow:hidden;}
   #c{position:absolute;inset:0;}
-  #wm{position:absolute;left:0;right:0;top:332px;text-align:center;font-family:'Chakra Petch',Arial,sans-serif;font-weight:600;font-size:25px;letter-spacing:.22em;color:#EAEDF1;padding-left:.22em;opacity:0;}
+  #wm{position:absolute;left:0;right:0;top:336px;text-align:center;font-family:'Chakra Petch',Arial,sans-serif;font-weight:600;font-size:27px;letter-spacing:.07em;color:#EAEDF1;opacity:0;}
 </style></head><body>
-<div id="stage"><canvas id="c" width="760" height="440"></canvas><div id="wm">AKRIBEIA</div></div>
+<div id="stage"><canvas id="c" width="760" height="440"></canvas><div id="wm">akribeia</div></div>
 <script>
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),wm=document.getElementById('wm');
 const W=760,H=440,Cx=380,Cy=196,N=90;
 const clamp=(x,a=0,b=1)=>x<a?a:x>b?b:x, lerp=(a,b,t)=>a+(b-a)*t;
 const eio=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, ei=t=>t*t;
 function RNG(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-
-// starfield
 const sr=RNG(7);
 const STARS=Array.from({length:130},()=>({x:sr()*W,y:sr()*H,r:sr()*1.1+0.2,a:sr()*0.5+0.1,ph:sr()*6.28}));
 
-// ── bear silhouette (closed outline, facing left, grizzly shoulder hump + 2 legs) ──
-const BEAR=[[236,196],[250,188],[264,180],[276,166],[286,152],[292,142],[300,150],[312,156],[320,148],[327,140],[335,150],[348,160],[372,138],[410,144],[448,150],[484,156],[500,170],[506,184],[500,200],[492,222],[496,258],[500,276],[470,276],[476,228],[452,232],[410,234],[372,232],[364,252],[360,276],[332,276],[338,232],[320,214],[290,212],[260,205]];
-
-function resample(poly,n){
-  const pts=poly.concat([poly[0]]); const seg=[]; let total=0;
-  for(let i=0;i<pts.length-1;i++){const d=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);seg.push(d);total+=d;}
-  const out=[],step=total/n; let si=0,sd=0;
-  for(let k=0;k<n;k++){const tgt=k*step;while(si<seg.length-1&&sd+seg[si]<tgt){sd+=seg[si];si++;}const t=(tgt-sd)/(seg[si]||1);out.push([lerp(pts[si][0],pts[si+1][0],t),lerp(pts[si][1],pts[si+1][1],t)]);}
-  return out;
-}
+// ── the Great Bear (closed outline) ──
+const BEAR=[[246,172],[262,160],[274,150],[278,140],[285,127],[293,141],[300,150],[312,156],[320,148],[327,140],[335,150],[348,160],[372,138],[410,144],[448,150],[484,156],[500,170],[506,184],[500,200],[492,222],[496,258],[500,276],[470,276],[476,228],[452,232],[410,234],[372,232],[364,252],[360,276],[332,276],[338,232],[320,214],[290,212],[260,205]];
+function resample(poly,n){const pts=poly.concat([poly[0]]);const seg=[];let tot=0;for(let i=0;i<pts.length-1;i++){const d=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);seg.push(d);tot+=d;}const out=[],step=tot/n;let si=0,sd=0;for(let k=0;k<n;k++){const tg=k*step;while(si<seg.length-1&&sd+seg[si]<tg){sd+=seg[si];si++;}const t=(tg-sd)/(seg[si]||1);out.push([lerp(pts[si][0],pts[si+1][0],t),lerp(pts[si][1],pts[si+1][1],t)]);}return out;}
 const BEARPTS=resample(BEAR,N);
 
-// ── final mark: triangle + triangulation spokes → exact centre ──
-const Rt=92, V=[[Cx,Cy-Rt],[Cx+Rt*0.866,Cy+Rt*0.5],[Cx-Rt*0.866,Cy+Rt*0.5]];
-const LOGO=[];
-for(let e=0;e<3;e++){const a=V[e],b=V[(e+1)%3];for(let k=0;k<10;k++)LOGO.push([lerp(a[0],b[0],k/10),lerp(a[1],b[1],k/10)]);}
-for(let e=0;e<3;e++){const a=V[e];for(let k=1;k<=20;k++)LOGO.push([lerp(a[0],Cx,k/20),lerp(a[1],Cy,k/20)]);}
+// ── final mark: golden growth-arc + leaf on chart axes (lowercase 'a') ──
+const MS=1.62, MX=(x,y)=>[Cx+(x-50)*MS, Cy+(y-50)*MS];
+const cub=(p,t)=>{const m=1-t;return [m*m*m*p[0][0]+3*m*m*t*p[1][0]+3*m*t*t*p[2][0]+t*t*t*p[3][0], m*m*m*p[0][1]+3*m*m*t*p[1][1]+3*m*t*t*p[2][1]+t*t*t*p[3][1]];};
+const PIECES=[
+ {gold:0, line:[[22,15],[22,85]]},
+ {gold:0, line:[[22,85],[88,85]]},
+ {gold:1, cub:[[44,73],[40,40],[70,26],[84,40]]},
+ {gold:1, cub:[[84,40],[80,60],[60,74],[44,73]]},
+ {gold:1, cub:[[52,64],[56,50],[70,45],[79,47]]},
+ {gold:1, cub:[[32,85],[36,80],[40,76],[44,73]]},
+];
+function plen(pc){if(pc.line)return Math.hypot(pc.line[1][0]-pc.line[0][0],pc.line[1][1]-pc.line[0][1]);let L=0,pr=cub(pc.cub,0);for(let i=1;i<=24;i++){const q=cub(pc.cub,i/24);L+=Math.hypot(q[0]-pr[0],q[1]-pr[1]);pr=q;}return L;}
+const lens=PIECES.map(plen),tot=lens.reduce((a,b)=>a+b,0);
+let counts=PIECES.map((_,i)=>Math.max(2,Math.round(N*lens[i]/tot)));
+counts[2]+=N-counts.reduce((a,b)=>a+b,0);
+const LOGO=[],GOLD=[];
+PIECES.forEach((pc,i)=>{const n=counts[i];for(let k=0;k<n;k++){const t=k/(n-1||1);const pt=pc.line?[lerp(pc.line[0][0],pc.line[1][0],t),lerp(pc.line[0][1],pc.line[1][1],t)]:cub(pc.cub,t);LOGO.push(MX(pt[0],pt[1]));GOLD.push(pc.gold);}});
+while(LOGO.length<N){LOGO.push(LOGO[LOGO.length-1].slice());GOLD.push(1);} LOGO.length=N; GOLD.length=N;
 
-// ── particles: ONE fixed set — bear → chaos → logo ──
 const pr=RNG(99);
-const P=Array.from({length:N},(_,i)=>({bx:BEARPTS[i][0],by:BEARPTS[i][1],tx:LOGO[i][0],ty:LOGO[i][1],dir:pr()*6.2832,spd:0.6+pr()*0.9,att:i%3,oR:14+pr()*30,oA:pr()*6.2832,oS:5+pr()*7,tw:pr()*6.28}));
+const P=Array.from({length:N},(_,i)=>({bx:BEARPTS[i][0],by:BEARPTS[i][1],tx:LOGO[i][0],ty:LOGO[i][1],gold:GOLD[i],dir:pr()*6.2832,spd:0.6+pr()*0.9,att:i%3,oR:14+pr()*30,oA:pr()*6.2832,oS:5+pr()*7,tw:pr()*6.28}));
 
 function attractor(att,p){const ra=lerp(150,16,clamp((p-0.24)/0.40));const ang=(6.2832*att/3)+p*4.6+0.85*Math.sin(p*6+att*2.1);return[Cx+ra*Math.cos(ang),Cy+ra*0.62*Math.sin(ang)];}
 function pos(pt,p){
   if(p<0.14)return[pt.bx,pt.by];
-  if(p<0.19){const t=ei((p-0.14)/0.05);return[lerp(pt.bx,Cx,t),lerp(pt.by,Cy,t)];} // collapse to singularity
+  if(p<0.19){const t=ei((p-0.14)/0.05);return[lerp(pt.bx,Cx,t),lerp(pt.by,Cy,t)];}
   const A=attractor(pt.att,p),oa=pt.oA+p*pt.oS;
   const orb=[A[0]+pt.oR*Math.cos(oa),A[1]+pt.oR*Math.sin(oa)];
   const er=clamp((p-0.19)/0.15)*150*pt.spd, explo=[Cx+Math.cos(pt.dir)*er,Cy+Math.sin(pt.dir)*er];
@@ -53,7 +56,10 @@ function pos(pt,p){
   const c=eio(clamp((p-0.62)/0.26));
   return[lerp(dyn[0],pt.tx,c),lerp(dyn[1],pt.ty,c)];
 }
+const G=(r,g,b,a)=>`rgba(${r|0},${g|0},${b|0},${a})`;
 function glow(x,y,r,col,a){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,col.replace('A',a));g.addColorStop(1,col.replace('A',0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,6.2832);ctx.fill();}
+function mline(a,b){const u=MX(a[0],a[1]),v=MX(b[0],b[1]);ctx.beginPath();ctx.moveTo(u[0],u[1]);ctx.lineTo(v[0],v[1]);ctx.stroke();}
+function mcub(c){const a=MX(c[0][0],c[0][1]),b=MX(c[1][0],c[1][1]),d=MX(c[2][0],c[2][1]),e=MX(c[3][0],c[3][1]);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.bezierCurveTo(b[0],b[1],d[0],d[1],e[0],e[1]);ctx.stroke();}
 
 function draw(p){
   ctx.globalCompositeOperation='source-over';
@@ -61,10 +67,9 @@ function draw(p){
   ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
   ctx.globalCompositeOperation='lighter';
   for(const s of STARS){const a=s.a*(0.55+0.45*Math.sin(p*7+s.ph));ctx.fillStyle=`rgba(180,205,240,${a})`;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,6.2832);ctx.fill();}
-
   const Q=P.map(pt=>pos(pt,p));
 
-  // bear outline lines (fade as it collapses)
+  // bear outline (fades as it collapses)
   const la=p<0.13?1:clamp(1-(p-0.13)/0.05);
   if(la>0){ctx.strokeStyle=`rgba(150,190,240,${0.30*la})`;ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<N;i++){const a=Q[i],b=Q[(i+1)%N];if(i===0)ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);}ctx.closePath();ctx.stroke();
     if(p<0.12){ctx.fillStyle=`rgba(120,150,190,${0.55*la})`;ctx.font='10px Arial';ctx.textAlign='center';ctx.fillText('the great bear',Cx,418);}}
@@ -77,24 +82,26 @@ function draw(p){
   if(p>0.24&&p<0.66){const aa=clamp((p-0.24)/0.06)*clamp((0.66-p)/0.08);for(let k=0;k<3;k++){const A=attractor(k,p);glow(A[0],A[1],26,'rgba(120,180,255,A)',0.45*aa);ctx.strokeStyle=`rgba(190,225,255,${0.6*aa})`;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(A[0],A[1],6,0,6.2832);ctx.stroke();}
     if(p>0.30&&p<0.6){ctx.fillStyle=`rgba(110,140,180,${0.6*aa})`;ctx.font='9px Arial';ctx.textAlign='center';ctx.fillText('three-body',Cx,418);}}
 
-  // final triangulation lines
-  if(p>0.80){const fa=eio(clamp((p-0.80)/0.14));ctx.strokeStyle=`rgba(150,200,255,${0.45*fa})`;ctx.lineWidth=1;
-    for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(V[k][0],V[k][1]);ctx.lineTo(Cx,Cy);ctx.stroke();}
-    ctx.strokeStyle=`rgba(225,235,248,${0.7*fa})`;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(V[0][0],V[0][1]);ctx.lineTo(V[1][0],V[1][1]);ctx.lineTo(V[2][0],V[2][1]);ctx.closePath();ctx.stroke();
-    glow(Cx,Cy,15+5*Math.sin(p*10),'rgba(210,235,255,A)',0.9*fa);}
+  // final mark — golden leaf on the chart axes
+  if(p>0.80){const fa=eio(clamp((p-0.80)/0.14));
+    ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=`rgba(150,165,188,${0.55*fa})`;ctx.lineWidth=1.5;mline([22,15],[22,85]);mline([22,85],[88,85]);
+    ctx.strokeStyle=`rgba(231,193,123,${0.9*fa})`;ctx.lineWidth=1.9;
+    mcub(PIECES[2].cub);mcub(PIECES[3].cub);mcub(PIECES[5].cub);
+    ctx.strokeStyle=`rgba(231,193,123,${0.6*fa})`;ctx.lineWidth=1.5;mcub(PIECES[4].cub);}
 
-  // the dots — constant count, throughout
+  // the dots — constant count; leaf warms to gold as it lands
   const land=clamp((p-0.80)/0.12);
-  for(let i=0;i<N;i++){const q=Q[i],tw=0.7+0.3*Math.sin(p*8+P[i].tw);
-    glow(q[0],q[1],3.2+land*1.4,'rgba(150,205,255,A)',0.45*tw);
-    ctx.fillStyle=`rgba(${lerp(170,236,land)},${lerp(210,245,land)},255,0.95)`;ctx.beginPath();ctx.arc(q[0],q[1],1.5+land*0.5,0,6.2832);ctx.fill();}
+  for(let i=0;i<N;i++){const q=Q[i],tw=0.7+0.3*Math.sin(p*8+P[i].tw),gd=P[i].gold;
+    if(gd){glow(q[0],q[1],3.2+land*1.6,'rgba(235,196,120,A)',(0.35+0.3*land)*tw);ctx.fillStyle=G(lerp(160,238,land),lerp(205,196,land),lerp(255,120,land),.95);}
+    else{glow(q[0],q[1],3.2,'rgba(150,205,255,A)',0.4*tw);ctx.fillStyle=G(lerp(170,210,land),lerp(210,222,land),lerp(255,240,land),.95);}
+    ctx.beginPath();ctx.arc(q[0],q[1],1.5+land*0.5,0,6.2832);ctx.fill();}
 
   wm.style.opacity=clamp((p-0.84)/0.12);
 }
-
 const QS=new URLSearchParams(location.search);
 async function start(){
-  try{await document.fonts.load('600 25px "Chakra Petch"');await document.fonts.ready;}catch(e){}
+  try{await document.fonts.load('600 27px "Chakra Petch"');await document.fonts.ready;}catch(e){}
   if(QS.has('f')){const n=+QS.get('n')||48;draw(clamp((+QS.get('f'))/(n-1)));}
   else{const D=7000;let t0=null;const loop=ts=>{if(t0==null)t0=ts;draw(((ts-t0)%D)/D);requestAnimationFrame(loop);};requestAnimationFrame(loop);}
 }
