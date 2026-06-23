@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Akribeia — operating console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#06080C;--panel:#0D1016;--panel2:#10141B;--line:#1A212E;--ink:#E7EBEF;--mut:#8A93A1;--dim:#586273;--code:#0A0D13;--cy:#7FD0E0;}
+  *{box-sizing:border-box;} html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Sora',Arial,sans-serif;line-height:1.55;}
+  code,.mono{font-family:'JetBrains Mono','Chakra Petch',monospace;}
+  .top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;height:58px;padding:0 20px;background:rgba(6,8,12,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Chakra Petch';font-weight:600;letter-spacing:.16em;font-size:15px;}
+  .brand svg{width:24px;height:24px;color:var(--ink);}
+  .brand small{font-family:'Sora';font-weight:400;letter-spacing:.04em;font-size:11.5px;color:var(--dim);}
+  .top .sp{flex:1;}
+  #q{width:300px;max-width:42vw;height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:#0A0D13;color:var(--ink);font-family:'Sora';font-size:13.5px;}
+  #q:focus{outline:none;border-color:#36506e;}
+  .layout{display:grid;grid-template-columns:208px 1fr;max-width:1180px;margin:0 auto;}
+  aside{position:sticky;top:58px;align-self:start;height:calc(100vh - 58px);overflow:auto;padding:22px 12px;border-right:1px solid var(--line);}
+  aside a{display:block;padding:8px 12px;border-radius:7px;color:var(--mut);font-size:13.5px;text-decoration:none;}
+  aside a:hover{background:var(--panel);color:var(--ink);}
+  aside .gh{padding:14px 12px 6px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);}
+  main{padding:30px 30px 90px;min-width:0;}
+  section{margin-bottom:46px;scroll-margin-top:72px;}
+  h2{font-family:'Sora';font-weight:600;font-size:22px;margin:0 0 4px;letter-spacing:-.01em;}
+  .lede{color:var(--mut);font-size:14px;margin:0 0 20px;max-width:760px;}
+  .eyebrow{font-family:'Chakra Petch';font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+  .grid{display:grid;gap:12px;} .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:repeat(2,1fr);}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:16px 18px;}
+  .pill{display:inline-block;font-size:11px;color:var(--cy);border:1px solid #1d3a44;background:#0c1a1f;border-radius:20px;padding:2px 9px;margin:0 5px 5px 0;font-family:'Chakra Petch';letter-spacing:.04em;}
+  .scr{cursor:pointer;transition:.15s;}
+  .scr:hover{border-color:#2a3550;}
+  .scr h3{font-size:14.5px;margin:0;display:flex;align-items:center;gap:8px;font-weight:600;}
+  .scr .det{display:none;margin-top:10px;font-size:13px;color:var(--mut);border-top:1px solid var(--line);padding-top:10px;}
+  .scr.open .det{display:block;}
+  .scr .det b{color:var(--ink);font-weight:600;}
+  .scr .det p{margin:6px 0;}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+  .tab{font-family:'Sora';font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mut);cursor:pointer;}
+  .tab.on{background:var(--panel2);color:var(--ink);border-color:#2a3550;font-weight:600;}
+  .tabpane{display:none;} .tabpane.on{display:block;}
+  .cmd{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:10px;}
+  .cmd .h{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+  .cmd .t{font-size:13.5px;font-weight:600;}
+  .cmd .when{font-family:'JetBrains Mono';font-size:11.5px;color:var(--cy);}
+  .cmd .d{font-size:12.5px;color:var(--mut);}
+  .codewrap{position:relative;}
+  pre{margin:0;background:var(--code);border:1px solid #141a24;border-radius:8px;padding:11px 13px;overflow:auto;}
+  pre code{font-size:12.5px;color:#C9D4E0;line-height:1.7;white-space:pre;}
+  .copy{position:absolute;top:7px;right:7px;font-family:'Sora';font-size:11px;color:var(--mut);background:#11161f;border:1px solid var(--line);border-radius:6px;padding:3px 9px;cursor:pointer;}
+  .copy:hover{color:var(--ink);border-color:#36506e;} .copy.done{color:#9FE6C4;border-color:#1d5a3e;}
+  .note{font-size:12px;color:var(--dim);margin-top:6px;}
+  .kv{font-size:13px;color:var(--mut);} .kv b{color:var(--ink);font-weight:600;}
+  table.files{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.files td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top;}
+  table.files td:first-child{font-family:'JetBrains Mono';color:#A9C7D6;white-space:nowrap;}
+  table.files td:last-child{color:var(--mut);}
+  .hide{display:none!important;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}aside{display:none;}.g3,.g2{grid-template-columns:1fr;}#q{width:160px;}}
+</style></head>
+<body>
+<svg style="display:none"><symbol id="mark" viewBox="0 0 100 100"><path d="M50 14 L79.4 65 L20.6 65 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M50 50 L50 14 M50 50 L79.4 65 M50 50 L20.6 65" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="50" cy="50" r="3.2" fill="currentColor"/></symbol></svg>
+
+<div class="top">
+  <span class="brand"><svg><use href="#mark"/></svg>AKRIBEIA <small>operating console · as of 2026-06-23</small></span>
+  <span class="sp"></span>
+  <input id="q" placeholder="Search screens & commands…"/>
+</div>
+
+<div class="layout">
+  <aside>
+    <div class="gh">Reference</div>
+    <a href="#engine">Quant engine</a>
+    <a href="#screens">Every screen</a>
+    <a href="#data">Underlying data</a>
+    <div class="gh">Run</div>
+    <a href="#scheduled">Scheduled (CI)</a>
+    <a href="#pipeline">Local refresh</a>
+    <a href="#oneoff">One-time / info</a>
+  </aside>
+
+  <main>
+    <section id="engine">
+      <div class="eyebrow">Reference</div><h2>The quant engine</h2>
+      <p class="lede">Every screen builds on this. ~1,289 US stocks + ~70 ETFs scored daily.</p>
+      <div class="grid g2">
+        <div class="card"><h3 style="margin:0 0 8px;font-size:14.5px">Five pillars → composite → rating</h3>
+          <div><span class="pill">Valuation</span><span class="pill">Growth</span><span class="pill">Profitability</span><span class="pill">Momentum</span><span class="pill">EPS Revisions</span></div>
+          <p class="kv" style="margin:8px 0 0">Each graded A+→F (sector-relative), rolled into a composite. Top names → <b>Strong Buy+ / Strong Buy / Buy</b>; rest → Hold / Sell / Strong Sell.</p></div>
+        <div class="card"><h3 style="margin:0 0 8px;font-size:14.5px">Three price anchors</h3>
+          <p class="kv" style="margin:0 0 6px"><b>Fair Value</b> — intrinsic value + premium/discount + verdict.</p>
+          <p class="kv" style="margin:0 0 6px"><b>Quant Buy Point</b> — the model's entry, with BP distance + signal.</p>
+          <p class="kv" style="margin:0"><b>FCF quality</b> — free-cash-flow yield after expensing stock comp.</p>
+          <p class="kv" style="margin:8px 0 0"><b>Badges</b> — S&amp;P / NDX index membership (SPY ∪ Wikipedia).</p></div>
+      </div>
+    </section>
+
+    <section id="screens">
+      <div class="eyebrow">Reference</div><h2>Every screen</h2>
+      <p class="lede">Click a card for how to read &amp; use it. 17 tabs.</p>
+      <div class="grid g3" id="scrgrid"></div>
+    </section>
+
+    <section id="data">
+      <div class="eyebrow">Reference</div><h2>Underlying data</h2>
+      <p class="lede">The bake reads caches + the universe, runs scoring, and writes JSON into both frontends; post-bake builders add their own. Commit pro-v2 → Vercel deploys.</p>
+      <div class="card"><table class="files" id="filetbl"></table></div>
+    </section>
+
+    <section id="commands">
+      <div class="eyebrow">Run</div><h2>Command library</h2>
+      <p class="lede">PowerShell. Scheduled CI jobs run themselves; the local pipeline is what you run to refresh + deploy; one-time commands as needed.</p>
+      <div class="tabs">
+        <button class="tab on" data-t="scheduled">Scheduled / automated</button>
+        <button class="tab" data-t="pipeline">Local refresh pipeline</button>
+        <button class="tab" data-t="oneoff">One-time / informational</button>
+      </div>
+      <div class="tabpane on" id="t-scheduled"><div id="schedlist"></div>
+        <p class="note">These live in <code>quant-dashboard-react/.github/workflows/</code> and run on GitHub Actions cron — no PowerShell needed. To run on demand: GitHub → Actions → pick workflow → Run workflow. Gemini jobs use the <code>GEMINI_API_KEY</code> repo secret.</p></div>
+      <div class="tabpane" id="t-pipeline"><div id="pipelist"></div></div>
+      <div class="tabpane" id="t-oneoff"><div id="offlist"></div></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const ENV = '$env:AI_PROVIDER="ollama"; $env:OLLAMA_MODEL="qwen2.5:7b"';
+const SCREENS=[
+ ["🏠","Home","Landing splash / front door.","—","Click ‘enter dashboard →’ to reach the app."],
+ ["📊","Overview","Universe at a glance: rating-distribution cards, AI Market Summary, AI Anomaly Watch, sortable screener mini-table with S&P/NDX badges.","Distribution + AI summary = the day's posture.","Scan top-conviction names, click tickers into Stock Detail."],
+ ["📊","Market Regime","Macro weather: Fear & Greed, VIX, real 10Y & 10Y-2Y curve, HY credit OAS, S&P-vs-ATH, Buffett, Macro Health composite.","Inverted curve + widening OAS + falling Macro Health = lean defensive.","Gauge risk-on vs risk-off posture."],
+ ["🌐","Macro Outlook","Forecast Consensus (Fed SEP/World Bank/IMF live + 9 bank house-views), FOMC dot plot, Macro Signals, Risk Radar, AI Sector Rotation, forward earnings.","The spread between forecasters is the value.","Top-down sector tilts."],
+ ["💼","Your Portfolio","Paste holdings (stored only in your browser): tilts vs universe, sector allocation, Monte Carlo, AI Portfolio Advisor, recommendations.","Where you're over/under-exposed.","Load real holdings → act on the advisor + recommendations."],
+ ["💎","Quant Portfolio","The model-built ‘optimal’ book, with its backtest.","What the quant itself would hold.","Reference book vs your own."],
+ ["🔍","Stock Detail","Composite + 5 pillar grades, Fair Value verdict, Quant Buy Point, FCF quality, quarterly history, price chart, AI research/earnings/correlation, index badges.","The 5 grades + FV verdict + QBP.","Deep-dive a name; run the AI research/earnings."],
+ ["✨","Doppelganger","Closest historical analogues by fundamental fingerprint + what happened next (forward returns) + AI read.","Central tendency + dispersion of the analogues.","‘What historically happened to setups like this.’"],
+ ["📋","Quant Screener","Dense sortable table (all metrics) + Ask the Screener (plain-English → filters) + Thematic Explorer (AI-buildout correlation).","Rank/filter the universe.","Build a screen, ask in English, explore the theme."],
+ ["🔭","Project Prolepsis","ML 12-month price predictions + the horizon term structure.","Forecast returns per name.","Feeds the Pronoia strategy and the FV model."],
+ ["📈","Strategies","The 5-strategy book: per-strategy CAGR/Sharpe/holdings, basket total, AI Strategy Read, Strategy Signatures + correlation network.","The decorrelated sleeves + the combined book.","The live 7/1 deployment."],
+ ["🗂️","Sector Overview","Sector aggregates (cap, P/E, avg score, rating dist, pillar grades, best/worst) + AI Sector Read.","Which sectors the quant favors.","Sector rotation."],
+ ["₿","Crypto","Crypto-asset prices/momentum + crypto-equity context.","—","Crypto exposure context."],
+ ["🫧","AI Bubble Watch","An AI-bubble froth indicator across the AI complex.","Is the AI trade overheating.","Risk-manage AI exposure."],
+ ["🧭","ETF Center","Find-your-ETF, Index-Add (S&P/NDX adds + passive-buy impact), Portfolio Builder, Comparison, Sector/Theme map, scored Universe.","Per section.","Find relevant ETFs; anticipate index adds; build ETF books."],
+ ["🎤","Pundit Views","Curated market-commentator views (Gemini-grounded, daily).","The current commentator consensus.","Sentiment / narrative color."],
+ ["📖","Help","In-app explanations of the metrics and tabs.","—","Look up any metric."],
+];
+const FILES=[
+ ["universe_floor0.json","The scored universe (1,289 stocks + 70 ETFs) — rows, pillars, ratings, FV, QBP."],
+ ["market_static.json","Regime + market-wide aggregates."],
+ ["macro_forecasts.json","Forecast Consensus (live feeds + bank house-views) + dot plot."],
+ ["c78q.json / *_strategy.json","Each strategy: target, holdings, equity curve, metrics."],
+ ["earnings_reviews.json / earnings_quality.json","AI earnings reviews + the heuristic quality flag."],
+ ["anomalies.json / universe_summary.json / macro_rotation.json","Bake-time AI cards (Ollama)."],
+ ["strategies_correlation.json / strategies_holdings_perf.json","The strategy-viz network + holdings map."],
+ ["risk_radar.json / pundits / indicator snapshots","Web-grounded CI outputs (Gemini)."],
+];
+const SCHED=[
+ ["refresh-daily.yml","0 3 * * 1-6","Evening fundamentals cache (build_cache.py) after each close."],
+ ["refresh-daily-morning.yml","0 14 * * 1-5","Morning fundamentals refresh."],
+ ["refresh-weekly.yml","0 4 * * 0","Weekly cache refresh."],
+ ["refresh-indicator-snapshots.yml","0 22 * * 1-5","Market-indicator snapshots."],
+ ["refresh-monthly-pgi.yml","0 5 1 * *","PGI money-market ‘dry powder’ figure (1st of month)."],
+ ["refresh-manual-macro.yml","0 14 5 * *","ISM + money-market via grounded Gemini (5th)."],
+ ["check-house-views-freshness.yml","0 9 1,15 * *","Bank house-views staleness watchdog → opens an issue (1st + 15th)."],
+ ["refresh-pundits-daily.yml","0 10 * * 1-5","Pundit Views + Risk Radar (Gemini, web-grounded)."],
+ ["refresh-backtest.yml","0 5 * * 0","Backtest refresh (Sun)."],
+ ["refresh-quant-backtest.yml","0 11 * * 0","Quant backtest refresh (Sun)."],
+];
+const PIPE=[
+ ["Set the local-AI env (once per window)", ENV],
+ ["1 · Bake the dashboard (scores universe, writes all JSON)", "cd C:\\Users\\bmhar\\code\\quant-dashboard-react\npython bake/bake.py"],
+ ["2 · Bake-time AI generators (quant-dashboard-react)", "python build_sector_narratives.py\npython build_strategy_rationale.py\npython build_anomalies.py\npython build_macro_rotation.py\npython build_universe_summary.py\npython build_earnings_quality.py"],
+ ["3 · ETF / index / theme builders (quant-historical)", "cd ..\\quant-historical\npython refresh_etf_data.py\npython build_ai_theme.py\npython build_etf_descriptions.py"],
+ ["4 · Commit the data + push (frontend = deploy trigger)", "cd ..\\quant-dashboard-pro-v2\ngit add public/data/\ngit commit -m \"data: refresh bake + AI + ETF/index\"\ngit push origin main\ngit -C ..\\quant-dashboard-react push origin main"],
+ ["If a push is rejected (a CI job raced you)", "git fetch origin; git rebase origin/main; git push origin main"],
+];
+const OFF=[
+ ["Rebalance allocator (run on rebalance eve)", "cd C:\\Users\\bmhar\\code\\quant-historical\npython allocate.py            # $21,350 total, $1,350 cash ($4k/strategy)\npython allocate.py 21350 1350 2000   # + optional single-name cap"],
+ ["Find-your-ETF (CLI)", "cd C:\\Users\\bmhar\\code\\quant-historical\npython etf_finder.py MU NVDA AMD AVGO\npython etf_finder.py          # no args = the 7/1 basket"],
+ ["Earnings reviews (Ollama; re-bake after)", ENV + "\ncd C:\\Users\\bmhar\\code\\quant-dashboard-react\npython build_earnings_reviews.py --holdings   # just the book\npython build_earnings_reviews.py              # whole universe"],
+ ["Factor correlations (slow, optional)", "cd C:\\Users\\bmhar\\code\\quant-dashboard-react\npython build_correlations.py\ncopy correlations_cache.json ..\\quant-dashboard-pro-v2\\public\\data\\"],
+ ["Fundamentals cache (manual force-refresh)", "cd C:\\Users\\bmhar\\code\\quant-dashboard-react\npython build_cache.py"],
+];
+
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+function codeBlock(cmd){
+  const w=el('div','codewrap');const pre=el('pre');pre.appendChild(el('code',null,cmd.replace(/&/g,'&amp;').replace(/</g,'&lt;')));
+  const b=el('button','copy','copy');b.onclick=()=>{navigator.clipboard.writeText(cmd);b.textContent='copied';b.classList.add('done');setTimeout(()=>{b.textContent='copy';b.classList.remove('done');},1400);};
+  w.appendChild(pre);w.appendChild(b);return w;
+}
+// screens
+const sg=document.getElementById('scrgrid');
+SCREENS.forEach(s=>{const c=el('div','card scr');c.dataset.s=(s[1]+' '+s[2]).toLowerCase();
+  c.innerHTML=`<h3>${s[0]} ${s[1]}</h3><div class="det"><p>${s[2]}</p><p><b>Read:</b> ${s[3]}</p><p><b>Use:</b> ${s[4]}</p></div>`;
+  c.onclick=()=>c.classList.toggle('open');sg.appendChild(c);});
+// files
+const ft=document.getElementById('filetbl');
+FILES.forEach(f=>{const tr=el('tr');tr.innerHTML=`<td>${f[0]}</td><td>${f[1]}</td>`;ft.appendChild(tr);});
+// scheduled
+const sl=document.getElementById('schedlist');
+SCHED.forEach(c=>{const d=el('div','cmd');d.dataset.s=(c[0]+' '+c[2]).toLowerCase();
+  d.innerHTML=`<div class="h"><span class="t mono">${c[0]}</span><span class="when">${c[1]}</span></div><div class="d">${c[2]}</div>`;sl.appendChild(d);});
+// pipeline + oneoff
+function buildCmds(list,host){list.forEach(c=>{const d=el('div','cmd');d.dataset.s=(c[0]+' '+c[1]).toLowerCase();
+  d.appendChild(el('div','t',c[0]+(/^[A-Za-z]/.test(c[0])&&c[0].includes('·')?'':''))); d.lastChild.style.marginBottom='8px';
+  d.appendChild(codeBlock(c[1]));host.appendChild(d);});}
+buildCmds(PIPE,document.getElementById('pipelist'));
+buildCmds(OFF,document.getElementById('offlist'));
+// tabs
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.tabpane').forEach(x=>x.classList.remove('on'));t.classList.add('on');document.getElementById('t-'+t.dataset.t).classList.add('on');});
+// search
+document.getElementById('q').addEventListener('input',e=>{const v=e.target.value.toLowerCase().trim();
+  document.querySelectorAll('[data-s]').forEach(n=>{n.classList.toggle('hide', v && !n.dataset.s.includes(v));});
+  if(v){document.querySelectorAll('.scr').forEach(c=>c.classList.add('open'));}
+});
+</script>
+</body></html>
