@@ -22,11 +22,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          lfs: true
+          # NOTE: lfs:true removed 2026-06-27. edgar_cache.tar.gz is no longer in LFS
+          # (zero-cost compliance). It is fetched below from a GitHub Release asset
+          # (free, off-LFS); if that's missing the extract step falls back to live EDGAR.
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
+      - name: Fetch EDGAR cache (Release asset - off-LFS, zero bandwidth cost)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download edgar-cache --pattern edgar_cache.tar.gz --clobber \
+            || echo "release asset 'edgar-cache' not found - extract step will fall back to live EDGAR fetch"
       - name: Extract EDGAR cache from tarball
         run: |
           if [ -f "edgar_cache.tar.gz" ]; then
