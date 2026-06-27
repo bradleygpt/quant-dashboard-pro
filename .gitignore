@@ -1,4 +1,5 @@
 edgar_cache/
+edgar_cache.tar.gz
 __pycache__/
 *.pyc
 edgar_cache.tar.gz.part-*

@@ -1,1 +1,4 @@
-*.tar.gz filter=lfs diff=lfs merge=lfs -text
+# LFS tracking removed 2026-06-27 for zero-cost compliance: edgar_cache.tar.gz (270MB)
+# was the sole LFS object and the daily/product workflows never read it. It is now
+# gitignored + sourced out-of-band (see quant-backtest-quarterly.yml). Do NOT re-add
+# *.tar.gz to LFS — a re-tracked large tarball is what burned the bandwidth quota.
