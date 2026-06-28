@@ -929,10 +929,13 @@ try:
     ]
     _src = next((p for p in _c78q_candidates if os.path.exists(p)), None)
     if _src:
-        _sh.copyfile(_src, f"{OUT}/c78q.json")
-        log(f"wrote c78q.json (from {_src})")
+        # DISABLED 2026-06-27: c78q_app_data.json is the ETL's TOP-8 research variant (config A_top8).
+        # The LIVE c78q is top-3 / 1st-of-month, written directly to web/public/data/c78q.json by
+        # quant-historical's _c78q_top3_rebake.py and committed. Copying the top-8 here OVERWRITES the
+        # live top-3 strategy — do NOT. c78q.json is left as committed.
+        log(f"c78q.json: kept committed (live top-3); NOT overwriting with ETL top-8 ({_src})")
     else:
-        log("c78q.json skipped: no c78q_app_data.json found in quant-historical")
+        log("c78q.json: kept committed (no ETL payload found)")
 except Exception as e:
     log(f"c78q.json skipped: {e}")
 
