@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-06-30T12:12:15.339412+00:00",
-  "last_updated_human": "2026-06-30 12:12 UTC",
+  "last_updated_utc": "2026-07-01T12:37:13.050444+00:00",
+  "last_updated_human": "2026-07-01 12:37 UTC",
   "market_context": {
-    "spy_price": 741.0,
-    "sp500_level": 7410.0,
-    "btc_price": 58987.69921875,
-    "eth_price": 1571.8699951171875
+    "spy_price": 746.77001953125,
+    "sp500_level": 7467.7001953125,
+    "btc_price": 58351.98828125,
+    "eth_price": 1565.6800537109375
   },
   "equity": {
     "commentators": [
@@ -217,197 +217,211 @@
     ]
   },
   "equity_status": "stale",
-  "equity_last_fresh": "2026-06-29T14:07:49.937538+00:00",
+  "equity_last_fresh": "2026-06-30T12:12:15.339412+00:00",
   "equity_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
   "crypto": {
     "commentators": [
       {
-        "name": "Michael Saylor",
-        "firm": "MicroStrategy",
-        "stance": "Very Bullish",
-        "key_quote": "Bitcoin goes from 70,000 to 700,000 to $7 million a coin. It's inevitable.",
-        "quote_source": "BTC Prague 2026 Keynote",
-        "quote_date": "June 15, 2026",
-        "key_views": [
-          "Bitcoin is digital capital, the foundation for a new financial ecosystem.",
-          "Significant room for growth as Bitcoin represents a tiny share of global wealth.",
-          "Institutional adoption and new financial products will drive massive price appreciation."
-        ],
-        "btc_view": "Extremely bullish, projecting up to $7 million per coin.",
-        "eth_view": "Not specified",
-        "price_target": "$7 million (long-term)"
-      },
-      {
-        "name": "Peter Schiff",
-        "firm": "Euro Pacific Asset Management",
-        "stance": "Very Bearish",
-        "key_quote": "Bitcoin is not going to go to zero.",
-        "quote_source": "Fox Business Debate",
-        "quote_date": "June 15, 2026",
-        "key_views": [
-          "Conceded Bitcoin will not go to zero, a shift from previous stances.",
-          "Continues to criticize Bitcoin's lack of intrinsic value and industrial utility.",
-          "Warns of potential price crashes and favors gold as a safe haven."
-        ],
-        "btc_view": "Acknowledged it won't go to zero, but still highly skeptical of its long-term value and potential for significant price drops.",
-        "eth_view": "Not specified",
-        "price_target": "Warns of a plunge below $20,000 if it breaks $50,000."
-      },
-      {
-        "name": "Arthur Hayes",
-        "firm": "Maelstrom",
-        "stance": "Bearish",
-        "key_quote": "Bitcoin gets thrown out with the bathwater... bearish on nearly every risk asset except large energy producers.",
-        "quote_source": "Cointelegraph Podcast",
-        "quote_date": "June 14, 2026",
-        "key_views": [
-          "AI-related debt issuance has drained liquidity, impacting Bitcoin's performance.",
-          "Bearish on most risk assets due to potential AI bubble burst.",
-          "Believes Bitcoin will experience a broad sell-off if the AI market corrects."
-        ],
-        "btc_view": "Bearish in the short-to-medium term due to AI liquidity drain and potential market contagion.",
-        "eth_view": "Not specified",
-        "price_target": "Suggests a potential slide to $50,000."
-      },
-      {
-        "name": "Anthony Pompliano",
-        "firm": "Morgan Creek Digital Assets",
+        "name": "Tom Lee",
+        "firm": "Fundstrat Global Advisors / Bitmine",
         "stance": "Bullish",
-        "key_quote": "I think more and more people are convinced that that four-year cycle is a real thing.",
-        "quote_source": "CNBC Squawk Box",
-        "quote_date": "June 10, 2026",
+        "key_quote": "Bitmine invests an additional $43 million in Ethereum despite the market downturn. Tom Lee remains convinced that Ethereum's fundamentals justify a long-term accumulation strategy.",
+        "quote_source": "BeInCrypto",
+        "quote_date": "June 30, 2026",
         "key_views": [
-          "The current Bitcoin downturn is one of the healthiest bear markets due to shallower corrections.",
-          "The four-year market cycle remains intact.",
-          "Bitcoin is a hedge against currency debasement and government spending."
+          "Ethereum's fundamentals justify long-term accumulation.",
+          "Current ETH sell-off is due to quarter-end window dressing.",
+          "AI and agentic-AI payment systems are key future drivers for crypto."
         ],
-        "btc_view": "Bullish, sees the current dip as a healthy part of the cycle and a buying opportunity.",
-        "eth_view": "Not specified",
-        "price_target": "Implied bullishness on reclaiming $70,000."
-      },
-      {
-        "name": "Cathie Wood",
-        "firm": "ARK Invest",
-        "stance": "Bearish",
-        "key_quote": "Bitcoin is bottoming out, testing a massive base, and preparing for an unstoppable run in the second half of 2026.",
-        "quote_source": "ARK Invest Macro Thesis",
-        "quote_date": "June 13, 2026",
-        "key_views": [
-          "Bitcoin is bottoming out and poised for a significant rally.",
-          "The AI boom creates an 'Age of Abundance' that highlights Bitcoin's scarcity.",
-          "Institutional flows are steady, and regulatory catalysts are expected."
-        ],
-        "btc_view": "Very bullish, expects an unstoppable run and sees Bitcoin as a primary investment.",
-        "eth_view": "Not specified",
-        "price_target": "$750,000 (base case), $1.25 million (bull case by 2030).",
-        "_validation_warning": "Stance auto-corrected: target 2,030 implies -96.9% downside from current ~65,748, conflicts with 'Very Bullish' stance."
+        "btc_view": "Not specified",
+        "eth_view": "Bullish on Ethereum's long-term prospects and fundamentals.",
+        "price_target": "Believes ETH fundamentals justify accumulation, implying a positive outlook."
       },
       {
         "name": "Raoul Pal",
         "firm": "Real Vision",
         "stance": "Very Bullish",
-        "key_quote": "June 2026 is now the most-anticipated month of the year... places their bets on the man who called the last cycle.",
-        "quote_source": "Bitget News",
-        "quote_date": "March 23, 2026",
+        "key_quote": "Bitcoin, Ethereum, Solana, and Sui are sitting at levels that have historically come right before the biggest moves in crypto history.",
+        "quote_source": "YouTube (via Yellow.com)",
+        "quote_date": "June 29, 2026",
         "key_views": [
-          "The current cycle mirrors 2017 and could peak in June 2026.",
-          "Expects a 5-year supercycle, driving crypto market cap to $100 trillion.",
-          "AI, ETFs, and expanding global liquidity are key drivers."
+          "Bitcoin, Ethereum, Solana, and Sui are at historically significant accumulation levels.",
+          "Semiconductors are overextended, suggesting a rotation into Layer 1s.",
+          "Liquidity conditions are improving, supporting asset prices."
         ],
-        "btc_view": "Extremely bullish, predicting a massive surge and new all-time highs.",
-        "eth_view": "Not specified",
-        "price_target": "$100 trillion total crypto market cap."
+        "btc_view": "Bullish, sees accumulation signals similar to previous major upside moves.",
+        "eth_view": "Bullish, sees Ethereum at a key technical reversal point.",
+        "price_target": "Implies significant upside for Bitcoin and Ethereum based on technical setups."
       },
       {
-        "name": "Mike Novogratz",
-        "firm": "Galaxy Digital",
+        "name": "Cathie Wood",
+        "firm": "ARK Invest",
         "stance": "Bullish",
-        "key_quote": "Bitcoin is heading back above $70,000 and that Washington will eventually inflate its way out of debt.",
-        "quote_source": "All Things Markets Podcast",
-        "quote_date": "June 15, 2026",
+        "key_quote": "Capital outflows from regions experiencing economic and political instability could provide new upward momentum for Bitcoin and the broader digital assets market.",
+        "quote_source": "KuCoin",
+        "quote_date": "June 27, 2026",
         "key_views": [
-          "Bitcoin is likely to reclaim $70,000, especially if the CLARITY Act advances.",
-          "The U.S. will likely inflate its way out of its $40 trillion debt.",
-          "Cautious about the SpaceX IPO but bullish on Bitcoin's long-term prospects."
+          "Global instability increases demand for store-of-value assets like Bitcoin.",
+          "Bitcoin acts as an insurance tool against inflation and currency weakness.",
+          "AI and Bitcoin serve distinct but complementary roles in investment portfolios."
         ],
-        "btc_view": "Bullish, with a 70/30 odds of reclaiming $70,000 tied to regulatory progress.",
+        "btc_view": "Bullish, sees global instability as a catalyst for Bitcoin demand.",
         "eth_view": "Not specified",
-        "price_target": "Reclaiming $70,000."
-      },
-      {
-        "name": "PlanB",
-        "firm": "Analyst",
-        "stance": "Cautious",
-        "key_quote": "There is a greater than 50% probability that Bitcoin ($BTC) will fall below $61,000.",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "June 1, 2026",
-        "key_views": [
-          "There's a significant chance of Bitcoin dropping below $61,000.",
-          "Market sentiment is divided, with no definitive signs of a bottom.",
-          "Reiterates the Stock-to-Flow model's long-term prediction of $500,000."
-        ],
-        "btc_view": "Cautious in the short-term, with a high probability of further downside, but maintains a long-term bullish outlook based on S2F model.",
-        "eth_view": "Not specified",
-        "price_target": "Potential drop below $61,000 or $53,000; $500,000 (long-term S2F)."
+        "price_target": "Believes Bitcoin and Ethereum could explode 25x from current levels."
       },
       {
         "name": "Lyn Alden",
-        "firm": "Analyst",
-        "stance": "Structurally Bullish",
-        "key_quote": "If all it takes to kill bitcoin is a bullish entity that likes it enough to buy, then 'go home.'",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "June 13, 2026",
+        "firm": "Lyn Alden Investment Strategy",
+        "stance": "Neutral",
+        "key_quote": "I've been kind of a polite long-term Ethereum bear, but the post-election new low in ETHBTC is even more brutal than I expected.",
+        "quote_source": "Cointelegraph",
+        "quote_date": "November 16, 2024",
         "key_views": [
-          "Defends Bitcoin against the narrative that Strategy's sale could 'kill' it.",
-          "Volatility is a defining feature, not a flaw, and contributes to upside potential.",
-          "The Bitcoin cycle is driven more by macro factors than the halving."
+          "Surprised by Ethereum's weak performance against Bitcoin.",
+          "Long-term Ethereum bear, but acknowledges current market dynamics.",
+          "Bitcoin's recent weakness is due to broader market forces, not just Bitcoin itself."
         ],
-        "btc_view": "Structurally bullish, expects new all-time highs and a longer cycle driven by macroeconomics.",
-        "eth_view": "Not specified",
-        "price_target": "Expects Bitcoin to be back in the six figures and reach new all-time highs."
+        "btc_view": "Neutral, sees recent weakness as a result of broader market forces and AI competition.",
+        "eth_view": "Cautious/Bearish on ETH relative to BTC, but acknowledges broader market factors.",
+        "price_target": "Not specified"
       },
       {
-        "name": "Jamie Dimon",
-        "firm": "JPMorgan Chase",
+        "name": "Nic Carter",
+        "firm": "Castle Island Ventures",
+        "stance": "Cautious",
+        "key_quote": "Elliptic curve cryptography is on the brink of obsolescence. The only thing that matters is how quickly blockchain developers recognize that they need to bake in cryptographic mutability into their networks.",
+        "quote_source": "CoinDesk",
+        "quote_date": "March 25, 2026",
+        "key_views": [
+          "Bitcoin developers need to address quantum resistance urgently.",
+          "Ethereum has a post-quantum roadmap, giving it an advantage.",
+          "Complacency on Bitcoin's side regarding quantum threats is concerning."
+        ],
+        "btc_view": "Cautious, concerned about Bitcoin's vulnerability to quantum computing.",
+        "eth_view": "More positive on Ethereum's proactive approach to quantum resistance.",
+        "price_target": "Suggests ETH/BTC ratio could reflect the divergence in quantum resistance prioritization."
+      },
+      {
+        "name": "Balaji Srinivasan",
+        "firm": "N/A",
+        "stance": "Very Bullish",
+        "key_quote": "I have never been more bullish on crypto. Because the rules-based order is collapsing and the code-based order is rising.",
+        "quote_source": "Bitcoin News",
+        "quote_date": "February 05, 2026",
+        "key_views": [
+          "Structural shift from a rules-based to a code-based order favors crypto.",
+          "Decentralized networks are foundational for new economic and civic models.",
+          "Cryptocurrency is needed for internet capitalism, democracy, and privacy."
+        ],
+        "btc_view": "Very Bullish, sees crypto as integral to a future 'code-based order'.",
+        "eth_view": "Very Bullish, sees crypto as integral to a future 'code-based order'.",
+        "price_target": "Implies significant long-term growth for crypto assets."
+      },
+      {
+        "name": "PlanB",
+        "firm": "N/A",
+        "stance": "Neutral",
+        "key_quote": "Bitcoin is likely to bottom out only after falling below the realized price (around $53,000), just like what happened in previous bear markets.",
+        "quote_source": "WEEX Crypto News",
+        "quote_date": "June 25, 2026",
+        "key_views": [
+          "Bitcoin may not have bottomed yet and could fall below realized price.",
+          "Stock-to-Flow model remains a value signal, not a timing tool.",
+          "Previous rallies lacked momentum, potentially leading to shallower resets."
+        ],
+        "btc_view": "Neutral to Cautious, suggesting potential for further downside before a bottom.",
+        "eth_view": "Not specified",
+        "price_target": "Suggests Bitcoin may fall below $53,000 before bottoming."
+      },
+      {
+        "name": "Willy Woo",
+        "firm": "N/A",
+        "stance": "Neutral",
+        "key_quote": "Bitcoin needs to hold the line above the cost-basis zone for the recovery to mature.",
+        "quote_source": "Bitcoin Vector Lite (Substack)",
+        "quote_date": "Last week",
+        "key_views": [
+          "Bitcoin must hold above the cost-basis zone for a sustained recovery.",
+          "Market is in structural consolidation, gathering fuel for the next move.",
+          "Potential for larger volatility and deeper drawdowns before the next upward move."
+        ],
+        "btc_view": "Neutral, requires holding key price levels for confirmation of a bottom.",
+        "eth_view": "Not specified",
+        "price_target": "Suggests Bitcoin needs to hold above mid-$60,000s for a structural bottom."
+      },
+      {
+        "name": "Vitalik Buterin",
+        "firm": "Ethereum Foundation",
+        "stance": "Neutral",
+        "key_quote": "Indistinguishability obfuscation cryptography's hardest unsolved target.",
+        "quote_source": "Crypto News",
+        "quote_date": "June 29, 2026",
+        "key_views": [
+          "Obfuscation is a key cryptographic challenge with potential for trustless protocols.",
+          "Current obfuscation schemes are computationally impractical.",
+          "Ethereum Foundation is restructuring and reducing its budget."
+        ],
+        "btc_view": "Not specified",
+        "eth_view": "Focused on long-term technical development and privacy enhancements for Ethereum.",
+        "price_target": "Not specified"
+      },
+      {
+        "name": "Nouriel Roubini",
+        "firm": "New York University",
         "stance": "Very Bearish",
-        "key_quote": "We'll fight it... If they don't do it thoughtfully, it'll be a huge problem.",
-        "quote_source": "FOX Business",
-        "quote_date": "June 1, 2026",
+        "key_quote": "Stablecoins represent the only genuinely useful application to emerge from nearly two decades of blockchain development since Bitcoin's launch.",
+        "quote_source": "BeInCrypto (via CryptoRank)",
+        "quote_date": "June 25, 2026",
         "key_views": [
-          "Strongly opposes the CLARITY Act, viewing it as crypto-friendly and unfair to traditional banks.",
-          "Warns stablecoins could become a 'huge problem' and 'blow up'.",
-          "Believes crypto should face the same regulations as traditional financial institutions."
+          "Most cryptocurrencies lack real-world utility and are scams.",
+          "Top cryptocurrencies are significantly down from their all-time highs.",
+          "Stablecoins are the only real-world use case, but are still flawed."
         ],
-        "btc_view": "Highly skeptical and critical of crypto, particularly stablecoins and the CLARITY Act.",
-        "eth_view": "Not specified",
-        "price_target": "Implied negative outlook, warning of potential market 'blow up'."
+        "btc_view": "Very Bearish, calls it a 'crypto apocalypse' and highlights lack of utility.",
+        "eth_view": "Very Bearish, views it as a failed experiment with no real utility.",
+        "price_target": "Predicts a 'crypto apocalypse' and continued decline for most digital assets."
       },
       {
-        "name": "Tom Lee",
-        "firm": "Fundstrat Global Advisors",
-        "stance": "Bullish",
-        "key_quote": "AI is delivering real productivity. Companies are cutting costs, output is increasing, and this shift is creating massive winners.",
-        "quote_source": "YouTube (Raoul Pal & Tom Lee discussion)",
-        "quote_date": "June 9, 2026",
+        "name": "Michael Saylor",
+        "firm": "MicroStrategy",
+        "stance": "Very Bullish",
+        "key_quote": "Bitcoin is a digital property that is rapidly appreciating in value and is the best asset to hold in an inflationary environment.",
+        "quote_source": "X (formerly Twitter)",
+        "quote_date": "Last week",
         "key_views": [
-          "AI is driving real productivity gains, leading to market expansion.",
-          "Bull markets are not killed by old age but by the Fed; Fed policy is not currently restrictive.",
-          "The current market is not a bear market but a correction within a larger bull cycle."
+          "Bitcoin is a superior store of value and inflation hedge.",
+          "MicroStrategy continues to accumulate Bitcoin.",
+          "Long-term adoption of Bitcoin is inevitable."
         ],
-        "btc_view": "Bullish, sees the current downturn as a correction within a larger bull cycle, supported by AI productivity.",
+        "btc_view": "Extremely Bullish, views Bitcoin as the ultimate digital asset and store of value.",
         "eth_view": "Not specified",
-        "price_target": "Implied bullishness on continued market expansion."
+        "price_target": "Implies significant long-term price appreciation for Bitcoin."
+      },
+      {
+        "name": "Peter Schiff",
+        "firm": "Euro Pacific Asset Management",
+        "stance": "Very Bearish",
+        "key_quote": "Bitcoin is a speculative bubble that is destined to collapse, taking all its investors down with it.",
+        "quote_source": "X (formerly Twitter)",
+        "quote_date": "Last week",
+        "key_views": [
+          "Bitcoin has no intrinsic value and is a pure bubble.",
+          "Gold is the true safe haven asset.",
+          "Bitcoin will eventually go to zero."
+        ],
+        "btc_view": "Extremely Bearish, predicts a complete collapse of Bitcoin's value.",
+        "eth_view": "Extremely Bearish, views it similarly to Bitcoin.",
+        "price_target": "Predicts Bitcoin will go to zero."
       }
     ],
-    "synthesis": "This week's crypto commentary shows a stark divide between extreme bullishness on Bitcoin's long-term potential, driven by institutional adoption and technological advancements like AI, and deep skepticism rooted in regulatory concerns and macroeconomic instability. While some predict multi-million dollar price targets for Bitcoin, others warn of significant crashes and advocate for traditional safe-haven assets.",
+    "synthesis": "This week's commentary reveals a stark divide between staunch bulls and bears. While some, like Tom Lee and Raoul Pal, see strong technical and fundamental catalysts for significant upside in Bitcoin and Ethereum, others, notably Nouriel Roubini and Peter Schiff, continue to predict a crypto apocalypse due to a perceived lack of utility and speculative excess. A recurring theme is the impact of broader macroeconomic factors and technological shifts, such as AI, on capital flows within the crypto market.",
     "themes": [
-      "AI's impact on liquidity and market dynamics",
-      "Institutional adoption and regulatory clarity (CLARITY Act)",
-      "Bitcoin's long-term value proposition vs. short-term volatility",
-      "Macroeconomic factors (debt, inflation) influencing crypto markets"
+      "Quantum Computing Threat to Bitcoin",
+      "Macroeconomic Influences on Crypto (Inflation, Interest Rates, Geopolitics)",
+      "AI's Impact on Capital Allocation and Future Crypto Use Cases",
+      "Technical Analysis and Chart Patterns for Bitcoin and Ethereum",
+      "Long-term Value vs. Speculative Bubble Debate"
     ]
   },
-  "crypto_status": "stale",
-  "crypto_last_fresh": "2026-06-29T14:07:49.937538+00:00",
-  "crypto_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
+  "crypto_status": "fresh"
 }
