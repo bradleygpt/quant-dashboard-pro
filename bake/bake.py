@@ -1206,6 +1206,43 @@ try:
     _bin_cur, _bin_d = _is_current(_binary_asof)
     _ret_cur, _ret_d = _is_current(_mlpred_eff)
 
+    # --- per-strategy status: THE single declared source (2026-07-01 directive). ---
+    # book_type comes from the ledger-driven strategy JSONs: "live" = broker-confirmed
+    # positions; "paper" = signal-derived research book, never held at a broker.
+    # Retired scouts (axia/horme/krasis): ledgers still advance as research scouts, but
+    # holdings are redundant with the deployed sleeves (2026-06 combined-book audit) —
+    # they are paper-only and excluded from every combined-book/basket view.
+    _strategies = {}
+    try:
+        _kt = json.load(open(f"{OUT}/c78q.json")).get("target") or {}
+        _strategies["katalepsis"] = {"book_type": _kt.get("book_type", "live"),
+                                     "status": "deployed", "as_of": _kt.get("as_of")}
+    except Exception:
+        pass
+    for _slug in ("aristeia", "auxo", "prosodos", "pronoia"):
+        try:
+            _ch = json.load(open(f"{OUT}/{_slug}_strategy.json")).get("current_holdings") or {}
+            _sbt = _ch.get("book_type", "paper")
+            _strategies[_slug] = {"book_type": _sbt,
+                                  "status": "deployed" if _sbt == "live" else "paper-track (deployment deferred)",
+                                  "as_of": _ch.get("as_of")}
+        except Exception:
+            pass
+    for _slug in ("axia", "horme", "krasis"):
+        _strategies[_slug] = {"book_type": "paper", "status": "research-scout, holdings-redundant"}
+
+    # --- watchdog flag: ops/chain_watchdog.py (quant-historical) drops watchdog_status.json
+    # into public/data on every run; fold it in so the landing HUD FRESH/STALE badge can
+    # reflect pipeline health on the next bake. Absent file = watchdog state unknown (null).
+    _watchdog = None
+    try:
+        if os.path.exists(f"{OUT}/watchdog_status.json"):
+            _wd = json.load(open(f"{OUT}/watchdog_status.json"))
+            _watchdog = {"ok": bool(_wd.get("ok")), "alerts": _wd.get("alerts") or [],
+                         "checked_at": _wd.get("checked_at")}
+    except Exception:
+        pass
+
     _status = {
         "bake": {"fresh": True, "at": _bake_now.replace(microsecond=0).isoformat()},
         "engines": {
@@ -1214,6 +1251,8 @@ try:
         },
         "ppi": _ppi,
         "c78q": _c78q,
+        "strategies": _strategies,
+        "watchdog": _watchdog,
         "market": {"state": _session(_et_now)},
         "_meta": {
             "ppi_as_of": _ppi_as_of,
