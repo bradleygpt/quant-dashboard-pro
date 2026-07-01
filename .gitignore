@@ -3,7 +3,8 @@ edgar_cache.tar.gz
 __pycache__/
 *.pyc
 edgar_cache.tar.gz.part-*
-*.bak
+*.bak*
+secrets.toml
 
 # build_cache.py incremental scratch (promoted to fundamentals_cache.json on success)
 fundamentals_cache.partial.json
