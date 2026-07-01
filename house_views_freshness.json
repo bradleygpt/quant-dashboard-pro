@@ -1,0 +1,98 @@
+{
+  "checked_utc": "2026-07-01T11:57:29.261350+00:00",
+  "checked_human": "2026-07-01 11:57 UTC",
+  "status": "ok",
+  "needs_action_count": 0,
+  "forecasters": [
+    {
+      "id": "wells_fargo_ii",
+      "name": "Wells Fargo Inv. Institute",
+      "status": "error",
+      "prior_as_of": "2026-06",
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+    },
+    {
+      "id": "fannie_mae_esr",
+      "name": "Fannie Mae (ESR)",
+      "status": "error",
+      "prior_as_of": "2026-06",
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+    },
+    {
+      "id": "kpmg",
+      "name": "KPMG Economics",
+      "status": "current",
+      "prior_as_of": "2026-06",
+      "report_month": "2026-06",
+      "report_title": "Spring thaw, summer heat: Biannual economic outlook",
+      "url": "https://www.kpmg.com/us/en/home/insights/2026/06/spring-thaw-summer-heat-biannual-economic-outlook.html",
+      "error": null
+    },
+    {
+      "id": "guggenheim",
+      "name": "Guggenheim Investments",
+      "status": "current",
+      "prior_as_of": "2026-06",
+      "report_month": "2026-06",
+      "report_title": "June 2026 Economic Outlook and Key Themes",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEWILxU3X7RiugRBoOPYTPVqw7gYtaETC0HeOT1aTjXbOymSfoCa0EIF1f-AzkIpzhW5yC4NYwiur--o5BjE053xRfqd4fQaCoawaiv6K9ay5uIPHcJRq2t7TbZswFLjTO4CUfJP92CnMLHjgmfwyyYLYNOyknGDpNaTFClwZZjwLtx-hldQF-LfPKkfmMjlyrHsOXeE5U_MuW8TYHSBjFxsNcD2BZWaTcp_baqatxj",
+      "error": null
+    },
+    {
+      "id": "ubs_cio",
+      "name": "UBS CIO GWM",
+      "status": "error",
+      "prior_as_of": "2025-11",
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+    },
+    {
+      "id": "goldman_sachs",
+      "name": "Goldman Sachs Research",
+      "status": "error",
+      "prior_as_of": "2026-06",
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+    },
+    {
+      "id": "morgan_stanley",
+      "name": "Morgan Stanley Research",
+      "status": "error",
+      "prior_as_of": "2026-05",
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+    },
+    {
+      "id": "yardeni",
+      "name": "Yardeni Research",
+      "status": "error",
+      "prior_as_of": "2026-05",
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+    },
+    {
+      "id": "vanguard",
+      "name": "Vanguard (VEMO)",
+      "status": "error",
+      "prior_as_of": "2025-12",
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+    }
+  ]
+}
