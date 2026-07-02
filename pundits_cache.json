@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-07-01T12:37:13.050444+00:00",
-  "last_updated_human": "2026-07-01 12:37 UTC",
+  "last_updated_utc": "2026-07-02T12:10:16.948597+00:00",
+  "last_updated_human": "2026-07-02 12:10 UTC",
   "market_context": {
-    "spy_price": 746.77001953125,
-    "sp500_level": 7467.7001953125,
-    "btc_price": 58351.98828125,
-    "eth_price": 1565.6800537109375
+    "spy_price": 745.760009765625,
+    "sp500_level": 7457.60009765625,
+    "btc_price": 61259.19921875,
+    "eth_price": 1649.530029296875
   },
   "equity": {
     "commentators": [
@@ -217,7 +217,7 @@
     ]
   },
   "equity_status": "stale",
-  "equity_last_fresh": "2026-06-30T12:12:15.339412+00:00",
+  "equity_last_fresh": "2026-07-01T12:37:13.050444+00:00",
   "equity_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
   "crypto": {
     "commentators": [
@@ -423,5 +423,7 @@
       "Long-term Value vs. Speculative Bubble Debate"
     ]
   },
-  "crypto_status": "fresh"
+  "crypto_status": "stale",
+  "crypto_last_fresh": "2026-07-01T12:37:13.050444+00:00",
+  "crypto_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
 }
