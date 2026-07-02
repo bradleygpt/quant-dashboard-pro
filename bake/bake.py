@@ -40,6 +40,7 @@ FLOORS = [0, 1, 10]
 EQUAL = dict(DEFAULT_PILLAR_WEIGHTS)
 OUT = os.path.join(ROOT, "web", "public", "data")
 os.makedirs(OUT, exist_ok=True)
+BAKE_START_TS = _time.time()   # vintage pass: stamp only what THIS run actually wrote
 PILLARS = list(PILLAR_METRICS.keys())  # Valuation, Growth, Profitability, Momentum, EPS Revisions
 RAW_KEYS = [k for metrics in PILLAR_METRICS.values() for (k, _, _) in metrics]
 
@@ -1285,5 +1286,54 @@ try:
         log(f"  freshness_manifest system_status upsert skipped: {_me}")
 except Exception as e:
     log(f"system_status.json skipped: {e}")
+
+# ── vintage stamps (audit §1.2): the 15 silent-staleness files get a top-level generated_at ──
+# Rule: stamp ONLY files this run actually wrote (mtime >= bake start) — a kept-committed /
+# pass-through file must never get a fresh stamp its content didn't earn. Every stamped file
+# also gets a freshness_manifest.sources entry so the <AsOf> badge can read one source of truth.
+try:
+    _VINTAGE_FILES = [
+        "universe_floor0.json", "universe_floor1.json", "universe_floor10.json",
+        "quarterly.json", "snapshots.json", "quant_backtest.json", "earnings_reviews.json",
+        "correlations_cache.json", "doppelganger.json", "etf.json", "market_static.json",
+        "pundits.json", "help.json", "detail_timeseries_fv_excluded.json",
+        "paper_track_event_pead.json",
+    ]
+    _vstamp = datetime.now().replace(microsecond=0).isoformat()
+    _mp = f"{OUT}/freshness_manifest.json"
+    _man = json.load(open(_mp)) if os.path.exists(_mp) else {}
+    _man.setdefault("sources", {})
+    _stamped, _skipped = [], []
+    for _vf in _VINTAGE_FILES:
+        _vp = os.path.join(OUT, _vf)
+        _key = _vf[:-5]
+        if not os.path.exists(_vp):
+            _skipped.append(f"{_vf} (missing)")
+            continue
+        if os.path.getmtime(_vp) < BAKE_START_TS:
+            _skipped.append(f"{_vf} (not regenerated this run - left unstamped)")
+            continue
+        try:
+            _vj = json.load(open(_vp, encoding="utf-8"))
+        except Exception:
+            _skipped.append(f"{_vf} (unreadable)")
+            continue
+        if isinstance(_vj, dict):
+            if not _vj.get("generated_at"):
+                _vj["generated_at"] = _vstamp
+                json.dump(_vj, open(_vp, "w"), separators=(",", ":"))
+            _stamped.append(_vf)
+        else:
+            # list-shaped (detail_timeseries_fv_excluded): can't stamp in-file without a
+            # shape change — the manifest entry below carries its vintage instead.
+            _stamped.append(f"{_vf} (manifest-only, list shape)")
+        _man["sources"][_key] = {"source": "bake.py vintage pass", "as_of": _vstamp[:10],
+                                 "generated_at": _vstamp, "check_status": "ok"}
+    _man["generated_at"] = _vstamp
+    json.dump(_man, open(_mp, "w"), indent=2)
+    log(f"vintage pass: stamped {len(_stamped)} files, skipped {len(_skipped)} "
+        f"({'; '.join(_skipped) if _skipped else 'none'})")
+except Exception as e:
+    log(f"vintage pass skipped: {e}")
 
 log("DONE")
