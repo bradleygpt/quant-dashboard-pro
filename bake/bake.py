@@ -384,13 +384,44 @@ def _load_pred12():
 PRED12, PRED12_MED = _load_pred12()
 metas = {str(f): bake_floor(f) for f in FLOORS}
 
+# ── meta preset provenance (2026-07-02): prefer the backtest builder's RECOMPUTED
+# per-preset headlines over the config.py literals. Fallback to the literal ONLY when
+# the builder output is absent, and always say which source was used — every displayed
+# metric must trace to data, and the JSON must show its provenance.
+import copy as _copy
+_presets_out = _copy.deepcopy(WEIGHT_PRESETS)
+try:
+    _bt_src = os.path.join(ROOT, "quant_backtest_results.json")
+    _bt_presets = {}
+    if os.path.exists(_bt_src):
+        with open(_bt_src) as _f:
+            _btd = json.load(_f)
+        _bt_presets = _btd.get("presets") or {}
+    for _k, _pv in _presets_out.items():
+        _rp = (_bt_presets.get(_k) or {}).get("headline") or {}
+        if _rp.get("cagr_pct") is not None:
+            _pv["backtest_cagr"] = _rp["cagr_pct"]
+            _pv["backtest_sharpe"] = _rp.get("sharpe", _pv.get("backtest_sharpe"))
+            _pv["backtest_max_dd"] = _rp.get("max_dd_pct", _pv.get("backtest_max_dd"))
+            _pv["backtest_provenance"] = "recomputed"
+            _pv["backtest_recomputed_at"] = _btd.get("last_run_utc")
+            _pv["backtest_window"] = _btd.get("strategy_label")
+        else:
+            _pv["backtest_provenance"] = "config-literal"
+    _n_rec = sum(1 for _pv in _presets_out.values() if _pv.get("backtest_provenance") == "recomputed")
+    log(f"meta presets: {_n_rec} recomputed / {len(_presets_out) - _n_rec} config-literal")
+except Exception as _pe:
+    for _pv in _presets_out.values():
+        _pv.setdefault("backtest_provenance", "config-literal")
+    log(f"meta preset provenance pass failed ({_pe}) — all config-literal")
+
 meta = {
     "generated_at": datetime.now().isoformat(timespec="seconds"),
     "source_commit": os.popen("git rev-parse --short HEAD").read().strip(),
     "default_preset": DEFAULT_PRESET,
     "default_floor": 0,
     "floors": FLOORS,
-    "presets": WEIGHT_PRESETS,
+    "presets": _presets_out,
     "absolute_thresholds": ABSOLUTE_THRESHOLDS,
     "absolute_threshold_stats": ABSOLUTE_THRESHOLD_STATS,
     "pillars": PILLARS,
@@ -910,6 +941,9 @@ try:
                 "win_rate_pct": _real.get("win_rate_pct"),
                 "n_periods": _nn,
             },
+            # per-preset recomputed headlines (2026-07-02 builder) — same source that
+            # feeds meta.presets provenance="recomputed"; absent on legacy candidates.
+            "presets": _d.get("presets") or None,
             "curve": curve,
         }, open(f"{OUT}/quant_backtest.json", "w"))
         log(f"wrote quant_backtest.json (src={_name}, {len(_rows)} checkpoints, "
@@ -1311,7 +1345,20 @@ try:
             _skipped.append(f"{_vf} (missing)")
             continue
         if os.path.getmtime(_vp) < BAKE_START_TS:
-            _skipped.append(f"{_vf} (not regenerated this run - left unstamped)")
+            # Not this run's output — never stamp it, but if its PRODUCER stamped it
+            # (e.g. paper_track_event_pead.json), surface that vintage in the manifest.
+            try:
+                _pj = json.load(open(_vp, encoding="utf-8"))
+                _pg = _pj.get("generated_at") if isinstance(_pj, dict) else None
+            except Exception:
+                _pg = None
+            if _pg:
+                _man["sources"][_key] = {"source": "producer-stamped (not written by bake)",
+                                         "as_of": str(_pg)[:10], "generated_at": _pg,
+                                         "check_status": "ok"}
+                _skipped.append(f"{_vf} (producer-stamped {str(_pg)[:10]} - manifest updated)")
+            else:
+                _skipped.append(f"{_vf} (not regenerated this run - left unstamped)")
             continue
         try:
             _vj = json.load(open(_vp, encoding="utf-8"))
