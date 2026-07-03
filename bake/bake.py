@@ -975,6 +975,53 @@ except Exception as e:
     log(f"c78q.json skipped: {e}")
 
 
+# ── regime_timeseries.json: ML regime classifier history for the RegimeRibbon ──
+# Run-length segments of dominant_regime from quant-historical's classifier
+# (5 states: early_bull/late_bull/range_bound/correction/panic; the frontend
+# collapses them to risk-on/neutral/drawdown display states in theme.ts).
+try:
+    import pandas as _rg_pd
+    _rg_path = os.path.join(os.path.dirname(ROOT), "quant-historical",
+                            "mlpred_v7_data", "regime", "classifications",
+                            "regime_classifications.parquet")
+    if os.path.exists(_rg_path):
+        _rg = _rg_pd.read_parquet(_rg_path, columns=["date", "dominant_regime"]).sort_values("date")
+        _rg["date"] = _rg_pd.to_datetime(_rg["date"]).dt.strftime("%Y-%m-%d")
+        _rg_segs = []
+        for _d, _r in zip(_rg["date"], _rg["dominant_regime"]):
+            if _rg_segs and _rg_segs[-1]["regime"] == _r:
+                _rg_segs[-1]["end"] = _d
+            else:
+                _rg_segs.append({"start": _d, "end": _d, "regime": str(_r)})
+        _rg_out = {
+            "generated_at": datetime.now().isoformat(timespec="seconds"),
+            "as_of": _rg["date"].iloc[-1],
+            "source": "mlpred_v7_data/regime/classifications/regime_classifications.parquet",
+            "note": "dominant_regime run-length segments, daily grid; 5 ML states, frontend maps to risk_on/neutral/drawdown",
+            "states": sorted(_rg["dominant_regime"].astype(str).unique().tolist()),
+            "segments": _rg_segs,
+        }
+        json.dump(_rg_out, open(f"{OUT}/regime_timeseries.json", "w"), separators=(",", ":"))
+        log(f"wrote regime_timeseries.json ({len(_rg_segs)} segments, as_of {_rg_out['as_of']})")
+        try:
+            _mp = f"{OUT}/freshness_manifest.json"
+            _man = json.load(open(_mp)) if os.path.exists(_mp) else {}
+            _man.setdefault("sources", {})["regime_timeseries"] = {
+                "source": "quant-historical regime_classifications.parquet (ML regime classifier)",
+                "as_of": _rg_out["as_of"],
+                "n_segments": len(_rg_segs),
+                "consumed_by": "RegimeRibbon (strategies hub hero, Katalepsis backtest)",
+                "check_status": "ok",
+            }
+            json.dump(_man, open(_mp, "w"), indent=2)
+        except Exception as _rme:
+            log(f"  freshness_manifest regime_timeseries upsert skipped: {_rme}")
+    else:
+        log("regime_timeseries.json skipped: classifications parquet not found")
+except Exception as _rge:
+    log(f"regime_timeseries.json skipped: {_rge}")
+
+
 # ── AI earnings reviews: pre-bake the LLM cache so Vercel == Streamlit ─────────
 # earnings_reviewer.py caches generated 8-K reviews to ai_earnings_cache.json,
 # keyed {TICKER}_{filing_date}; each entry carries full_text + verdict + filing_date.
