@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-07-02T12:10:16.948597+00:00",
-  "last_updated_human": "2026-07-02 12:10 UTC",
+  "last_updated_utc": "2026-07-03T12:11:05.936739+00:00",
+  "last_updated_human": "2026-07-03 12:11 UTC",
   "market_context": {
-    "spy_price": 745.760009765625,
-    "sp500_level": 7457.60009765625,
-    "btc_price": 61259.19921875,
-    "eth_price": 1649.530029296875
+    "spy_price": 744.780029296875,
+    "sp500_level": 7447.80029296875,
+    "btc_price": 62064.4609375,
+    "eth_price": 1740.510009765625
   },
   "equity": {
     "commentators": [
@@ -217,7 +217,7 @@
     ]
   },
   "equity_status": "stale",
-  "equity_last_fresh": "2026-07-01T12:37:13.050444+00:00",
+  "equity_last_fresh": "2026-07-02T12:10:16.948597+00:00",
   "equity_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
   "crypto": {
     "commentators": [
@@ -424,6 +424,6 @@
     ]
   },
   "crypto_status": "stale",
-  "crypto_last_fresh": "2026-07-01T12:37:13.050444+00:00",
+  "crypto_last_fresh": "2026-07-02T12:10:16.948597+00:00",
   "crypto_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
 }
