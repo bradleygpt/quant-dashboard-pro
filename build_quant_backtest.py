@@ -131,20 +131,25 @@ def get_first_of_months(start_year=2011, end_year=None):
 
 
 def fetch_price_history(ticker, start_date, end_date):
-    """Get historical prices using parquet cache (fast) with yfinance fallback."""
+    """Historical prices via the parquet cache.
+
+    price_cache owns the fetch policy: when the cache is LOADED, a miss means the ticker has no
+    data for that window (pre-IPO / delisted) and it returns None WITHOUT hitting Yahoo; only when
+    the cache file is absent does price_cache fall back to live yfinance (local-dev convenience).
+    The previous version re-added its OWN live fallback on every miss, so in CI the whole universe
+    (incl. ~744 not-yet-listed names in the 2010 base year) stormed Yahoo and got rate-limited.
+    Trust price_cache and do NOT storm here."""
     try:
-        from price_cache import get_prices
-        hist = get_prices(ticker, start_date, end_date)
-        if hist is not None and not hist.empty:
-            return hist
+        import price_cache
     except ImportError:
-        pass
+        price_cache = None
+    if price_cache is not None:
+        hist = price_cache.get_prices(ticker, start_date, end_date)
+        return hist if (hist is not None and not hist.empty) else None
+    # price_cache module itself unavailable (should not happen in this repo) — direct live fetch.
     try:
-        t = yf.Ticker(ticker)
-        hist = t.history(start=start_date, end=end_date, auto_adjust=False)
-        if hist.empty:
-            return None
-        return hist
+        hist = yf.Ticker(ticker).history(start=start_date, end=end_date, auto_adjust=False)
+        return None if hist.empty else hist
     except Exception:
         return None
 
@@ -566,6 +571,17 @@ def main():
     print(f"Universe: {len(universe)} tickers | presets: {list(preset_weights)} | "
           f"{len(checkpoint_dates)} {checkpoint_freq} checkpoints from {START_YEAR}, "
           f"hold={HOLD_DAYS_TRADING}d, top_n={TOP_N_PICKS}", flush=True)
+
+    # Guard: if prices_cache.parquet exists but can't be read (e.g. no parquet engine in the env),
+    # abort NOW rather than silently live-fetching the whole universe from Yahoo — that is what
+    # rate-limited and killed the 2026-07-05 CI run after 23 min. This step never commits, so
+    # aborting preserves the last-good quant_backtest_results.json in prod.
+    import price_cache
+    if price_cache.is_cache_available() and not price_cache.get_cache_info().get("available"):
+        print("FATAL: prices_cache.parquet is present but unreadable — install a parquet engine "
+              "(`pip install pyarrow`). Aborting rather than live-fetching the full universe.",
+              file=sys.stderr, flush=True)
+        sys.exit(1)
 
     start_time = time.time()
     monthly_results = []
