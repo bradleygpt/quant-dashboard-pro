@@ -139,6 +139,48 @@ CONCEPT_MAPPING = {
 }
 
 
+# ── Compact-cache support (memory) ──────────────────────────────────────────
+# The backtest holds companyfacts for the whole universe in an in-process LRU. The raw EDGAR
+# JSON is 1-5 MB/ticker (mostly tags/units/metadata the selectors never read), so ~1,359 names
+# => multi-GB => OOM on the CI runner. _compact_facts() prunes each JSON to ONLY the tags in
+# CONCEPT_MAPPING and the units the selectors read, KEEPING every entry's full
+# (end, start, filed, val) — i.e. the ENTIRE filed-date timeline, no date collapsing. The nested
+# {'facts': {'us-gaap': {tag: {'units': {unit: [entries]}}}}} shape is preserved verbatim, so
+# _get_ttm_value / _get_concept_value_at_date / get_latest_earnings_filing_date consume it
+# UNCHANGED and produce byte-identical results. The point-in-time (filed <= target_date) filter
+# still runs per-checkpoint downstream — the cache never bakes in an as-of date, so there is no
+# lookahead/staleness across checkpoints.
+_COMPACT_TAGS = frozenset(t for tags in CONCEPT_MAPPING.values() for t in tags)
+_COMPACT_UNITS = ("USD", "shares", "USD/shares", "pure")
+
+
+def _compact_facts(facts_dict):
+    """Prune a raw companyfacts dict to the selector-relevant subset, preserving all entries
+    (full filed-date timeline) and the nested shape. Returns {'facts': {'us-gaap': {...}}} or None."""
+    if not facts_dict:
+        return None
+    us = facts_dict.get("facts", {}).get("us-gaap", {})
+    out = {}
+    for tag in _COMPACT_TAGS:
+        node = us.get(tag)
+        if not node:
+            continue
+        units = node.get("units", {})
+        kept = {}
+        for u in _COMPACT_UNITS:
+            arr = units.get(u)
+            if not arr:
+                continue
+            # keep only the four fields the selectors read; preserve entry order + EVERY filing
+            kept[u] = [
+                {"end": e.get("end"), "start": e.get("start"), "filed": e.get("filed"), "val": e.get("val")}
+                for e in arr
+            ]
+        if kept:
+            out[tag] = {"units": kept}
+    return {"facts": {"us-gaap": out}}
+
+
 def _ensure_cache_dir():
     """Create cache directory if needed."""
     if not os.path.exists(CACHE_DIR):

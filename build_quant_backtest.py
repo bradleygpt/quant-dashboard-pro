@@ -45,12 +45,20 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 
-# Speed only: memoize the EDGAR companyfacts JSON parse per ticker so ~60ms/call
-# becomes ~0 across the (tickers x checkpoints) grid. Same bytes, same data.
+# Memory + speed: memoize a COMPACT companyfacts per ticker (one SEC fetch/ticker reused across
+# all checkpoints). The raw EDGAR JSON is 1-5 MB (=> ~12 GB across the universe => runner OOM);
+# _compact_facts prunes it to the ~30 selector tags while KEEPING the full filed-date timeline, so
+# downstream point-in-time selection is byte-identical and each checkpoint still derives its own
+# as-of view. maxsize stays large enough for the whole universe, so it never re-fetches SEC.
 try:
     import edgar_fundamentals as _edgar
     if not getattr(_edgar.fetch_companyfacts, "__wrapped__", None):
-        _edgar.fetch_companyfacts = lru_cache(maxsize=4096)(_edgar.fetch_companyfacts)
+        _raw_fetch_companyfacts = _edgar.fetch_companyfacts
+
+        def _fetch_compact_companyfacts(ticker, cik, verbose=False):
+            return _edgar._compact_facts(_raw_fetch_companyfacts(ticker, cik, verbose))
+
+        _edgar.fetch_companyfacts = lru_cache(maxsize=4096)(_fetch_compact_companyfacts)
 except Exception:
     pass
 
