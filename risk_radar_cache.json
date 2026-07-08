@@ -1,10 +1,138 @@
 {
-  "last_updated_utc": "2026-07-07T12:29:34.311410+00:00",
-  "last_updated_human": "2026-07-07 12:29 UTC",
-  "as_of_window": null,
-  "risks": [],
-  "consensus_note": "",
-  "themes": [],
-  "status": "failed",
-  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
+  "last_updated_utc": "2026-07-08T11:49:46.951410+00:00",
+  "last_updated_human": "2026-07-08 11:49 UTC",
+  "as_of_window": "June 2026",
+  "risks": [
+    {
+      "title": "Persistent Inflationary Pressures and Hawkish Fed Stance",
+      "category": "Inflation",
+      "severity": "High",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "Inflation remains elevated above the Fed's 2% target, driven by supply shocks in energy and technology sectors, and potentially sticky service inflation. This is leading the Federal Reserve to maintain a hawkish stance, with a possibility of further rate hikes, which could dampen economic growth.",
+      "watch_for": "Core PCE inflation readings, FOMC statements on inflation outlook, and Federal Funds rate projections.",
+      "sources": [
+        "Federal Reserve FOMC statement (June 17, 2026)",
+        "Federal Reserve Summary of Economic Projections (June 2026)",
+        "Guggenheim Investments (June 16, 2026)",
+        "KPMG (June 10, 2026)",
+        "Wells Fargo Investment Institute (June 17, 2026)",
+        "StoneX (July 06, 2026)"
+      ]
+    },
+    {
+      "title": "Geopolitical Instability and Middle East Conflict Fallout",
+      "category": "Geopolitical",
+      "severity": "High",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "The ongoing conflict in the Middle East is causing significant energy price shocks, supply chain disruptions, and heightened global uncertainty. This poses a risk to global growth, particularly for energy-importing nations, and could lead to further inflationary pressures.",
+      "watch_for": "Developments in the Middle East, oil price fluctuations, and their impact on global trade and supply chains.",
+      "sources": [
+        "World Bank (June 12, 2026)",
+        "JPMorgan (June 12, 2026)",
+        "Guggenheim Investments (May 2026)",
+        "KPMG (June 10, 2026)",
+        "Wells Fargo Investment Institute (June 17, 2026)",
+        "IMF (June 15, 2026)"
+      ]
+    },
+    {
+      "title": "Sustained High US Fiscal Deficits and Rising Debt",
+      "category": "Fiscal",
+      "severity": "High",
+      "direction": "downside",
+      "horizon": "2027",
+      "summary": "The US is projected to run large and sustained fiscal deficits, leading to a significant increase in national debt. Rising interest payments on this debt could crowd out other federal priorities and pose long-term fiscal sustainability risks.",
+      "watch_for": "CBO's projections for deficits and debt-to-GDP ratio, and legislative actions related to fiscal policy.",
+      "sources": [
+        "Congressional Budget Office (February 11, 2026)",
+        "KPMG (April 08, 2026)",
+        "Baker Institute (March 17, 2026)"
+      ]
+    },
+    {
+      "title": "AI Investment Boom and Associated Supply Chain Bottlenecks",
+      "category": "Growth",
+      "severity": "Medium",
+      "direction": "two-sided",
+      "horizon": "2026",
+      "summary": "Massive investment in Artificial Intelligence is a key driver of economic growth, boosting capital expenditures and corporate earnings. However, supply constraints in critical components like memory chips and infrastructure are creating inflationary pressures and could limit the full realization of productivity gains.",
+      "watch_for": "Corporate capital expenditure plans for AI, semiconductor supply chain reports, and inflation in technology goods.",
+      "sources": [
+        "Guggenheim Investments (June 16, 2026)",
+        "KPMG (June 10, 2026)",
+        "JPMorgan (June 12, 2026)",
+        "Wells Fargo Investment Institute (June 17, 2026)",
+        "Guggenheim Investments (July 01, 2026)"
+      ]
+    },
+    {
+      "title": "Global Growth Slowdown and Divergent Economic Paths",
+      "category": "Growth",
+      "severity": "Medium",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "Global economic growth is projected to slow, with emerging markets facing particularly weak per capita income growth. While some major economies show resilience, the overall outlook is characterized by divergent paths and downside risks, exacerbated by geopolitical tensions and energy shocks.",
+      "watch_for": "IMF's World Economic Outlook, World Bank's Global Economic Prospects, and regional economic performance indicators.",
+      "sources": [
+        "World Bank (June 12, 2026)",
+        "IMF (June 25, 2026)",
+        "World Bank (June 11, 2026)",
+        "IMF (June 01, 2026)",
+        "World Bank (June 11, 2026)"
+      ]
+    },
+    {
+      "title": "Labor Market Stabilization Amidst Shifting Dynamics",
+      "category": "Labor",
+      "severity": "Medium",
+      "direction": "two-sided",
+      "horizon": "2026",
+      "summary": "The US labor market has shown resilience, with job gains keeping pace with workforce growth and unemployment rates remaining stable. However, factors like retirements and immigration curbs are limiting the labor supply, while AI's impact on certain job sectors remains a point of observation.",
+      "watch_for": "Unemployment rate, job growth figures, and labor force participation rates.",
+      "sources": [
+        "Stanford SIEPR (2026)",
+        "Guggenheim Investments (June 16, 2026)",
+        "KPMG (June 10, 2026)",
+        "Federal Reserve FOMC statement (June 17, 2026)",
+        "Federal Reserve Summary of Economic Projections (June 2026)"
+      ]
+    },
+    {
+      "title": "Evolving Trade Policies and Tariff Impacts",
+      "category": "Trade",
+      "severity": "Low",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "New tariffs are being implemented, potentially replacing those invalidated by the Supreme Court. These trade policy shifts could impact prices, margin compression, and employment, with emerging markets in Asia and Sub-Saharan Africa being particularly at risk.",
+      "watch_for": "Announcements of new tariffs, trade data, and their impact on import costs and export competitiveness.",
+      "sources": [
+        "KPMG (June 10, 2026)",
+        "KPMG (April 08, 2026)",
+        "Wells Fargo Investment Institute (December 09, 2025)"
+      ]
+    },
+    {
+      "title": "Stagflationary Risks in a Complex Policy Environment",
+      "category": "Policy",
+      "severity": "Medium",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "There's a concern about stagflation, a rare condition of high inflation and high unemployment, particularly if the labor market weakens while inflation remains above target. The Federal Reserve faces a complex challenge in balancing its dual mandate.",
+      "watch_for": "Simultaneous increases in inflation and unemployment rates, and Federal Reserve policy responses.",
+      "sources": [
+        "Stanford SIEPR (2026)"
+      ]
+    }
+  ],
+  "consensus_note": "There is a broad consensus that persistent inflation, driven by supply shocks and geopolitical events, remains a key concern, leading to a hawkish stance from the Federal Reserve. However, outlooks diverge on the precise trajectory of global growth, with some institutions highlighting resilience in major economies while others emphasize the significant downside risks for emerging markets due to conflict fallout and limited policy space. The impact of AI investment is seen as a growth driver but also a source of inflationary pressures.",
+  "themes": [
+    "Inflationary Pressures",
+    "Geopolitical Uncertainty",
+    "AI-Driven Growth and Disruptions",
+    "Fiscal Sustainability",
+    "Global Economic Divergence"
+  ],
+  "status": "fresh"
 }
