@@ -1,18 +1,18 @@
 {
-  "checked_utc": "2026-07-01T11:57:29.261350+00:00",
-  "checked_human": "2026-07-01 11:57 UTC",
+  "checked_utc": "2026-07-15T10:44:48.454972+00:00",
+  "checked_human": "2026-07-15 10:44 UTC",
   "status": "ok",
-  "needs_action_count": 0,
+  "needs_action_count": 1,
   "forecasters": [
     {
       "id": "wells_fargo_ii",
       "name": "Wells Fargo Inv. Institute",
-      "status": "error",
+      "status": "current",
       "prior_as_of": "2026-06",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+      "report_month": "2026-06",
+      "report_title": "2026 Midyear Outlook: Keeping Discipline in Noisy Markets",
+      "url": "https://www.businesswire.com/news/home/20260617005347/en/Wells-Fargo-Investment-Institute-When-Every-Headline-Shouts-Discipline-Matters-Most",
+      "error": null
     },
     {
       "id": "fannie_mae_esr",
@@ -22,27 +22,27 @@
       "report_month": null,
       "report_title": null,
       "url": null,
-      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+      "error": "No JSON found: "
     },
     {
       "id": "kpmg",
       "name": "KPMG Economics",
-      "status": "current",
+      "status": "error",
       "prior_as_of": "2026-06",
-      "report_month": "2026-06",
-      "report_title": "Spring thaw, summer heat: Biannual economic outlook",
-      "url": "https://www.kpmg.com/us/en/home/insights/2026/06/spring-thaw-summer-heat-biannual-economic-outlook.html",
-      "error": null
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "No JSON found: "
     },
     {
       "id": "guggenheim",
       "name": "Guggenheim Investments",
-      "status": "current",
+      "status": "error",
       "prior_as_of": "2026-06",
-      "report_month": "2026-06",
-      "report_title": "June 2026 Economic Outlook and Key Themes",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEWILxU3X7RiugRBoOPYTPVqw7gYtaETC0HeOT1aTjXbOymSfoCa0EIF1f-AzkIpzhW5yC4NYwiur--o5BjE053xRfqd4fQaCoawaiv6K9ay5uIPHcJRq2t7TbZswFLjTO4CUfJP92CnMLHjgmfwyyYLYNOyknGDpNaTFClwZZjwLtx-hldQF-LfPKkfmMjlyrHsOXeE5U_MuW8TYHSBjFxsNcD2BZWaTcp_baqatxj",
-      "error": null
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "No JSON found: "
     },
     {
       "id": "ubs_cio",
@@ -57,12 +57,12 @@
     {
       "id": "goldman_sachs",
       "name": "Goldman Sachs Research",
-      "status": "error",
+      "status": "stale",
       "prior_as_of": "2026-06",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+      "report_month": "2026-07",
+      "report_title": "US Market Pulse July 2026",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGlZ6X5KycAR_ZkjI4GqdSk3zBjyvsGngCEqR3ocLIBoM1bmWN4fxlvbsnJK06rlOAXpvj5-ZQlGEMi15Sv577TafprZkMIfdfhYzMgMij_exK8X2NEgR0Px9ciLLOvxvgdf3Ha91p6dc7bQmkWOcly2zsMHue4f1w=,AUZIYQGlZ6X5KycAR_ZkjI4GqdSk3zBjyvsGngCEqR3ocLIBoM1bmWN4fxlvbsnJK06rlOAXpvj5-ZQlGEMi15Sv577TafprZkMIfdfhYzMgMij_exK8X2NEgR0Px9ciLLOvxvgdf3Ha91p6dc7bQmkWOcly2zsMHue4f1w=",
+      "error": null
     },
     {
       "id": "morgan_stanley",
@@ -72,17 +72,17 @@
       "report_month": null,
       "report_title": null,
       "url": null,
-      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+      "error": "No JSON found: "
     },
     {
       "id": "yardeni",
       "name": "Yardeni Research",
-      "status": "error",
+      "status": "current",
       "prior_as_of": "2026-05",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+      "report_month": "2026-05",
+      "report_title": "MARKET CALL: Raising Our 2026 S&P 500 Target Range Due To Earnings-Led Meltup",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGRXN6jqrMtlst1wWJILDMLvz2I5lSPCnmsxmvtFFAiH7W2yiAoyRb_Fe03SQRZ66JpwqpqcUvtoA0QM0Ap_zCPV2uqfvvmuuucnYYuTeJPWS-gIbrNHFLM01cwRjnZALed2E1VIMyph8Z8T2rPs4FYWuzw94dFskHY8JPDvkgmKgYwjLYcIPEPtnmuABDAWV1KYslPjYaBBj8i_QPswhA0bVHPYrw40zW3",
+      "error": null
     },
     {
       "id": "vanguard",
@@ -92,7 +92,7 @@
       "report_month": null,
       "report_title": null,
       "url": null,
-      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+      "error": "No JSON found: "
     }
   ]
 }

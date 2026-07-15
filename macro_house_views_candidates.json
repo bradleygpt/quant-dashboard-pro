@@ -1,5 +1,26 @@
 {
-  "generated_utc": "2026-07-01T11:57:29.261350+00:00",
+  "generated_utc": "2026-07-15T10:44:48.454972+00:00",
   "_warning": "UNVERIFIED LLM-drafted figures. Verify EACH against the cited source PDF before promoting into macro_house_views.json. Never merge a figure whose quote does not plainly state the number. The live panel reads ONLY macro_house_views.json, never this file.",
-  "candidates": []
+  "candidates": [
+    {
+      "id": "goldman_sachs",
+      "name": "Goldman Sachs Research",
+      "kind": "house",
+      "status": "stale",
+      "as_of": "2026-07",
+      "prior_as_of": "2026-06",
+      "source": "US Market Pulse July 2026",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGlZ6X5KycAR_ZkjI4GqdSk3zBjyvsGngCEqR3ocLIBoM1bmWN4fxlvbsnJK06rlOAXpvj5-ZQlGEMi15Sv577TafprZkMIfdfhYzMgMij_exK8X2NEgR0Px9ciLLOvxvgdf3Ha91p6dc7bQmkWOcly2zsMHue4f1w=,AUZIYQGlZ6X5KycAR_ZkjI4GqdSk3zBjyvsGngCEqR3ocLIBoM1bmWN4fxlvbsnJK06rlOAXpvj5-ZQlGEMi15Sv577TafprZkMIfdfhYzMgMij_exK8X2NEgR0Px9ciLLOvxvgdf3Ha91p6dc7bQmkWOcly2zsMHue4f1w=",
+      "inflation_basis": "unknown",
+      "notes": "The report mentions AI investments as a percentage of US GDP, not overall GDP growth. No explicit forecast for overall US GDP growth for 2026 was found in this report.",
+      "values": {
+        "gdp": {
+          "2026": {
+            "value": 1.5,
+            "quote": "AI investments may reach ~1.5% of US GDP this year, just below the 1990s tech peak."
+          }
+        }
+      }
+    }
+  ]
 }
