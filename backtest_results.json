@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-07-12T09:22:58.580146+00:00",
+  "last_run_utc": "2026-07-19T09:20:13.101311+00:00",
   "parameters": {
     "start_year": 2005,
     "hold_days": 14,
@@ -10,32 +10,32 @@
     "realistic_strategy": {
       "n_periods": 259,
       "win_rate_pct": 55.21235521235521,
-      "avg_return_pct": 0.33648004182970553,
-      "avg_win_pct": 1.5494820747215812,
+      "avg_return_pct": 0.3346536726522338,
+      "avg_win_pct": 1.546174175302244,
       "avg_loss_pct": -1.1588586711318307,
       "best_period_pct": 8.12970915816841,
       "worst_period_pct": -6.2023069048297135,
-      "total_compounded_pct": 129.07306226349928
+      "total_compounded_pct": 128.0129166773186
     },
     "theoretical_max_strategy": {
       "n_periods": 259,
       "win_rate_pct": 98.45559845559846,
-      "avg_return_pct": 3.8731476590452574,
-      "avg_win_pct": 3.946032392488183,
+      "avg_return_pct": 3.879209048349945,
+      "avg_win_pct": 3.9521888624094146,
       "avg_loss_pct": -0.7732540979412408,
       "best_period_pct": 11.453344422768952,
       "worst_period_pct": -1.0217564850371612,
-      "total_compounded_pct": 1773428.4214748472
+      "total_compounded_pct": 1800282.4310336215
     },
     "spy_benchmark": {
       "n_periods": 259,
-      "win_rate_pct": 62.93436293436293,
-      "avg_return_pct": 0.49017524755009406,
-      "avg_win_pct": 2.742175638087006,
-      "avg_loss_pct": -3.333533748882371,
+      "win_rate_pct": 62.54826254826254,
+      "avg_return_pct": 0.484138528445062,
+      "avg_win_pct": 2.751495856551303,
+      "avg_loss_pct": -3.3025819576705158,
       "best_period_pct": 16.449328359106417,
       "worst_period_pct": -22.18771317208354,
-      "total_compounded_pct": 181.86158495184853
+      "total_compounded_pct": 177.50829577860694
     }
   },
   "monthly_results": [
@@ -23060,7 +23060,7 @@
     {
       "date": "2021-01-01",
       "n_candidates_screened": 197,
-      "n_qualified": 125,
+      "n_qualified": 126,
       "top_picks": [
         {
           "ticker": "KLAC",
@@ -30969,7 +30969,7 @@
           "stop_price": 80.70428357805524,
           "realistic_return_pct": 4.684694641553126,
           "realistic_exit_reason": "target",
-          "max_return_pct": 5.820423032573563
+          "max_return_pct": 6.570668375217761
         },
         {
           "ticker": "SYK",
@@ -30978,9 +30978,9 @@
           "entry_price": 314.8399963378906,
           "target_price": 334.27999441964283,
           "stop_price": 305.11999729701455,
-          "realistic_return_pct": 4.745268268067324,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": 4.745268268067324
+          "realistic_return_pct": 6.174564320884102,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.275700693159241
         },
         {
           "ticker": "C",
@@ -30989,8 +30989,8 @@
           "entry_price": 139.9600067138672,
           "target_price": 147.13429042271207,
           "stop_price": 136.37286485944475,
-          "realistic_return_pct": 0.5930169565956375,
-          "realistic_exit_reason": "timeout",
+          "realistic_return_pct": -2.5629763377733736,
+          "realistic_exit_reason": "stop",
           "max_return_pct": 2.786505936983472
         },
         {
@@ -31002,7 +31002,7 @@
           "stop_price": 308.605712890625,
           "realistic_return_pct": 3.804496975064716,
           "realistic_exit_reason": "target",
-          "max_return_pct": 4.094219470659365
+          "max_return_pct": 8.128042093479305
         },
         {
           "ticker": "WMB",
@@ -31013,7 +31013,7 @@
           "stop_price": 72.3392824445452,
           "realistic_return_pct": -2.691302114479213,
           "realistic_exit_reason": "stop",
-          "max_return_pct": 1.4931405233145032
+          "max_return_pct": 2.20608972266934
         },
         {
           "ticker": "WMB",
@@ -31024,7 +31024,7 @@
           "stop_price": 72.3392824445452,
           "realistic_return_pct": -2.691302114479213,
           "realistic_exit_reason": "stop",
-          "max_return_pct": 1.4931405233145032
+          "max_return_pct": 2.20608972266934
         },
         {
           "ticker": "AVB",
@@ -31035,7 +31035,7 @@
           "stop_price": 184.8100030081613,
           "realistic_return_pct": 4.112564929824318,
           "realistic_exit_reason": "target",
-          "max_return_pct": 3.5507959412543504
+          "max_return_pct": 3.6090929410573582
         },
         {
           "ticker": "PM",
@@ -31044,9 +31044,9 @@
           "entry_price": 180.91000366210938,
           "target_price": 190.50143650599887,
           "stop_price": 176.11428724016463,
-          "realistic_return_pct": 0.39245560815099845,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": 3.802990152425946
+          "realistic_return_pct": -2.650885150000792,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 6.671821248742632
         },
         {
           "ticker": "KO",
@@ -31057,7 +31057,7 @@
           "stop_price": 79.66070938110352,
           "realistic_return_pct": 3.9603477997687055,
           "realistic_exit_reason": "target",
-          "max_return_pct": 3.531441940605626
+          "max_return_pct": 4.491204228676818
         },
         {
           "ticker": "ABT",
@@ -31068,12 +31068,12 @@
           "stop_price": 88.26356942313058,
           "realistic_return_pct": 5.458295126603123,
           "realistic_exit_reason": "target",
-          "max_return_pct": 5.620452495246762
+          "max_return_pct": 10.954378086199045
         }
       ],
-      "portfolio_return_realistic": 2.210813601484263,
-      "portfolio_return_max": 3.68142459796047,
-      "spy_return_pct": 1.2323002468709008
+      "portfolio_return_realistic": 1.7377839845190712,
+      "portfolio_return_max": 5.2513244278744455,
+      "spy_return_pct": -0.3312100013324023
     }
   ],
   "universe_size": 197,
