@@ -597,6 +597,34 @@ try:
 except Exception as e:
     log(f"quarterly.json skipped: {e}")
 
+# ── baked investment theses (handoff §2, 2026-07-20) ──
+# theses/baked/*.json are generated in Claude Code (see theses/PROMPT_PACK.md)
+# and committed; the bake ships them to the app as public/data/theses/ plus a
+# per-ticker index (latest file wins by the date+version in the filename).
+# No theses yet → no index written → the Stock Detail panel shows its
+# enqueue-only state. Never blocks the bake.
+try:
+    import shutil as _sh
+    _tdir = os.path.join(ROOT, "theses", "baked")
+    _tout = os.path.join(OUT, "theses")
+    _tfiles = sorted(f for f in os.listdir(_tdir)) if os.path.isdir(_tdir) else []
+    _tfiles = [f for f in _tfiles if f.endswith(".json")]
+    if _tfiles:
+        os.makedirs(_tout, exist_ok=True)
+        _tindex = {}
+        for _tf in _tfiles:
+            _sh.copy2(os.path.join(_tdir, _tf), os.path.join(_tout, _tf))
+            _tk = _tf.split("_")[0].upper()
+            _e = _tindex.setdefault(_tk, {"files": []})
+            _e["files"].append(_tf)
+        for _tk, _e in _tindex.items():
+            _e["latest"] = _e["files"][-1]  # sorted → date+version ascending
+            _e["count"] = len(_e["files"])
+        json.dump(_tindex, open(f"{OUT}/theses_index.json", "w"))
+        log(f"wrote theses_index.json ({len(_tindex)} tickers, {len(_tfiles)} theses)")
+except Exception as e:
+    log(f"theses bake skipped: {e}")
+
 # ── indicator snapshots (for Home market-health 1W/1M deltas) ──
 try:
     import shutil
