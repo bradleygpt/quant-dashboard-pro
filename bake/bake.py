@@ -709,20 +709,45 @@ try:
     except Exception as _e:
         _md["cpi_source"] = f"static (FRED CPIAUCNS fetch failed: {_e})"
         _md.setdefault("cpi_asof", _static_asof)
-    # ISM — not on FRED. Prefer the monthly grounded fetch (build_manual_macro.py -> manual_macro.json,
-    # source-gated); fall back to the labeled manual constant from macro.py.
+    # ISM — not on FRED (licensing prohibits derivative feeds; no compliant free API).
+    # Two candidate sources per component, freshest period wins (tie → manual):
+    #   1. macro_baked.json  — Bradley's manual entry (update_ism.py, 1st/3rd biz day)
+    #   2. manual_macro.json — monthly grounded Gemini fetch (best-effort backstop;
+    #      it demonstrably missed the 2026-07-06 holiday-shifted services release)
+    # Fall back to the labeled macro.py constant only when both are absent. Each
+    # component carries its OWN period so the UI never conflates mfg/svcs vintages;
+    # ism_asof (the composite's label + staleness-badge input) = the OLDER period.
     _md["ism_source"] = "ISM PMI (manual — not published on FRED)"
     _md["ism_asof"] = _static_asof
-    try:
-        _mmj = json.load(open(os.path.join(ROOT, "manual_macro.json")))
-        _mfg, _svc = _mmj.get("ism_mfg") or {}, _mmj.get("ism_svcs") or {}
-        if isinstance(_mfg.get("value"), (int, float)) and isinstance(_svc.get("value"), (int, float)):
-            _md["ism_manufacturing"], _md["ism_services"] = _mfg["value"], _svc["value"]
-            _md["ism_composite"] = round(0.11 * _mfg["value"] + 0.89 * _svc["value"], 1)
-            _md["ism_asof"] = _svc.get("ref_month") or _mfg.get("ref_month") or _static_asof
-            _md["ism_source"] = f"ISM PMI (grounded monthly fetch — {_svc.get('source') or _mfg.get('source')})"
-    except Exception:
-        pass  # manual_macro.json absent or unparseable → keep the macro.py constant
+
+    def _ism_candidate(fname, key, period_field):
+        try:
+            _j = json.load(open(os.path.join(ROOT, fname)))
+            _e = _j.get(key) or {}
+            if isinstance(_e.get("value"), (int, float)) and _e.get(period_field):
+                return {"value": _e["value"], "period": str(_e[period_field]),
+                        "source": _e.get("source") or fname,
+                        "entered": _e.get("entered")}
+        except Exception:
+            pass
+        return None
+
+    def _ism_pick(key):
+        _baked = _ism_candidate("macro_baked.json", key, "period")
+        _gem = _ism_candidate("manual_macro.json", key, "ref_month")
+        if _baked and _gem:
+            return _baked if _baked["period"] >= _gem["period"] else _gem
+        return _baked or _gem
+
+    _mfg, _svc = _ism_pick("ism_mfg"), _ism_pick("ism_svcs")
+    if _mfg and _svc:
+        _md["ism_manufacturing"], _md["ism_services"] = _mfg["value"], _svc["value"]
+        _md["ism_composite"] = round(0.11 * _mfg["value"] + 0.89 * _svc["value"], 1)
+        _md["ism_mfg_asof"], _md["ism_svcs_asof"] = _mfg["period"], _svc["period"]
+        _md["ism_mfg_source"], _md["ism_svcs_source"] = _mfg["source"], _svc["source"]
+        _md["ism_entered"] = _mfg.get("entered") or _svc.get("entered")
+        _md["ism_asof"] = min(_mfg["period"], _svc["period"])
+        _md["ism_source"] = f"mfg: {_mfg['source']} · svcs: {_svc['source']}"
 
     market_static = {
         "macro_data": _md,

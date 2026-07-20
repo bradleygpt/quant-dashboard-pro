@@ -1,0 +1,15 @@
+{
+  "_comment": "Manual macro inputs (Bradley-entered). ISM licensing prohibits derivative feeds and no compliant free API exists, so ISM is a hand-baked input updated on the release day (mfg: 1st business day; svcs: 3rd business day). Update with: python update_ism.py <value> <YYYY-MM> [--svcs <value>]. The bake prefers whichever of {this file, manual_macro.json (grounded Gemini fetch)} has the fresher period, per component.",
+  "ism_mfg": {
+    "value": 53.3,
+    "period": "2026-06",
+    "entered": "2026-07-20",
+    "source": "ISM Manufacturing PMI release 2026-07-01 (manual)"
+  },
+  "ism_svcs": {
+    "value": 54.0,
+    "period": "2026-06",
+    "entered": "2026-07-20",
+    "source": "ISM Services PMI release 2026-07-06 (manual)"
+  }
+}
