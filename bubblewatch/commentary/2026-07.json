@@ -1,0 +1,12 @@
+{
+ "month": "2026-07",
+ "generated_at": "2026-07-20T00:00:00",
+ "generator": "claude-code claude-fable-5",
+ "summary": "First live snapshot — this month establishes the baseline, so no trend claims yet. The composite reads 48.8/100, but the three components disagree sharply, which is the real story: credit is the frothiest leg (HY OAS at 2.73% scores 96.9 — spreads this tight leave no cushion priced for disappointment), while real-economy intensity remains moderate (hyperscaler TTM capex of $496.1B is 1.67% of GDP, roughly a sixth of the railway-era peak) and equity pricing is not at analog extremes (median EV/S of the AI complex at 9.9x is a third of the ~30x dot-com anchor; NVDA's forward P/E of 16.0x is notably un-bubbly for the complex's flagship). The 2000-analog failure mode ran through equity valuation; this configuration says if stress comes, watch credit first.",
+ "watch_items": [
+  "HY OAS at 2.73% (2026-07-17): a move through ~4% would flip the credit component from max-froth toward neutral and drop the composite materially — the single most sensitive input.",
+  "Capex trajectory: MSFT's quarterly run-rate roughly doubled year-over-year ($15.8B → $29.9B in the December quarters, $30.9B latest); two more quarters at that slope pushes total intensity past 2% of GDP.",
+  "Valuation dispersion inside the complex: median EV/S 9.9x with NVDA at 19.2x EV/S but 16.0x forward P/E — if the median converges upward toward the leaders rather than the reverse, the valuation component starts doing analog-era work.",
+  "Next month begins real month-over-month diffs; treat any single-month composite move under ±5 points as noise."
+ ]
+}

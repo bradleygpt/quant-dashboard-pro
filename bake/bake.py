@@ -625,6 +625,35 @@ try:
 except Exception as e:
     log(f"theses bake skipped: {e}")
 
+# ── AI Bubble Watch monthly snapshots (handoff §4, 2026-07-20) ──
+# bubblewatch/snapshots/*.json are produced monthly by
+# build_bubblewatch_snapshot.py (data layer — never depends on AI);
+# bubblewatch/commentary/*.json by the Claude Code queue (commentary layer).
+# Ship both + an index; the page shows "commentary pending" when a month has
+# data but no commentary. Never blocks the bake.
+try:
+    import shutil as _sh2
+    _bdir = os.path.join(ROOT, "bubblewatch")
+    _bsnap = os.path.join(_bdir, "snapshots")
+    _bcomm = os.path.join(_bdir, "commentary")
+    _bout = os.path.join(OUT, "bubblewatch")
+    _snaps = sorted(f for f in os.listdir(_bsnap) if f.endswith(".json")) if os.path.isdir(_bsnap) else []
+    if _snaps:
+        os.makedirs(_bout, exist_ok=True)
+        _comms = sorted(f for f in os.listdir(_bcomm) if f.endswith(".json")) if os.path.isdir(_bcomm) else []
+        for _f in _snaps:
+            _sh2.copy2(os.path.join(_bsnap, _f), os.path.join(_bout, _f))
+        for _f in _comms:
+            _sh2.copy2(os.path.join(_bcomm, _f), os.path.join(_bout, f"commentary_{_f}"))
+        json.dump({
+            "months": [f[:-5] for f in _snaps],
+            "latest": _snaps[-1][:-5],
+            "commentary_months": [f[:-5] for f in _comms],
+        }, open(f"{OUT}/bubblewatch_index.json", "w"))
+        log(f"wrote bubblewatch_index.json ({len(_snaps)} snapshots, {len(_comms)} commentaries)")
+except Exception as e:
+    log(f"bubblewatch bake skipped: {e}")
+
 # ── indicator snapshots (for Home market-health 1W/1M deltas) ──
 try:
     import shutil
