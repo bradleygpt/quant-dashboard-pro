@@ -654,6 +654,20 @@ try:
 except Exception as e:
     log(f"bubblewatch bake skipped: {e}")
 
+# ── ticker -> Markets-Engine anchor map (engine-wiring Phase 1, 2026-07-20) ──
+# Generated from each ticker's baked sector + the VERIFIED engine anchor manifest
+# (see ticker_anchor_map.py provenance header). Drives the Stock Detail entry
+# point: mapped tickers get gate-validated pre-filled queries; `none` renders a
+# disabled state so the app never provokes an engine refusal from a button.
+try:
+    import ticker_anchor_map as _tam
+    _amap = _tam.build_map(base_raw)
+    json.dump(_amap, open(f"{OUT}/ticker_anchor_map.json", "w"))
+    _n_none = sum(1 for v in _amap.values() if v["mapping_kind"] == "none")
+    log(f"wrote ticker_anchor_map.json ({len(_amap)} tickers; {_n_none} unmapped/none)")
+except Exception as e:
+    log(f"ticker_anchor_map.json skipped: {e}")
+
 # ── indicator snapshots (for Home market-health 1W/1M deltas) ──
 try:
     import shutil
