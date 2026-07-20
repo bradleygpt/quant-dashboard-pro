@@ -499,14 +499,101 @@ except Exception as e:
     log(f"house_views_freshness.json skipped: {e}")
 
 # ── quarterly history (for Stock Detail quarterly earnings/margins trend) ──
+# Depth fix 2026-07-20: yfinance statements reach back only 5-6 quarters, so the
+# strict same-quarter-4-back YoY join in build_cache left exactly ONE renderable
+# growth point per ticker (the chart showed a single bar plus gaps).
+# quarterly_deep.json (build_quarterly_deep.py, committed; distilled from the
+# local EDGAR companyfacts cache) carries ~4 years of quarterly revenue/net
+# income. Growth is recomputed DATE-BASED over the EDGAR series (year-ago
+# quarter-end within ±45 days — tolerant of 52/53-week fiscal calendars);
+# yfinance rows contribute margins/ROE/ROA for the quarters they cover and
+# remain the full fallback when a ticker has no usable EDGAR series.
 try:
+    from datetime import date as _qdate
+
+    def _qd(s):
+        try:
+            return _qdate.fromisoformat(str(s)[:10])
+        except Exception:
+            return None
+
+    _deep = {}
+    try:
+        _deep = {k: v for k, v in json.load(open("quarterly_deep.json")).items()
+                 if isinstance(v, list)}
+    except Exception as _qe:
+        log(f"  quarterly_deep.json unavailable ({_qe}) — yfinance-only depth")
+
+    MAX_Q_DISPLAY = 13
+
+    def _near(d, pool, tol):
+        best = None
+        for p in pool:
+            dd = abs((p - d).days)
+            if dd <= tol and (best is None or dd < abs((best - d).days)):
+                best = p
+        return best
+
+    def _merged_quarterly(tk, yf_rows):
+        deep = _deep.get(tk)
+        if not deep:
+            return yf_rows if isinstance(yf_rows, list) else []
+        drows = sorted(((_qd(r.get("date")), r) for r in deep if _qd(r.get("date"))),
+                       key=lambda x: x[0], reverse=True)
+        rev = {d: r.get("revenue") for d, r in drows}
+        ni = {d: r.get("netIncome") for d, r in drows}
+        yf_by_d = {}
+        for r in (yf_rows or []):
+            d = _qd(r.get("date"))
+            if d:
+                yf_by_d[d] = r
+        ends = [d for d, _ in drows]
+        # a freshly-reported quarter hits yfinance days before the 10-Q lands on
+        # EDGAR — union it in so the newest bar doesn't vanish during that window
+        for d in yf_by_d:
+            if _near(d, ends, 10) is None:
+                ends.append(d)
+        ends.sort(reverse=True)
+        out = []
+        for d in ends[:MAX_Q_DISPLAY]:
+            ym = _near(d, yf_by_d.keys(), 10)
+            yr = yf_by_d.get(ym, {}) if ym else {}
+            r_now, n_now = rev.get(d), ni.get(d)
+            base = _near(d - timedelta(days=365), [e for e in rev if e < d], 45)
+            rg = ng = None
+            if base is not None:
+                r_pri, n_pri = rev.get(base), ni.get(base)
+                if r_now is not None and r_pri and r_pri > 0:
+                    rg = round((r_now - r_pri) / r_pri, 4)
+                if n_now is not None and n_pri:
+                    ng = round((n_now - n_pri) / abs(n_pri), 4)
+            if rg is None:
+                rg = yr.get("revenueGrowth")
+            if ng is None:
+                ng = yr.get("earningsGrowth")
+            nm = yr.get("netMargins")
+            if nm is None and r_now and n_now is not None and r_now > 0:
+                nm = round(n_now / r_now, 4)
+            out.append({
+                "date": d.isoformat(),
+                "grossMargins": yr.get("grossMargins"),
+                "operatingMargins": yr.get("operatingMargins"),
+                "netMargins": nm,
+                "returnOnEquity": yr.get("returnOnEquity"),
+                "returnOnAssets": yr.get("returnOnAssets"),
+                "revenueGrowth": rg,
+                "earningsGrowth": ng,
+            })
+        return out
+
     qmap = {}
     for tk, d in base_raw.items():
-        qh = d.get("quarterly_history")
-        if isinstance(qh, list) and qh:
-            qmap[tk] = qh
+        merged = _merged_quarterly(tk, d.get("quarterly_history"))
+        if merged:
+            qmap[tk] = merged
     json.dump(qmap, open(f"{OUT}/quarterly.json", "w"))
-    log(f"wrote quarterly.json ({len(qmap)} tickers)")
+    _n_deep = sum(1 for tk in qmap if tk in _deep)
+    log(f"wrote quarterly.json ({len(qmap)} tickers; {_n_deep} EDGAR-deepened)")
 except Exception as e:
     log(f"quarterly.json skipped: {e}")
 
