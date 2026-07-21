@@ -1,9 +1,16 @@
-# Investment Thesis Prompt-Pack — v1 (2026-07-20)
+# Investment Thesis Prompt-Pack — v1 (2026-07-20; scope reworked 2026-07-21)
+
+**INTERNAL TOOLING ONLY (2026-07-21 rework).** The PRODUCT path is now on-demand
+generation in the app: `/api/ai?kind=thesis` (Gemini, same edge function as the AI
+Analysis card) with this pack's anti-slop contract adapted into the prompt and
+`validate_thesis.py`'s checks ported server-side. No product surface references this
+queue. This file + `build_thesis_dossier.py` + `theses/queue|baked` survive as the
+internal path for seed/curated theses (source: claude-code) and the grading corpus.
 
 Contract for generating bull/bear theses from a queued dossier. The generator is
-Claude Code on Bradley's subscription (zero marginal cost). The app NEVER generates;
-it renders `theses/baked/*.json`. This file is where "not slop" is enforced —
-`validate_thesis.py` mechanically gates part of it; the rest is generator discipline.
+Claude Code on Bradley's subscription (zero marginal cost). This file is where "not
+slop" is enforced — `validate_thesis.py` mechanically gates part of it; the rest is
+generator discipline.
 
 ## Pipeline
 
