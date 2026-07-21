@@ -77,6 +77,21 @@ def build_dossier(tk, universe, quarterly, c78q):
         hit = next((p for p in pos if (p.get("ticker") or p.get("symbol")) == tk), None)
         c78q_ctx = {"in_book": bool(hit), "position": hit or NA}
 
+    # Book provenance at snapshot time (A2-addendum Task 3, S5): which LIVE strategy
+    # books held this name when the dossier was built, with each book's as-of date.
+    # A thesis must always read as "what the books were when this was written" —
+    # unreconstructable later if not captured now. Empty list = none.
+    books = []
+    if isinstance(c78q, dict):
+        t78 = c78q.get("target") or {}
+        if t78.get("book_type") == "live" and tk in [r.get("ticker") for r in t78.get("rows", [])]:
+            books.append({"book": "c78q", "label": "Katalepsis", "as_of": t78.get("as_of")})
+    _ari = _load("aristeia_strategy.json")
+    if isinstance(_ari, dict):
+        ch = _ari.get("current_holdings") or {}
+        if ch.get("book_type") == "live" and tk in (ch.get("tickers") or []):
+            books.append({"book": "aristeia", "label": "Aristeia", "as_of": ch.get("as_of")})
+
     inputs = {
         "name": row.get("name", NA),
         "sector": sector,
@@ -96,6 +111,7 @@ def build_dossier(tk, universe, quarterly, c78q):
         "pillar_detail": detail.get("pillar_detail", NA),
         "quarterly": qhist,
         "c78q": c78q_ctx,
+        "books": books,
         "sector_context": sector_ctx,
     }
     canonical = json.dumps(inputs, sort_keys=True, separators=(",", ":"), default=str)

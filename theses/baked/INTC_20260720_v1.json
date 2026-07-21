@@ -3,6 +3,13 @@
  "generated_at": "2026-07-20T19:56:35",
  "generator": "claude-code claude-fable-5",
  "snapshot_hash": "ee7d40c84e4bd043",
+ "books": [
+  {
+   "book": "c78q",
+   "label": "Katalepsis",
+   "as_of": "2026-07-20"
+  }
+ ],
  "inputs": {
   "name": "Intel Corporation",
   "sector": "Technology",

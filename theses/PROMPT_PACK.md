@@ -49,7 +49,10 @@ it renders `theses/baked/*.json`. This file is where "not slop" is enforced —
   "generated_at": "YYYY-MM-DDTHH:MM:SS",
   "generator": "claude-code <model-id>",
   "snapshot_hash": "<copied verbatim from the dossier>",
-  "inputs": { ...the dossier's inputs object, copied verbatim... },
+  "books": [ ...inputs.books copied verbatim (A2-addendum Task 3, S5): live-book
+             membership AT SNAPSHOT TIME, e.g. {"book":"c78q","label":"Katalepsis",
+             "as_of":"2026-07-20"}; [] = off-book. The panel renders it as a chip;
+             canonical labels are the dashboard's strategy names (Katalepsis, Aristeia)... ],
   "bull": { "claim": "...", "pillars": ["..."], "catalysts": ["..."], "falsifiers": ["..."] },
   "bear": { "claim": "...", "pillars": ["..."], "catalysts": ["..."], "falsifiers": ["..."] },
   "synthesis": { "crux_variables": ["..."], "divergence_summary": "..." },
