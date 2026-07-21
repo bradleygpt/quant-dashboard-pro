@@ -1,0 +1,600 @@
+{
+ "ticker": "VIAV",
+ "generated_at": "2026-07-20T19:56:35",
+ "generator": "claude-code claude-fable-5",
+ "snapshot_hash": "d13613d0c6d4acdb",
+ "inputs": {
+  "name": "Viavi Solutions Inc.",
+  "sector": "Technology",
+  "industry": "Communication Equipment",
+  "price": 39.27,
+  "market_cap_b": 9.5,
+  "composite_by_preset": {
+   "equal": {
+    "c": 5.99,
+    "r": "Sell"
+   },
+   "m_heavy": {
+    "c": 6.45,
+    "r": "Hold"
+   },
+   "v_heavy": {
+    "c": 5.12,
+    "r": "Sell"
+   },
+   "research_vq": {
+    "c": 4.83,
+    "r": "Strong Sell"
+   }
+  },
+  "pillars": {
+   "Valuation": 4.571428571428571,
+   "Growth": 5.0,
+   "Profitability": 4.8,
+   "Momentum": 6.833333333333333,
+   "EPS Revisions": 8.75
+  },
+  "grades": {
+   "Valuation": "C",
+   "Growth": "C",
+   "Profitability": "C",
+   "Momentum": "B-",
+   "EPS Revisions": "B+"
+  },
+  "raw_metrics": {
+   "forwardPE": 30.086828,
+   "trailingPE": null,
+   "pegRatio": 1.34,
+   "priceToBook": 10.685272,
+   "priceToSalesTrailing12Months": 6.9849405,
+   "enterpriseToEbitda": 46.643,
+   "enterpriseToRevenue": 7.633,
+   "revenueGrowth": 0.428,
+   "earningsGrowth": -0.685,
+   "revenueQuarterlyGrowth": null,
+   "earningsQuarterlyGrowth": -0.672,
+   "grossMargins": 0.6068,
+   "operatingMargins": 0.121929996,
+   "profitMargins": -0.040349998,
+   "returnOnEquity": -0.06995,
+   "returnOnAssets": 0.03575,
+   "momentum_1m": -0.2184,
+   "momentum_3m": -0.0533,
+   "momentum_6m": 1.2087,
+   "momentum_12m": 2.8843,
+   "momentum_vs_sma50": -0.2006,
+   "momentum_vs_sma200": 0.2994,
+   "analyst_mean_target_upside": 0.6698,
+   "analyst_recommendation_score": 1.375,
+   "earnings_surprise_pct": null,
+   "analyst_count": 7.0
+  },
+  "fair_value": {
+   "ticker": "VIAV",
+   "current_price": 39.27,
+   "composite_fair_value": 40.5,
+   "premium_discount_pct": -3.0,
+   "verdict": "Fairly Valued",
+   "verdict_color": "#FFC107",
+   "margin_of_safety": 3.0,
+   "methods": {
+    "PEG Fair Value": {
+     "fair_value": 39.16,
+     "premium_discount_pct": 0.3,
+     "assumptions": {
+      "eps": 1.31,
+      "growth": "42.8%",
+      "source": "Revenue Growth",
+      "fair_pe": 30,
+      "actual_pe": 30.1,
+      "method": "EPS * min(Growth%, 30) with margin adj"
+     }
+    },
+    "Quality-Adj Price/Sales": {
+     "fair_value": 17.49,
+     "_label": "Price/Sales",
+     "premium_discount_pct": 124.5,
+     "assumptions": {
+      "your_P/S": 7.0,
+      "deserved_P/S": 3.1,
+      "sector_median": 4.4,
+      "quality_pct": 35.0,
+      "peers": 200,
+      "method": "Capped at 75th pctile P/S"
+     }
+    },
+    "Analyst Consensus": {
+     "fair_value": 65.57,
+     "premium_discount_pct": -40.1,
+     "assumptions": {
+      "target": 65.57,
+      "upside": "+67.0%",
+      "analysts": 7.0,
+      "method": "Consensus of 7.0 analysts"
+     }
+    },
+    "ML 12-Month Target": {
+     "fair_value": 46.19,
+     "premium_discount_pct": -15.0,
+     "assumptions": {
+      "pred_12m": "24.7%",
+      "cohort_median": "7.1%",
+      "relative_tilt": "+17.6%",
+      "source": "MLPred v7 12-month forecast",
+      "method": "price * (1 + (pred_12m - cohort median)); demeaned relative tilt"
+     }
+    }
+   },
+   "num_methods_used": 4,
+   "sector": "Technology",
+   "north_star_metric": "Quality-Adjusted Price/Sales"
+  },
+  "fv_premium_pct": -3.0,
+  "fv_verdict": "Fairly Valued",
+  "buy_point": null,
+  "qbp_distance_pct": null,
+  "qbp_signal": null,
+  "pillar_detail": {
+   "Valuation": {
+    "metrics": [
+     {
+      "metric": "Forward P/E",
+      "value": "30.1x",
+      "grade": "C-",
+      "percentile": "24th",
+      "sector_avg": "21.6x",
+      "a_threshold": "9.5x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Trailing P/E",
+      "value": "N/A",
+      "grade": "D",
+      "percentile": "7th",
+      "sector_avg": "infx",
+      "a_threshold": "16.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "PEG Ratio",
+      "value": "1.3x",
+      "grade": "B",
+      "percentile": "56th",
+      "sector_avg": "1.7x",
+      "a_threshold": "0.6x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Price / Book",
+      "value": "10.7x",
+      "grade": "C-",
+      "percentile": "24th",
+      "sector_avg": "20.1x",
+      "a_threshold": "2.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Price / Sales",
+      "value": "7.0x",
+      "grade": "C",
+      "percentile": "34th",
+      "sector_avg": "9.6x",
+      "a_threshold": "1.5x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "EV / EBITDA",
+      "value": "46.6x",
+      "grade": "C-",
+      "percentile": "21th",
+      "sector_avg": "-34.4x",
+      "a_threshold": "8.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "EV / Revenue",
+      "value": "7.6x",
+      "grade": "C",
+      "percentile": "31th",
+      "sector_avg": "15.3x",
+      "a_threshold": "1.8x",
+      "higher_is_better": false
+     }
+    ],
+    "pillar_grade": "C",
+    "pillar_score": 4.57
+   },
+   "Growth": {
+    "metrics": [
+     {
+      "metric": "Revenue Growth (QoQ)",
+      "value": "42.8%",
+      "grade": "A",
+      "percentile": "88th",
+      "sector_avg": "36.7%",
+      "a_threshold": "37.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Earnings Growth (QoQ)",
+      "value": "-68.5%",
+      "grade": "F",
+      "percentile": "2th",
+      "sector_avg": "149.8%",
+      "a_threshold": "214.4%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Revenue Growth (YoY)",
+      "value": "N/A",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "N/A",
+      "a_threshold": "N/A",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Earnings Growth (YoY)",
+      "value": "-67.2%",
+      "grade": "F",
+      "percentile": "2th",
+      "sector_avg": "161.1%",
+      "a_threshold": "224.9%",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "C",
+    "pillar_score": 5.0
+   },
+   "Profitability": {
+    "metrics": [
+     {
+      "metric": "Gross Margin",
+      "value": "60.7%",
+      "grade": "B",
+      "percentile": "56th",
+      "sector_avg": "54.5%",
+      "a_threshold": "77.8%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Operating Margin",
+      "value": "12.2%",
+      "grade": "C+",
+      "percentile": "43th",
+      "sector_avg": "-49.5%",
+      "a_threshold": "31.4%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Net Margin",
+      "value": "-4.0%",
+      "grade": "D",
+      "percentile": "9th",
+      "sector_avg": "13.0%",
+      "a_threshold": "26.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Return on Equity",
+      "value": "-7.0%",
+      "grade": "D",
+      "percentile": "8th",
+      "sector_avg": "26.8%",
+      "a_threshold": "39.3%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Return on Assets",
+      "value": "3.6%",
+      "grade": "C+",
+      "percentile": "37th",
+      "sector_avg": "6.3%",
+      "a_threshold": "12.0%",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "C",
+    "pillar_score": 4.8
+   },
+   "Momentum": {
+    "metrics": [
+     {
+      "metric": "1-Month Return",
+      "value": "-21.8%",
+      "grade": "D",
+      "percentile": "6th",
+      "sector_avg": "0.3%",
+      "a_threshold": "15.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "3-Month Return",
+      "value": "-5.3%",
+      "grade": "C-",
+      "percentile": "19th",
+      "sector_avg": "21.2%",
+      "a_threshold": "45.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "6-Month Return",
+      "value": "120.9%",
+      "grade": "A",
+      "percentile": "93th",
+      "sector_avg": "25.0%",
+      "a_threshold": "70.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "12-Month Return",
+      "value": "288.4%",
+      "grade": "A+",
+      "percentile": "96th",
+      "sector_avg": "69.0%",
+      "a_threshold": "136.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Price vs 50-Day SMA",
+      "value": "-0.2x",
+      "grade": "D",
+      "percentile": "6th",
+      "sector_avg": "0.0x",
+      "a_threshold": "0.1x",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Price vs 200-Day SMA",
+      "value": "0.3x",
+      "grade": "A-",
+      "percentile": "76th",
+      "sector_avg": "0.1x",
+      "a_threshold": "0.4x",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "B-",
+    "pillar_score": 6.83
+   },
+   "EPS Revisions": {
+    "metrics": [
+     {
+      "metric": "Mean Target Upside %",
+      "value": "67.0%",
+      "grade": "A+",
+      "percentile": "96th",
+      "sector_avg": "24.1%",
+      "a_threshold": "42.3%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Analyst Rec Score (inv)",
+      "value": "1.38",
+      "grade": "A",
+      "percentile": "91th",
+      "sector_avg": "1.89",
+      "a_threshold": "1.43",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Last Earnings Surprise %",
+      "value": "N/A",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "N/A",
+      "a_threshold": "N/A",
+      "higher_is_better": true
+     },
+     {
+      "metric": "# Covering Analysts",
+      "value": "7",
+      "grade": "C",
+      "percentile": "27th",
+      "sector_avg": "17",
+      "a_threshold": "31",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "B+",
+    "pillar_score": 8.75
+   }
+  },
+  "quarterly": [
+   {
+    "date": "2026-03-28",
+    "grossMargins": 0.5755,
+    "operatingMargins": 0.1035,
+    "netMargins": 0.0157,
+    "returnOnEquity": 0.0302,
+    "returnOnAssets": 0.0101,
+    "revenueGrowth": 0.4284,
+    "earningsGrowth": -0.6718
+   },
+   {
+    "date": "2025-12-27",
+    "grossMargins": 0.5703,
+    "operatingMargins": 0.0306,
+    "netMargins": -0.1302,
+    "returnOnEquity": -0.2306,
+    "returnOnAssets": -0.0693,
+    "revenueGrowth": 0.3637,
+    "earningsGrowth": -6.2857
+   },
+   {
+    "date": "2025-09-27",
+    "grossMargins": 0.565,
+    "operatingMargins": 0.0244,
+    "netMargins": -0.0715,
+    "returnOnEquity": -0.1182,
+    "returnOnAssets": -0.0411,
+    "revenueGrowth": 0.2557,
+    "earningsGrowth": -10.8889
+   },
+   {
+    "date": "2025-06-28",
+    "grossMargins": 0.5628,
+    "operatingMargins": 0.052,
+    "netMargins": 0.0275,
+    "returnOnEquity": 0.041,
+    "returnOnAssets": 0.016,
+    "revenueGrowth": 0.1528,
+    "earningsGrowth": 1.3687
+   },
+   {
+    "date": "2025-03-29",
+    "grossMargins": 0.5643,
+    "operatingMargins": 0.0288,
+    "netMargins": 0.0685,
+    "returnOnEquity": 0.107,
+    "returnOnAssets": 0.0403,
+    "revenueGrowth": 0.1577,
+    "earningsGrowth": 1.7927
+   },
+   {
+    "date": "2024-12-28",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.0336,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": 0.064,
+    "earningsGrowth": -0.1495
+   },
+   {
+    "date": "2024-09-28",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.0076,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.0391,
+    "earningsGrowth": -1.1837
+   },
+   {
+    "date": "2024-06-29",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.0861,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.044,
+    "earningsGrowth": -216.0
+   },
+   {
+    "date": "2024-03-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.1,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.0073,
+    "earningsGrowth": -0.5974
+   },
+   {
+    "date": "2023-12-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.042,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.1054,
+    "earningsGrowth": 0.2738
+   },
+   {
+    "date": "2023-09-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.0395,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.2008,
+    "earningsGrowth": -0.6994
+   },
+   {
+    "date": "2023-07-01",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.0004,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.2138,
+    "earningsGrowth": -1.0061
+   },
+   {
+    "date": "2023-04-01",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.0621,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.2146,
+    "earningsGrowth": -1.8021
+   }
+  ],
+  "c78q": {
+   "in_book": true,
+   "position": {
+    "ticker": "VIAV",
+    "entry_price": 47.59,
+    "current_price": 47.07,
+    "shares": 26,
+    "stale_mark": false
+   }
+  },
+  "sector_context": {
+   "n_sector": 201,
+   "rank_in_sector": 189,
+   "sector_median_composite": 6.87
+  }
+ },
+ "bull": {
+  "claim": "Viavi's top line is accelerating through four straight quarters (+15.8% -> +25.6% -> +36.4% -> +42.8% YoY) on a 60.7% gross margin, with only 7 covering analysts and a mean target 67.0% above spot - an under-followed inflection the market hasn't priced.",
+  "pillars": [
+   "The acceleration is monotonic and steep: +15.8%, +25.6%, +36.4%, +42.8% over the last four quarters - after six quarters of flat-to-negative prints, that is a genuine demand inflection (network test + photonics), not noise.",
+   "Gross margin 60.7% means the revenue mix is high-quality; the P&L problem is scale (12.2% operating margin), and +42.8% growth is the scale solution arriving.",
+   "The information gap IS the setup: 7 analysts, 1.375 recommendation score, +67.0% mean target - the smallest coverage and largest stated upside in the c78q book; EPS Revisions already grade B+."
+  ],
+  "catalysts": [
+   "Next 2 quarters: operating leverage converting >=40% revenue growth into a clean positive net-margin print.",
+   "H2 2026: 800G/1.6T optical test demand keeping the acceleration intact.",
+   "Ongoing: coverage expansion - each initiation closes part of the 67% target gap."
+  ],
+  "falsifiers": [
+   "Revenue growth decelerates below +20% YoY - the inflection was a two-quarter burst.",
+   "Net margin still cannot hold above +3% despite the growth - conversion structurally broken.",
+   "Gross margin slips below 56% - mix degrading as volume arrives."
+  ]
+ },
+ "bear": {
+  "claim": "The model's verdict is Sell (5.99 composite, rank 189 of 201) because the revenue acceleration never reaches earnings: EPS YoY printed -67%, -629%, -1089% across the last three quarters, net margin peaked at 1.6%, and momentum has already rolled (-5.3% over 3 months).",
+  "pillars": [
+   "The conversion failure is the fact pattern: +42.8% revenue with just 1.6% net margin and -67.2% EPS YoY in the SAME quarter - growth is arriving and shareholders are not being paid for it.",
+   "The model ranks it 189 of 201 with C-grade Valuation, Growth AND Profitability - the composite (5.99) sits far below the 6.87 sector median; this is the weakest scored name in the c78q book.",
+   "30.1x forward earnings for a company with negative trailing ROE (-7.0%) and a 46.6x EV/EBITDA prices the recovery as done; the 7-analyst, +67% target is thin-coverage optimism, not information depth.",
+   "The tape has noticed: -5.3% over three months while still 29.9% above the 200-day - the +288% twelve-month crowd is exiting into strength that stopped."
+  ],
+  "catalysts": [
+   "Next quarter: another sub-2% net-margin print against 40%+ revenue growth makes the conversion failure undeniable.",
+   "Next 1-2 quarters: momentum decay pulling the B- momentum grade down, removing the last above-median pillar.",
+   "H2 2026: comp hardening - the +42.8% laps a -4.4% quarter; by 2027 the bar is 40% higher."
+  ],
+  "falsifiers": [
+   "A clean quarter: >=25% revenue growth WITH net margin >=5% - conversion arrives and the Sell verdict is stale.",
+   "EPS YoY turns positive for two consecutive quarters.",
+   "The composite climbs back above the 6.87 sector median as Profitability re-grades."
+  ]
+ },
+ "synthesis": {
+  "crux_variables": [
+   "Earnings conversion: does 40%+ revenue growth EVER produce a >=5% net-margin quarter",
+   "Which is right about the 67% target gap: information gap (7 analysts under-followed) vs quality signal (rank 189/201)"
+  ],
+  "divergence_summary": "Both cases read the same four-quarter revenue acceleration; they disagree about whether it matters. The bull sees a 60.7%-gross-margin business one scale-quarter away from earnings, hidden behind 7-analyst coverage; the bear sees the book's weakest composite (5.99, Sell, rank 189) where growth demonstrably fails to reach the bottom line (-67% EPS on +43% revenue) and the tape has begun agreeing. One clean conversion quarter kills the bear; two more conversion failures - or growth fading below 20% - kills the bull."
+ },
+ "grading": {
+  "h3m": null,
+  "h6m": null,
+  "h12m": null
+ }
+}

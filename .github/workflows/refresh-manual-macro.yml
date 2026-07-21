@@ -1,12 +1,17 @@
 name: Manual-Macro Monthly Refresh
-# Monthly (5th, 14:00 UTC — after ISM Mfg [1st biz day] + ISM Svcs [3rd biz day] release).
+# Daily 5th–10th, 14:00 UTC (self-healing window, 2026-07-20): a single run on the 5th
+# missed the 2026-07-06 holiday-shifted ISM Services release and served May's figure for
+# two weeks. Retrying daily through the 10th catches shifted releases structurally; the
+# commit step already no-ops when nothing changed, so extra runs cost nothing. The manual
+# CLI (update_ism.py -> macro_baked.json, freshest-period-wins in the bake) remains the
+# OVERRIDE, no longer the correction mechanism.
 # One grounded Gemini call fetches the latest ISM PMIs + ICI money-market total (source-gated),
 # writing manual_macro.json. The bake reads it to override the stale ISM constants + the quarterly
 # PGI money-market figure. Zero cost (shares GEMINI_API_KEY). Non-blocking.
 
 on:
   schedule:
-    - cron: '0 14 5 * *'   # 14:00 UTC on the 5th of each month
+    - cron: '0 14 5-10 * *'   # 14:00 UTC daily, the 5th through the 10th
   workflow_dispatch:
 
 jobs:

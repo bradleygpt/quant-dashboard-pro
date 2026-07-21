@@ -1,0 +1,641 @@
+{
+ "ticker": "INTC",
+ "generated_at": "2026-07-20T19:56:35",
+ "generator": "claude-code claude-fable-5",
+ "snapshot_hash": "ee7d40c84e4bd043",
+ "inputs": {
+  "name": "Intel Corporation",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "price": 101.13,
+  "market_cap_b": 507.9,
+  "composite_by_preset": {
+   "equal": {
+    "c": 6.44,
+    "r": "Hold"
+   },
+   "m_heavy": {
+    "c": 8.43,
+    "r": "Hold"
+   },
+   "v_heavy": {
+    "c": 5.48,
+    "r": "Sell"
+   },
+   "research_vq": {
+    "c": 5.25,
+    "r": "Sell"
+   }
+  },
+  "pillars": {
+   "Valuation": 4.428571428571429,
+   "Growth": 8.5,
+   "Profitability": 3.6,
+   "Momentum": 8.666666666666666,
+   "EPS Revisions": 7.0
+  },
+  "grades": {
+   "Valuation": "C-",
+   "Growth": "B+",
+   "Profitability": "C-",
+   "Momentum": "B+",
+   "EPS Revisions": "B-"
+  },
+  "raw_metrics": {
+   "forwardPE": 63.44937,
+   "trailingPE": null,
+   "pegRatio": 1.36,
+   "priceToBook": 4.556527,
+   "priceToSalesTrailing12Months": 9.446605,
+   "enterpriseToEbitda": 40.034,
+   "enterpriseToRevenue": 10.554,
+   "revenueGrowth": 0.072,
+   "earningsGrowth": null,
+   "revenueQuarterlyGrowth": null,
+   "earningsQuarterlyGrowth": null,
+   "grossMargins": 0.372,
+   "operatingMargins": 0.06879,
+   "profitMargins": -0.05904,
+   "returnOnEquity": -0.02911,
+   "returnOnAssets": 0.0063099996,
+   "momentum_1m": -0.1353,
+   "momentum_3m": 0.5515,
+   "momentum_6m": 1.2202,
+   "momentum_12m": 3.457,
+   "momentum_vs_sma50": -0.1379,
+   "momentum_vs_sma200": 0.6006,
+   "analyst_mean_target_upside": 0.033,
+   "analyst_recommendation_score": 2.625,
+   "earnings_surprise_pct": null,
+   "analyst_count": 41.0
+  },
+  "fair_value": {
+   "ticker": "INTC",
+   "current_price": 101.13,
+   "composite_fair_value": 76.22,
+   "premium_discount_pct": 32.7,
+   "verdict": "Overvalued",
+   "verdict_color": "#FF5722",
+   "margin_of_safety": 0,
+   "methods": {
+    "PEG Fair Value": {
+     "fair_value": 12.75,
+     "premium_discount_pct": 693.1,
+     "assumptions": {
+      "eps": 1.59,
+      "growth": "7.2%",
+      "source": "Revenue Growth",
+      "fair_pe": 8,
+      "actual_pe": 63.4,
+      "method": "EPS * min(Growth%, 30) with margin adj"
+     }
+    },
+    "Quality-Adj Price/Sales": {
+     "fair_value": 21.64,
+     "_label": "Price/Sales",
+     "premium_discount_pct": 367.3,
+     "assumptions": {
+      "your_P/S": 9.4,
+      "deserved_P/S": 2.0,
+      "sector_median": 4.4,
+      "quality_pct": 23.0,
+      "peers": 200,
+      "method": "Capped at 75th pctile P/S"
+     }
+    },
+    "Analyst Consensus": {
+     "fair_value": 104.47,
+     "premium_discount_pct": -3.2,
+     "assumptions": {
+      "target": 104.47,
+      "upside": "+3.3%",
+      "analysts": 41.0,
+      "method": "Consensus of 41.0 analysts"
+     }
+    },
+    "ML 12-Month Target": {
+     "fair_value": 116.19,
+     "premium_discount_pct": -13.0,
+     "assumptions": {
+      "pred_12m": "22.0%",
+      "cohort_median": "7.1%",
+      "relative_tilt": "+14.9%",
+      "source": "MLPred v7 12-month forecast",
+      "method": "price * (1 + (pred_12m - cohort median)); demeaned relative tilt"
+     }
+    }
+   },
+   "num_methods_used": 4,
+   "sector": "Technology",
+   "north_star_metric": "Quality-Adjusted Price/Sales"
+  },
+  "fv_premium_pct": 32.7,
+  "fv_verdict": "Overvalued",
+  "buy_point": {
+   "ticker": "INTC",
+   "current_price": 95.78,
+   "buy_point": 51.19,
+   "distance_pct": 87.1,
+   "signal": "Far from Buy Point",
+   "signal_color": "#FF5722",
+   "signal_score": 10,
+   "components": {
+    "Bollinger Lower Band": {
+     "price": 45.04,
+     "weight": 0.3,
+     "description": "20-day SMA minus 2 std devs. Current BB position: 90/100"
+    },
+    "Mean Reversion (50-SMA)": {
+     "price": 53.81,
+     "weight": 0.25,
+     "description": "5% below 50-day SMA ($56.64). Stocks tend to revert to this level."
+    },
+    "Support Level": {
+     "price": 35.39,
+     "weight": 0.2,
+     "description": "Recent price floor from 6-month lows and volume-weighted levels."
+    },
+    "Fair Value Discount": {
+     "price": 68.6,
+     "weight": 0.25,
+     "description": "10% below fair value ($76.22). Margin of safety."
+    }
+   },
+   "technicals": {
+    "50-Day SMA": "$56.64",
+    "Price vs 50-SMA": "+69.1%",
+    "200-Day SMA": "$40.52",
+    "Price vs 200-SMA": "+136.4%",
+    "Bollinger Upper": "$101.72",
+    "Bollinger Lower": "$45.04",
+    "BB Position": "90/100",
+    "RSI (14)": "82.8",
+    "RSI Signal": "Overbought"
+   }
+  },
+  "qbp_distance_pct": 87.1,
+  "qbp_signal": "Far from Buy Point",
+  "pillar_detail": {
+   "Valuation": {
+    "metrics": [
+     {
+      "metric": "Forward P/E",
+      "value": "63.4x",
+      "grade": "F",
+      "percentile": "5th",
+      "sector_avg": "21.6x",
+      "a_threshold": "9.5x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Trailing P/E",
+      "value": "N/A",
+      "grade": "D",
+      "percentile": "7th",
+      "sector_avg": "infx",
+      "a_threshold": "16.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "PEG Ratio",
+      "value": "1.4x",
+      "grade": "B-",
+      "percentile": "54th",
+      "sector_avg": "1.7x",
+      "a_threshold": "0.6x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Price / Book",
+      "value": "4.6x",
+      "grade": "B",
+      "percentile": "55th",
+      "sector_avg": "20.1x",
+      "a_threshold": "2.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Price / Sales",
+      "value": "9.4x",
+      "grade": "C-",
+      "percentile": "23th",
+      "sector_avg": "9.6x",
+      "a_threshold": "1.5x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "EV / EBITDA",
+      "value": "40.0x",
+      "grade": "C",
+      "percentile": "26th",
+      "sector_avg": "-34.4x",
+      "a_threshold": "8.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "EV / Revenue",
+      "value": "10.6x",
+      "grade": "C-",
+      "percentile": "22th",
+      "sector_avg": "15.3x",
+      "a_threshold": "1.8x",
+      "higher_is_better": false
+     }
+    ],
+    "pillar_grade": "C-",
+    "pillar_score": 4.43
+   },
+   "Growth": {
+    "metrics": [
+     {
+      "metric": "Revenue Growth (QoQ)",
+      "value": "7.2%",
+      "grade": "C",
+      "percentile": "29th",
+      "sector_avg": "36.7%",
+      "a_threshold": "37.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Earnings Growth (QoQ)",
+      "value": "N/A",
+      "grade": "A",
+      "percentile": "85th",
+      "sector_avg": "149.8%",
+      "a_threshold": "214.4%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Revenue Growth (YoY)",
+      "value": "N/A",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "N/A",
+      "a_threshold": "N/A",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Earnings Growth (YoY)",
+      "value": "N/A",
+      "grade": "A",
+      "percentile": "86th",
+      "sector_avg": "161.1%",
+      "a_threshold": "224.9%",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "B+",
+    "pillar_score": 8.5
+   },
+   "Profitability": {
+    "metrics": [
+     {
+      "metric": "Gross Margin",
+      "value": "37.2%",
+      "grade": "C-",
+      "percentile": "23th",
+      "sector_avg": "54.5%",
+      "a_threshold": "77.8%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Operating Margin",
+      "value": "6.9%",
+      "grade": "C",
+      "percentile": "31th",
+      "sector_avg": "-49.5%",
+      "a_threshold": "31.4%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Net Margin",
+      "value": "-5.9%",
+      "grade": "D",
+      "percentile": "7th",
+      "sector_avg": "13.0%",
+      "a_threshold": "26.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Return on Equity",
+      "value": "-2.9%",
+      "grade": "D+",
+      "percentile": "11th",
+      "sector_avg": "26.8%",
+      "a_threshold": "39.3%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Return on Assets",
+      "value": "0.6%",
+      "grade": "C-",
+      "percentile": "15th",
+      "sector_avg": "6.3%",
+      "a_threshold": "12.0%",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "C-",
+    "pillar_score": 3.6
+   },
+   "Momentum": {
+    "metrics": [
+     {
+      "metric": "1-Month Return",
+      "value": "-13.5%",
+      "grade": "C-",
+      "percentile": "17th",
+      "sector_avg": "0.3%",
+      "a_threshold": "15.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "3-Month Return",
+      "value": "55.1%",
+      "grade": "A",
+      "percentile": "88th",
+      "sector_avg": "21.2%",
+      "a_threshold": "45.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "6-Month Return",
+      "value": "122.0%",
+      "grade": "A",
+      "percentile": "94th",
+      "sector_avg": "25.0%",
+      "a_threshold": "70.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "12-Month Return",
+      "value": "345.7%",
+      "grade": "A+",
+      "percentile": "97th",
+      "sector_avg": "69.0%",
+      "a_threshold": "136.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Price vs 50-Day SMA",
+      "value": "-0.1x",
+      "grade": "D+",
+      "percentile": "11th",
+      "sector_avg": "0.0x",
+      "a_threshold": "0.1x",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Price vs 200-Day SMA",
+      "value": "0.6x",
+      "grade": "A",
+      "percentile": "91th",
+      "sector_avg": "0.1x",
+      "a_threshold": "0.4x",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "B+",
+    "pillar_score": 8.67
+   },
+   "EPS Revisions": {
+    "metrics": [
+     {
+      "metric": "Mean Target Upside %",
+      "value": "3.3%",
+      "grade": "C-",
+      "percentile": "16th",
+      "sector_avg": "24.1%",
+      "a_threshold": "42.3%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Analyst Rec Score (inv)",
+      "value": "2.62",
+      "grade": "C+",
+      "percentile": "35th",
+      "sector_avg": "1.89",
+      "a_threshold": "1.43",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Last Earnings Surprise %",
+      "value": "N/A",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "N/A",
+      "a_threshold": "N/A",
+      "higher_is_better": true
+     },
+     {
+      "metric": "# Covering Analysts",
+      "value": "41",
+      "grade": "A",
+      "percentile": "93th",
+      "sector_avg": "17",
+      "a_threshold": "31",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "B-",
+    "pillar_score": 7.0
+   }
+  },
+  "quarterly": [
+   {
+    "date": "2026-03-28",
+    "grossMargins": 0.3938,
+    "operatingMargins": 0.0688,
+    "netMargins": -0.2746,
+    "returnOnEquity": -0.1339,
+    "returnOnAssets": -0.0726,
+    "revenueGrowth": 0.0718,
+    "earningsGrowth": -3.5408
+   },
+   {
+    "date": "2025-12-27",
+    "grossMargins": 0.3615,
+    "operatingMargins": 0.0402,
+    "netMargins": -0.0432,
+    "returnOnEquity": -0.0207,
+    "returnOnAssets": -0.0112,
+    "revenueGrowth": -0.0411,
+    "earningsGrowth": -3.6905
+   },
+   {
+    "date": "2025-09-27",
+    "grossMargins": 0.3822,
+    "operatingMargins": 0.0628,
+    "netMargins": 0.2976,
+    "returnOnEquity": 0.1528,
+    "returnOnAssets": 0.0795,
+    "revenueGrowth": 0.0278,
+    "earningsGrowth": 1.2442
+   },
+   {
+    "date": "2025-06-28",
+    "grossMargins": 0.2754,
+    "operatingMargins": -0.1,
+    "netMargins": -0.2269,
+    "returnOnEquity": -0.1192,
+    "returnOnAssets": -0.0606,
+    "revenueGrowth": 0.002,
+    "earningsGrowth": -0.8124
+   },
+   {
+    "date": "2025-03-29",
+    "grossMargins": 0.3688,
+    "operatingMargins": -0.0114,
+    "netMargins": -0.0648,
+    "returnOnEquity": -0.0329,
+    "returnOnAssets": -0.0171,
+    "revenueGrowth": -0.0045,
+    "earningsGrowth": -1.1549
+   },
+   {
+    "date": "2024-12-28",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.0088,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.0744,
+    "earningsGrowth": -1.0472
+   },
+   {
+    "date": "2024-09-28",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -1.2526,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.0617,
+    "earningsGrowth": -57.0236
+   },
+   {
+    "date": "2024-06-29",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.1255,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.009,
+    "earningsGrowth": -2.0871
+   },
+   {
+    "date": "2024-03-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.0299,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": 0.0861,
+    "earningsGrowth": 0.8619
+   },
+   {
+    "date": "2023-12-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.1732,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": 0.0971,
+    "earningsGrowth": 5.0196
+   },
+   {
+    "date": "2023-09-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.021,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.0769,
+    "earningsGrowth": -0.7085
+   },
+   {
+    "date": "2023-07-01",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.1144,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.1548,
+    "earningsGrowth": 4.2621
+   },
+   {
+    "date": "2023-04-01",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.2354,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.3617,
+    "earningsGrowth": -1.3399
+   }
+  ],
+  "c78q": {
+   "in_book": true,
+   "position": {
+    "ticker": "INTC",
+    "entry_price": 116.5961,
+    "current_price": 127.02,
+    "shares": 15,
+    "stale_mark": false
+   }
+  },
+  "sector_context": {
+   "n_sector": 201,
+   "rank_in_sector": 158,
+   "sector_median_composite": 6.87
+  }
+ },
+ "bull": {
+  "claim": "Intel's revenue line has finally inflected (+7.2% YoY after five negative-or-flat quarters) and the market's +346% twelve-month re-rating is the crowd front-running a foundry/AI turnaround the estimates (revisions B-) are only beginning to capture.",
+  "pillars": [
+   "Revenue YoY sequence turned: -7.4%, -0.5%, +0.2%, +2.8%, -4.1%, then +7.2% in the latest quarter - the first genuine growth print of the cycle, and the model's Growth pillar already reads B+.",
+   "Momentum is A-grade information, not noise: +55% in 3 months, +60% above the 200-day, +346% in 12 months - a persistent institutional accumulation pattern, not a squeeze.",
+   "The 2025-09 quarter proved the earnings engine still exists: +29.8% net margin and +124% EPS YoY when mix cooperates - the capacity for profitability is demonstrated, not hypothetical."
+  ],
+  "catalysts": [
+   "Next 2 quarters: a second consecutive positive revenue print would confirm the inflection to the estimate-setters.",
+   "H2 2026 - H1 2027: foundry customer announcements converting the B- revisions grade into sustained upgrades.",
+   "Ongoing: 41 analysts still at a 2.63 recommendation score - the most room to upgrade of any name in the book."
+  ],
+  "falsifiers": [
+   "Revenue growth goes negative again for two consecutive quarters - the inflection was a blip.",
+   "Net margin stays below zero through the next two prints - the turn never reaches the bottom line.",
+   "The stock breaks and holds below its 200-day average - the accumulation thesis is invalidated by its own evidence class."
+  ]
+ },
+ "bear": {
+  "claim": "The tape has pre-paid for a turnaround the income statement keeps refusing to deliver - the latest quarter's net margin was -27.5% (EPS -354% YoY) - and the street's mean target now sits just 3.3% above spot at the weakest recommendation score in the book (2.63).",
+  "pillars": [
+   "Profitability remains destroyed: -5.9% trailing net margin, -2.9% ROE, and quarterly net margin prints of -27.5%, -4.3%, -22.7% in three of the last four quarters; the model's Profitability grade is C- and its rank 158 of 201.",
+   "The price already assumes the fix: 63.4x forward earnings and 9.4x sales after +346% in twelve months, while the composite fair value sits 32.7% BELOW the price and the quant buy point 87.1% below.",
+   "The street has stopped underwriting further upside: mean target +3.3% versus spot across 41 analysts - momentum (B+) is the only pillar carrying the name, and momentum reverses without asking.",
+   "One good quarter (2025-09, +29.8% net margin) in eight is a data point, not a trend - the surrounding quarters show the same structural losses that produced the -57x EPS collapse of 2024-09."
+  ],
+  "catalysts": [
+   "Next quarter: another negative net-margin print collides with a 63x forward multiple.",
+   "Next 1-2 quarters: any foundry capex/timeline slippage while the stock trades 60% above its 200-day.",
+   "H2 2026: target-price compression - the +3.3% mean target mechanically caps systematic upgrades."
+  ],
+  "falsifiers": [
+   "Two consecutive quarters of positive net margin - the turnaround reaches GAAP and the bear premise dies.",
+   "Mean analyst target moves >=15% above spot on raised estimates rather than price decay.",
+   "Revenue growth accelerates past +10% YoY, validating the foundry-demand story with revenue rather than narrative."
+  ]
+ },
+ "synthesis": {
+  "crux_variables": [
+   "GAAP profitability arrival: consecutive positive net-margin quarters vs continued losses",
+   "Estimate direction: revisions climbing (B- and improving) vs mean target pinned +3.3% over spot"
+  ],
+  "divergence_summary": "The disagreement is about sequencing, not the endgame. The bull says price leads earnings at every major turn and the first +7.2% revenue print is the signal; the bear says a 63.4x forward multiple with a -27.5% latest net margin means the market has already spent the recovery it is still waiting for. Two consecutive profitable quarters break the bear; two more loss quarters - or a mean target still hugging spot by year-end - break the bull."
+ },
+ "grading": {
+  "h3m": null,
+  "h6m": null,
+  "h12m": null
+ }
+}

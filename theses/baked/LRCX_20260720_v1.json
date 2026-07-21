@@ -1,0 +1,652 @@
+{
+ "ticker": "LRCX",
+ "generated_at": "2026-07-20T19:56:35",
+ "generator": "claude-code claude-fable-5",
+ "snapshot_hash": "82e5399790fc962b",
+ "inputs": {
+  "name": "Lam Research Corporation",
+  "sector": "Technology",
+  "industry": "Semiconductor Equipment & Materials",
+  "price": 329.33,
+  "market_cap_b": 411.8,
+  "composite_by_preset": {
+   "equal": {
+    "c": 7.45,
+    "r": "Hold"
+   },
+   "m_heavy": {
+    "c": 7.9,
+    "r": "Hold"
+   },
+   "v_heavy": {
+    "c": 6.59,
+    "r": "Hold"
+   },
+   "research_vq": {
+    "c": 6.22,
+    "r": "Hold"
+   }
+  },
+  "pillars": {
+   "Valuation": 3.7142857142857144,
+   "Growth": 7.0,
+   "Profitability": 10.2,
+   "Momentum": 8.333333333333334,
+   "EPS Revisions": 8.0
+  },
+  "grades": {
+   "Valuation": "C-",
+   "Growth": "B-",
+   "Profitability": "A-",
+   "Momentum": "B",
+   "EPS Revisions": "B"
+  },
+  "raw_metrics": {
+   "forwardPE": 40.740383,
+   "trailingPE": 62.126392,
+   "pegRatio": 2.02,
+   "priceToBook": 38.9024,
+   "priceToSalesTrailing12Months": 18.991714,
+   "enterpriseToEbitda": 55.023,
+   "enterpriseToRevenue": 19.916,
+   "revenueGrowth": 0.238,
+   "earningsGrowth": 0.408,
+   "revenueQuarterlyGrowth": null,
+   "earningsQuarterlyGrowth": 0.372,
+   "grossMargins": 0.49979,
+   "operatingMargins": 0.35042998,
+   "profitMargins": 0.30938998,
+   "returnOnEquity": 0.66762,
+   "returnOnAssets": 0.22778,
+   "momentum_1m": -0.0909,
+   "momentum_3m": 0.2328,
+   "momentum_6m": 0.5111,
+   "momentum_12m": 2.2993,
+   "momentum_vs_sma50": -0.0086,
+   "momentum_vs_sma200": 0.4323,
+   "analyst_mean_target_upside": 0.1071,
+   "analyst_recommendation_score": 1.51429,
+   "earnings_surprise_pct": null,
+   "analyst_count": 31.0
+  },
+  "fair_value": {
+   "ticker": "LRCX",
+   "current_price": 329.33,
+   "composite_fair_value": 240.5,
+   "premium_discount_pct": 36.9,
+   "verdict": "Overvalued",
+   "verdict_color": "#FF5722",
+   "margin_of_safety": 0,
+   "methods": {
+    "PEG Fair Value": {
+     "fair_value": 174.93,
+     "premium_discount_pct": 88.3,
+     "assumptions": {
+      "eps": 5.3,
+      "growth": "40.8%",
+      "source": "Earnings Growth",
+      "fair_pe": 33.0,
+      "actual_pe": 62.1,
+      "method": "EPS * min(Growth%, 30) with margin adj"
+     }
+    },
+    "Quality-Adj Price/Sales": {
+     "fair_value": 161.32,
+     "_label": "Price/Sales",
+     "premium_discount_pct": 104.2,
+     "assumptions": {
+      "your_P/S": 19.0,
+      "deserved_P/S": 9.3,
+      "sector_median": 4.4,
+      "quality_pct": 75,
+      "peers": 200,
+      "method": "Capped at 75th pctile P/S"
+     }
+    },
+    "Earnings Capitalization": {
+     "fair_value": 185.53,
+     "premium_discount_pct": 77.5,
+     "assumptions": {
+      "eps": 5.3,
+      "actual_pe": 62.1,
+      "deserved_pe": 35,
+      "quality_pct": 75,
+      "method": "EPS * Quality-Adj PE (capped 35x)"
+     }
+    },
+    "Analyst Consensus": {
+     "fair_value": 364.6,
+     "premium_discount_pct": -9.7,
+     "assumptions": {
+      "target": 364.6,
+      "upside": "+10.7%",
+      "analysts": 31.0,
+      "method": "Consensus of 31.0 analysts"
+     }
+    },
+    "ML 12-Month Target": {
+     "fair_value": 382.47,
+     "premium_discount_pct": -13.9,
+     "assumptions": {
+      "pred_12m": "23.2%",
+      "cohort_median": "7.1%",
+      "relative_tilt": "+16.1%",
+      "source": "MLPred v7 12-month forecast",
+      "method": "price * (1 + (pred_12m - cohort median)); demeaned relative tilt"
+     }
+    }
+   },
+   "num_methods_used": 5,
+   "sector": "Technology",
+   "north_star_metric": "Quality-Adjusted Price/Sales"
+  },
+  "fv_premium_pct": 36.9,
+  "fv_verdict": "Overvalued",
+  "buy_point": {
+   "ticker": "LRCX",
+   "current_price": 258.57,
+   "buy_point": 211.8,
+   "distance_pct": 22.1,
+   "signal": "Far from Buy Point",
+   "signal_color": "#FF5722",
+   "signal_score": 10,
+   "components": {
+    "Bollinger Lower Band": {
+     "price": 237.86,
+     "weight": 0.3,
+     "description": "20-day SMA minus 2 std devs. Current BB position: 50/100"
+    },
+    "Mean Reversion (50-SMA)": {
+     "price": 225.53,
+     "weight": 0.25,
+     "description": "5% below 50-day SMA ($237.40). Stocks tend to revert to this level."
+    },
+    "Support Level": {
+     "price": 149.72,
+     "weight": 0.2,
+     "description": "Recent price floor from 6-month lows and volume-weighted levels."
+    },
+    "Fair Value Discount": {
+     "price": 216.45,
+     "weight": 0.25,
+     "description": "10% below fair value ($240.50). Margin of safety."
+    }
+   },
+   "technicals": {
+    "50-Day SMA": "$237.40",
+    "Price vs 50-SMA": "+8.9%",
+    "200-Day SMA": "$175.03",
+    "Price vs 200-SMA": "+47.7%",
+    "Bollinger Upper": "$279.42",
+    "Bollinger Lower": "$237.86",
+    "BB Position": "50/100",
+    "RSI (14)": "41.5",
+    "RSI Signal": "Neutral"
+   }
+  },
+  "qbp_distance_pct": 22.1,
+  "qbp_signal": "Far from Buy Point",
+  "pillar_detail": {
+   "Valuation": {
+    "metrics": [
+     {
+      "metric": "Forward P/E",
+      "value": "40.7x",
+      "grade": "D+",
+      "percentile": "11th",
+      "sector_avg": "21.6x",
+      "a_threshold": "9.5x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Trailing P/E",
+      "value": "62.1x",
+      "grade": "C+",
+      "percentile": "40th",
+      "sector_avg": "infx",
+      "a_threshold": "16.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "PEG Ratio",
+      "value": "2.0x",
+      "grade": "C",
+      "percentile": "35th",
+      "sector_avg": "1.7x",
+      "a_threshold": "0.6x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Price / Book",
+      "value": "38.9x",
+      "grade": "D",
+      "percentile": "7th",
+      "sector_avg": "20.1x",
+      "a_threshold": "2.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Price / Sales",
+      "value": "19.0x",
+      "grade": "D+",
+      "percentile": "10th",
+      "sector_avg": "9.6x",
+      "a_threshold": "1.5x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "EV / EBITDA",
+      "value": "55.0x",
+      "grade": "C-",
+      "percentile": "16th",
+      "sector_avg": "-34.4x",
+      "a_threshold": "8.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "EV / Revenue",
+      "value": "19.9x",
+      "grade": "D+",
+      "percentile": "10th",
+      "sector_avg": "15.3x",
+      "a_threshold": "1.8x",
+      "higher_is_better": false
+     }
+    ],
+    "pillar_grade": "C-",
+    "pillar_score": 3.71
+   },
+   "Growth": {
+    "metrics": [
+     {
+      "metric": "Revenue Growth (QoQ)",
+      "value": "23.8%",
+      "grade": "B+",
+      "percentile": "69th",
+      "sector_avg": "36.7%",
+      "a_threshold": "37.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Earnings Growth (QoQ)",
+      "value": "40.8%",
+      "grade": "C+",
+      "percentile": "43th",
+      "sector_avg": "149.8%",
+      "a_threshold": "214.4%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Revenue Growth (YoY)",
+      "value": "N/A",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "N/A",
+      "a_threshold": "N/A",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Earnings Growth (YoY)",
+      "value": "37.2%",
+      "grade": "C+",
+      "percentile": "43th",
+      "sector_avg": "161.1%",
+      "a_threshold": "224.9%",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "B-",
+    "pillar_score": 7.0
+   },
+   "Profitability": {
+    "metrics": [
+     {
+      "metric": "Gross Margin",
+      "value": "50.0%",
+      "grade": "C+",
+      "percentile": "43th",
+      "sector_avg": "54.5%",
+      "a_threshold": "77.8%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Operating Margin",
+      "value": "35.0%",
+      "grade": "A",
+      "percentile": "87th",
+      "sector_avg": "-49.5%",
+      "a_threshold": "31.4%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Net Margin",
+      "value": "30.9%",
+      "grade": "A",
+      "percentile": "91th",
+      "sector_avg": "13.0%",
+      "a_threshold": "26.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Return on Equity",
+      "value": "66.8%",
+      "grade": "A",
+      "percentile": "89th",
+      "sector_avg": "26.8%",
+      "a_threshold": "39.3%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Return on Assets",
+      "value": "22.8%",
+      "grade": "A+",
+      "percentile": "95th",
+      "sector_avg": "6.3%",
+      "a_threshold": "12.0%",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "A-",
+    "pillar_score": 10.2
+   },
+   "Momentum": {
+    "metrics": [
+     {
+      "metric": "1-Month Return",
+      "value": "-9.1%",
+      "grade": "C-",
+      "percentile": "25th",
+      "sector_avg": "0.3%",
+      "a_threshold": "15.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "3-Month Return",
+      "value": "23.3%",
+      "grade": "B",
+      "percentile": "60th",
+      "sector_avg": "21.2%",
+      "a_threshold": "45.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "6-Month Return",
+      "value": "51.1%",
+      "grade": "B+",
+      "percentile": "71th",
+      "sector_avg": "25.0%",
+      "a_threshold": "70.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "12-Month Return",
+      "value": "229.9%",
+      "grade": "A",
+      "percentile": "94th",
+      "sector_avg": "69.0%",
+      "a_threshold": "136.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Price vs 50-Day SMA",
+      "value": "-0.0x",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "0.0x",
+      "a_threshold": "0.1x",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Price vs 200-Day SMA",
+      "value": "0.4x",
+      "grade": "A",
+      "percentile": "86th",
+      "sector_avg": "0.1x",
+      "a_threshold": "0.4x",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "B",
+    "pillar_score": 8.33
+   },
+   "EPS Revisions": {
+    "metrics": [
+     {
+      "metric": "Mean Target Upside %",
+      "value": "10.7%",
+      "grade": "C",
+      "percentile": "29th",
+      "sector_avg": "24.1%",
+      "a_threshold": "42.3%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Analyst Rec Score (inv)",
+      "value": "1.51",
+      "grade": "A-",
+      "percentile": "79th",
+      "sector_avg": "1.89",
+      "a_threshold": "1.43",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Last Earnings Surprise %",
+      "value": "N/A",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "N/A",
+      "a_threshold": "N/A",
+      "higher_is_better": true
+     },
+     {
+      "metric": "# Covering Analysts",
+      "value": "31",
+      "grade": "A-",
+      "percentile": "85th",
+      "sector_avg": "17",
+      "a_threshold": "31",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "B",
+    "pillar_score": 8.0
+   }
+  },
+  "quarterly": [
+   {
+    "date": "2026-03-29",
+    "grossMargins": 0.4983,
+    "operatingMargins": 0.3504,
+    "netMargins": 0.3125,
+    "returnOnEquity": 0.6898,
+    "returnOnAssets": 0.3512,
+    "revenueGrowth": 0.2376,
+    "earningsGrowth": 0.3718
+   },
+   {
+    "date": "2025-12-28",
+    "grossMargins": 0.496,
+    "operatingMargins": 0.3387,
+    "netMargins": 0.2982,
+    "returnOnEquity": 0.6285,
+    "returnOnAssets": 0.2981,
+    "revenueGrowth": 0.2214,
+    "earningsGrowth": 0.3383
+   },
+   {
+    "date": "2025-09-28",
+    "grossMargins": 0.5043,
+    "operatingMargins": 0.3435,
+    "netMargins": 0.2946,
+    "returnOnEquity": 0.6156,
+    "returnOnAssets": 0.2865,
+    "revenueGrowth": 0.2774,
+    "earningsGrowth": 0.4051
+   },
+   {
+    "date": "2025-06-29",
+    "grossMargins": 0.5008,
+    "operatingMargins": 0.3367,
+    "netMargins": 0.3326,
+    "returnOnEquity": 0.6977,
+    "returnOnAssets": 0.3223,
+    "revenueGrowth": 0.3358,
+    "earningsGrowth": 0.6859
+   },
+   {
+    "date": "2025-03-30",
+    "grossMargins": 0.4902,
+    "operatingMargins": 0.3309,
+    "netMargins": 0.2819,
+    "returnOnEquity": 0.5596,
+    "returnOnAssets": 0.2666,
+    "revenueGrowth": 0.2443,
+    "earningsGrowth": 0.3778
+   },
+   {
+    "date": "2024-12-29",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.2722,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": 0.1644,
+    "earningsGrowth": 0.2481
+   },
+   {
+    "date": "2024-09-29",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.2679,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": 0.197,
+    "earningsGrowth": 0.2581
+   },
+   {
+    "date": "2024-06-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.2635,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": 0.2071,
+    "earningsGrowth": 0.2713
+   },
+   {
+    "date": "2024-03-31",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.2546,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.0196,
+    "earningsGrowth": 0.1865
+   },
+   {
+    "date": "2023-12-24",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.2539,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.2879,
+    "earningsGrowth": -0.3502
+   },
+   {
+    "date": "2023-09-24",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.2548,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.3138,
+    "earningsGrowth": -0.3776
+   },
+   {
+    "date": "2023-06-25",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.2502,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.3081,
+    "earningsGrowth": -0.3362
+   },
+   {
+    "date": "2023-03-26",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.2104,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.047,
+    "earningsGrowth": -0.2033
+   }
+  ],
+  "c78q": {
+   "in_book": true,
+   "position": {
+    "ticker": "LRCX",
+    "entry_price": 406.445,
+    "current_price": 391.26,
+    "shares": 5,
+    "stale_mark": false
+   }
+  },
+  "sector_context": {
+   "n_sector": 201,
+   "rank_in_sector": 44,
+   "sector_median_composite": 6.87
+  }
+ },
+ "bull": {
+  "claim": "Lam is compounding through the cycle, not just riding it: five straight quarters of 22-34% revenue growth with EPS growing faster in every one (operating leverage) and ~30% net margins - the A- Profitability pillar is the model's strongest fact on the name.",
+  "pillars": [
+   "Revenue +23.8% / EPS +37.2% YoY in the latest quarter, and EPS outgrew revenue in each of the last five quarters (+33.8 vs +22.1, +40.5 vs +27.7, +68.6 vs +33.6...) - mix and share, not just WFE volume.",
+   "Margin structure at scale: 50.0% gross, 35.0% operating, 30.9% net, 66.8% ROE - the quality (A- Profitability) is what separates this from a generic equipment cyclical.",
+   "Rank 44 of 201 in Technology with the composite at 7.45 vs the 6.87 sector median, and the deepened quarterly history shows the 2023 downcycle (-31%, -29% revenue quarters) already survived with net margin never below 21% - the downside case has a measured floor."
+  ],
+  "catalysts": [
+   "Next 2 quarters: WFE spend announcements for 2027 capacity keeping growth >=20%.",
+   "H2 2026: continued EPS-over-revenue spread validating share gains rather than cycle beta.",
+   "Ongoing: B revisions grade with room to upgrade as 2027 estimates form."
+  ],
+  "falsifiers": [
+   "EPS growth falls below revenue growth for two consecutive quarters - the leverage leg is over.",
+   "Revenue growth decelerates below 10% YoY while the forward multiple stays above 35x.",
+   "Net margin breaks below 27% for two straight quarters."
+  ]
+ },
+ "bear": {
+  "claim": "This is peak-cycle pricing on peak-cycle margins: 19.0x sales, 55x EV/EBITDA and a 2.02 PEG for an equipment maker that printed -29% and -31% revenue quarters just ten quarters ago, with the price 36.9% above the model's fair value.",
+  "pillars": [
+   "Valuation is the model's weakest pillar (C-): 62.1x trailing / 40.7x forward earnings and PEG 2.02 - twice the growth-adjusted price of a fairly-valued compounder - after +230% in twelve months.",
+   "The cycle is already decelerating in the data: revenue growth peaked at +33.6% (2025-06) and has stepped down to +27.7%, +22.1%, +23.8% - equipment multiples compress fastest exactly when the second derivative turns.",
+   "The deepened history shows what the trough looks like: -31.4% and -28.8% revenue YoY in late 2023 - apply even half that swing to a 19x-sales price and the drawdown does the valuation work the C- grade is warning about.",
+   "Street exhaustion at the margin: mean target +10.7% versus spot (1.51 rec score, 31 analysts) - fine, but not what a 40.7x forward multiple needs."
+  ],
+  "catalysts": [
+   "Next 2 quarters: first sub-20% revenue growth print resets the growth narrative against a 40x forward book.",
+   "H1 2027: WFE order digestion after two record years - the pattern in every prior memory/logic capex cycle in the series.",
+   "Any quarter: 3-month momentum (+23.3%) rolling over while price sits 43% above the 200-day."
+  ],
+  "falsifiers": [
+   "Growth RE-accelerates above 30% YoY - the 2027 capacity wave overwhelms the deceleration argument.",
+   "Net margin expands beyond 33% at scale, re-rating the PEG below 1.5 without price decline.",
+   "Two more quarters of EPS outgrowing revenue by >=10 points - share gains prove structural, not cyclical."
+  ]
+ },
+ "synthesis": {
+  "crux_variables": [
+   "Second derivative of revenue growth: re-acceleration toward 30% vs decay below 20%",
+   "Whether ~30% net margin is the new structural floor or the cyclical ceiling"
+  ],
+  "divergence_summary": "Both cases agree Lam is executing superbly; they disagree on what a 19x-sales, 2.02-PEG price does when the cycle exhales. The bull points at five quarters of EPS-over-revenue leverage and a measured 2023 trough where margins held 21%+; the bear points at growth already stepping down from +33.6% to +23.8% and multiples that have never survived an equipment down-leg intact. Watch the growth prints: above 30% breaks the bear, below 20% breaks the bull, and the 27% net-margin line is the tiebreak."
+ },
+ "grading": {
+  "h3m": null,
+  "h6m": null,
+  "h12m": null
+ }
+}

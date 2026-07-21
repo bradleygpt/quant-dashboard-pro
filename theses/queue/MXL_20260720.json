@@ -1,0 +1,592 @@
+{
+ "ticker": "MXL",
+ "built_at": "2026-07-20T19:51:48",
+ "builder": "build_thesis_dossier.py v1",
+ "snapshot_hash": "7985641a6574e101",
+ "inputs": {
+  "name": "MaxLinear, Inc",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "price": 87.64,
+  "market_cap_b": 7.9,
+  "composite_by_preset": {
+   "equal": {
+    "c": 6.49,
+    "r": "Hold"
+   },
+   "m_heavy": {
+    "c": 10.16,
+    "r": "Hold"
+   },
+   "v_heavy": {
+    "c": 6.08,
+    "r": "Hold"
+   },
+   "research_vq": {
+    "c": 5.77,
+    "r": "Sell"
+   }
+  },
+  "pillars": {
+   "Valuation": 5.285714285714286,
+   "Growth": 10.0,
+   "Profitability": 2.4,
+   "Momentum": 10.5,
+   "EPS Revisions": 4.25
+  },
+  "grades": {
+   "Valuation": "C",
+   "Growth": "A-",
+   "Profitability": "D",
+   "Momentum": "A",
+   "EPS Revisions": "C-"
+  },
+  "raw_metrics": {
+   "forwardPE": 47.196526,
+   "trailingPE": null,
+   "pegRatio": 0.39,
+   "priceToBook": 17.447271,
+   "priceToSalesTrailing12Months": 15.574327,
+   "enterpriseToEbitda": -225.889,
+   "enterpriseToRevenue": 16.469,
+   "revenueGrowth": 0.43,
+   "earningsGrowth": null,
+   "revenueQuarterlyGrowth": null,
+   "earningsQuarterlyGrowth": null,
+   "grossMargins": 0.57155997,
+   "operatingMargins": -0.12199,
+   "profitMargins": -0.25959,
+   "returnOnEquity": -0.27889,
+   "returnOnAssets": -0.06216,
+   "momentum_1m": 0.0808,
+   "momentum_3m": 3.1126,
+   "momentum_6m": 3.6126,
+   "momentum_12m": 5.011,
+   "momentum_vs_sma50": -0.0348,
+   "momentum_vs_sma200": 1.3608,
+   "analyst_mean_target_upside": -0.2276,
+   "analyst_recommendation_score": null,
+   "earnings_surprise_pct": null,
+   "analyst_count": 11.0
+  },
+  "fair_value": {
+   "ticker": "MXL",
+   "current_price": 87.64,
+   "composite_fair_value": 72.34,
+   "premium_discount_pct": 21.1,
+   "verdict": "Fairly Valued",
+   "verdict_color": "#FFC107",
+   "margin_of_safety": 0,
+   "methods": {
+    "PEG Fair Value": {
+     "fair_value": 55.71,
+     "premium_discount_pct": 57.3,
+     "assumptions": {
+      "eps": 1.86,
+      "growth": "43.0%",
+      "source": "Revenue Growth",
+      "fair_pe": 30,
+      "actual_pe": 47.2,
+      "method": "EPS * min(Growth%, 30) with margin adj"
+     }
+    },
+    "Quality-Adj Price/Sales": {
+     "fair_value": 16.03,
+     "_label": "Price/Sales",
+     "premium_discount_pct": 446.7,
+     "assumptions": {
+      "your_P/S": 15.6,
+      "deserved_P/S": 2.8,
+      "sector_median": 4.4,
+      "quality_pct": 33.0,
+      "peers": 200,
+      "method": "Capped at 75th pctile P/S"
+     }
+    },
+    "Analyst Consensus": {
+     "fair_value": 67.69,
+     "premium_discount_pct": 29.5,
+     "assumptions": {
+      "target": 67.69,
+      "upside": "-22.8%",
+      "analysts": 11.0,
+      "method": "Consensus of 11.0 analysts"
+     }
+    },
+    "ML 12-Month Target": {
+     "fair_value": 101.95,
+     "premium_discount_pct": -14.0,
+     "assumptions": {
+      "pred_12m": "23.4%",
+      "cohort_median": "7.1%",
+      "relative_tilt": "+16.3%",
+      "source": "MLPred v7 12-month forecast",
+      "method": "price * (1 + (pred_12m - cohort median)); demeaned relative tilt"
+     }
+    }
+   },
+   "num_methods_used": 4,
+   "sector": "Technology",
+   "north_star_metric": "Quality-Adjusted Price/Sales"
+  },
+  "fv_premium_pct": 21.1,
+  "fv_verdict": "Fairly Valued",
+  "buy_point": {
+   "ticker": "MXL",
+   "current_price": 78.12,
+   "buy_point": 24.28,
+   "distance_pct": 221.8,
+   "signal": "Far from Buy Point",
+   "signal_color": "#FF5722",
+   "signal_score": 10,
+   "components": {
+    "Bollinger Lower Band": {
+     "price": -3.26,
+     "weight": 0.3,
+     "description": "20-day SMA minus 2 std devs. Current BB position: 96/100"
+    },
+    "Mean Reversion (50-SMA)": {
+     "price": 24.69,
+     "weight": 0.25,
+     "description": "5% below 50-day SMA ($25.99). Stocks tend to revert to this level."
+    },
+    "Support Level": {
+     "price": 14.03,
+     "weight": 0.2,
+     "description": "Recent price floor from 6-month lows and volume-weighted levels."
+    },
+    "Fair Value Discount": {
+     "price": 65.11,
+     "weight": 0.25,
+     "description": "10% below fair value ($72.34). Margin of safety."
+    }
+   },
+   "technicals": {
+    "50-Day SMA": "$25.99",
+    "Price vs 50-SMA": "+200.5%",
+    "200-Day SMA": "$19.02",
+    "Price vs 200-SMA": "+310.7%",
+    "Bollinger Upper": "$81.63",
+    "Bollinger Lower": "$-3.26",
+    "BB Position": "96/100",
+    "RSI (14)": "88.3",
+    "RSI Signal": "Overbought"
+   }
+  },
+  "qbp_distance_pct": 221.8,
+  "qbp_signal": "Far from Buy Point",
+  "pillar_detail": {
+   "Valuation": {
+    "metrics": [
+     {
+      "metric": "Forward P/E",
+      "value": "47.2x",
+      "grade": "D",
+      "percentile": "7th",
+      "sector_avg": "21.6x",
+      "a_threshold": "9.5x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Trailing P/E",
+      "value": "N/A",
+      "grade": "D",
+      "percentile": "7th",
+      "sector_avg": "infx",
+      "a_threshold": "16.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "PEG Ratio",
+      "value": "0.4x",
+      "grade": "A",
+      "percentile": "94th",
+      "sector_avg": "1.7x",
+      "a_threshold": "0.6x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Price / Book",
+      "value": "17.4x",
+      "grade": "C-",
+      "percentile": "15th",
+      "sector_avg": "20.1x",
+      "a_threshold": "2.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Price / Sales",
+      "value": "15.6x",
+      "grade": "D+",
+      "percentile": "14th",
+      "sector_avg": "9.6x",
+      "a_threshold": "1.5x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "EV / EBITDA",
+      "value": "-225.9x",
+      "grade": "A+",
+      "percentile": "97th",
+      "sector_avg": "-34.4x",
+      "a_threshold": "8.1x",
+      "higher_is_better": false
+     },
+     {
+      "metric": "EV / Revenue",
+      "value": "16.5x",
+      "grade": "D+",
+      "percentile": "13th",
+      "sector_avg": "15.3x",
+      "a_threshold": "1.8x",
+      "higher_is_better": false
+     }
+    ],
+    "pillar_grade": "C",
+    "pillar_score": 5.29
+   },
+   "Growth": {
+    "metrics": [
+     {
+      "metric": "Revenue Growth (QoQ)",
+      "value": "43.0%",
+      "grade": "A",
+      "percentile": "89th",
+      "sector_avg": "36.7%",
+      "a_threshold": "37.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Earnings Growth (QoQ)",
+      "value": "N/A",
+      "grade": "A",
+      "percentile": "85th",
+      "sector_avg": "149.8%",
+      "a_threshold": "214.4%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Revenue Growth (YoY)",
+      "value": "N/A",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "N/A",
+      "a_threshold": "N/A",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Earnings Growth (YoY)",
+      "value": "N/A",
+      "grade": "A",
+      "percentile": "86th",
+      "sector_avg": "161.1%",
+      "a_threshold": "224.9%",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "A-",
+    "pillar_score": 10.0
+   },
+   "Profitability": {
+    "metrics": [
+     {
+      "metric": "Gross Margin",
+      "value": "57.2%",
+      "grade": "B-",
+      "percentile": "53th",
+      "sector_avg": "54.5%",
+      "a_threshold": "77.8%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Operating Margin",
+      "value": "-12.2%",
+      "grade": "D",
+      "percentile": "6th",
+      "sector_avg": "-49.5%",
+      "a_threshold": "31.4%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Net Margin",
+      "value": "-26.0%",
+      "grade": "F",
+      "percentile": "1th",
+      "sector_avg": "13.0%",
+      "a_threshold": "26.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Return on Equity",
+      "value": "-27.9%",
+      "grade": "F",
+      "percentile": "4th",
+      "sector_avg": "26.8%",
+      "a_threshold": "39.3%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Return on Assets",
+      "value": "-6.2%",
+      "grade": "F",
+      "percentile": "3th",
+      "sector_avg": "6.3%",
+      "a_threshold": "12.0%",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "D",
+    "pillar_score": 2.4
+   },
+   "Momentum": {
+    "metrics": [
+     {
+      "metric": "1-Month Return",
+      "value": "8.1%",
+      "grade": "B+",
+      "percentile": "72th",
+      "sector_avg": "0.3%",
+      "a_threshold": "15.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "3-Month Return",
+      "value": "311.3%",
+      "grade": "A+",
+      "percentile": "100th",
+      "sector_avg": "21.2%",
+      "a_threshold": "45.5%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "6-Month Return",
+      "value": "361.3%",
+      "grade": "A+",
+      "percentile": "100th",
+      "sector_avg": "25.0%",
+      "a_threshold": "70.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "12-Month Return",
+      "value": "501.1%",
+      "grade": "A+",
+      "percentile": "99th",
+      "sector_avg": "69.0%",
+      "a_threshold": "136.9%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Price vs 50-Day SMA",
+      "value": "-0.0x",
+      "grade": "C+",
+      "percentile": "38th",
+      "sector_avg": "0.0x",
+      "a_threshold": "0.1x",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Price vs 200-Day SMA",
+      "value": "1.4x",
+      "grade": "A+",
+      "percentile": "100th",
+      "sector_avg": "0.1x",
+      "a_threshold": "0.4x",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "A",
+    "pillar_score": 10.5
+   },
+   "EPS Revisions": {
+    "metrics": [
+     {
+      "metric": "Mean Target Upside %",
+      "value": "-22.8%",
+      "grade": "F",
+      "percentile": "1th",
+      "sector_avg": "24.1%",
+      "a_threshold": "42.3%",
+      "higher_is_better": true
+     },
+     {
+      "metric": "Analyst Rec Score (inv)",
+      "value": "N/A",
+      "grade": "D+",
+      "percentile": "13th",
+      "sector_avg": "1.89",
+      "a_threshold": "1.43",
+      "higher_is_better": false
+     },
+     {
+      "metric": "Last Earnings Surprise %",
+      "value": "N/A",
+      "grade": "B-",
+      "percentile": "50th",
+      "sector_avg": "N/A",
+      "a_threshold": "N/A",
+      "higher_is_better": true
+     },
+     {
+      "metric": "# Covering Analysts",
+      "value": "11",
+      "grade": "C+",
+      "percentile": "42th",
+      "sector_avg": "17",
+      "a_threshold": "31",
+      "higher_is_better": true
+     }
+    ],
+    "pillar_grade": "C-",
+    "pillar_score": 4.25
+   }
+  },
+  "quarterly": [
+   {
+    "date": "2026-03-31",
+    "grossMargins": 0.575,
+    "operatingMargins": -0.122,
+    "netMargins": -0.329,
+    "returnOnEquity": -0.3975,
+    "returnOnAssets": -0.2341,
+    "revenueGrowth": 0.43,
+    "earningsGrowth": 0.092
+   },
+   {
+    "date": "2025-12-31",
+    "grossMargins": 0.5758,
+    "operatingMargins": -0.1106,
+    "netMargins": -0.1092,
+    "returnOnEquity": -0.1319,
+    "returnOnAssets": -0.0748,
+    "revenueGrowth": 0.4803,
+    "earningsGrowth": 0.7424
+   },
+   {
+    "date": "2025-09-30",
+    "grossMargins": 0.5686,
+    "operatingMargins": -0.2374,
+    "netMargins": -0.3597,
+    "returnOnEquity": -0.3915,
+    "returnOnAssets": -0.2251,
+    "revenueGrowth": 0.5593,
+    "earningsGrowth": 0.3998
+   },
+   {
+    "date": "2025-06-30",
+    "grossMargins": 0.5654,
+    "operatingMargins": -0.1749,
+    "netMargins": -0.2443,
+    "returnOnEquity": -0.2178,
+    "returnOnAssets": -0.1231,
+    "revenueGrowth": 0.1829,
+    "earningsGrowth": 0.3229
+   },
+   {
+    "date": "2025-03-31",
+    "grossMargins": 0.5611,
+    "operatingMargins": -0.3984,
+    "netMargins": -0.5182,
+    "returnOnEquity": -0.4032,
+    "returnOnAssets": -0.2325,
+    "revenueGrowth": 0.007,
+    "earningsGrowth": 0.3125
+   },
+   {
+    "date": "2024-12-31",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.6275,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.2647,
+    "earningsGrowth": -0.5023
+   },
+   {
+    "date": "2024-09-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.9344,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.4016,
+    "earningsGrowth": -0.9028
+   },
+   {
+    "date": "2024-06-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.4269,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.4999,
+    "earningsGrowth": -8.0246
+   },
+   {
+    "date": "2024-03-31",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.759,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.6165,
+    "earningsGrowth": -8.5851
+   },
+   {
+    "date": "2023-12-31",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.3071,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.5686,
+    "earningsGrowth": -2.2387
+   },
+   {
+    "date": "2023-09-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.2939,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.5257,
+    "earningsGrowth": -2.402
+   },
+   {
+    "date": "2023-06-30",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": -0.0237,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.3431,
+    "earningsGrowth": -1.1361
+   },
+   {
+    "date": "2023-03-31",
+    "grossMargins": null,
+    "operatingMargins": null,
+    "netMargins": 0.0384,
+    "returnOnEquity": null,
+    "returnOnAssets": null,
+    "revenueGrowth": -0.0587,
+    "earningsGrowth": -0.7162
+   }
+  ],
+  "c78q": {
+   "in_book": true,
+   "position": {
+    "ticker": "MXL",
+    "entry_price": 95.5044,
+    "current_price": 112.39,
+    "shares": 16,
+    "stale_mark": false
+   }
+  },
+  "sector_context": {
+   "n_sector": 201,
+   "rank_in_sector": 148,
+   "sector_median_composite": 6.87
+  }
+ }
+}

@@ -518,9 +518,11 @@ try:
             return None
 
     _deep = {}
+    _deep_vintage = None
     try:
-        _deep = {k: v for k, v in json.load(open("quarterly_deep.json")).items()
-                 if isinstance(v, list)}
+        _deep_raw = json.load(open("quarterly_deep.json"))
+        _deep_vintage = _deep_raw.get("generated_at")
+        _deep = {k: v for k, v in _deep_raw.items() if isinstance(v, list)}
     except Exception as _qe:
         log(f"  quarterly_deep.json unavailable ({_qe}) — yfinance-only depth")
 
@@ -591,9 +593,14 @@ try:
         merged = _merged_quarterly(tk, d.get("quarterly_history"))
         if merged:
             qmap[tk] = merged
+    # B4 seasonal-rebuild guard (S6): ship the deep artifact's vintage so the UI can
+    # badge staleness (quarterly_deep is rebuilt manually post-10-Q-season, NOT nightly).
+    # Frontend indexes this map by ticker, so a string meta key is invisible to charts.
+    if _deep_vintage:
+        qmap["deep_generated_at"] = _deep_vintage
     json.dump(qmap, open(f"{OUT}/quarterly.json", "w"))
     _n_deep = sum(1 for tk in qmap if tk in _deep)
-    log(f"wrote quarterly.json ({len(qmap)} tickers; {_n_deep} EDGAR-deepened)")
+    log(f"wrote quarterly.json ({len(qmap)} tickers; {_n_deep} EDGAR-deepened; deep vintage {_deep_vintage})")
 except Exception as e:
     log(f"quarterly.json skipped: {e}")
 
