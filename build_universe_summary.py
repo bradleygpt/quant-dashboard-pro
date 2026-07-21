@@ -15,7 +15,10 @@ def _llm(prompt, mt=300, tp=0.4, provider=None, feature="universe"):
 ai_assistant.call_llm = _llm
 
 DASH = [Path(r"C:\Users\bmhar\code\quant-dashboard-pro-v2\public\data"), Path(r"C:\Users\bmhar\code\quant-dashboard-react\web\public\data")]
-rows = [r for r in json.load(open(DASH[0] / "universe_floor0.json"))["rows"] if r.get("sector") and r.get("sector") != "ETF"]
+# universe_floor0.json is blob-stored in pro-v2 since the git-slim phase; read from
+# whichever checkout still has a local bake copy (same fix as build_etf_lookthrough).
+_SRC = next((p for p in DASH if (p / "universe_floor0.json").exists()), DASH[1])
+rows = [r for r in json.load(open(_SRC / "universe_floor0.json"))["rows"] if r.get("sector") and r.get("sector") != "ETF"]
 def comp(r): return (r.get("byPreset", {}).get("equal", {}) or {}).get("c")
 def rat(r): return (r.get("byPreset", {}).get("equal", {}) or {}).get("r")
 
