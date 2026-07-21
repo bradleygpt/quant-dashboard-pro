@@ -222,7 +222,10 @@ SUPPLEMENTAL = [
     "NVAX",   # Novavax
 ]
 
-PORTFOLIO_STOCKS = ["CLS","IREN","ASTS","RKLB","BMNR","ONDS"]
+# CRDO/LITE added 2026-07-21 (universe-add handoff P3): CIKs EDGAR-verified
+# (CRDO 1807794 Credo Technology Group Holding Ltd, IPO Jan 2022 — short history,
+# N/A never 0; LITE 1633978 Lumentum Holdings Inc).
+PORTFOLIO_STOCKS = ["CLS","IREN","ASTS","RKLB","BMNR","ONDS","CRDO","LITE"]
 
 ETFS = [
     # Broad market
