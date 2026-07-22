@@ -394,6 +394,10 @@ def fetch_quarterly_history(t, max_quarters=12):
                 if net_income is not None and ni_prior and ni_prior != 0:
                     ni_growth_yoy = (net_income - ni_prior) / abs(ni_prior)
 
+            # earnings-chart rework (2026-07-21): carry reported diluted EPS + raw
+            # revenue so the newest pre-10-Q quarter renders before EDGAR has it
+            # (the bake merge prefers the deep/EDGAR values once filed).
+            diluted_eps = get_val(income, "Diluted EPS", q)
             history.append({
                 "date": str(q.date()) if hasattr(q, "date") else str(q),
                 "grossMargins": round(gross_margin, 4) if gross_margin is not None else None,
@@ -403,6 +407,8 @@ def fetch_quarterly_history(t, max_quarters=12):
                 "returnOnAssets": round(roa, 4) if roa is not None else None,
                 "revenueGrowth": round(rev_growth_yoy, 4) if rev_growth_yoy is not None else None,
                 "earningsGrowth": round(ni_growth_yoy, 4) if ni_growth_yoy is not None else None,
+                "dilutedEPS": round(diluted_eps, 4) if diluted_eps is not None else None,
+                "revenueRaw": revenue,
             })
 
         return history

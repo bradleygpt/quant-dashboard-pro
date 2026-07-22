@@ -544,6 +544,7 @@ try:
                        key=lambda x: x[0], reverse=True)
         rev = {d: r.get("revenue") for d, r in drows}
         ni = {d: r.get("netIncome") for d, r in drows}
+        deep_by_d = {d: r for d, r in drows}
         yf_by_d = {}
         for r in (yf_rows or []):
             d = _qd(r.get("date"))
@@ -576,6 +577,15 @@ try:
             nm = yr.get("netMargins")
             if nm is None and r_now and n_now is not None and r_now > 0:
                 nm = round(n_now / r_now, 4)
+            # EPS/mcap/revenue passthrough (earnings-chart rework 2026-07-21): deep
+            # carries split-adjusted diluted EPS + same-basis quarter-end mcap;
+            # the newest pre-10-Q quarter falls back to yfinance dilutedEPS /
+            # revenueRaw (build_cache) — EPS basis is current by construction there.
+            dr = deep_by_d.get(d, {})
+            eps = dr.get("epsDiluted")
+            if eps is None:
+                eps = yr.get("dilutedEPS")
+            rev_raw = r_now if r_now is not None else yr.get("revenueRaw")
             out.append({
                 "date": d.isoformat(),
                 "grossMargins": yr.get("grossMargins"),
@@ -585,6 +595,10 @@ try:
                 "returnOnAssets": yr.get("returnOnAssets"),
                 "revenueGrowth": rg,
                 "earningsGrowth": ng,
+                "eps": eps,
+                "epsDerived": dr.get("epsDerived"),
+                "mcapB": dr.get("mcapB"),
+                "revenue": rev_raw,
             })
         return out
 
