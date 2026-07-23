@@ -34,7 +34,18 @@ SECTOR_TO_ANCHOR = {
     "Utilities":          ("ANCHOR_XLU", "utilities",              "utilities (XLU ETF proxy)"),
     "Basic Materials":    ("ANCHOR_XLB", "materials",              "materials (XLB ETF proxy)"),
     "Real Estate":        ("ANCHOR_IYR", "real estate",            "real estate (IYR ETF proxy)"),
-    # Communication Services: NO anchor in the manifest (XLC absent) -> none
+    # Communication Services: XLC anchor ADDED 2026-07-23. The GICS sector was created
+    # 2018-06, so XLC (its only ETF) has no long-history alternative and is a documented
+    # SHORT-HISTORY anchor — see SHORT_HISTORY_ANCHORS. Flips GOOGL/META/NFLX + 51 more
+    # from `none` to live.
+    "Communication Services": ("ANCHOR_XLC", "communication services", "communication services (XLC ETF proxy)"),
+}
+
+# Anchors whose data starts well after the 2004 window floor. The SHORT-HISTORY label
+# travels with every mapping to these — an S5 obligation the UI must render at the
+# click-out, not only on the engine tab. Mirrors engine.SHORT_HISTORY_STARTS.
+SHORT_HISTORY_ANCHORS = {
+    "ANCHOR_XLC": "2018-06",
 }
 
 # industry substring -> override, manifest-confirmed anchors only
@@ -43,18 +54,28 @@ INDUSTRY_OVERRIDES = [
 ]
 
 
+def _decorate(anc, alias, label, kind):
+    d = {"anchor": anc, "alias": alias, "anchor_name": label, "mapping_kind": kind}
+    start = SHORT_HISTORY_ANCHORS.get(anc)
+    if start:
+        d["short_history"] = True
+        d["coverage_start"] = start
+        d["short_history_note"] = (f"{label} is measured only since {start} — the sector's "
+                                    f"ETF has no earlier history. Evidence spans ~1 cycle; thin.")
+    return d
+
+
 def map_ticker(sector, industry):
-    """Return {anchor, alias, anchor_name, mapping_kind}. `none` kind for unmapped
-    sectors (Communication Services, ETF, Unknown, blank) — the UI disables the block."""
+    """Return {anchor, alias, anchor_name, mapping_kind[, short_history, coverage_start,
+    short_history_note]}. `none` kind for unmapped sectors (ETF, Unknown, blank) — the UI
+    disables the block. Communication Services now maps to XLC (short-history)."""
     for needle, (anc, alias, label) in INDUSTRY_OVERRIDES:
         if industry and needle.lower() in str(industry).lower():
-            return {"anchor": anc, "alias": alias, "anchor_name": label,
-                    "mapping_kind": "industry_proxy"}
+            return _decorate(anc, alias, label, "industry_proxy")
     hit = SECTOR_TO_ANCHOR.get(str(sector or "").strip())
     if hit:
         anc, alias, label = hit
-        return {"anchor": anc, "alias": alias, "anchor_name": label,
-                "mapping_kind": "sector_proxy"}
+        return _decorate(anc, alias, label, "sector_proxy")
     return {"anchor": None, "alias": None, "anchor_name": None, "mapping_kind": "none"}
 
 
