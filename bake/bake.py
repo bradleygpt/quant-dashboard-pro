@@ -1477,13 +1477,36 @@ try:
 
     # --- c78q STRATEGY data stays MONTHLY (nextRebalance, binary target as-of). When
     # c78q.json is absent (CI), these stay null — they do NOT block the decoupled PPI.
-    _c78q = {"pnl": None, "nextRebalance": None}
+    _c78q = {"pnl": None, "nextRebalance": None, "rebalanceModel": None,
+             "rebalanceBookType": None, "effectiveTradingDay": None}
     _binary_asof = None
+    # SCHEDULE: computed by ops/rebalance_schedule.py (quant-historical), the single
+    # authority, emitted as rebalance_schedule.json. Previously this read
+    # c78q.json state.next_rebalance -- a STORED value that was a hand edit no code path
+    # produced, and which silently became null here whenever c78q.json was absent from OUT
+    # (the `except: pass` hid it). The result on prod: the one correct rebalance date in
+    # the system was the only one that failed to display.
+    _sched_all = {}
+    _sched_retired = []
+    try:
+        _sched_doc = json.load(open(f"{OUT}/rebalance_schedule.json")) or {}
+        _sched_all = _sched_doc.get("sleeves") or {}
+        _sched_retired = list(_sched_doc.get("retired") or [])
+        _k = _sched_all.get("katalepsis") or {}
+        _c78q["nextRebalance"] = _k.get("next_rebalance")
+        _c78q["rebalanceModel"] = _k.get("model")
+        _c78q["rebalanceBookType"] = _k.get("rebalance_book_type")
+        _c78q["effectiveTradingDay"] = _k.get("effective_trading_day")
+    except Exception as _se:
+        log(f"  schedule: rebalance_schedule.json unreadable ({_se}) — c78q schedule stays null")
     try:
         _c = json.load(open(f"{OUT}/c78q.json"))
-        _st = _c.get("state") or {}
-        _c78q["nextRebalance"] = _st.get("next_rebalance")
         _binary_asof = (_c.get("target") or {}).get("as_of")
+        if _c78q["nextRebalance"] is None:      # last resort only, and say so loudly
+            _c78q["nextRebalance"] = ((_c.get("state") or {}).get("next_rebalance"))
+            if _c78q["nextRebalance"]:
+                log("  schedule: FELL BACK to stored c78q state.next_rebalance — "
+                    "run `python -m ops.rebalance_schedule --emit` in quant-historical")
     except Exception:
         pass
 
@@ -1508,14 +1531,37 @@ try:
     for _slug in ("aristeia", "auxo", "prosodos", "pronoia"):
         try:
             _ch = json.load(open(f"{OUT}/{_slug}_strategy.json")).get("current_holdings") or {}
-            _sbt = _ch.get("book_type", "paper")
-            _strategies[_slug] = {"book_type": _sbt,
-                                  "status": "deployed" if _sbt == "live" else "paper-track (deployment deferred)",
-                                  "as_of": _ch.get("as_of")}
+            _sc = _sched_all.get(_slug) or {}
+            # `.get(k, default)` returns None when the key EXISTS as null -- that is why
+            # auxo/prosodos shipped book_type: null. Fall back to the computed schedule.
+            _sbt = _ch.get("book_type") or _sc.get("book_type") or "paper"
+            _strategies[_slug] = {
+                "book_type": _sbt,
+                "status": "deployed" if _sbt == "live" else "paper-track (deployment deferred)",
+                "as_of": _ch.get("as_of"),
+                # Both dimensions travel with the date: which MODEL produced it, and
+                # whether THAT rebalance is paper or live. A sleeve can rebalance on
+                # schedule while the rebalance is deliberately non-trading (Prosodos 9/10).
+                "next_rebalance": _sc.get("next_rebalance"),
+                "rebalance_model": _sc.get("model"),
+                "rebalance_model_label": _sc.get("model_label"),
+                "rebalance_book_type": _sc.get("rebalance_book_type"),
+                "go_live": _sc.get("go_live"),
+                "go_live_pending": _sc.get("go_live_pending"),
+                "schedule_rationale": _sc.get("rationale"),
+            }
         except Exception:
             pass
-    for _slug in ("axia", "horme", "krasis"):
-        _strategies[_slug] = {"book_type": "paper", "status": "research-scout, holdings-redundant"}
+    # Retired 2026-06-20 (consolidation audit). They carry NO schedule -- a dead sleeve
+    # emitting a live-looking date is the class of artifact that caused the 7/23 alarm.
+    # DERIVED from rebalance_schedule.json's `retired` set, not hardcoded: retiring a
+    # sleeve is one edit in ops/rebalance_schedule.py and every surface follows. The old
+    # hardcoded list is the same drift class that left chain_watchdog alerting on Axia's
+    # deliberately-archived artifact. Fallback covers a missing/unreadable artifact only.
+    for _slug in (_sched_retired or ("axia", "horme", "krasis")):
+        _strategies[_slug] = {"book_type": "paper", "retired": True,
+                              "status": "retired (holdings-redundant)",
+                              "next_rebalance": None, "rebalance_model": None}
 
     # --- watchdog flag: ops/chain_watchdog.py (quant-historical) drops watchdog_status.json
     # into public/data on every run; fold it in so the landing HUD FRESH/STALE badge can
