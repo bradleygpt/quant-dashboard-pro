@@ -1060,8 +1060,30 @@ try:
     if not _cands:
         log("quant_backtest.json skipped: no candidate cleared the sanity floor")
     else:
-        _cands.sort(key=lambda c: (c[0], c[1]), reverse=True)  # most-populated, then latest end
+        # SELECT BY IDENTITY, NOT BY ROW COUNT (fixed 2026-07-27).
+        # This used to sort by (most-populated, latest-end), which silently served the
+        # WRONG STRATEGY under the TOP-25 label. backtest_results.json is the SWING book
+        # (top-10, ~63-day holds, monthly from 2005 -> 259 rows); quant_backtest_results
+        # .json is the TOP-25 quarterly quant book (2011+ EDGAR point-in-time era -> 62
+        # rows). 259 > 62, so the swing file won every bake and the panel reported its
+        # 4.3% CAGR as the TOP-25 record — ~13pp below the universe equal-weight
+        # benchmark, i.e. a top-quantile selection appearing anti-predictive.
+        #
+        # The regression was introduced by 863ab58, which narrowed the quant backtest to
+        # the 2011+ PIT-clean era. That data decision was CORRECT; it just shrank the row
+        # count enough to lose a popularity contest it should never have been entered in.
+        # A row-count tiebreak between DIFFERENT STRATEGIES is not a tiebreak, it is a
+        # category error: more history of the wrong thing is not better evidence.
+        #
+        # _bt_candidates is already in priority order, so take the first that cleared the
+        # floor and REFUSE rather than substitute. Serving nothing is recoverable; serving
+        # another strategy's curve under this label is not.
+        _order = {n: i for i, n in enumerate(_bt_candidates)}
+        _cands.sort(key=lambda c: _order.get(c[2], 99))
         _nn, _end_date, _name, _d, _pop = _cands[0]
+        if _name != _bt_candidates[0]:
+            log(f"  !! quant_backtest: PRIMARY source {_bt_candidates[0]} unavailable; "
+                f"using {_name}. Verify the strategy label matches the panel.")
         _rows = sorted(_pop, key=lambda x: x.get("date", ""))
         _start_date, _end_date = _rows[0].get("date"), _rows[-1].get("date")
 
@@ -1133,7 +1155,12 @@ try:
             "span_years": round(_span, 1),
             "spy_source": spy_source,
             "spy_asof": spy_asof,
-            "strategy_label": _d.get("strategy_label") or "Realistic swing strategy · top-10 · ~63-day holds · after costs",
+            # The default used to ASSERT the swing strategy ("Realistic swing strategy ·
+            # top-10 · ~63-day holds"). That is what kept the mislabelling invisible: an
+            # unlabelled source was confidently described as a specific strategy it may
+            # not be. An unknown label must read as unknown, and name its own file so the
+            # mismatch is traceable from the artifact alone.
+            "strategy_label": _d.get("strategy_label") or f"UNLABELLED SOURCE ({_name}) — strategy not identified",
             "caveat": _d.get("caveat"),
             "source_meta": _d.get("source"),
             "coverage": _d.get("coverage"),
