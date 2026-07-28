@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-07-27T12:56:52.703309+00:00",
-  "last_updated_human": "2026-07-27 12:56 UTC",
+  "last_updated_utc": "2026-07-28T12:00:43.812065+00:00",
+  "last_updated_human": "2026-07-28 12:00 UTC",
   "as_of_window": "July 2026",
   "risks": [
     {
@@ -9,120 +9,139 @@
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Inflation remains elevated above the Federal Reserve's 2% target, driven by supply shocks in sectors like energy and technology, as well as AI capex spillovers. This persistent inflation complicates monetary policy decisions.",
-      "watch_for": "Sequential core PCE inflation readings above 3%, continued supply chain disruptions, and energy price volatility.",
+      "summary": "Inflation remains elevated above the Federal Reserve's 2% target, driven by supply shocks in sectors like energy and AI-related capital expenditures. While some moderation is expected, sticky inflation poses a risk to economic stability and monetary policy effectiveness.",
+      "watch_for": "June and July CPI and PCE data, Federal Reserve statements on inflation outlook.",
       "sources": [
-        "Guggenheim Investments (July 2026 Economic Outlook and Key Themes)",
-        "Federal Reserve (Monetary Policy Report \u2013 July 2026)",
-        "KPMG (Economic Compass - June 2026)"
+        "Federal Reserve (Monetary Policy Report, July 2026)",
+        "Guggenheim Investments (July 2026 Economic Outlook and Key Themes, July 20)",
+        "KPMG (Economic Compass, July 8, 2026)",
+        "Wells Fargo Investment Institute (outlook, July 20, 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, July 2026)",
+        "Employ America (July 2026 FOMC Preview, July 27, 2026)"
       ]
     },
     {
-      "title": "Geopolitical Instability and Conflict",
+      "title": "Geopolitical Instability and Energy Price Volatility",
       "category": "Geopolitical",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Ongoing conflicts, particularly in the Middle East (e.g., Iran war), create significant uncertainty, impacting energy prices, supply chains, and global economic activity. This instability adds to market volatility.",
-      "watch_for": "Escalations in the Middle East, attacks on the Strait of Hormuz, and their impact on oil prices and global trade flows.",
+      "summary": "Escalating geopolitical tensions, particularly the conflict in the Middle East and its impact on the Strait of Hormuz, are driving oil price volatility. This directly fuels inflation and creates uncertainty, complicating monetary policy decisions.",
+      "watch_for": "Developments in the Middle East conflict, Strait of Hormuz shipping status, oil price movements.",
       "sources": [
-        "Federal Reserve (Monetary Policy Report \u2013 July 2026)",
-        "Wells Fargo Investment Institute (Investment Strategy Report - July 2026)",
-        "KPMG (The butterfly effect: Geopolitical shocks, policy uncertainty & the economic outlook - March 2026)"
+        "Federal Reserve (Monetary Policy Report, July 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 1)",
+        "KPMG (Economic Compass, July 8, 2026)",
+        "Wells Fargo Investment Institute (outlook, July 20, 2026)",
+        "Guggenheim Investments (Strong Earnings Outweighed by Worries Around Higher Oil and Interest Rates, July 27, 2026)",
+        "KPMG International (The butterfly effect: Geopolitical shocks, policy uncertainty & the economic outlook, March 10, 2026)",
+        "Employ America (July 2026 FOMC Preview, July 27, 2026)"
       ]
     },
     {
-      "title": "US Fiscal Deficit and Rising National Debt",
+      "title": "Elevated US National Debt and Shrinking Fiscal Space",
       "category": "Fiscal",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "The US faces a significant and growing federal budget deficit, projected to reach $1.9 trillion in 2026. This trajectory leads to a substantial increase in national debt, potentially impacting long-term economic stability and financing costs.",
-      "watch_for": "CBO's updated projections on deficit and debt levels, and the impact of spending on Social Security, Medicare, and debt servicing.",
+      "summary": "US national debt has surpassed the size of the economy, limiting the government's ability to borrow and respond to future shocks. High debt service costs and increased spending on rearmament and aging populations exacerbate this issue.",
+      "watch_for": "CBO's updated debt projections, Congressional budget debates.",
       "sources": [
-        "Congressional Budget Office (Outlook for the Budget and the Economy - July 2026)",
-        "KPMG (The butterfly effect: Geopolitical shocks, policy uncertainty & the economic outlook - March 2026)"
+        "KPMG (Economic Compass, July 8, 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, July 2026)",
+        "Congressional Budget Office (Budget and Economic Outlook: 2026 to 2036, February 11, 2026)",
+        "KPMG International (The butterfly effect: Geopolitical shocks, policy uncertainty & the economic outlook, March 10, 2026)"
       ]
     },
     {
-      "title": "AI Investment Boom and Productivity Lag",
+      "title": "AI Investment Boom and Productivity Dividend Uncertainty",
       "category": "Growth",
       "severity": "Medium",
       "direction": "two-sided",
       "horizon": "2026",
-      "summary": "While robust AI capital expenditures are driving business investment and economic growth, there's a concern that the boost to productivity growth is lagging behind the costs, potentially contributing to inflationary pressures.",
-      "watch_for": "The balance between AI investment, productivity gains, and inflationary spillovers.",
+      "summary": "Robust investment in Artificial Intelligence is a key driver of growth, but the full productivity dividend remains a promise. The costs of AI (chips, power, capital) are immediate, while the benefits may take time to materialize, creating potential for uneven economic impact.",
+      "watch_for": "Corporate AI capital spending announcements, productivity growth data.",
       "sources": [
-        "Guggenheim Investments (July 2026 Economic Outlook and Key Themes)",
-        "KPMG (Economic Compass - June 2026)",
-        "Stanford SIEPR (The U.S. economy in 2026: What to watch for - 2026)"
+        "Guggenheim Investments (July 2026 Economic Outlook and Key Themes, July 20)",
+        "JPMorgan (Mid-Year Outlook 2026, July 1)",
+        "KPMG (Economic Compass, July 8, 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, July 2026)",
+        "Wells Fargo Investment Institute (outlook, July 20, 2026)",
+        "KPMG International (Spring thaw, summer heat: Biannual economic outlook, June 10, 2026)",
+        "Stanford SIEPR (2026 SIEPR Economic Summit, July 2026)"
       ]
     },
     {
-      "title": "Monetary Policy Dilemma: Inflation vs. Growth",
-      "category": "Policy",
-      "severity": "High",
-      "direction": "downside",
-      "horizon": "2026",
-      "summary": "The Federal Reserve faces a delicate balancing act between controlling elevated inflation and supporting economic growth. The split within the FOMC on the future path of interest rates highlights this policy challenge.",
-      "watch_for": "FOMC meeting minutes and statements regarding interest rate decisions, and the divergence of views among participants.",
-      "sources": [
-        "Federal Reserve (Minutes of the Federal Open Market Committee - July 2026)",
-        "Federal Reserve (Monetary Policy Report \u2013 July 2026)",
-        "Natixis (Fed will likely hold rates at July meeting and through 2026 - July 2026)"
-      ]
-    },
-    {
-      "title": "Tariff Regime and Trade Uncertainty",
-      "category": "Trade",
-      "severity": "Medium",
-      "direction": "downside",
-      "horizon": "2026",
-      "summary": "New and existing tariffs introduce uncertainty into the economic landscape, potentially slowing growth and influencing trade flows. Supply chains are being reshuffled in response to these trade policies.",
-      "watch_for": "New tariff implementations (e.g., August tariffs), their impact on imports/exports, and supply chain adjustments.",
-      "sources": [
-        "KPMG (The butterfly effect: Geopolitical shocks, policy uncertainty & the economic outlook - March 2026)",
-        "KPMG (Economic Compass - June 2026)",
-        "Wells Fargo Investment Institute (2026 Midyear Outlook - June 2026)"
-      ]
-    },
-    {
-      "title": "Housing Market Stalemate",
-      "category": "Growth",
-      "severity": "Low",
-      "direction": "downside",
-      "horizon": "2026",
-      "summary": "High interest rates and mortgage lock-in are causing a significant slowdown in the housing market, impacting related consumer spending and overall economic activity.",
-      "watch_for": "Mortgage rates, housing starts, and home sales data.",
-      "sources": [
-        "KPMG (Economic Compass - June 2026)",
-        "Wells Fargo Investment Institute (Investment Strategy Report - July 2026)"
-      ]
-    },
-    {
-      "title": "Labor Market Dynamics: 'Low Hire, Low Fire'",
+      "title": "Labor Market Resilience Amidst Shifting Dynamics",
       "category": "Labor",
       "severity": "Medium",
       "direction": "two-sided",
       "horizon": "2026",
-      "summary": "The labor market is characterized by a 'low hire, low fire' dynamic, with firms exhibiting uncertainty due to macroeconomic policy and AI implementation. While job gains are picking up, the unemployment rate remains stable.",
-      "watch_for": "Job growth figures, unemployment rate trends, and wage growth.",
+      "summary": "The labor market shows resilience with stabilizing unemployment, but job growth has slowed. Concerns exist about AI's potential impact on hiring and the risk of stagflation if unemployment rises while inflation remains high.",
+      "watch_for": "Monthly jobs reports (payrolls, unemployment rate, wage growth), AI's impact on hiring.",
       "sources": [
-        "Stanford SIEPR (The U.S. economy in 2026: What to watch for - 2026)",
-        "Federal Reserve (Monetary Policy Report \u2013 July 2026)",
-        "Guggenheim Investments (July 2026 Economic Outlook and Key Themes)"
+        "Guggenheim Investments (July 2026 Economic Outlook and Key Themes, July 20)",
+        "KPMG (Economic Compass, July 8, 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, July 2026)",
+        "Federal Reserve (Monetary Policy Report, July 2026)",
+        "NCCI (State of The Economy: What We're Watching July 2026, July 23, 2026)",
+        "Employ America (July 2026 FOMC Preview, July 27, 2026)"
+      ]
+    },
+    {
+      "title": "Monetary Policy Uncertainty and Fed's Hawkish Stance",
+      "category": "Policy",
+      "severity": "Medium",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "The Federal Reserve, under new leadership, faces a challenging balancing act between controlling inflation and supporting employment. The absence of forward guidance and potential for further rate hikes create policy uncertainty.",
+      "watch_for": "FOMC statements, Federal Reserve Chair's speeches, market expectations for rate hikes.",
+      "sources": [
+        "Federal Reserve (Monetary Policy Report, July 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 1)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, July 2026)",
+        "Wells Fargo Investment Institute (outlook, July 20, 2026)",
+        "Kiplinger (Will the Federal Reserve raise interest rates? Here is what experts predict for July's meeting., July 27, 2026)",
+        "Employ America (July 2026 FOMC Preview, July 27, 2026)",
+        "Lockhart Sees Fed Steady in July, at Least 50 Bps in Rate Hikes on the Way (July 28, 2026)"
+      ]
+    },
+    {
+      "title": "Global Fragmentation and Trade Tensions",
+      "category": "Trade",
+      "severity": "Low",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "Fragmented global trade and ongoing tariff regimes create headwinds for economic growth. Supply chain disruptions and protectionist policies can lead to higher costs and reduced efficiency.",
+      "watch_for": "New tariff announcements, trade balance data, geopolitical developments impacting trade routes.",
+      "sources": [
+        "JPMorgan (Mid-Year Outlook 2026, July 1)",
+        "KPMG (Economic Compass, July 8, 2026)",
+        "KPMG International (Spring thaw, summer heat: Biannual economic outlook, June 10, 2026)",
+        "KPMG International (The butterfly effect: Geopolitical shocks, policy uncertainty & the economic outlook, March 10, 2026)"
+      ]
+    },
+    {
+      "title": "Housing Market Affordability and Stability",
+      "category": "Markets",
+      "severity": "Low",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "Housing affordability remains a concern for consumers, and the housing market is described as being in a state of 'suspended animation.' This could dampen consumer spending and broader economic activity.",
+      "watch_for": "Housing starts, home sales data, mortgage rates.",
+      "sources": [
+        "KPMG (Economic Compass, July 8, 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, July 2026)"
       ]
     }
   ],
-  "consensus_note": "There is a broad consensus among institutions regarding persistent inflation and the significant risks posed by geopolitical instability, particularly in the Middle East. While AI investment is seen as a growth driver, its inflationary impact and productivity lag are noted concerns. Divergence exists in the severity and immediate horizon of these risks, with some institutions emphasizing near-term inflation challenges while others focus on longer-term fiscal sustainability.",
+  "consensus_note": "There is a strong consensus across institutions regarding persistent inflation and geopolitical risks stemming from the Middle East conflict as key concerns for the US and global economy in 2026. While AI investment is seen as a growth driver, its productivity benefits are viewed with some uncertainty. Divergence exists in the precise outlook for interest rates, with some anticipating holds and others expecting hikes later in the year, reflecting the Federal Reserve's challenging policy path.",
   "themes": [
-    "Artificial Intelligence (AI) Investment and Impact",
-    "Geopolitical Shocks and Supply Chain Resilience",
-    "Inflationary Pressures and Monetary Policy Response",
-    "Fiscal Sustainability and National Debt",
-    "Labor Market Adaptation in the Face of Uncertainty"
+    "Inflation Persistence",
+    "Geopolitical Uncertainty",
+    "Fiscal Sustainability",
+    "AI-Driven Transformation",
+    "Monetary Policy Tightrope"
   ],
-  "status": "stale",
-  "last_fresh": "2026-07-24T11:44:45.347491+00:00",
-  "error": "No JSON found: "
+  "status": "fresh"
 }
