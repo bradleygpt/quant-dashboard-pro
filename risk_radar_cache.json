@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-07-29T12:04:10.706501+00:00",
-  "last_updated_human": "2026-07-29 12:04 UTC",
+  "last_updated_utc": "2026-07-30T11:54:23.562503+00:00",
+  "last_updated_human": "2026-07-30 11:54 UTC",
   "as_of_window": "July 2026",
   "risks": [
     {
@@ -153,5 +153,7 @@
     "Labor Market Dynamics",
     "Housing Market Challenges"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-07-29T12:04:10.706501+00:00",
+  "error": "No JSON found: "
 }
