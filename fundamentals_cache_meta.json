@@ -1,15 +1,15 @@
 {
-  "built_at": "2026-07-30T16:36:42.772233",
+  "built_at": "2026-07-31T06:40:45.548327",
   "n_target": 1368,
   "n_records": 1361,
   "n_price": 1361,
-  "n_fresh": 1336,
-  "n_rescued": 25,
-  "n_batch_prices": 1350,
+  "n_fresh": 1148,
+  "n_rescued": 213,
+  "n_batch_prices": 1349,
   "prev_n_price": 1361,
   "backoff_pauses": 0,
   "failure_modes": {
-    "no_history": 14,
-    "empty_info_no_marketcap": 18
+    "empty_info_no_marketcap": 210,
+    "no_history": 10
   }
 }
