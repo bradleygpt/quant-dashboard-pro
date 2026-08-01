@@ -1,7 +1,46 @@
 {
-  "generated_utc": "2026-07-15T10:44:48.454972+00:00",
+  "generated_utc": "2026-08-01T10:37:13.195646+00:00",
   "_warning": "UNVERIFIED LLM-drafted figures. Verify EACH against the cited source PDF before promoting into macro_house_views.json. Never merge a figure whose quote does not plainly state the number. The live panel reads ONLY macro_house_views.json, never this file.",
   "candidates": [
+    {
+      "id": "guggenheim",
+      "name": "Guggenheim Investments",
+      "kind": "house",
+      "status": "stale",
+      "as_of": "2026-07",
+      "prior_as_of": "2026-06",
+      "source": "July 2026 Economic Outlook and Key Themes",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF1RohbIRxRdS7vqnd-elRh5JZrmg7vOMtT1Fa-aZxMpAaZ41LMGas3iPSAtoAm23xAwUQa8MVUmlqIU9osDbXo76tOHSTcZF0PBNc4FiWhp4adrI566Elj-ZZabvWFNoh1JjjYaDIl5kw2OXOjhpZVhUj9Q3ojteKQIqnYSGEqYNrWLq8U01A4K4oOaC26rQbCiU03BjR25-J-FJadV43Izf69nrTa-x4uL8OHRpOp",
+      "inflation_basis": "PCE",
+      "notes": "Unemployment rate for 2026 is described as 'near current levels' rather than a specific percentage.",
+      "values": {
+        "gdp": {
+          "2026": {
+            "value": 2.0,
+            "quote": "We see real gross domestic product (GDP) growth around 2 percent in 2026 and 2027, underpinned by robust artificial intelligence (AI) capital expenditures and near-term fiscal tailwinds."
+          }
+        },
+        "inflation": {
+          "2026": {
+            "value": 3.0,
+            "quote": "While year-over-year core PCE is expected to end the year above 3 percent, we expect some moderation in sequential numbers in coming months as these impulses cool."
+          }
+        }
+      }
+    },
+    {
+      "id": "ubs_cio",
+      "name": "UBS CIO GWM",
+      "kind": "house",
+      "status": "stale",
+      "as_of": "2026-05",
+      "prior_as_of": "2025-11",
+      "source": "Energy spikes and bond yields: Why the market has overshot",
+      "url": "https://www.ubs.com/global/en/investment-principles/chief-investment-office/insights/energy-spikes-and-bond-yields-why-the-market-has-overshot.html",
+      "inflation_basis": "unknown",
+      "notes": "The report mentions inflation is likely above 3% and forecasts Brent crude oil at USD 90 at year-end 2026. Specific figures for GDP, unemployment, Fed funds rate, and S&P 500 target were not explicitly stated for 2026 or 2027.",
+      "values": {}
+    },
     {
       "id": "goldman_sachs",
       "name": "Goldman Sachs Research",
@@ -9,15 +48,41 @@
       "status": "stale",
       "as_of": "2026-07",
       "prior_as_of": "2026-06",
-      "source": "US Market Pulse July 2026",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGlZ6X5KycAR_ZkjI4GqdSk3zBjyvsGngCEqR3ocLIBoM1bmWN4fxlvbsnJK06rlOAXpvj5-ZQlGEMi15Sv577TafprZkMIfdfhYzMgMij_exK8X2NEgR0Px9ciLLOvxvgdf3Ha91p6dc7bQmkWOcly2zsMHue4f1w=,AUZIYQGlZ6X5KycAR_ZkjI4GqdSk3zBjyvsGngCEqR3ocLIBoM1bmWN4fxlvbsnJK06rlOAXpvj5-ZQlGEMi15Sv577TafprZkMIfdfhYzMgMij_exK8X2NEgR0Px9ciLLOvxvgdf3Ha91p6dc7bQmkWOcly2zsMHue4f1w=",
-      "inflation_basis": "unknown",
-      "notes": "The report mentions AI investments as a percentage of US GDP, not overall GDP growth. No explicit forecast for overall US GDP growth for 2026 was found in this report.",
+      "source": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
+      "url": "https://www.goldmansachs.com/insights/\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4-us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth/index.html",
+      "inflation_basis": "PCE",
+      "notes": "The report focuses on the outlook for the current year (2026) and does not explicitly state forecasts for 2027. The GDP forecast is for the full year.",
+      "values": {
+        "gdp": {
+          "2026": {
+            "value": 2.0,
+            "quote": "David Mericle, chief US economist in Goldman Sachs Research, forecasts the Fed to keep interest rates unchanged this year before cutting its policy rate in 2027. He also unpacks the factors driving US inflation, highlights the surprising resilience of the US labor market, and explains why he expects US GDP to expand around 2% this year."
+          }
+        }
+      }
+    },
+    {
+      "id": "yardeni",
+      "name": "Yardeni Research",
+      "kind": "house",
+      "status": "stale",
+      "as_of": "2026-07",
+      "prior_as_of": "2026-05",
+      "source": "US Economy Is Still Flying",
+      "url": "https://www.yardeni.com/quicktakes/us-economy-is-still-flying/",
+      "inflation_basis": "PCE",
+      "notes": "The report provides Q2 2026 GDP growth and June 2026 inflation data. It does not explicitly state full-year 2026 forecasts for GDP or inflation, nor does it provide unemployment, fed funds rate, or S&P 500 targets for 2026 or 2027.",
       "values": {
         "gdp": {
           "2026": {
             "value": 1.5,
-            "quote": "AI investments may reach ~1.5% of US GDP this year, just below the 1990s tech peak."
+            "quote": "The US economy expanded at a 1.5% annualized rate in Q2-2026, down from 2.1% in Q1 (chart)."
+          }
+        },
+        "inflation": {
+          "2026": {
+            "value": 3.7,
+            "quote": "Headline PCED inflation declined 0.1% m/m in June, but was still up 3.7% y/y (chart)."
           }
         }
       }

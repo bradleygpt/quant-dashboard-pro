@@ -1,8 +1,8 @@
 {
-  "checked_utc": "2026-07-15T10:44:48.454972+00:00",
-  "checked_human": "2026-07-15 10:44 UTC",
+  "checked_utc": "2026-08-01T10:37:13.195646+00:00",
+  "checked_human": "2026-08-01 10:37 UTC",
   "status": "ok",
-  "needs_action_count": 1,
+  "needs_action_count": 4,
   "forecasters": [
     {
       "id": "wells_fargo_ii",
@@ -10,8 +10,8 @@
       "status": "current",
       "prior_as_of": "2026-06",
       "report_month": "2026-06",
-      "report_title": "2026 Midyear Outlook: Keeping Discipline in Noisy Markets",
-      "url": "https://www.businesswire.com/news/home/20260617005347/en/Wells-Fargo-Investment-Institute-When-Every-Headline-Shouts-Discipline-Matters-Most",
+      "report_title": "2026 Midyear Outlook Report: Keeping Discipline in Noisy Markets",
+      "url": "https://www.wellsfargo.com/investment-institute/reports/2026-midyear-outlook/",
       "error": null
     },
     {
@@ -27,32 +27,32 @@
     {
       "id": "kpmg",
       "name": "KPMG Economics",
-      "status": "error",
+      "status": "current",
       "prior_as_of": "2026-06",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-06",
+      "report_title": "Spring thaw, summer heat: Biannual economic outlook",
+      "url": "https://kpmg.com/us/en/home/insights/2026/06/spring-thaw-summer-heat-biannual-economic-outlook.html",
+      "error": null
     },
     {
       "id": "guggenheim",
       "name": "Guggenheim Investments",
-      "status": "error",
+      "status": "stale",
       "prior_as_of": "2026-06",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-07",
+      "report_title": "July 2026 Economic Outlook and Key Themes",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF1RohbIRxRdS7vqnd-elRh5JZrmg7vOMtT1Fa-aZxMpAaZ41LMGas3iPSAtoAm23xAwUQa8MVUmlqIU9osDbXo76tOHSTcZF0PBNc4FiWhp4adrI566Elj-ZZabvWFNoh1JjjYaDIl5kw2OXOjhpZVhUj9Q3ojteKQIqnYSGEqYNrWLq8U01A4K4oOaC26rQbCiU03BjR25-J-FJadV43Izf69nrTa-x4uL8OHRpOp",
+      "error": null
     },
     {
       "id": "ubs_cio",
       "name": "UBS CIO GWM",
-      "status": "error",
+      "status": "stale",
       "prior_as_of": "2025-11",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+      "report_month": "2026-05",
+      "report_title": "Energy spikes and bond yields: Why the market has overshot",
+      "url": "https://www.ubs.com/global/en/investment-principles/chief-investment-office/insights/energy-spikes-and-bond-yields-why-the-market-has-overshot.html",
+      "error": null
     },
     {
       "id": "goldman_sachs",
@@ -60,28 +60,28 @@
       "status": "stale",
       "prior_as_of": "2026-06",
       "report_month": "2026-07",
-      "report_title": "US Market Pulse July 2026",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGlZ6X5KycAR_ZkjI4GqdSk3zBjyvsGngCEqR3ocLIBoM1bmWN4fxlvbsnJK06rlOAXpvj5-ZQlGEMi15Sv577TafprZkMIfdfhYzMgMij_exK8X2NEgR0Px9ciLLOvxvgdf3Ha91p6dc7bQmkWOcly2zsMHue4f1w=,AUZIYQGlZ6X5KycAR_ZkjI4GqdSk3zBjyvsGngCEqR3ocLIBoM1bmWN4fxlvbsnJK06rlOAXpvj5-ZQlGEMi15Sv577TafprZkMIfdfhYzMgMij_exK8X2NEgR0Px9ciLLOvxvgdf3Ha91p6dc7bQmkWOcly2zsMHue4f1w=",
+      "report_title": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
+      "url": "https://www.goldmansachs.com/insights/\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4-us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth/index.html",
       "error": null
     },
     {
       "id": "morgan_stanley",
       "name": "Morgan Stanley Research",
-      "status": "error",
+      "status": "current",
       "prior_as_of": "2026-05",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-05",
+      "report_title": "2026 Midyear Investment Outlook: Constructive, Not Complacent",
+      "url": "https://www.morganstanley.com/insights/articles/2026-midyear-investment-outlook-constructive-not-complacent",
+      "error": null
     },
     {
       "id": "yardeni",
       "name": "Yardeni Research",
-      "status": "current",
+      "status": "stale",
       "prior_as_of": "2026-05",
-      "report_month": "2026-05",
-      "report_title": "MARKET CALL: Raising Our 2026 S&P 500 Target Range Due To Earnings-Led Meltup",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGRXN6jqrMtlst1wWJILDMLvz2I5lSPCnmsxmvtFFAiH7W2yiAoyRb_Fe03SQRZ66JpwqpqcUvtoA0QM0Ap_zCPV2uqfvvmuuucnYYuTeJPWS-gIbrNHFLM01cwRjnZALed2E1VIMyph8Z8T2rPs4FYWuzw94dFskHY8JPDvkgmKgYwjLYcIPEPtnmuABDAWV1KYslPjYaBBj8i_QPswhA0bVHPYrw40zW3",
+      "report_month": "2026-07",
+      "report_title": "US Economy Is Still Flying",
+      "url": "https://www.yardeni.com/quicktakes/us-economy-is-still-flying/",
       "error": null
     },
     {
