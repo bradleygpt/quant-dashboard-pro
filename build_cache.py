@@ -225,7 +225,13 @@ SUPPLEMENTAL = [
 # CRDO/LITE added 2026-07-21 (universe-add handoff P3): CIKs EDGAR-verified
 # (CRDO 1807794 Credo Technology Group Holding Ltd, IPO Jan 2022 — short history,
 # N/A never 0; LITE 1633978 Lumentum Holdings Inc).
-PORTFOLIO_STOCKS = ["CLS","IREN","ASTS","RKLB","BMNR","ONDS","CRDO","LITE"]
+# TH added 2026-08-02 (CIK 1712189 Target Hospitality Corp., EDGAR-verified): first
+# broad-universe strategy candidate (c78q #1 / Aristeia #3 at the 8/01 rebalance) that the
+# product could not display — selection was widened to price-only names on 7/23
+# (reconcile_broad_universe) but the research universe never followed, so the dashboard
+# search knew only TGT. Low ADV (~$20M/63d median): the strategies may pick it, but it is
+# in THIS list so it can be researched, not as an endorsement.
+PORTFOLIO_STOCKS = ["CLS","IREN","ASTS","RKLB","BMNR","ONDS","CRDO","LITE","TH"]
 
 ETFS = [
     # Broad market
