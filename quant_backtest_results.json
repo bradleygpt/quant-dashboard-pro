@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-07-26T12:59:34.082316+00:00",
+  "last_run_utc": "2026-08-02T13:14:42.075810+00:00",
   "strategy_label": "TOP-25 equal-weight \u00b7 quarterly rebalance \u00b7 2011+ (EDGAR point-in-time era)",
   "source": "build_quant_backtest.py (per-preset rebuild 2026-07-02)",
   "parameters": {
@@ -18,23 +18,23 @@
   "aggregate_metrics": {
     "realistic_strategy": {
       "n_periods": 62,
-      "win_rate_pct": 82.25806451612904,
-      "avg_return_pct": 4.447163930775263,
-      "avg_win_pct": 7.8559762794338415,
-      "avg_loss_pct": -11.357329685732692,
+      "win_rate_pct": 80.64516129032258,
+      "avg_return_pct": 4.431138129667695,
+      "avg_win_pct": 8.02940306873577,
+      "avg_loss_pct": -10.561632449782614,
       "best_period_pct": 30.00198314828991,
       "worst_period_pct": -36.19684701664624,
-      "total_compounded_pct": 963.2659498498826
+      "total_compounded_pct": 950.4169141613445
     },
     "theoretical_max_strategy": {
       "n_periods": 62,
       "win_rate_pct": 100.0,
-      "avg_return_pct": 15.760363466764293,
-      "avg_win_pct": 15.760363466764293,
+      "avg_return_pct": 15.733230505559089,
+      "avg_win_pct": 15.733230505559089,
       "avg_loss_pct": 0,
       "best_period_pct": 42.36593345710005,
       "worst_period_pct": 3.5102197013155494,
-      "total_compounded_pct": 772724.8358885109
+      "total_compounded_pct": 761384.0847077103
     },
     "spy_benchmark": {
       "n_periods": 62,
@@ -46,7 +46,7 @@
       "worst_period_pct": -24.231231693867926,
       "total_compounded_pct": 428.8638272062652
     },
-    "avg_data_quality_across_run": 85.66957877317097
+    "avg_data_quality_across_run": 85.80969675549075
   },
   "presets": {
     "equal": {
@@ -58,12 +58,12 @@
         "momentum": 0.25
       },
       "headline": {
-        "cagr_pct": 16.48,
+        "cagr_pct": 16.38,
         "sharpe": 0.85,
         "max_dd_pct": -36.37,
-        "win_rate_pct": 82.3,
+        "win_rate_pct": 80.6,
         "n_periods": 62,
-        "total_compounded_pct": 963.3
+        "total_compounded_pct": 950.4
       },
       "checkpoint_returns_pct": [
         12.9371,
@@ -104,13 +104,13 @@
         6.7313,
         -36.1968,
         30.002,
-        7.9637,
+        9.2484,
         11.5257,
-        16.8926,
+        15.6547,
         12.784,
         1.3964,
         11.0958,
-        -5.4082,
+        -6.967,
         -20.5471,
         -2.422,
         12.159,
@@ -123,11 +123,12 @@
         14.6884,
         1.6429,
         -7.3364,
-        27.6088,
+        28.4789,
         12.2525,
         0.0126,
-        0.1015,
-        7.9829
+        -0.2501,
+        7.9829,
+        null
       ]
     },
     "m_heavy": {
@@ -139,12 +140,12 @@
         "momentum": 0.8
       },
       "headline": {
-        "cagr_pct": 26.71,
-        "sharpe": 1.01,
+        "cagr_pct": 27.0,
+        "sharpe": 1.02,
         "max_dd_pct": -28.98,
         "win_rate_pct": 75.8,
         "n_periods": 62,
-        "total_compounded_pct": 3824.5
+        "total_compounded_pct": 3965.4
       },
       "checkpoint_returns_pct": [
         11.5889,
@@ -154,7 +155,7 @@
         15.8789,
         -9.6849,
         10.3655,
-        2.2227,
+        5.0106,
         10.3579,
         13.0451,
         19.3529,
@@ -195,7 +196,7 @@
         -19.8022,
         3.6275,
         12.4979,
-        7.4631,
+        8.3651,
         16.88,
         -2.0222,
         12.1343,
@@ -208,7 +209,8 @@
         11.7036,
         7.2772,
         4.6415,
-        22.7718
+        22.7718,
+        null
       ]
     },
     "v_heavy": {
@@ -220,12 +222,12 @@
         "momentum": 0.2
       },
       "headline": {
-        "cagr_pct": 17.14,
-        "sharpe": 0.93,
+        "cagr_pct": 16.89,
+        "sharpe": 0.92,
         "max_dd_pct": -37.32,
         "win_rate_pct": 82.3,
         "n_periods": 62,
-        "total_compounded_pct": 1061.8
+        "total_compounded_pct": 1024.1
       },
       "checkpoint_returns_pct": [
         11.6555,
@@ -266,13 +268,13 @@
         10.4239,
         -37.3157,
         27.7666,
-        5.357,
+        6.49,
         16.7165,
-        15.3181,
-        11.5871,
+        13.9566,
+        11.1854,
         0.9691,
-        10.3092,
-        -4.7137,
+        9.986,
+        -6.6143,
         -21.035,
         -2.8701,
         12.6796,
@@ -288,8 +290,9 @@
         25.1338,
         5.7922,
         -1.219,
-        9.0916,
-        6.1378
+        8.5415,
+        6.1378,
+        null
       ]
     }
   },
@@ -2021,8 +2024,8 @@
     {
       "date": "2012-01-01",
       "n_candidates_screened": 963,
-      "n_qualified": 829,
-      "avg_data_quality": 74.14354644149577,
+      "n_qualified": 827,
+      "avg_data_quality": 74.25634824667473,
       "spy_return_pct": 11.247055951286764,
       "top_picks": [
         {
@@ -2452,8 +2455,8 @@
     {
       "date": "2012-04-01",
       "n_candidates_screened": 970,
-      "n_qualified": 841,
-      "avg_data_quality": 76.3436385255648,
+      "n_qualified": 839,
+      "avg_data_quality": 76.4600715137068,
       "spy_return_pct": -4.046806530297153,
       "top_picks": [
         {
@@ -2883,8 +2886,8 @@
     {
       "date": "2012-07-01",
       "n_candidates_screened": 977,
-      "n_qualified": 846,
-      "avg_data_quality": 76.77895981087471,
+      "n_qualified": 844,
+      "avg_data_quality": 76.89573459715639,
       "spy_return_pct": 5.464806251599121,
       "top_picks": [
         {
@@ -3314,8 +3317,8 @@
     {
       "date": "2012-10-01",
       "n_candidates_screened": 981,
-      "n_qualified": 857,
-      "avg_data_quality": 77.31038506417737,
+      "n_qualified": 855,
+      "avg_data_quality": 77.42690058479532,
       "spy_return_pct": 1.1846147438690537,
       "top_picks": [
         {
@@ -3729,8 +3732,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 2.2226614550506545,
-          "max": 25.57342883847887,
+          "realistic": 5.010564409049458,
+          "max": 25.309260131763445,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -3745,8 +3748,8 @@
     {
       "date": "2013-01-01",
       "n_candidates_screened": 985,
-      "n_qualified": 860,
-      "avg_data_quality": 80.36627906976744,
+      "n_qualified": 858,
+      "avg_data_quality": 80.48368298368298,
       "spy_return_pct": 6.278240669740294,
       "top_picks": [
         {
@@ -4176,8 +4179,8 @@
     {
       "date": "2013-04-01",
       "n_candidates_screened": 993,
-      "n_qualified": 867,
-      "avg_data_quality": 81.62053056516724,
+      "n_qualified": 865,
+      "avg_data_quality": 81.72254335260115,
       "spy_return_pct": 3.22332501180955,
       "top_picks": [
         {
@@ -4607,8 +4610,8 @@
     {
       "date": "2013-07-01",
       "n_candidates_screened": 1004,
-      "n_qualified": 873,
-      "avg_data_quality": 81.5807560137457,
+      "n_qualified": 871,
+      "avg_data_quality": 81.68197474167623,
       "spy_return_pct": 4.678980554784074,
       "top_picks": [
         {
@@ -5038,8 +5041,8 @@
     {
       "date": "2013-10-01",
       "n_candidates_screened": 1009,
-      "n_qualified": 879,
-      "avg_data_quality": 82.12741751990899,
+      "n_qualified": 877,
+      "avg_data_quality": 82.22919042189281,
       "spy_return_pct": 8.55085112759516,
       "top_picks": [
         {
@@ -5469,8 +5472,8 @@
     {
       "date": "2014-01-01",
       "n_candidates_screened": 1022,
-      "n_qualified": 885,
-      "avg_data_quality": 82.41242937853107,
+      "n_qualified": 883,
+      "avg_data_quality": 82.51415628539071,
       "spy_return_pct": 3.2582586778524414,
       "top_picks": [
         {
@@ -5900,8 +5903,8 @@
     {
       "date": "2014-04-01",
       "n_candidates_screened": 1030,
-      "n_qualified": 897,
-      "avg_data_quality": 82.8149386845039,
+      "n_qualified": 895,
+      "avg_data_quality": 82.91620111731844,
       "spy_return_pct": 3.9681281384877156,
       "top_picks": [
         {
@@ -6331,8 +6334,8 @@
     {
       "date": "2014-07-01",
       "n_candidates_screened": 1044,
-      "n_qualified": 902,
-      "avg_data_quality": 82.91574279379158,
+      "n_qualified": 900,
+      "avg_data_quality": 83.01666666666667,
       "spy_return_pct": 0.2588410445087643,
       "top_picks": [
         {
@@ -6762,8 +6765,8 @@
     {
       "date": "2014-10-01",
       "n_candidates_screened": 1051,
-      "n_qualified": 918,
-      "avg_data_quality": 82.92483660130719,
+      "n_qualified": 916,
+      "avg_data_quality": 83.02401746724891,
       "spy_return_pct": 6.81759690449545,
       "top_picks": [
         {
@@ -7193,8 +7196,8 @@
     {
       "date": "2015-01-01",
       "n_candidates_screened": 1061,
-      "n_qualified": 929,
-      "avg_data_quality": 82.8794402583423,
+      "n_qualified": 927,
+      "avg_data_quality": 82.97734627831716,
       "spy_return_pct": 0.4916564287762218,
       "top_picks": [
         {
@@ -7624,8 +7627,8 @@
     {
       "date": "2015-04-01",
       "n_candidates_screened": 1070,
-      "n_qualified": 935,
-      "avg_data_quality": 83.26737967914438,
+      "n_qualified": 933,
+      "avg_data_quality": 83.34405144694534,
       "spy_return_pct": 0.07292618254689741,
       "top_picks": [
         {
@@ -8055,8 +8058,8 @@
     {
       "date": "2015-07-01",
       "n_candidates_screened": 1084,
-      "n_qualified": 947,
-      "avg_data_quality": 83.2259767687434,
+      "n_qualified": 945,
+      "avg_data_quality": 83.3015873015873,
       "spy_return_pct": -9.33976138930723,
       "top_picks": [
         {
@@ -8486,8 +8489,8 @@
     {
       "date": "2015-10-01",
       "n_candidates_screened": 1093,
-      "n_qualified": 951,
-      "avg_data_quality": 83.65930599369085,
+      "n_qualified": 949,
+      "avg_data_quality": 83.73551106427819,
       "spy_return_pct": 7.182630220295833,
       "top_picks": [
         {
@@ -8917,8 +8920,8 @@
     {
       "date": "2016-01-01",
       "n_candidates_screened": 1099,
-      "n_qualified": 967,
-      "avg_data_quality": 83.59358841778698,
+      "n_qualified": 965,
+      "avg_data_quality": 83.66839378238342,
       "spy_return_pct": 2.6017289903398706,
       "top_picks": [
         {
@@ -9348,8 +9351,8 @@
     {
       "date": "2016-04-01",
       "n_candidates_screened": 1100,
-      "n_qualified": 974,
-      "avg_data_quality": 83.9271047227926,
+      "n_qualified": 972,
+      "avg_data_quality": 84.00205761316873,
       "spy_return_pct": -0.12564977244183914,
       "top_picks": [
         {
@@ -9779,8 +9782,8 @@
     {
       "date": "2016-07-01",
       "n_candidates_screened": 1103,
-      "n_qualified": 975,
-      "avg_data_quality": 84.2051282051282,
+      "n_qualified": 973,
+      "avg_data_quality": 84.28057553956835,
       "spy_return_pct": 2.2675278907944043,
       "top_picks": [
         {
@@ -10210,8 +10213,8 @@
     {
       "date": "2016-10-01",
       "n_candidates_screened": 1113,
-      "n_qualified": 979,
-      "avg_data_quality": 84.33094994892748,
+      "n_qualified": 977,
+      "avg_data_quality": 84.40634595701125,
       "spy_return_pct": 3.591621115878687,
       "top_picks": [
         {
@@ -10641,8 +10644,8 @@
     {
       "date": "2017-01-01",
       "n_candidates_screened": 1124,
-      "n_qualified": 985,
-      "avg_data_quality": 84.48223350253807,
+      "n_qualified": 983,
+      "avg_data_quality": 84.55747711088505,
       "spy_return_pct": 4.479664398781438,
       "top_picks": [
         {
@@ -11072,8 +11075,8 @@
     {
       "date": "2017-04-01",
       "n_candidates_screened": 1130,
-      "n_qualified": 998,
-      "avg_data_quality": 84.55410821643287,
+      "n_qualified": 996,
+      "avg_data_quality": 84.6285140562249,
       "spy_return_pct": 2.749331224391861,
       "top_picks": [
         {
@@ -11503,8 +11506,8 @@
     {
       "date": "2017-07-01",
       "n_candidates_screened": 1138,
-      "n_qualified": 1006,
-      "avg_data_quality": 84.59741550695826,
+      "n_qualified": 1004,
+      "avg_data_quality": 84.67131474103586,
       "spy_return_pct": 3.724036482244751,
       "top_picks": [
         {
@@ -11934,8 +11937,8 @@
     {
       "date": "2017-10-01",
       "n_candidates_screened": 1141,
-      "n_qualified": 1012,
-      "avg_data_quality": 84.81225296442688,
+      "n_qualified": 1010,
+      "avg_data_quality": 84.88613861386139,
       "spy_return_pct": 5.762514903806497,
       "top_picks": [
         {
@@ -12365,8 +12368,8 @@
     {
       "date": "2018-01-01",
       "n_candidates_screened": 1152,
-      "n_qualified": 1018,
-      "avg_data_quality": 84.84282907662083,
+      "n_qualified": 1016,
+      "avg_data_quality": 84.91633858267717,
       "spy_return_pct": -2.976522799051442,
       "top_picks": [
         {
@@ -12796,8 +12799,8 @@
     {
       "date": "2018-04-01",
       "n_candidates_screened": 1161,
-      "n_qualified": 1027,
-      "avg_data_quality": 84.9367088607595,
+      "n_qualified": 1025,
+      "avg_data_quality": 85.00975609756098,
       "spy_return_pct": 5.212262929315306,
       "top_picks": [
         {
@@ -13227,8 +13230,8 @@
     {
       "date": "2018-07-01",
       "n_candidates_screened": 1172,
-      "n_qualified": 1035,
-      "avg_data_quality": 84.91304347826087,
+      "n_qualified": 1033,
+      "avg_data_quality": 84.98547918683447,
       "spy_return_pct": 6.937400458089235,
       "top_picks": [
         {
@@ -13658,8 +13661,8 @@
     {
       "date": "2018-10-01",
       "n_candidates_screened": 1179,
-      "n_qualified": 1045,
-      "avg_data_quality": 85.94736842105263,
+      "n_qualified": 1043,
+      "avg_data_quality": 86.02109300095877,
       "spy_return_pct": -14.331748960631352,
       "top_picks": [
         {
@@ -14089,8 +14092,8 @@
     {
       "date": "2019-01-01",
       "n_candidates_screened": 1187,
-      "n_qualified": 1052,
-      "avg_data_quality": 87.16254752851711,
+      "n_qualified": 1050,
+      "avg_data_quality": 87.23809523809524,
       "spy_return_pct": 14.30570373039528,
       "top_picks": [
         {
@@ -14520,8 +14523,8 @@
     {
       "date": "2019-04-01",
       "n_candidates_screened": 1191,
-      "n_qualified": 1061,
-      "avg_data_quality": 88.17153628652216,
+      "n_qualified": 1059,
+      "avg_data_quality": 88.21057601510859,
       "spy_return_pct": 2.5084888796024205,
       "top_picks": [
         {
@@ -14951,8 +14954,8 @@
     {
       "date": "2019-07-01",
       "n_candidates_screened": 1202,
-      "n_qualified": 1069,
-      "avg_data_quality": 88.26941066417213,
+      "n_qualified": 1067,
+      "avg_data_quality": 88.3083411433927,
       "spy_return_pct": -0.0879421505798763,
       "top_picks": [
         {
@@ -15382,8 +15385,8 @@
     {
       "date": "2019-10-01",
       "n_candidates_screened": 1205,
-      "n_qualified": 1077,
-      "avg_data_quality": 88.82544103992572,
+      "n_qualified": 1075,
+      "avg_data_quality": 88.86511627906977,
       "spy_return_pct": 9.493928954109986,
       "top_picks": [
         {
@@ -15813,8 +15816,8 @@
     {
       "date": "2020-01-01",
       "n_candidates_screened": 1209,
-      "n_qualified": 1087,
-      "avg_data_quality": 89.30542778288869,
+      "n_qualified": 1085,
+      "avg_data_quality": 89.33640552995392,
       "spy_return_pct": -24.231231693867926,
       "top_picks": [
         {
@@ -16244,8 +16247,8 @@
     {
       "date": "2020-04-01",
       "n_candidates_screened": 1213,
-      "n_qualified": 1092,
-      "avg_data_quality": 89.97252747252747,
+      "n_qualified": 1090,
+      "avg_data_quality": 89.9770642201835,
       "spy_return_pct": 25.273204549109124,
       "top_picks": [
         {
@@ -16675,26 +16678,10 @@
     {
       "date": "2020-07-01",
       "n_candidates_screened": 1216,
-      "n_qualified": 1094,
-      "avg_data_quality": 90.07312614259598,
+      "n_qualified": 1092,
+      "avg_data_quality": 90.07783882783883,
       "spy_return_pct": 7.036586009460921,
       "top_picks": [
-        {
-          "ticker": "CPRX",
-          "composite_score": 83.10625358636592,
-          "data_quality": 85,
-          "weight": 0.04,
-          "entry_price": 4.619999885559082,
-          "realistic_return_pct": -30.519477972703037,
-          "max_return_pct": 9.95671102903732,
-          "pillar_scores": {
-            "momentum": 62.42501434546369,
-            "valuation": 80,
-            "growth": 95,
-            "profitability": 95,
-            "financial_health": 50
-          }
-        },
         {
           "ticker": "CORT",
           "composite_score": 82.5,
@@ -17078,14 +17065,30 @@
             "profitability": 65,
             "financial_health": 90
           }
+        },
+        {
+          "ticker": "NDAQ",
+          "composite_score": 75.0,
+          "data_quality": 100,
+          "weight": 0.04,
+          "entry_price": 39.823333740234375,
+          "realistic_return_pct": 1.598724376997711,
+          "max_return_pct": 14.907502772177224,
+          "pillar_scores": {
+            "momentum": 75,
+            "valuation": 90,
+            "growth": 55,
+            "profitability": 80,
+            "financial_health": 60
+          }
         }
       ],
-      "portfolio_return_realistic": 7.963716616533588,
-      "portfolio_return_max": 24.88662435246243,
+      "portfolio_return_realistic": 9.24844471052162,
+      "portfolio_return_max": 25.084656022188028,
       "preset_returns": {
         "equal": {
-          "realistic": 7.963716616533588,
-          "max": 24.88662435246243,
+          "realistic": 9.24844471052162,
+          "max": 25.084656022188028,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -17096,8 +17099,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 5.357001513862592,
-          "max": 20.16787323667589,
+          "realistic": 6.489996154481909,
+          "max": 20.179542753371866,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -17106,8 +17109,8 @@
     {
       "date": "2020-10-01",
       "n_candidates_screened": 1228,
-      "n_qualified": 1099,
-      "avg_data_quality": 90.33212010919017,
+      "n_qualified": 1097,
+      "avg_data_quality": 90.33728350045578,
       "spy_return_pct": 10.369683362025809,
       "top_picks": [
         {
@@ -17537,8 +17540,8 @@
     {
       "date": "2021-01-01",
       "n_candidates_screened": 1239,
-      "n_qualified": 1105,
-      "avg_data_quality": 90.43438914027149,
+      "n_qualified": 1103,
+      "avg_data_quality": 90.43970988213962,
       "spy_return_pct": 10.187362980595575,
       "top_picks": [
         {
@@ -17766,22 +17769,6 @@
           }
         },
         {
-          "ticker": "CPRX",
-          "composite_score": 78.75,
-          "data_quality": 85,
-          "weight": 0.04,
-          "entry_price": 3.3399999141693115,
-          "realistic_return_pct": 41.61677067736933,
-          "max_return_pct": 41.61677067736933,
-          "pillar_scores": {
-            "momentum": 35,
-            "valuation": 90,
-            "growth": 95,
-            "profitability": 95,
-            "financial_health": 50
-          }
-        },
-        {
           "ticker": "PJT",
           "composite_score": 78.75,
           "data_quality": 70,
@@ -17940,14 +17927,30 @@
             "profitability": 95,
             "financial_health": 40
           }
+        },
+        {
+          "ticker": "TER",
+          "composite_score": 76.25,
+          "data_quality": 100,
+          "weight": 0.04,
+          "entry_price": 119.88999938964844,
+          "realistic_return_pct": 10.668106890687937,
+          "max_return_pct": 19.809825774384503,
+          "pillar_scores": {
+            "momentum": 90,
+            "valuation": 40,
+            "growth": 95,
+            "profitability": 80,
+            "financial_health": 90
+          }
         }
       ],
-      "portfolio_return_realistic": 16.892611917944937,
-      "portfolio_return_max": 23.72103184455427,
+      "portfolio_return_realistic": 15.654665366477682,
+      "portfolio_return_max": 22.848754048434877,
       "preset_returns": {
         "equal": {
-          "realistic": 16.892611917944937,
-          "max": 23.72103184455427,
+          "realistic": 15.654665366477682,
+          "max": 22.848754048434877,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -17958,8 +17961,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 15.318113157850037,
-          "max": 19.94047102192093,
+          "realistic": 13.956578523760346,
+          "max": 18.578936387831238,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -17968,8 +17971,8 @@
     {
       "date": "2021-04-01",
       "n_candidates_screened": 1247,
-      "n_qualified": 1117,
-      "avg_data_quality": 90.47896150402865,
+      "n_qualified": 1115,
+      "avg_data_quality": 90.48430493273543,
       "spy_return_pct": 6.852053920458821,
       "top_picks": [
         {
@@ -18389,8 +18392,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 11.587086897768373,
-          "max": 17.911104614799044,
+          "realistic": 11.185434113102815,
+          "max": 17.433028133635602,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -18399,8 +18402,8 @@
     {
       "date": "2021-07-01",
       "n_candidates_screened": 1261,
-      "n_qualified": 1125,
-      "avg_data_quality": 90.39111111111112,
+      "n_qualified": 1123,
+      "avg_data_quality": 90.39626001780944,
       "spy_return_pct": 0.9339543246648369,
       "top_picks": [
         {
@@ -18830,8 +18833,8 @@
     {
       "date": "2021-10-01",
       "n_candidates_screened": 1271,
-      "n_qualified": 1137,
-      "avg_data_quality": 90.36059806508355,
+      "n_qualified": 1135,
+      "avg_data_quality": 90.36563876651982,
       "spy_return_pct": 9.653651061734003,
       "top_picks": [
         {
@@ -19251,8 +19254,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 10.309193000085203,
-          "max": 21.47951085853279,
+          "realistic": 9.985994516865999,
+          "max": 20.788065239470033,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -19261,8 +19264,8 @@
     {
       "date": "2022-01-01",
       "n_candidates_screened": 1280,
-      "n_qualified": 1150,
-      "avg_data_quality": 90.33478260869565,
+      "n_qualified": 1148,
+      "avg_data_quality": 90.3397212543554,
       "spy_return_pct": -5.1893363067066804,
       "top_picks": [
         {
@@ -19602,22 +19605,6 @@
           }
         },
         {
-          "ticker": "CPRX",
-          "composite_score": 86.25,
-          "data_quality": 85,
-          "weight": 0.04,
-          "entry_price": 6.769999980926514,
-          "realistic_return_pct": 23.042835261072568,
-          "max_return_pct": 23.042835261072568,
-          "pillar_scores": {
-            "momentum": 90,
-            "valuation": 90,
-            "growth": 70,
-            "profitability": 95,
-            "financial_health": 50
-          }
-        },
-        {
           "ticker": "DECK",
           "composite_score": 86.25,
           "data_quality": 85,
@@ -19664,14 +19651,30 @@
             "profitability": 80,
             "financial_health": 90
           }
+        },
+        {
+          "ticker": "IBKR",
+          "composite_score": 86.25,
+          "data_quality": 75,
+          "weight": 0.04,
+          "entry_price": 19.854999542236328,
+          "realistic_return_pct": -15.927980127837992,
+          "max_return_pct": -0.45328710482434814,
+          "pillar_scores": {
+            "momentum": 75,
+            "valuation": 90,
+            "growth": 85,
+            "profitability": 95,
+            "financial_health": 50
+          }
         }
       ],
-      "portfolio_return_realistic": -5.408198116890488,
-      "portfolio_return_max": 8.779446635425868,
+      "portfolio_return_realistic": -6.967030732446911,
+      "portfolio_return_max": 7.839601740789992,
       "preset_returns": {
         "equal": {
-          "realistic": -5.408198116890488,
-          "max": 8.779446635425868,
+          "realistic": -6.967030732446911,
+          "max": 7.839601740789992,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -19682,8 +19685,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": -4.713739904846736,
-          "max": 8.213239855772423,
+          "realistic": -6.6142962882654475,
+          "max": 7.309325630649893,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -19692,8 +19695,8 @@
     {
       "date": "2022-04-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1158,
-      "avg_data_quality": 90.86355785837651,
+      "n_qualified": 1156,
+      "avg_data_quality": 90.86937716262976,
       "spy_return_pct": -15.826199123081205,
       "top_picks": [
         {
@@ -20123,8 +20126,8 @@
     {
       "date": "2022-07-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1164,
-      "avg_data_quality": 90.6872852233677,
+      "n_qualified": 1162,
+      "avg_data_quality": 90.69277108433735,
       "spy_return_pct": -4.839466520317195,
       "top_picks": [
         {
@@ -20554,8 +20557,8 @@
     {
       "date": "2022-10-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1168,
-      "avg_data_quality": 90.91181506849315,
+      "n_qualified": 1166,
+      "avg_data_quality": 90.91766723842196,
       "spy_return_pct": 4.315214521243352,
       "top_picks": [
         {
@@ -20985,8 +20988,8 @@
     {
       "date": "2023-01-01",
       "n_candidates_screened": 1287,
-      "n_qualified": 1169,
-      "avg_data_quality": 91.05645851154833,
+      "n_qualified": 1167,
+      "avg_data_quality": 91.06255355612682,
       "spy_return_pct": 7.911875506362437,
       "top_picks": [
         {
@@ -21400,8 +21403,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 7.463127206087862,
-          "max": 20.950020836310117,
+          "realistic": 8.365060708322272,
+          "max": 20.968083667854106,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -21416,8 +21419,8 @@
     {
       "date": "2023-04-01",
       "n_candidates_screened": 1288,
-      "n_qualified": 1171,
-      "avg_data_quality": 91.39624252775405,
+      "n_qualified": 1169,
+      "avg_data_quality": 91.40290846877673,
       "spy_return_pct": 7.991238681688191,
       "top_picks": [
         {
@@ -21847,8 +21850,8 @@
     {
       "date": "2023-07-01",
       "n_candidates_screened": 1295,
-      "n_qualified": 1173,
-      "avg_data_quality": 91.31287297527707,
+      "n_qualified": 1171,
+      "avg_data_quality": 91.31938514090521,
       "spy_return_pct": -3.675161054677688,
       "top_picks": [
         {
@@ -22278,8 +22281,8 @@
     {
       "date": "2023-10-01",
       "n_candidates_screened": 1300,
-      "n_qualified": 1175,
-      "avg_data_quality": 91.48085106382979,
+      "n_qualified": 1173,
+      "avg_data_quality": 91.48763853367434,
       "spy_return_pct": 11.233062711905804,
       "top_picks": [
         {
@@ -22709,8 +22712,8 @@
     {
       "date": "2024-01-01",
       "n_candidates_screened": 1303,
-      "n_qualified": 1180,
-      "avg_data_quality": 91.48728813559322,
+      "n_qualified": 1178,
+      "avg_data_quality": 91.49405772495756,
       "spy_return_pct": 9.772566075416158,
       "top_picks": [
         {
@@ -23140,8 +23143,8 @@
     {
       "date": "2024-04-01",
       "n_candidates_screened": 1307,
-      "n_qualified": 1190,
-      "avg_data_quality": 91.50420168067227,
+      "n_qualified": 1188,
+      "avg_data_quality": 91.51094276094275,
       "spy_return_pct": 4.224758444379583,
       "top_picks": [
         {
@@ -23571,8 +23574,8 @@
     {
       "date": "2024-07-01",
       "n_candidates_screened": 1309,
-      "n_qualified": 1192,
-      "avg_data_quality": 91.51426174496645,
+      "n_qualified": 1190,
+      "avg_data_quality": 91.52100840336135,
       "spy_return_pct": 4.791495683587785,
       "top_picks": [
         {
@@ -24002,8 +24005,8 @@
     {
       "date": "2024-10-01",
       "n_candidates_screened": 1312,
-      "n_qualified": 1194,
-      "avg_data_quality": 91.62897822445561,
+      "n_qualified": 1192,
+      "avg_data_quality": 91.63590604026845,
       "spy_return_pct": 3.446937454582145,
       "top_picks": [
         {
@@ -24433,8 +24436,8 @@
     {
       "date": "2025-01-01",
       "n_candidates_screened": 1314,
-      "n_qualified": 1202,
-      "avg_data_quality": 91.58901830282862,
+      "n_qualified": 1200,
+      "avg_data_quality": 91.59583333333333,
       "spy_return_pct": -8.199918110332234,
       "top_picks": [
         {
@@ -24864,8 +24867,8 @@
     {
       "date": "2025-04-01",
       "n_candidates_screened": 1315,
-      "n_qualified": 1227,
-      "avg_data_quality": 91.34474327628362,
+      "n_qualified": 1223,
+      "avg_data_quality": 91.41455437448896,
       "spy_return_pct": 10.10393722856398,
       "top_picks": [
         {
@@ -25077,22 +25080,6 @@
           }
         },
         {
-          "ticker": "CPRX",
-          "composite_score": 78.49437712437542,
-          "data_quality": 85,
-          "weight": 0.04,
-          "entry_price": 24.25,
-          "realistic_return_pct": -12.618554498731477,
-          "max_return_pct": 8.494843158525288,
-          "pillar_scores": {
-            "momentum": 73.97750849750167,
-            "valuation": 60,
-            "growth": 85,
-            "profitability": 95,
-            "financial_health": 50
-          }
-        },
-        {
           "ticker": "FANG",
           "composite_score": 78.42495462515765,
           "data_quality": 90,
@@ -25267,14 +25254,30 @@
             "profitability": 95,
             "financial_health": 60
           }
+        },
+        {
+          "ticker": "CATY",
+          "composite_score": 74.02014275767577,
+          "data_quality": 90,
+          "weight": 0.04,
+          "entry_price": 43.029998779296875,
+          "realistic_return_pct": 9.133163877909826,
+          "max_return_pct": 9.133163877909826,
+          "pillar_scores": {
+            "momentum": 51.08057103070307,
+            "valuation": 80,
+            "growth": 70,
+            "profitability": 95,
+            "financial_health": 90
+          }
         }
       ],
-      "portfolio_return_realistic": 27.608835641367335,
-      "portfolio_return_max": 36.15424924647254,
+      "portfolio_return_realistic": 28.47890437643299,
+      "portfolio_return_max": 36.17978207524792,
       "preset_returns": {
         "equal": {
-          "realistic": 27.608835641367335,
-          "max": 36.15424924647254,
+          "realistic": 28.47890437643299,
+          "max": 36.17978207524792,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -25295,8 +25298,8 @@
     {
       "date": "2025-07-01",
       "n_candidates_screened": 1317,
-      "n_qualified": 1232,
-      "avg_data_quality": 91.3271103896104,
+      "n_qualified": 1231,
+      "avg_data_quality": 91.29975629569456,
       "spy_return_pct": 7.452435269533966,
       "top_picks": [
         {
@@ -25726,8 +25729,8 @@
     {
       "date": "2025-10-01",
       "n_candidates_screened": 1317,
-      "n_qualified": 1233,
-      "avg_data_quality": 91.35847526358475,
+      "n_qualified": 1231,
+      "avg_data_quality": 91.37286758732738,
       "spy_return_pct": 2.7765722521739407,
       "top_picks": [
         {
@@ -26157,8 +26160,8 @@
     {
       "date": "2026-01-01",
       "n_candidates_screened": 1318,
-      "n_qualified": 1233,
-      "avg_data_quality": 91.40308191403082,
+      "n_qualified": 1232,
+      "avg_data_quality": 91.37581168831169,
       "spy_return_pct": -4.0019272661615135,
       "top_picks": [
         {
@@ -26335,22 +26338,6 @@
             "growth": 95,
             "profitability": 95,
             "financial_health": 75
-          }
-        },
-        {
-          "ticker": "CPRX",
-          "composite_score": 79.69012249338294,
-          "data_quality": 85,
-          "weight": 0.04,
-          "entry_price": 23.34000015258789,
-          "realistic_return_pct": 5.784063293247414,
-          "max_return_pct": 8.054837825517971,
-          "pillar_scores": {
-            "momentum": 58.76048997353176,
-            "valuation": 80,
-            "growth": 85,
-            "profitability": 95,
-            "financial_health": 50
           }
         },
         {
@@ -26560,14 +26547,30 @@
             "profitability": 95,
             "financial_health": 90
           }
+        },
+        {
+          "ticker": "CINF",
+          "composite_score": 76.22829789174239,
+          "data_quality": 90,
+          "weight": 0.04,
+          "entry_price": 163.32000732421875,
+          "realistic_return_pct": -3.006369974232342,
+          "max_return_pct": 5.712702763810175,
+          "pillar_scores": {
+            "momentum": 59.913191566969545,
+            "valuation": 80,
+            "growth": 85,
+            "profitability": 80,
+            "financial_health": 90
+          }
         }
       ],
-      "portfolio_return_realistic": 0.10148709192385691,
-      "portfolio_return_max": 16.81634387843904,
+      "portfolio_return_realistic": -0.2501302387753333,
+      "portfolio_return_max": 16.72265847597073,
       "preset_returns": {
         "equal": {
-          "realistic": 0.10148709192385691,
-          "max": 16.81634387843904,
+          "realistic": -0.2501302387753333,
+          "max": 16.72265847597073,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -26578,8 +26581,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 9.091570288212752,
-          "max": 22.027258101748053,
+          "realistic": 8.541502198546686,
+          "max": 21.75115406119184,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -26588,8 +26591,8 @@
     {
       "date": "2026-04-01",
       "n_candidates_screened": 1319,
-      "n_qualified": 1233,
-      "avg_data_quality": 91.65855636658556,
+      "n_qualified": 1232,
+      "avg_data_quality": 91.63149350649351,
       "spy_return_pct": 9.579699112808663,
       "top_picks": [
         {
@@ -26734,22 +26737,6 @@
             "growth": 95,
             "profitability": 95,
             "financial_health": 75
-          }
-        },
-        {
-          "ticker": "CPRX",
-          "composite_score": 80.17131887053208,
-          "data_quality": 85,
-          "weight": 0.04,
-          "entry_price": 24.760000228881836,
-          "realistic_return_pct": 16.882068927850533,
-          "max_return_pct": 18.90145501580688,
-          "pillar_scores": {
-            "momentum": 75.68527548212833,
-            "valuation": 80,
-            "growth": 70,
-            "profitability": 95,
-            "financial_health": 50
           }
         },
         {
@@ -26991,6 +26978,22 @@
             "profitability": 95,
             "financial_health": 40
           }
+        },
+        {
+          "ticker": "CPRX",
+          "composite_score": 75.17131887053208,
+          "data_quality": 65,
+          "weight": 0.04,
+          "entry_price": 24.760000228881836,
+          "realistic_return_pct": 16.882068927850533,
+          "max_return_pct": 18.90145501580688,
+          "pillar_scores": {
+            "momentum": 75.68527548212833,
+            "valuation": 80,
+            "growth": 50,
+            "profitability": 95,
+            "financial_health": 90
+          }
         }
       ],
       "portfolio_return_realistic": 7.982930354620122,
@@ -27015,8 +27018,38 @@
           "n_simulated": 25
         }
       }
+    },
+    {
+      "date": "2026-07-01",
+      "n_candidates_screened": 1319,
+      "n_qualified": 1232,
+      "avg_data_quality": 91.64772727272727,
+      "spy_return_pct": null,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "preset_returns": {
+        "equal": {
+          "realistic": null,
+          "max": null,
+          "n_picks": 25,
+          "n_simulated": 0
+        },
+        "m_heavy": {
+          "realistic": null,
+          "max": null,
+          "n_picks": 25,
+          "n_simulated": 0
+        },
+        "v_heavy": {
+          "realistic": null,
+          "max": null,
+          "n_picks": 25,
+          "n_simulated": 0
+        }
+      }
     }
   ],
   "universe_size": 1361,
-  "n_checkpoints": 62
+  "n_checkpoints": 63
 }
