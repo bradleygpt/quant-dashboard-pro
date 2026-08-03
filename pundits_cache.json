@@ -1,383 +1,354 @@
 {
-  "last_updated_utc": "2026-07-31T12:03:18.577318+00:00",
-  "last_updated_human": "2026-07-31 12:03 UTC",
+  "last_updated_utc": "2026-08-03T12:56:38.017099+00:00",
+  "last_updated_human": "2026-08-03 12:56 UTC",
   "market_context": {
-    "spy_price": 741.6900024414062,
-    "sp500_level": 7416.9000244140625,
-    "btc_price": 63713.53125,
-    "eth_price": 1880.6500244140625
+    "spy_price": 747.030029296875,
+    "sp500_level": 7470.30029296875,
+    "btc_price": 62635.62109375,
+    "eth_price": 1841.81005859375
   },
   "equity": {
     "commentators": [
       {
         "name": "Mike Wilson",
         "firm": "Morgan Stanley",
-        "stance": "Bearish",
-        "key_quote": "I still think we can hit 8,000 by year end, even if we go to 7,000 first.",
+        "stance": "Bullish",
+        "key_quote": "I am still very constructive on where the S&P 500 ends up for the full year, even as the market navigates uncertainty.",
         "quote_source": "CNBC",
-        "quote_date": "July 28, 2026",
+        "quote_date": "Last week",
         "key_views": [
-          "Market correction nearing its end.",
-          "Focus on companies with strong fundamentals (quality, free cash flow, stability, predictability).",
-          "Fed rate hikes are seen as 'insurance hikes' to maintain credibility."
+          "Market transitioning to a 'quality rotation'.",
+          "Favoring companies with strong fundamentals.",
+          "S&P 500 resilience is a positive sign."
         ],
-        "price_target_or_view": "S&P 500 target of 8,000 by year-end.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.1% downside from current ~7,295, conflicts with 'Bullish' stance."
+        "price_target_or_view": "Year-end target of 8,000; sees 7,000 as strong support."
       },
       {
         "name": "Tom Lee",
         "firm": "Fundstrat Global Advisors",
         "stance": "Bearish",
-        "key_quote": "July should mark a turn higher for U.S. stocks.",
+        "key_quote": "2027 will be one of the best years for the stock market, with the market having moved beyond major sources of uncertainty.",
         "quote_source": "CNBC",
-        "quote_date": "July 10, 2026",
+        "quote_date": "Last week",
         "key_views": [
-          "Valuations have compressed, allowing room for earnings to catch up.",
-          "Second quarter earnings expected to surprise to the upside.",
-          "Sectors to watch: technology, financials, industrials, small-caps, and energy/basic materials."
+          "Market clearing events removing forced sellers.",
+          "Moderating inflation reducing Fed rate hike expectations.",
+          "SpaceX unlock and Fed transition removing uncertainty."
         ],
-        "price_target_or_view": "S&P 500 target of 8,000 to 8,800 by year-end.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.1% downside from current ~7,295, conflicts with 'Bullish' stance."
+        "price_target_or_view": "Forecast for S&P 500 to reach 7,800 before a pullback, finishing year above 8,000.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,470, conflicts with 'Bullish' stance."
       },
       {
-        "name": "Jeremy Siegel",
-        "firm": "Wharton School and WisdomTree",
+        "name": "Savita Subramanian",
+        "firm": "Bank of America",
         "stance": "Bearish",
-        "key_quote": "I'm still very optimistic on the market.",
+        "key_quote": "U.S. stocks are flashing 'too many red flags,' with seven of its 10 tracked indicators triggered.",
         "quote_source": "CNBC",
-        "quote_date": "July 27, 2026",
+        "quote_date": "Last week",
         "key_views": [
-          "Optimistic despite concerns over oil supplies, AI capex, valuations, and bond yields.",
-          "S&P 500 could pop if the Strait of Hormuz reopens.",
-          "AI innovation is a powerful long-term force."
+          "Valuation multiple compression for AI-heavy stocks.",
+          "AI-driven job losses could hurt consumption.",
+          "Extreme concentration in the technology sector."
         ],
-        "price_target_or_view": "S&P 500 could gain 10% if the Strait of Hormuz reopens.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.1% downside from current ~7,295, conflicts with 'Bullish' stance."
+        "price_target_or_view": "Year-end target of 7,100, indicating about a 6% downside from current levels."
       },
       {
-        "name": "Jurrien Timmer",
-        "firm": "Fidelity Investments",
-        "stance": "Neutral",
-        "key_quote": "Market leadership is broadening.",
-        "quote_source": "Fidelity Investments",
-        "quote_date": "July 20, 2026",
+        "name": "Lance Roberts",
+        "firm": "Lance Roberts | Substack",
+        "stance": "Cautious",
+        "key_quote": "The market reclaimed its first line of defense on the last day of the month. Reclaimed is not confirmed.",
+        "quote_source": "Substack",
+        "quote_date": "August 03, 2026",
         "key_views": [
-          "Market leadership is broadening beyond the largest technology companies.",
-          "Inflation remains above target, suggesting no significant rate cuts are imminent.",
-          "Geopolitical uncertainty and supply chain disruptions are ongoing risks."
+          "50-day moving average at 744.99 is the key pivot.",
+          "Leadership is still contracting, not broadening.",
+          "Leverage can greatly enhance returns but also bankrupt you."
         ],
-        "price_target_or_view": "Focus on diversification and broad market participation."
-      },
-      {
-        "name": "Brian Belski",
-        "firm": "Humilis Investment Strategies",
-        "stance": "Bearish",
-        "key_quote": "We really believe it [our bullish market outlook].",
-        "quote_source": "Fox Business",
-        "quote_date": "July 2, 2026",
-        "key_views": [
-          "2026 is an earnings-driven market.",
-          "Volatility is a healthy characteristic of a bull market.",
-          "Small and mid-cap stocks are expected to outperform large caps due to earnings growth."
-        ],
-        "price_target_or_view": "S&P 500 target of 7,500 to 8,000.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.1% downside from current ~7,295, conflicts with 'Bullish' stance."
+        "price_target_or_view": "Watching 744.99 (50-DMA) as a pivot; potential downside to 729.10 and 700.39."
       },
       {
         "name": "Lisa Shalett",
         "firm": "Morgan Stanley Wealth Management",
         "stance": "Cautious",
-        "key_quote": "We are NOT as bullish as others at MS & Co.",
+        "key_quote": "2026 should deliver roughly 10% potential upside for the S&P 500, but we are NOT as bullish as others at MS & Co.",
         "quote_source": "Morgan Stanley Wealth Management",
-        "quote_date": "December 3, 2025",
+        "quote_date": "December 03, 2025",
         "key_views": [
-          "Cautious about the pure passive index trade and small-cap beta.",
-          "Selectivity will matter; focus on quality and larger capitalization equities.",
-          "Valuation extremes are concentrated among the top 10 names."
+          "Earnings expectations are robust but embed significant productivity gains.",
+          "Stimulus impact on consumer is overestimated.",
+          "Selectivity will matter; positioning for quality/larger capitalization."
         ],
-        "price_target_or_view": "S&P 500 trades toward 7,500-7,800."
+        "price_target_or_view": "S&P 500 trades toward 7,500-7,800 range (base case annual target)."
       },
       {
         "name": "Marko Kolanovic",
-        "firm": "JPMorgan Chase & Co. (formerly)",
+        "firm": "JPMorgan (formerly)",
         "stance": "Bearish",
-        "key_quote": "The S&P 500 could be 'back down in the 5,000s this year'.",
-        "quote_source": "Bloomberg News",
-        "quote_date": "February 3, 2025",
+        "key_quote": "The probability of a recession is indeed very high, and we may already be in one.",
+        "quote_source": "The Last Bear Standing (via Investing.com)",
+        "quote_date": "April 30, 2025",
         "key_views": [
-          "Stocks face historically high levels of concentration.",
-          "A cyclical downturn to 'purge' sky-high valuations may be likely.",
-          "Geopolitical tensions and a possible slowing in the U.S. economy are risks."
+          "Markets are ignoring clear signs of fragility.",
+          "Prolonged yield curve inversion, weakening consumer conditions.",
+          "Massive fiscal and monetary stimulus prevented market excesses."
         ],
-        "price_target_or_view": "S&P 500 could fall to the 5,000s."
-      },
-      {
-        "name": "Mohamed El-Erian",
-        "firm": "Allianz",
-        "stance": "Neutral",
-        "key_quote": "Growing strains in the artificial intelligence financing boom extend beyond any single company.",
-        "quote_source": "Benzinga",
-        "quote_date": "July 30, 2026",
-        "key_views": [
-          "Surging borrowing needs from tech companies and government deficits are reshaping credit markets.",
-          "AI boom has become a 'time bomb' with potential to ripple across the economy.",
-          "Markets are building in Fed rate hikes despite easing inflationary pressures."
-        ],
-        "price_target_or_view": "Markets are pricing in rate hikes, but El-Erian believes no hikes are more likely."
+        "price_target_or_view": "S&P 500 could fall to the high 3,000s or low 4,000s in a recession scenario."
       },
       {
         "name": "Liz Ann Sonders",
         "firm": "Charles Schwab",
         "stance": "Neutral",
-        "key_quote": "There is some risk in assuming the pace of growth is going to persist.",
-        "quote_source": "Schwab",
-        "quote_date": "July 4, 2026",
-        "key_views": [
-          "Volatility is increasing and portfolio diversification is important.",
-          "There is risk in assuming the pace of earnings growth will persist.",
-          "The market has extraordinary earnings (E) in the P/E equation, and multiples have come down."
-        ],
-        "price_target_or_view": "Focus on diversification and risk management."
-      },
-      {
-        "name": "Ray Dalio",
-        "firm": "Bridgewater Associates",
-        "stance": "Cautious",
-        "key_quote": "The global economic system itself is changing, and we're past the point of no return.",
-        "quote_source": "Medium",
-        "quote_date": "July 22, 2026",
-        "key_views": [
-          "The world order has broken down, leading to a 'capital war'.",
-          "Rising geopolitical tensions, political polarization, and technological shifts signal a period of significant global transition.",
-          "Focus on balancing risk across different economic outcomes, not just asset types."
-        ],
-        "price_target_or_view": "Advocates for a diversified portfolio balancing risk across various economic scenarios."
-      },
-      {
-        "name": "Michael Wilson",
-        "firm": "Morgan Stanley",
-        "stance": "Bearish",
-        "key_quote": "The outlook is best for firms with neutral-to-strong pricing power, including Alphabet, Meta and Nvidia.",
-        "quote_source": "Morgan Stanley",
-        "quote_date": "July 27, 2026",
-        "key_views": [
-          "AI adopters expected to see enhanced profit margins.",
-          "Focus on companies with strong pricing power.",
-          "Market is transitioning to a 'quality rotation'."
-        ],
-        "price_target_or_view": "AI adopters could add about one percentage point to net margins by 2027.",
-        "_validation_warning": "Stance auto-corrected: target 2,027 implies -72.2% downside from current ~7,295, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "Cathie Wood",
-        "firm": "ARK Invest",
-        "stance": "Bullish",
-        "key_quote": "Innovation is the key driver of long-term growth.",
-        "quote_source": "Various interviews and company statements",
+        "key_quote": "The greatest risk in 2026 may be concentration risk.",
+        "quote_source": "On Investing podcast (via TheStreet)",
         "quote_date": "Last week",
         "key_views": [
-          "Focus on disruptive innovation, particularly in areas like AI, genomics, and clean energy.",
-          "Long-term growth potential of innovative companies is underestimated.",
-          "Believes in the transformative power of technology to solve global challenges."
+          "Heavy dependence on a narrow group of large companies.",
+          "Dependence extends beyond stock prices into earnings growth.",
+          "Developed international equities may outperform U.S. stocks."
         ],
-        "price_target_or_view": "Focus on long-term growth driven by innovation."
+        "price_target_or_view": "Focus on concentration risk; international equities may offer better relative value."
+      },
+      {
+        "name": "Brian Belski",
+        "firm": "Humilis Investment Strategies",
+        "stance": "Bearish",
+        "key_quote": "We think earnings driven markets based on our research and based on where we want to be positioned in the US market.",
+        "quote_source": "CNBC",
+        "quote_date": "Last week",
+        "key_views": [
+          "2026 is an earnings-driven market.",
+          "Mag 7 may hand leadership to other stocks.",
+          "Bullish on financials, industrials, and select cyclicals."
+        ],
+        "price_target_or_view": "Expects S&P 500 to end 2026 between 7,300 and 7,500; sees potential for an '8 handle'.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,470, conflicts with 'Bullish' stance."
+      },
+      {
+        "name": "Howard Marks",
+        "firm": "Oaktree Capital",
+        "stance": "Cautious",
+        "key_quote": "Elevated valuations don't guarantee a crash, but they demand extra caution.",
+        "quote_source": "YouTube (via TheFinancialEconomics)",
+        "quote_date": "November 28, 2025",
+        "key_views": [
+          "Starting points determine future returns.",
+          "Defensive investing becomes crucial when markets look fully priced.",
+          "Cycles repeat, even if the triggers change."
+        ],
+        "price_target_or_view": "Emphasizes calibrating risk rather than making binary calls; market vulnerable to disappointment."
       }
     ],
-    "synthesis": "Commentators are largely divided between bullish and cautious stances, with a strong emphasis on the ongoing AI revolution as a key market driver. While some see a clear path to new highs driven by strong earnings and innovation, others express concern over valuations, concentration risk, and potential economic headwinds. The market's breadth and the impact of Fed policy remain key points of discussion.",
+    "synthesis": "Commentators are divided, with a notable split between bullish outlooks targeting new highs (Wilson, Lee, Belski) and cautious to bearish views citing high valuations and potential risks (Subramanian, Roberts, Kolanovic, Marks). Key disagreements revolve around the sustainability of AI-driven growth, the impact of Fed policy, and the risk of economic slowdown.",
     "themes": [
-      "AI and Technological Innovation",
-      "Earnings Growth and Valuations",
-      "Federal Reserve Policy and Interest Rates",
-      "Geopolitical Risks and Inflation"
+      "AI-driven growth sustainability",
+      "Valuation concerns and market concentration",
+      "Federal Reserve policy and interest rate outlook",
+      "Geopolitical risks and economic slowdown fears"
     ]
   },
-  "equity_status": "stale",
-  "equity_last_fresh": "2026-07-30T11:54:20.376435+00:00",
-  "equity_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
+  "equity_status": "fresh",
   "crypto": {
     "commentators": [
-      {
-        "name": "Michael Saylor",
-        "firm": "MicroStrategy",
-        "stance": "Very Bullish",
-        "key_quote": "Bitcoin has won. Now it must survive victory. Its gravest threat is not an enemy at the gates, but corruption from within.",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "July 28, 2026",
-        "key_views": [
-          "Defends Bitcoin's core protocol rules against proposed changes.",
-          "Believes internal corruption is Bitcoin's greatest threat.",
-          "Advocates for simplicity, neutrality, scarcity, and security in Bitcoin's base layer."
-        ],
-        "btc_view": "Very Bullish",
-        "eth_view": "Not specified",
-        "price_target": "Implied long-term bullishness, focus on protocol integrity over short-term price."
-      },
       {
         "name": "Peter Schiff",
         "firm": "Euro Pacific Asset Management",
         "stance": "Very Bearish",
-        "key_quote": "If you're bullish, you're better off just owning Bitcoin.",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "July 27, 2026",
+        "key_quote": "This will only get worse as AI and quantum computing make hacking even easier.",
+        "quote_source": "CCN.com",
+        "quote_date": "August 03, 2026",
         "key_views": [
-          "Criticizes MicroStrategy's strategy of selling shares instead of Bitcoin.",
-          "Predicts a significant crash for Bitcoin.",
-          "Advocates for gold as a superior store of value."
+          "Bitcoin is overvalued and faces further sell-offs.",
+          "Advancements in AI and quantum computing will increase hacking risks.",
+          "MicroStrategy (MSTR) is a poor proxy for Bitcoin investment."
         ],
-        "btc_view": "Very Bearish",
+        "btc_view": "Very Bearish, predicts further declines and potential for a significant sell-off.",
         "eth_view": "Not specified",
-        "price_target": "Predicts a 70% crash for Bitcoin, potentially down to $20,000."
-      },
-      {
-        "name": "Tom Lee",
-        "firm": "Fundstrat Global Advisors",
-        "stance": "Bullish",
-        "key_quote": "Bitcoin and all crypto are having that 1934-type moment.",
-        "quote_source": "CNBC",
-        "quote_date": "July 28, 2026",
-        "key_views": [
-          "Compares the current crypto regulatory landscape to the creation of the SEC in 1934.",
-          "Believes Bitcoin and Ethereum are decoupling from chip stocks.",
-          "Sees AI as a future driver of crypto adoption."
-        ],
-        "btc_view": "Bullish",
-        "eth_view": "Bullish",
-        "price_target": "Predicts Bitcoin above $100,000 and Ethereum above $5,000 by year-end 2026."
-      },
-      {
-        "name": "Lyn Alden",
-        "firm": "Macro Analyst",
-        "stance": "Cautiously Bullish",
-        "key_quote": "Personally, this is the lowest bitcoin investment sentiment I've seen.",
-        "quote_source": "Cointelegraph",
-        "quote_date": "July 9, 2026",
-        "key_views": [
-          "Believes Bitcoin faces weak investor sentiment.",
-          "Emphasizes Bitcoin's reliance on its own merits rather than external catalysts.",
-          "Cautious on price outlook, but sees potential for sharp rebounds."
-        ],
-        "btc_view": "Cautiously Bullish",
-        "eth_view": "Not specified",
-        "price_target": "Base case is Bitcoin may not set a new all-time high this year, but allows for sharp rebounds."
-      },
-      {
-        "name": "Willy Woo",
-        "firm": "On-chain Analyst",
-        "stance": "Bearish",
-        "key_quote": "For now, he described Bitcoin as 'solidly in the middle of its bear market.'",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "July 23, 2026",
-        "key_views": [
-          "Warns of a potential 'bull trap' in the short term.",
-          "Believes Bitcoin is in the middle of a bear market.",
-          "Sees current recovery as not a genuine trend reversal."
-        ],
-        "btc_view": "Bearish",
-        "eth_view": "Not specified",
-        "price_target": "Bear market could extend into Q4 2026, with potential downside to $30,000 in a severe macro shock."
-      },
-      {
-        "name": "Anthony Pompliano",
-        "firm": "Pomp Investments",
-        "stance": "Very Bullish",
-        "key_quote": "Bitcoin doesn't need the CLARITY Act. If the CLARITY Act never passes, we'll go back to all-time highs.",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "July 29, 2026",
-        "key_views": [
-          "Argues Bitcoin has sufficient regulatory clarity.",
-          "Believes Bitcoin will reach new all-time highs regardless of the CLARITY Act.",
-          "Focuses on stablecoins as the main regulatory battleground."
-        ],
-        "btc_view": "Very Bullish",
-        "eth_view": "Not specified",
-        "price_target": "Expects Bitcoin to reach all-time highs."
-      },
-      {
-        "name": "Nic Carter",
-        "firm": "Castle Island Ventures",
-        "stance": "Neutral",
-        "key_quote": "US government could use quantum technology to disrupt Bitcoin.",
-        "quote_source": "KuCoin",
-        "quote_date": "July 25, 2026",
-        "key_views": [
-          "Warns of potential quantum computing threats to Bitcoin's security.",
-          "Urges the community to adopt post-quantum upgrades.",
-          "Suggests large holders may need to force quantum upgrades."
-        ],
-        "btc_view": "Neutral (focus on security risks)",
-        "eth_view": "Not specified",
-        "price_target": "Market pricing shows decreased confidence in Bitcoin reaching high price targets by end of 2026."
-      },
-      {
-        "name": "Mike Novogratz",
-        "firm": "Galaxy Digital",
-        "stance": "Bullish",
-        "key_quote": "Bitcoin at $1M in 2026 Would Signal U.S. Trouble rather than celebration.",
-        "quote_source": "CoinMarketCap",
-        "quote_date": "July 26, 2026",
-        "key_views": [
-          "Predicts Bitcoin could reach $70,000 by end of July 2026.",
-          "Views a $1 million Bitcoin price as a sign of US economic trouble.",
-          "Expresses nervousness about the growing Bitcoin treasury trend potentially forming a bubble."
-        ],
-        "btc_view": "Bullish (with caveats on economic conditions)",
-        "eth_view": "Not specified",
-        "price_target": "Predicts Bitcoin could reclaim $70,000 by end of July 2026."
+        "price_target": "Implies targets significantly lower than current prices, with a long-term target near $10,000 in a worst-case scenario."
       },
       {
         "name": "PlanB",
-        "firm": "Crypto Analyst",
-        "stance": "Bullish",
-        "key_quote": "My view is that both are true, valuation (based on fundamentals like scarcity, S2F) is 250k-1m range, but price can differ.",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "July 1, 2026",
+        "firm": "Stock-to-Flow Model Analyst",
+        "stance": "Neutral",
+        "key_quote": "Bitcoin has entered a bottoming phase that could last one to three months.",
+        "quote_source": "CoinNess",
+        "quote_date": "August 01, 2026",
         "key_views": [
-          "Believes Bitcoin is undervalued but price can still go lower.",
-          "Opposes BIP-110, warning against filter fork risks.",
-          "Sees potential for Bitcoin to average $500,000 in the 2024-2028 halving cycle."
+          "Bitcoin is in a bottoming phase, which typically lasts 1-3 months.",
+          "Price may decline further below the realized price during this phase.",
+          "Investors should conduct their own research."
         ],
-        "btc_view": "Bullish",
+        "btc_view": "Neutral to Cautiously Bearish in the short term, expecting further declines within the bottoming phase.",
         "eth_view": "Not specified",
-        "price_target": "Valuation between $250,000 and $1 million; average of $500,000 for the 2024-2028 cycle."
+        "price_target": "Suggests potential for further declines below the realized price ($52,000) during the bottoming phase."
       },
       {
         "name": "Vitalik Buterin",
         "firm": "Ethereum Co-founder",
         "stance": "Neutral",
-        "key_quote": "if quantum computers suddenly appear, we lose the finality guarantee, but the chain keeps chugging along.",
-        "quote_source": "Stocktwits",
-        "quote_date": "July 29, 2026",
+        "key_quote": "2026 is the year that we take back lost ground in terms of self-sovereignty and trustlessness.",
+        "quote_source": "TradingView",
+        "quote_date": "January 17, 2026",
         "key_views": [
-          "Outlines a multi-year roadmap for Ethereum ('Lean Ethereum').",
-          "Prioritizes quantum resistance and privacy upgrades.",
-          "Believes Ethereum can continue operating even if quantum computers emerge."
+          "Ethereum will focus on regaining self-sovereignty and trustlessness.",
+          "Reducing reliance on centralized RPC providers is a priority.",
+          "Account abstraction with smart accounts is expected in 2026."
         ],
         "btc_view": "Not specified",
-        "eth_view": "Neutral (focused on development and resilience)",
-        "price_target": "Focus on network upgrades and resilience, not specific price targets."
+        "eth_view": "Bullish on Ethereum's technological development and core principles.",
+        "price_target": "Not specified"
+      },
+      {
+        "name": "Michael Saylor",
+        "firm": "MicroStrategy",
+        "stance": "Very Bullish",
+        "key_quote": "Strategy's Bitcoin monetization program does not require the company to sell its BTC holdings.",
+        "quote_source": "Bitcoin Sistemi",
+        "quote_date": "August 02, 2026",
+        "key_views": [
+          "MicroStrategy has never committed to never selling Bitcoin.",
+          "The company expects to remain a net Bitcoin buyer long-term.",
+          "Bitcoin is a superior store of value and a key corporate asset."
+        ],
+        "btc_view": "Very Bullish, continues to accumulate and advocate for Bitcoin as a primary treasury reserve asset.",
+        "eth_view": "Not specified",
+        "price_target": "Implies long-term price appreciation for Bitcoin, though no specific target is mentioned."
+      },
+      {
+        "name": "Willy Woo",
+        "firm": "On-chain Analyst",
+        "stance": "Bearish",
+        "key_quote": "On-chain analyst Willy Woo put the chances of stolen Coldcard Bitcoin ever being recovered at only 20% to 40%.",
+        "quote_source": "Stocktwits",
+        "quote_date": "August 03, 2026",
+        "key_views": [
+          "The Coldcard hack erodes confidence in hardware wallet security.",
+          "Recovery of stolen Bitcoin is unlikely and could take years.",
+          "The broader bear trend for Bitcoin could extend into Q4 2026."
+        ],
+        "btc_view": "Bearish, warning of a prolonged bear market and potential for significant downside.",
+        "eth_view": "Not specified",
+        "price_target": "Suggests a typical bear market low near $45,000, with potential downside to $30,000 in a severe macro shock."
+      },
+      {
+        "name": "Raoul Pal",
+        "firm": "Real Vision CEO",
+        "stance": "Bullish",
+        "key_quote": "Bitcoin is 87% correlated to global liquidity. The NASDAQ is 97% correlated.",
+        "quote_source": "X (formerly Twitter)",
+        "quote_date": "July 27, 2026",
+        "key_views": [
+          "Bitcoin and risk assets are primarily driven by global liquidity.",
+          "Current consolidation does not mean the bull cycle is over.",
+          "Expanding global liquidity could push Bitcoin significantly higher."
+        ],
+        "btc_view": "Bullish, expecting Bitcoin to benefit from increasing global liquidity.",
+        "eth_view": "Bullish, as it is also influenced by global liquidity and the 'Exponential Age' trends.",
+        "price_target": "Previously targeted $450,000 Bitcoin if central bank liquidity expands by year-end (May 2026 thesis)."
       },
       {
         "name": "Tom Lee",
         "firm": "Fundstrat Global Advisors",
         "stance": "Bullish",
-        "key_quote": "Bitcoin's long-term story remains intact.",
-        "quote_source": "CNBC",
-        "quote_date": "July 6, 2026",
+        "key_quote": "Ethereum (ETH) outperformed the Nasdaq by roughly 2,500 basis points in July.",
+        "quote_source": "Mena FN",
+        "quote_date": "August 03, 2026",
         "key_views": [
-          "Believes Bitcoin has never had four consecutive quarterly declines.",
-          "Frames the current pullback as a cyclical reset.",
-          "Sees tokenization and AI as drivers for crypto's future."
+          "Crypto, particularly Ethereum, is showing constructive signals for risk assets.",
+          "Blockchain's reliability is a key strength for institutional adoption.",
+          "AI and tokenization will increase the importance of blockchain."
         ],
-        "btc_view": "Bullish",
-        "eth_view": "Bullish",
-        "price_target": "Predicts Bitcoin above $100,000 and Ethereum above $5,000 by year-end 2026."
+        "btc_view": "Bullish, with a previous prediction of $200,000-$250,000 by end of 2026.",
+        "eth_view": "Bullish, noting its recent outperformance and potential for future growth driven by AI and tokenization.",
+        "price_target": "Previously projected Bitcoin to reach $200,000-$250,000 by the end of 2026."
+      },
+      {
+        "name": "Anthony Pompliano",
+        "firm": "Pomp Investments",
+        "stance": "Bullish",
+        "key_quote": "Obviously Bitcoin was not hacked and there is no known security vulnerability with the protocol.",
+        "quote_source": "Stocktwits",
+        "quote_date": "August 02, 2026",
+        "key_views": [
+          "The Coldcard incident was a third-party hardware wallet failure, not a Bitcoin protocol hack.",
+          "Bitcoin is the best hedge fund that's ever existed.",
+          "Continued money printing by the US government could drive Bitcoin to $1 million."
+        ],
+        "btc_view": "Bullish, viewing Bitcoin as a superior hedge fund and a beneficiary of monetary debasement.",
+        "eth_view": "Not specified",
+        "price_target": "$1 million (conditional on continued US government money printing)."
+      },
+      {
+        "name": "Jamie Dimon",
+        "firm": "JPMorgan Chase",
+        "stance": "Bearish",
+        "key_quote": "If he takes deposits like a bank, he should have bank rules.",
+        "quote_source": "FOXBusiness",
+        "quote_date": "June 01, 2026",
+        "key_views": [
+          "Banks will fight Senate language in the CLARITY Act that allows crypto reward programs.",
+          "Yield-bearing stablecoins pose a 'shadow banking' risk if not regulated like banks.",
+          "Crypto platforms acting like banks should adhere to the same rules and capital requirements."
+        ],
+        "btc_view": "Implied Bearish due to his general skepticism of crypto and focus on regulatory risks.",
+        "eth_view": "Implied Bearish due to his general skepticism of crypto and focus on regulatory risks.",
+        "price_target": "Not specified"
+      },
+      {
+        "name": "Mike Novogratz",
+        "firm": "Galaxy Digital",
+        "stance": "Bullish",
+        "key_quote": "I think crypto could be a good 2026.",
+        "quote_source": "TradingView",
+        "quote_date": "December 29, 2025",
+        "key_views": [
+          "2026 could be a great year for crypto, despite current 'stalled' technicals.",
+          "The Crypto Clarity Act passing could be a catalyst for Bitcoin.",
+          "Massive US fiscal deficit necessitates inflation, benefiting hard assets like Bitcoin."
+        ],
+        "btc_view": "Bullish, expecting a potential reclaim of $70,000 and long-term appreciation due to macro factors.",
+        "eth_view": "Bullish, as part of the broader crypto market expected to perform well in 2026.",
+        "price_target": "Predicted Bitcoin to reclaim $70,000 by end of July 2026."
+      },
+      {
+        "name": "Willy Woo",
+        "firm": "On-chain Analyst",
+        "stance": "Bearish",
+        "key_quote": "This bearish sell down by investors seems to have exhausted, which gives price a reprieve to consolidate sideways for maybe a month.",
+        "quote_source": "X (formerly Twitter)",
+        "quote_date": "July 23, 2026",
+        "key_views": [
+          "Bitcoin is in the middle of its bear market, with a potential bull trap forming.",
+          "Consolidation may occur, but a genuine trend reversal is not yet confirmed.",
+          "The bear market could extend into Q4 2026."
+        ],
+        "btc_view": "Bearish, expecting a prolonged bear market with potential for further downside.",
+        "eth_view": "Not specified",
+        "price_target": "Typical bear market low near $45,000, with potential downside to $30,000 in severe macro shock."
+      },
+      {
+        "name": "Lyn Alden",
+        "firm": "Lyn Alden Investment Strategy",
+        "stance": "Neutral",
+        "key_quote": "Bitcoin trades risk-on as an emerging asset, while gold is a hedge against inflation and deflation.",
+        "quote_source": "U.Today",
+        "quote_date": "February 17, 2026",
+        "key_views": [
+          "Bitcoin is an emerging risk-on asset, distinct from gold's role as an inflation hedge.",
+          "Bitcoin's eventual supremacy over gold may take 15-20 years.",
+          "Investors are often too impatient with Bitcoin's long-term timelines."
+        ],
+        "btc_view": "Neutral to Cautiously Bullish long-term, seeing it as a superior asset to gold but requiring significant time to mature.",
+        "eth_view": "Not specified",
+        "price_target": "Not specified"
       }
     ],
-    "synthesis": "This week's crypto commentary reveals a divided market. While some, like Michael Saylor and Anthony Pompliano, remain staunchly bullish on Bitcoin's long-term prospects and protocol integrity, others, such as Willy Woo and Peter Schiff, express significant bearish concerns, citing market cycles and potential crashes. A key theme is the ongoing debate around protocol upgrades and security, with Nic Carter highlighting quantum computing risks and Vitalik Buterin detailing Ethereum's resilience plans.",
+    "synthesis": "This week's commentary reveals a divided market. While some analysts like PlanB and Willy Woo see Bitcoin in a prolonged bottoming or bear phase with potential for further declines, others like Raoul Pal and Anthony Pompliano remain bullish, citing macro liquidity and Bitcoin's role as a hedge against inflation. Regulatory developments, particularly the CLARITY Act, are a significant focus, with figures like Jamie Dimon expressing strong opposition to crypto-friendly provisions, while Mike Novogratz sees potential for compromise.",
     "themes": [
-      "Bitcoin Protocol Security and Upgrades (Quantum Computing, BIP-110)",
-      "Market Sentiment and Price Predictions (Bullish vs. Bearish Outlooks)",
-      "Institutional Adoption and Regulatory Clarity (CLARITY Act, Corporate Treasuries)"
+      "Bitcoin's Market Cycle and Price Action",
+      "Regulatory Landscape (CLARITY Act, Stablecoins)",
+      "Macroeconomic Influences (Liquidity, Inflation)",
+      "Hardware Wallet Security (Coldcard Hack)",
+      "Ethereum's Technological Development"
     ]
   },
   "crypto_status": "fresh"
