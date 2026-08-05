@@ -1,21 +1,25 @@
 {
-  "fetched_utc": "2026-07-05T15:12:14.693176+00:00",
-  "fetched_human": "2026-07-05 15:12 UTC",
+  "fetched_utc": "2026-08-05T16:04:08.537316+00:00",
+  "fetched_human": "2026-08-05 16:04 UTC",
   "source": "grounded Gemini web search (ISM releases + ICI weekly MMF)",
   "ism_mfg": {
     "value": 53.3,
     "ref_month": "2026-06",
-    "source": "ISM Manufacturing PMI\u00ae Report On Business (July 1 2026)"
+    "source": "ISM Manufacturing PMI\u00ae Report On Business (July 1 2026)",
+    "_stale": true
   },
   "ism_svcs": {
     "value": 54.5,
     "ref_month": "2026-05",
-    "source": "ISM\u00ae Services PMI\u00ae Report (June 3 2026)"
+    "source": "ISM\u00ae Services PMI\u00ae Report (June 3 2026)",
+    "_stale": true
   },
   "mmf_total_t": {
     "value": 7.95,
     "as_of": "2026-07-01",
-    "source": "Investment Company Institute weekly report (July 2, 2026)"
+    "source": "Investment Company Institute weekly report (July 2, 2026)",
+    "_stale": true
   },
-  "status": "ok"
+  "status": "failed",
+  "error": "No JSON found: "
 }
