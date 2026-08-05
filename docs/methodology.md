@@ -1,3 +1,8 @@
+> **STALE — retired system.** This document describes the pre-2026 5-pillar / top-10 / 63-day
+> system and does not describe any live strategy (Katalepsis, Aristeia, Auxo, Prosodos,
+> Pronoia). Current methodology lives in `quant-historical/STRATEGIES_SPEC.md` and
+> `quant-historical/C78Q_SPEC.md`. Flagged 2026-08-05.
+
 # Quant Strategy: Methodology & Engineering Journey
 
 *Last updated: May 6, 2026*
