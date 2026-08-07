@@ -1555,7 +1555,7 @@ try:
                                      "status": "deployed", "as_of": _kt.get("as_of")}
     except Exception:
         pass
-    for _slug in ("aristeia", "auxo", "prosodos", "pronoia"):
+    for _slug in ("aristeia", "auxo", "statera", "pronoia"):
         try:
             _ch = json.load(open(f"{OUT}/{_slug}_strategy.json")).get("current_holdings") or {}
             _sc = _sched_all.get(_slug) or {}

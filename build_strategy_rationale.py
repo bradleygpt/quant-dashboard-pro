@@ -22,10 +22,15 @@ ai_assistant.call_llm = _llm
 DASH = [Path(r"C:\Users\bmhar\code\quant-dashboard-pro-v2\public\data"),
         Path(r"C:\Users\bmhar\code\quant-dashboard-react\web\public\data")]
 DATA = DASH[0]
-uni = {r["ticker"]: r for r in json.load(open(DATA / "universe_floor0.json"))["rows"]}
+# universe_floor0.json no longer ships to pro-v2 (only the react data dir carries it);
+# fall back so a missing copy in DASH[0] doesn't kill the whole rationale build.
+_ufloor = next((d / "universe_floor0.json" for d in DASH if (d / "universe_floor0.json").exists()), None)
+if _ufloor is None:
+    raise SystemExit("universe_floor0.json not found in either dashboard data dir")
+uni = {r["ticker"]: r for r in json.load(open(_ufloor))["rows"]}
 
 STRATS = [("Katalepsis", "c78q"), ("Aristeia", "aristeia"), ("Auxo", "auxo"),
-          ("Prosodos", "prosodos"), ("Pronoia", "pronoia")]
+          ("Statera", "statera"), ("Pronoia", "pronoia")]
 
 def load(slug):
     if slug == "c78q":
