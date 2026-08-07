@@ -1700,6 +1700,25 @@ try:
             _stamped.append(f"{_vf} (manifest-only, list shape)")
         _man["sources"][_key] = {"source": "bake.py vintage pass", "as_of": _vstamp[:10],
                                  "generated_at": _vstamp, "check_status": "ok"}
+    # OWNERSHIP CENSUS (2026-08-06): the 15 above are a hand-list; every OTHER top-level
+    # artifact was unclassified, so web_push's conflict recovery could not tell what its
+    # REBAKE ONCE regenerates. It discarded the sleeve builders' output (aristeia_strategy
+    # .json et al.) and resurrected the committed stale copy. Only this process knows what
+    # it wrote, so record it here for every top-level file: mtime vs BAKE_START_TS.
+    # Subdirectories are deliberately excluded — their files are incremental bake output
+    # (skipped when unchanged), which is bake-owned even in the runs that don't rewrite it.
+    for _f in sorted(os.listdir(OUT)):
+        if not _f.endswith(".json") or _f == "freshness_manifest.json":
+            continue
+        _fp = os.path.join(OUT, _f)
+        if not os.path.isfile(_fp):
+            continue
+        # Record the FACT only. Deliberately no invented `source` label: "producer-stamped"
+        # means a known producer owns the file, and CI-built caches (correlations_cache,
+        # etf_descriptions) are not that. Overloading the label to mean "not written this
+        # run" is how the label became a proxy for the criterion in the first place.
+        _man["sources"].setdefault(_f[:-5], {})["written_by_bake"] = (
+            os.path.getmtime(_fp) >= BAKE_START_TS)
     _man["generated_at"] = _vstamp
     json.dump(_man, open(_mp, "w"), indent=2)
     log(f"vintage pass: stamped {len(_stamped)} files, skipped {len(_skipped)} "
