@@ -1700,30 +1700,47 @@ try:
             _stamped.append(f"{_vf} (manifest-only, list shape)")
         _man["sources"][_key] = {"source": "bake.py vintage pass", "as_of": _vstamp[:10],
                                  "generated_at": _vstamp, "check_status": "ok"}
-    # OWNERSHIP CENSUS (2026-08-06): the 15 above are a hand-list; every OTHER top-level
-    # artifact was unclassified, so web_push's conflict recovery could not tell what its
-    # REBAKE ONCE regenerates. It discarded the sleeve builders' output (aristeia_strategy
-    # .json et al.) and resurrected the committed stale copy. Only this process knows what
-    # it wrote, so record it here for every top-level file: mtime vs BAKE_START_TS.
-    # Subdirectories are deliberately excluded — their files are incremental bake output
-    # (skipped when unchanged), which is bake-owned even in the runs that don't rewrite it.
-    for _f in sorted(os.listdir(OUT)):
-        if not _f.endswith(".json") or _f == "freshness_manifest.json":
-            continue
-        _fp = os.path.join(OUT, _f)
-        if not os.path.isfile(_fp):
-            continue
-        # Record the FACT only. Deliberately no invented `source` label: "producer-stamped"
-        # means a known producer owns the file, and CI-built caches (correlations_cache,
-        # etf_descriptions) are not that. Overloading the label to mean "not written this
-        # run" is how the label became a proxy for the criterion in the first place.
-        _man["sources"].setdefault(_f[:-5], {})["written_by_bake"] = (
-            os.path.getmtime(_fp) >= BAKE_START_TS)
     _man["generated_at"] = _vstamp
     json.dump(_man, open(_mp, "w"), indent=2)
     log(f"vintage pass: stamped {len(_stamped)} files, skipped {len(_skipped)} "
         f"({'; '.join(_skipped) if _skipped else 'none'})")
 except Exception as e:
     log(f"vintage pass skipped: {e}")
+
+# ── OWNERSHIP CENSUS -> a LOCAL file, deliberately NOT the shared manifest ────────────
+# What web_push's conflict recovery needs to know is which top-level artifacts this bake
+# does NOT write, because its REBAKE ONCE cannot restore those. Only this process knows.
+#
+# It must NOT go in freshness_manifest.json: that file is committed to the product repo
+# and CI's bake writes it too. In CI every artifact is freshly written and the producer
+# files are absent, so CI's census marks nothing "not written" -- and on 2026-08-08 CI's
+# copy landed on origin/main and quietly flattened the local answer from 29 to 0.
+# A census a second writer can overwrite is worthless, so it lives outside the repo, in
+# quant-historical (local-only). In CI that directory does not exist and we skip: correct,
+# because a CI census would be a lie about the local tree, and the reader fails loudly
+# on absence rather than assuming everything is regenerable.
+try:
+    _cen_dir = r"C:\Users\bmhar\code\quant-historical\ops\heartbeats"
+    if os.path.isdir(_cen_dir):
+        _not_written = []
+        for _f in sorted(os.listdir(OUT)):
+            _fp = os.path.join(OUT, _f)
+            if _f.endswith(".json") and os.path.isfile(_fp) and _f != "freshness_manifest.json":
+                if os.path.getmtime(_fp) < BAKE_START_TS:
+                    _not_written.append(_f)
+        # Subdirectories are excluded on purpose: those files are incremental bake output,
+        # skipped when unchanged, and remain bake-owned in the runs that don't rewrite them.
+        json.dump({"generated_at": datetime.now().replace(microsecond=0).isoformat(),
+                   "bake_start_ts": BAKE_START_TS, "out": str(OUT),
+                   "top_level_scanned": sum(1 for _f in os.listdir(OUT)
+                                            if _f.endswith(".json")),
+                   "not_regenerated": _not_written},
+                  open(os.path.join(_cen_dir, "bake_ownership.json"), "w"), indent=2)
+        log(f"ownership census: {len(_not_written)} top-level files NOT written by this bake "
+            f"-> {_cen_dir}\\bake_ownership.json")
+    else:
+        log("ownership census: skipped (no local quant-historical - CI run)")
+except Exception as e:
+    log(f"ownership census FAILED: {e}")
 
 log("DONE")
