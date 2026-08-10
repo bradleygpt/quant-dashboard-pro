@@ -370,10 +370,14 @@ def _load_pred12():
         _cs = sorted(_g.glob(os.path.join(_d, "universe_predictions_*.csv")))
         if not _cs: continue
         _df = _pd.read_csv(_cs[-1])
-        if "pred_12m" not in _df.columns: continue
+        # RANK SERVING 2026-08-10: pred_12m is now a per-date percentile rank; the FV
+        # "ML 12-Month Target" method needs RETURN space -> read pred_12m_level (old
+        # CSVs without _level still carry the level in pred_12m, so fall back).
+        _col = "pred_12m_level" if "pred_12m_level" in _df.columns else "pred_12m"
+        if _col not in _df.columns: continue
         _p = {}
         for _, _r in _df.iterrows():
-            try: _f = float(_r.get("pred_12m"))
+            try: _f = float(_r.get(_col))
             except Exception: continue
             if not (_m.isnan(_f) or _m.isinf(_f)): _p[str(_r.get("ticker", ""))] = _f
         if _p:
@@ -1355,14 +1359,23 @@ try:
         _stream_ids = [c[:-7] for c in _df.columns if c.endswith("_active")]
         _streams_present = [s for s in _stream_ids if s != "n_streams" and _df[f"{s}_active"].sum() > 0]
 
+        # UI DECISIONS 2026-08-10 (Bradley): pred_3m/target_3m removed from all dashboard
+        # surfaces (no fenced signal); the 12m prediction ships ONLY as a percentile rank
+        # ("12-Month ML Ranking" — relative attractiveness, not an expected return);
+        # target_* dropped from the payload (level retained in the CSV as pred_12m_level
+        # for diagnostics only). Old pre-rank CSVs: derive the rank at bake time from the
+        # level cross-section (single-date snapshot, so the per-date rank is well-defined).
+        _has_rank = "pred_12m_level" in _df.columns
+        _rank_fallback = {}
+        if not _has_rank and "pred_12m" in _df.columns:
+            _rank_fallback = _df["pred_12m"].rank(pct=True).to_dict()
         _rows = []
-        for _, r in _df.iterrows():
+        for _i, r in _df.iterrows():
             streams = {}
             for sid in _stream_ids:
                 if int(r.get(f"{sid}_active", 0) or 0) == 1:
                     streams[sid] = {
                         "sig": _g(r, f"{sid}_signal"),
-                        "p3m": _g(r, f"{sid}_pred_3m"),
                         "p12m": _g(r, f"{sid}_pred_12m"),
                     }
             _rows.append({
@@ -1370,16 +1383,12 @@ try:
                 "sector": (r.get("sector") if isinstance(r.get("sector"), str) else None),
                 "market_cap": _g(r, "market_cap"),
                 "price": _g(r, "current_price") if "current_price" in _df.columns else _g(r, "price"),
-                "pred_3m": _g(r, "pred_3m"),
-                "pred_12m": _g(r, "pred_12m"),
-                "target_3m": _g(r, "target_3m"),
-                "target_12m": _g(r, "target_12m"),
+                "pred_12m_rank": _g(r, "pred_12m") if _has_rank
+                                 else (lambda _v: None if _v is None or _v != _v else float(_v))(_rank_fallback.get(_i)),
                 "c78q_post": _g(r, "c78q_posterior"),
                 "c78q_rank": _g(r, "c78q_rank"),
                 "c78q_top8": int(r.get("c78q_top8_flag", 0) or 0),
                 "n_active": int(r.get("n_streams_active", 0) or 0),
-                "n_bull": int(r.get("n_streams_bullish_3m", 0) or 0),
-                "n_bear": int(r.get("n_streams_bearish_3m", 0) or 0),
                 "rsi14": _g(r, "rsi14"),
                 "rsi2": _g(r, "rsi2"),
                 "ret_5d": _g(r, "ret_5d"),
