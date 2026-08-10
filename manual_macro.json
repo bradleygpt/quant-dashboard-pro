@@ -1,21 +1,21 @@
 {
-  "fetched_utc": "2026-08-09T14:42:21.206410+00:00",
-  "fetched_human": "2026-08-09 14:42 UTC",
+  "fetched_utc": "2026-08-10T15:07:03.753229+00:00",
+  "fetched_human": "2026-08-10 15:07 UTC",
   "source": "grounded Gemini web search (ISM releases + ICI weekly MMF)",
   "ism_mfg": {
     "value": 55.6,
     "ref_month": "2026-07",
-    "source": "ISM Manufacturing PMI\u00ae Report (August 03, 2026)"
+    "source": "ISM\u00ae Manufacturing PMI\u00ae Report - August 3, 2026"
   },
   "ism_svcs": {
     "value": 54.1,
     "ref_month": "2026-07",
-    "source": "ISM\u00ae Services PMI\u00ae Report (August 05, 2026)"
+    "source": "ISM\u00ae Services PMI\u00ae Report - August 5, 2026"
   },
   "mmf_total_t": {
     "value": 7.91,
     "as_of": "2026-08-05",
-    "source": "ICI weekly MMF Assets (August 06, 2026)"
+    "source": "ICI weekly MMF Assets - August 6, 2026"
   },
   "status": "ok"
 }
