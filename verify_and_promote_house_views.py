@@ -221,6 +221,20 @@ BACKWARD_MARKERS = (
 _QUARTER = re.compile(r"\bq[1-4][- ]?(?:19|20)\d\d\b")
 
 
+# Forecast verbs. A sentence that revises or states a projection often also mentions a
+# past reading ("2.0% in 2026, up from the 1.7% we forecasted in march") and must not be
+# refused for it — the presence of a forecast verb is what separates the two.
+_FORECAST_VERBS = re.compile(
+    r"\b(expect|expects|expected|forecast|forecasts|forecasted|project|projects|projected|"
+    r"anticipat\w*|we see|outlook|target|estimate\w*|assum\w*)\b")
+# "...which WAS 4.2% on a year-ago basis in may" — a realized print with no forecast verb.
+_PAST_COPULA_NUM = re.compile(
+    r"\b(was|were|came in at|printed at|rose to|fell to|climbed to|dropped to)\b[^.]{0,25}?\d")
+_MONTH_PAST = re.compile(
+    r"\b(in|for|during)\s+(january|february|march|april|may|june|july|august|september|"
+    r"october|november|december)\b")
+
+
 def looks_backward_looking(quote: str) -> str | None:
     """Return the marker if the quote describes realized data rather than a forecast."""
     n = normalize(quote)
@@ -229,6 +243,15 @@ def looks_backward_looking(quote: str) -> str | None:
     for m in BACKWARD_MARKERS:
         if m in n:
             return f"past-tense/realized wording ({m.strip()!r})"
+    # Weaker signals: only decisive when the sentence makes no forecast claim at all.
+    # Found on Deloitte's page, which mixes genuine projections with realized monthly
+    # prints in the same prose — "inflation, which was 4.2% ... in may" would otherwise
+    # have been drafted as a 2026 inflation forecast.
+    if not _FORECAST_VERBS.search(n):
+        if _PAST_COPULA_NUM.search(n):
+            return "states a realized reading (past-tense copula before the number)"
+        if _MONTH_PAST.search(n):
+            return "cites a specific month's realized print"
     return None
 
 

@@ -76,21 +76,6 @@
       }
     },
     {
-      "id": "ubs_cio",
-      "name": "UBS CIO GWM",
-      "kind": "house",
-      "as_of": "2025-11",
-      "source": "UBS Year Ahead 2026 ('Escape velocity?')",
-      "url": "https://www.ubs.com/global/en/media/display-page-ndp/en-20251120-year-ahead-2026.html",
-      "notes": "Forecast table as of Nov 12, 2025; S&P 500 year-end target 7,700 reaffirmed Jan 13, 2026. GDP = annual average. Inflation table labeled simply 'Inflation (%)' — treated as CPI (not explicitly labeled in the doc). Fed funds = year-end (Dec-26) policy rate (3.33%). UBS did not publish an unemployment forecast, nor 2027 S&P/fed-funds figures, in this report.",
-      "values": {
-        "gdp": {"2026": 1.7, "2027": 1.9},
-        "inflation": {"2026": 3.0, "2027": 2.4},
-        "fed_funds": {"2026": 3.33},
-        "sp500_target": {"2026": 7700}
-      }
-    },
-    {
       "id": "goldman_sachs",
       "name": "Goldman Sachs Research",
       "kind": "house",
