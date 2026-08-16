@@ -17,13 +17,17 @@
         "gdp": {
           "2026": {
             "value": 2.0,
-            "quote": "We see real gross domestic product (GDP) growth around 2 percent in 2026 and 2027, underpinned by robust artificial intelligence (AI) capital expenditures and near-term fiscal tailwinds."
+            "quote": "We see real gross domestic product (GDP) growth around 2 percent in 2026 and 2027, underpinned by robust artificial intelligence (AI) capital expenditures and near-term fiscal tailwinds.",
+            "verified": true,
+            "notes": "Verified 2026-08-16T19:24:09Z against https://www.guggenheiminvestments.com/perspectives/macroeconomic-research/july-2026-economic-outlook-and-key-themes/"
           }
         },
         "inflation": {
           "2026": {
             "value": 3.0,
-            "quote": "While year-over-year core PCE is expected to end the year above 3 percent, we expect some moderation in sequential numbers in coming months as these impulses cool."
+            "quote": "While year-over-year core PCE is expected to end the year above 3 percent, we expect some moderation in sequential numbers in coming months as these impulses cool.",
+            "verified": true,
+            "notes": "Verified 2026-08-16T19:24:09Z against https://www.guggenheiminvestments.com/perspectives/macroeconomic-research/july-2026-economic-outlook-and-key-themes/"
           }
         }
       }
@@ -49,14 +53,16 @@
       "as_of": "2026-07",
       "prior_as_of": "2026-06",
       "source": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
-      "url": "https://www.goldmansachs.com/insights/\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4-us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth/index.html",
+      "url": "https://www.goldmansachs.com/insights/ப்படுத்த-us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth/index.html",
       "inflation_basis": "PCE",
       "notes": "The report focuses on the outlook for the current year (2026) and does not explicitly state forecasts for 2027. The GDP forecast is for the full year.",
       "values": {
         "gdp": {
           "2026": {
             "value": 2.0,
-            "quote": "David Mericle, chief US economist in Goldman Sachs Research, forecasts the Fed to keep interest rates unchanged this year before cutting its policy rate in 2027. He also unpacks the factors driving US inflation, highlights the surprising resilience of the US labor market, and explains why he expects US GDP to expand around 2% this year."
+            "quote": "David Mericle, chief US economist in Goldman Sachs Research, forecasts the Fed to keep interest rates unchanged this year before cutting its policy rate in 2027. He also unpacks the factors driving US inflation, highlights the surprising resilience of the US labor market, and explains why he expects US GDP to expand around 2% this year.",
+            "verified": true,
+            "notes": "Verified 2026-08-16T19:24:09Z against https://www.goldmansachs.com/insights/goldman-sachs-exchanges/us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth"
           }
         }
       }
@@ -76,13 +82,17 @@
         "gdp": {
           "2026": {
             "value": 1.5,
-            "quote": "The US economy expanded at a 1.5% annualized rate in Q2-2026, down from 2.1% in Q1 (chart)."
+            "quote": "The US economy expanded at a 1.5% annualized rate in Q2-2026, down from 2.1% in Q1 (chart).",
+            "verified": false,
+            "notes": "UNREADABLE SOURCE (fetched text is nearly empty) as of 2026-08-16T19:24:09Z — manual review"
           }
         },
         "inflation": {
           "2026": {
             "value": 3.7,
-            "quote": "Headline PCED inflation declined 0.1% m/m in June, but was still up 3.7% y/y (chart)."
+            "quote": "Headline PCED inflation declined 0.1% m/m in June, but was still up 3.7% y/y (chart).",
+            "verified": false,
+            "notes": "UNREADABLE SOURCE (fetched text is nearly empty) as of 2026-08-16T19:24:09Z — manual review"
           }
         }
       }

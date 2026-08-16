@@ -24,11 +24,38 @@ a human verifies each quote against the PDF and promotes it into macro_house_vie
 NEVER invent: the prompt forces a verbatim quote per figure and omits anything not
 explicitly stated — same integrity stance as the risk-radar/pundit builders.
 
+HARDENED 2026-08-15 after auditing the 2026-08-01 run, where 3 of 4 drafted URLs were
+unusable and 2 of 9 institutions failed with an uninformative error:
+
+  URL HYGIENE      The model's URL used to be written through untouched. It produced a
+                   goldmansachs.com path with Tamil characters spliced into it, a
+                   vertexaisearch grounding redirect (those expire), and a dead link.
+                   resolve_url() now strips non-ASCII and retries, follows redirects to
+                   the publisher URL, records the HTTP status, and flags links that land
+                   on a login/subscribe page (those answer 200, so status alone calls a
+                   paywall healthy — that is how Yardeni looked fine while being unreadable).
+
+  DRAFT-CHECK      Quotes were drafted but never checked against the page, so the
+                   downstream verifier spent its whole run discovering broken links
+                   instead of judging figures. Each drafted quote is now matched against
+                   the resolved page using the PROMOTER'S OWN matcher (imported, never
+                   reimplemented) and annotated quote_found / QUOTE_NOT_IN_SOURCE /
+                   unreadable, plus a `qualifier` when the source hedges the number
+                   ("around 2 percent" is not a point estimate). Advisory only: nothing is
+                   deleted, and promotion is still the promoter's decision.
+
+  ERROR DETAIL     An empty Gemini response surfaced as `No JSON found: ` with nothing
+                   after the colon — which is how BOTH Fannie Mae and Vanguard failed,
+                   leaving no way to tell a safety block from a token cut-off. The error
+                   now carries finishReason and promptFeedback, and max_tokens was raised
+                   3000 -> 8000 because a full JSON of verbatim quotes can exceed 3000.
+
 Usage:  python build_house_views_freshness.py
 Env:    GEMINI_API_KEY
 """
 
 import json
+import re
 import os
 import sys
 from datetime import datetime, timezone
@@ -37,6 +64,17 @@ import requests
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 GEMINI_MODEL = "gemini-2.5-flash-lite"
+BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36")
+
+# The promoter owns quote-matching; the generator borrows it so a drafted quote is
+# judged by exactly the rule that will later gate it. Optional so a missing file or
+# dependency degrades to "no draft-check" instead of taking the whole run down.
+try:
+    import verify_and_promote_house_views as _V
+except Exception:                                   # noqa: BLE001
+    _V = None
+
 GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 HOUSE_VIEWS_FILE = "macro_house_views.json"
@@ -72,7 +110,7 @@ def load_targets():
     return targets
 
 
-def call_gemini_with_search(prompt, max_tokens=3000):
+def call_gemini_with_search(prompt, max_tokens=8000):
     """Single Gemini call with google_search grounding. Mirrors build_risk_radar_cache."""
     if not GEMINI_API_KEY:
         raise RuntimeError("GEMINI_API_KEY not set")
@@ -85,11 +123,23 @@ def call_gemini_with_search(prompt, max_tokens=3000):
     r = requests.post(GEMINI_API_URL, headers=headers, json=payload, timeout=120)
     if r.status_code != 200:
         raise RuntimeError(f"Gemini API error {r.status_code}: {r.text[:400]}")
-    cands = r.json().get("candidates", [])
+    body = r.json()
+    cands = body.get("candidates", [])
     if not cands:
-        raise RuntimeError(f"No candidates: {json.dumps(r.json())[:300]}")
+        fb = body.get("promptFeedback") or {}
+        raise RuntimeError(f"Gemini returned no candidates (promptFeedback={json.dumps(fb)[:200]})")
     parts = cands[0].get("content", {}).get("parts", [])
-    return "".join(p.get("text", "") for p in parts).strip()
+    text = "".join(p.get("text", "") for p in parts).strip()
+    if not text:
+        # THE 2026-08-01 FAILURE: Fannie Mae and Vanguard both died here and the only
+        # trace was "No JSON found: " with nothing after the colon — an empty response
+        # reported as a parse error, so nobody could tell whether it was a safety block,
+        # a token cut-off, or a grounding miss. Say which.
+        raise RuntimeError(
+            f"Gemini returned no text (finishReason={cands[0].get('finishReason')!r}, "
+            f"parts={len(parts)}, promptFeedback={json.dumps(body.get('promptFeedback') or {})[:150]}). "
+            f"finishReason MAX_TOKENS means the JSON was truncated — raise max_tokens.")
+    return text
 
 
 def parse_json_response(text):
@@ -176,6 +226,48 @@ def _clean_values(raw):
     return out
 
 
+# ── URL hygiene ────────────────────────────────────────────────────────────
+# Every URL in the 2026-08-01 run was passed through from the model untouched, and
+# three of four were unusable: goldmansachs.com/insights/<TAMIL CHARACTERS>/... ,
+# a vertexaisearch grounding redirect that only happened to still resolve, and a
+# 404. The downstream verifier then spent its whole run on link quality instead of
+# figure accuracy. A drafted URL is now resolved and probed before it is written.
+
+def resolve_url(url, timeout=25):
+    """Return (final_url, status, note). Never raises — a bad URL is data, not a crash."""
+    if not url or not isinstance(url, str):
+        return None, None, "no url returned"
+    url = url.strip()
+    note = None
+
+    bad = [c for c in url if ord(c) > 127]
+    if bad:
+        # Model-injected junk mid-path (observed: Tamil script inside a GS path).
+        # Strip and retry rather than discard: the rest of the path is usually right.
+        stripped = "".join(c for c in url if ord(c) < 128).replace("//", "//", 1)
+        note = f"URL contained {len(bad)} non-ASCII char(s) ({''.join(bad)[:12]!r}); retried stripped"
+        url = re.sub(r"(?<!:)/{2,}", "/", stripped)
+
+    try:
+        r = requests.get(url, headers={"User-Agent": BROWSER_UA,
+                                       "Accept-Language": "en-US,en;q=0.9"},
+                         timeout=timeout, allow_redirects=True)
+        final = r.url
+        if "vertexaisearch" in url and "vertexaisearch" not in final:
+            note = ((note + "; ") if note else "") + "resolved grounding redirect to publisher URL"
+        if "vertexaisearch" in final:
+            note = ((note + "; ") if note else "") + \
+                   "STILL a grounding redirect (expires — replace with the publisher link)"
+        # A paywall redirect answers 200, so status alone calls it healthy. Yardeni's
+        # link resolves to /login and would otherwise sit on the board looking fine.
+        if re.search(r"/(login|signin|sign-in|subscribe|register)\b", final, re.I):
+            note = ((note + "; ") if note else "") + \
+                   "redirects to a LOGIN/SUBSCRIBE page — content not publicly readable"
+        return final, r.status_code, note
+    except Exception as e:
+        return url, None, ((note + "; ") if note else "") + f"unreachable: {type(e).__name__}"
+
+
 def classify(report_month, prior_as_of):
     rm, pm = _ym(report_month), _ym(prior_as_of)
     if not rm:
@@ -187,16 +279,67 @@ def classify(report_month, prior_as_of):
     return "current"            # transcription is up to date
 
 
+def draft_check(values, url):
+    """Check each drafted quote against the resolved page, using the SAME matcher the
+    promoter uses (imported, not reimplemented — two copies would drift and the draft
+    would start disagreeing with the gate it feeds).
+
+    This is advisory: it annotates, it never deletes. A figure that fails here is still
+    written to the candidates file, flagged, because a drafted number that the page does
+    not support is exactly what a human needs to see. Promotion remains the promoter's
+    job and its verdict is the one that counts."""
+    if _V is None or not values or not url:
+        return values, "draft-check skipped (verifier module or url unavailable)"
+    try:
+        text, _final = _V.fetch_text(url)
+    except Exception as e:
+        summary = f"draft-check could not read source: {type(e).__name__}"
+        for byyear in values.values():
+            for cell in byyear.values():
+                cell["draft_check"] = "unreadable"
+        return values, summary
+
+    wall = _V.looks_like_interstitial(text, url)
+    ok = miss = 0
+    for byyear in values.values():
+        for cell in byyear.values():
+            if wall:
+                cell["draft_check"] = "unreadable"
+                continue
+            if _V.quote_is_verified(cell.get("quote", ""), text):
+                cell["draft_check"] = "quote_found"
+                ok += 1
+            else:
+                cell["draft_check"] = "QUOTE_NOT_IN_SOURCE"
+                miss += 1
+            qual = _V.quote_qualifier(cell.get("quote", ""), cell.get("value"))
+            if qual:
+                cell["qualifier"] = qual      # "around 2%" is not a point estimate
+    if wall:
+        return values, f"draft-check could not read source: {wall}"
+    return values, f"draft-check: {ok} quote(s) found, {miss} not in source"
+
+
 def check_one(target, prior_as_of, years):
     text = call_gemini_with_search(build_prompt(target, years, prior_as_of))
     p = parse_json_response(text)
     report_month = p.get("report_month") if p.get("found") else None
     status = classify(report_month, prior_as_of)
     values = _clean_values(p.get("values")) if status in ("stale", "new") else {}
+
+    final_url, http_status, url_note = resolve_url(p.get("url"))
+    check_note = None
+    if status in ("stale", "new") and values and http_status == 200:
+        values, check_note = draft_check(values, final_url)
+    elif values:
+        check_note = f"draft-check skipped (url http {http_status})"
+
     return {
         "id": target["id"], "name": target["name"],
         "prior_as_of": prior_as_of, "report_month": report_month,
-        "report_title": p.get("report_title"), "url": p.get("url"),
+        "report_title": p.get("report_title"),
+        "url": final_url, "url_http_status": http_status, "url_note": url_note,
+        "draft_check": check_note,
         "inflation_basis": p.get("inflation_basis"), "notes": p.get("notes"),
         "status": status, "values": values,
     }
@@ -215,7 +358,11 @@ def main():
     for t in targets:
         try:
             res = check_one(t, t["prior_as_of"], years)
-            print(f"  {t['name']}: {res['status']} (report {res['report_month']} vs transcribed {t['prior_as_of']}, {sum(len(v) for v in res['values'].values())} figures)")
+            print(f"  {t['name']}: {res['status']} (report {res['report_month']} vs transcribed "
+                  f"{t['prior_as_of']}, {sum(len(v) for v in res['values'].values())} figures)"
+                  + (f" | url http {res.get('url_http_status')}" if res.get("url_http_status") else "")
+                  + (f" | {res['url_note']}" if res.get("url_note") else "")
+                  + (f" | {res['draft_check']}" if res.get("draft_check") else ""))
             results.append(res)
         except Exception as e:
             errors += 1
@@ -226,6 +373,20 @@ def main():
     needs_action = [r for r in results if r["status"] in ("stale", "new")]
     now = datetime.now(timezone.utc)
 
+    # A TOTAL failure carries no information about any institution, but the old code
+    # still wrote both files — so one bad run (an unset key, a revoked token, an API
+    # outage) replaced a good board with an all-errors board and emptied the candidates
+    # file, destroying the very state a human was working from. Proven the hard way:
+    # a keyless smoke-test on 2026-08-16 wiped 4 candidate rows and the 08-01 report.
+    # Fail loudly, keep the last good state.
+    if targets and errors == len(targets):
+        print(f"ERROR: every institution check failed ({errors}/{len(targets)}). "
+              f"Leaving {FRESHNESS_FILE} and {CANDIDATES_FILE} UNTOUCHED — a run that "
+              f"learned nothing must not overwrite the last run that did.", file=sys.stderr)
+        for r in results[:3]:
+            print(f"  e.g. {r['name']}: {str(r.get('error'))[:120]}", file=sys.stderr)
+        sys.exit(1)
+
     # 1) freshness report (status board the dashboard badge reads)
     freshness = {
         "checked_utc": now.isoformat(),
@@ -233,7 +394,8 @@ def main():
         "status": "ok" if errors < len(targets) else "failed",
         "needs_action_count": len(needs_action),
         "forecasters": [{k: r.get(k) for k in
-                         ("id", "name", "status", "prior_as_of", "report_month", "report_title", "url", "error")}
+                         ("id", "name", "status", "prior_as_of", "report_month", "report_title", "url",
+                          "url_http_status", "url_note", "draft_check", "error")}
                         for r in results],
     }
     json.dump(freshness, open(FRESHNESS_FILE, "w"), indent=2)
@@ -250,6 +412,8 @@ def main():
             {"id": r["id"], "name": r["name"], "kind": "house", "status": r["status"],
              "as_of": _ym(r["report_month"]), "prior_as_of": r["prior_as_of"],
              "source": r.get("report_title"), "url": r.get("url"),
+             "url_http_status": r.get("url_http_status"), "url_note": r.get("url_note"),
+             "draft_check": r.get("draft_check"),
              "inflation_basis": r.get("inflation_basis"), "notes": r.get("notes"),
              "values": r["values"]}
             for r in needs_action
@@ -258,9 +422,6 @@ def main():
     json.dump(candidates, open(CANDIDATES_FILE, "w"), indent=2)
     print(f"[{datetime.now().isoformat()}] Wrote {CANDIDATES_FILE}: {len(needs_action)} candidate rows")
 
-    if targets and errors == len(targets):
-        print("ERROR: every institution check failed", file=sys.stderr)
-        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install requests beautifulsoup4
 
       # Non-blocking: a Gemini hiccup must not fail the commit/issue steps. The script
       # only exits non-zero if EVERY institution check failed.

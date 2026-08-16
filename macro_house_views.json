@@ -65,13 +65,14 @@
       "id": "guggenheim",
       "name": "Guggenheim Investments",
       "kind": "house",
-      "as_of": "2026-06",
-      "source": "Economic Outlook & Key Themes (Monthly Commentary, Jun 2026)",
-      "url": "https://portal.guggenheiminvestments.com/GuggenheimInvestments/media/PDF/Economic-Outlook-and-Key-Themes-Monthly-Commentary.pdf",
-      "notes": "GDP = 'real GDP growth holding around 2 percent in 2026' (qualitative point). Fed funds = current target range 3.50–3.75% (midpoint shown), expected held through mid-2027 with rising rate-hike odds. Core PCE seen ending 2026 above 3% (no point figure published); unemployment expected to remain near current levels.",
+      "as_of": "2026-07",
+      "source": "July 2026 Economic Outlook and Key Themes",
+      "url": "https://www.guggenheiminvestments.com/perspectives/macroeconomic-research/july-2026-economic-outlook-and-key-themes/",
+      "notes": "Unemployment rate for 2026 is described as 'near current levels' rather than a specific percentage. gdp 2026 is qualified (around): \"We see real gross domestic product (GDP) growth around 2 percent in 2026 and 2027, underpinned by robust artificial intelligence (AI) capital expenditures and near-term fiscal tailwinds.\" inflation 2026 is qualified (above): \"While year-over-year core PCE is expected to end the year above 3 percent, we expect some moderation in sequential numbers in coming months as these impulses cool.\"",
       "values": {
         "gdp": {"2026": 2.0},
-        "fed_funds": {"2026": 3.625}
+        "fed_funds": {"2026": 3.625},
+        "inflation": {"2026": 3.0}
       }
     },
     {
@@ -93,13 +94,14 @@
       "id": "goldman_sachs",
       "name": "Goldman Sachs Research",
       "kind": "house",
-      "as_of": "2026-06",
-      "source": "Goldman Sachs Research (mid-2026 updates)",
-      "url": "https://www.goldmansachs.com/insights/articles/s-and-p-500-forecast-to-climb-as-earnings-growth-powers-stocks-higher",
-      "notes": "S&P 500 year-end 2026 target 8,000 (raised from 7,600; as of May 26, 2026). Unemployment 4.4% by end-2026 (Jun 9, 2026 update). Core PCE seen 3%+ through 2026 and ~2% in 2027 (ranges, no point). GDP for 2026 (2.8% full-year / 2.5% Q4/Q4) is from the older Jan-2026 vintage so it is not shown here. No 2026 rate cuts expected (policy held at 3.50–3.75%); first cuts seen in 2027 toward a 3–3.25% terminal.",
+      "as_of": "2026-07",
+      "source": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
+      "url": "https://www.goldmansachs.com/insights/goldman-sachs-exchanges/us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth",
+      "notes": "The report focuses on the outlook for the current year (2026) and does not explicitly state forecasts for 2027. The GDP forecast is for the full year. gdp 2026 is qualified (around): \"David Mericle, chief US economist in Goldman Sachs Research, forecasts the Fed to keep interest rates unchanged this year before cutting its policy rate in 2027. He also unpacks the factors driving US inflation, highlights the surprising resilience of the US labor market, and explains why he expects US GDP to expand around 2% this year.\"",
       "values": {
         "sp500_target": {"2026": 8000},
-        "unemployment": {"2026": 4.4}
+        "unemployment": {"2026": 4.4},
+        "gdp": {"2026": 2.0}
       }
     },
     {
