@@ -107,13 +107,22 @@ def normalize(text: str) -> str:
 
 
 def looks_like_interstitial(text: str, url: str) -> str | None:
-    """Return a reason string if the fetched page is plainly not the report."""
-    head = normalize(text)[:4000]
-    if len(head) < 200:
-        return "fetched text is nearly empty"
-    for m in INTERSTITIAL_MARKERS:
-        if m in head[:1200]:
-            return f"page looks like a login/consent wall (matched {m!r})"
+    """Explain WHY a quote was not found — never used to skip the check.
+
+    An earlier version gated verification on these markers and was wrong: nearly every
+    publisher puts "Sign In" in its nav, so a perfectly public page trips the match.
+    It condemned yardeniquicktakes.com unread, whose article text plainly contains
+    "we are raising our year-end s&p 500 target from 7700 to 8250" — a verifiable
+    figure, rejected on a heuristic. Verification now always runs first; this only
+    labels a failure afterwards, so a false positive costs a wrong label, not a
+    wrongly-blocked figure.
+    """
+    n = normalize(text)
+    if len(n) < 600:
+        # A real wall serves almost nothing; a preview that carries the number is longer.
+        hit = next((m for m in INTERSTITIAL_MARKERS if m in n), None)
+        return (f"page is {len(n)} chars and looks like a login/consent wall "
+                f"(matched {hit!r})") if hit else f"fetched text is nearly empty ({len(n)} chars)"
     return None
 
 
@@ -193,6 +202,33 @@ def quote_qualifier(quote: str, value) -> str | None:
         for q in QUALIFIERS:
             if q in window:
                 return q.strip()
+    return None
+
+
+# A quote can be perfectly verbatim and still be the WRONG KIND OF NUMBER. The
+# 2026-08-01 run drafted these as Yardeni's 2026 forecasts:
+#   gdp       "The US economy expanded at a 1.5% annualized rate in Q2-2026..."
+#   inflation "Headline PCED inflation declined 0.1% m/m in June, but was still up 3.7% y/y"
+# Both are realized prints — a Q2 GDP release and a June PCE reading — not forecasts.
+# Quote-matching alone would have waved them through into a forward-looking panel, so
+# a figure whose quote reads as backward-looking is refused and sent to manual review.
+BACKWARD_MARKERS = (
+    "expanded at", "grew at", "rose at", "increased at", "declined", "fell ", "was up",
+    "were up", "was down", "came in at", "printed at", "annualized rate in",
+    "m/m in", "y/y in", "reported", "last month", "in the second quarter",
+    "in the first quarter", "in the third quarter", "in the fourth quarter",
+)
+_QUARTER = re.compile(r"\bq[1-4][- ]?(?:19|20)\d\d\b")
+
+
+def looks_backward_looking(quote: str) -> str | None:
+    """Return the marker if the quote describes realized data rather than a forecast."""
+    n = normalize(quote)
+    if _QUARTER.search(n):
+        return "cites a specific quarter's realized print"
+    for m in BACKWARD_MARKERS:
+        if m in n:
+            return f"past-tense/realized wording ({m.strip()!r})"
     return None
 
 
@@ -330,18 +366,10 @@ def main() -> int:
 
         bad = looks_like_interstitial(text, final_url)
         if bad:
-            print(f"  NOT THE REPORT: {bad}")
+            print(f"  WARNING: {bad}")
             print(f"  final URL: {final_url[:120]}")
-            print(f"  {n_figs} figure(s) left UNVERIFIED — 'could not read the source' "
-                  f"is NOT the same as 'the source disagrees'.")
-            unreachable.append((cid, bad))
-            failed += n_figs
-            checked += n_figs
-            for metric, years in values.items():
-                for year, fig in years.items():
-                    fig["verified"] = False
-                    fig["notes"] = f"UNREADABLE SOURCE ({bad}) as of {now} — manual review"
-            continue
+            print("  checking anyway — a page that carries the number is verifiable "
+                  "even if it also shows a paywall banner.")
 
         ok_figs = {}
         qualified = []
@@ -350,6 +378,15 @@ def main() -> int:
                 checked += 1
                 quote = fig.get("quote", "")
                 val = fig.get("value")
+                backward = looks_backward_looking(quote)
+                if backward:
+                    # refused even if the quote matches: a realized print is not a forecast
+                    failed += 1
+                    fig["verified"] = False
+                    fig["notes"] = (f"NOT A FORECAST — {backward} — as of {now}; "
+                                    f"realized data must not enter a forecast panel")
+                    print(f"  [REFUSED] {metric} {year} = {val}  NOT A FORECAST: {backward}")
+                    continue
                 if quote_is_verified(quote, text):
                     verified += 1
                     fig["verified"] = True
@@ -365,8 +402,10 @@ def main() -> int:
                 else:
                     failed += 1
                     fig["verified"] = False
-                    fig["notes"] = f"QUOTE NOT FOUND in source as of {now} — manual review"
-                    print(f"  [FAIL] {metric} {year} = {val}  (quote not located)")
+                    reason = (f"UNREADABLE SOURCE ({bad})" if bad else "QUOTE NOT FOUND in source")
+                    fig["notes"] = f"{reason} as of {now} — manual review"
+                    print(f"  [FAIL] {metric} {year} = {val}  "
+                          f"({'source unreadable' if bad else 'quote not located'})")
 
         if not ok_figs:
             continue
