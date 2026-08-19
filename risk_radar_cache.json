@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-08-18T10:32:12.941610+00:00",
-  "last_updated_human": "2026-08-18 10:32 UTC",
+  "last_updated_utc": "2026-08-19T10:32:40.333464+00:00",
+  "last_updated_human": "2026-08-19 10:32 UTC",
   "as_of_window": "August 2026",
   "risks": [
     {
@@ -128,5 +128,7 @@
     "Fiscal Sustainability and Debt Concerns",
     "Global Economic Fragmentation"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-08-18T10:32:12.941610+00:00",
+  "error": "No JSON found: "
 }
