@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-08-24T10:40:08.774514+00:00",
-  "last_updated_human": "2026-08-24 10:40 UTC",
+  "last_updated_utc": "2026-08-25T10:38:17.650964+00:00",
+  "last_updated_human": "2026-08-25 10:38 UTC",
   "as_of_window": "July 2026",
   "risks": [
     {
@@ -160,5 +160,7 @@
     "Labor Market Dynamics",
     "Trade Policy"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-08-24T10:40:08.774514+00:00",
+  "error": "HTTPSConnectionPool(host='generativelanguage.googleapis.com', port=443): Read timed out. (read timeout=120)"
 }
