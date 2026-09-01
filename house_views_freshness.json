@@ -1,58 +1,58 @@
 {
-  "checked_utc": "2026-08-15T09:20:55.907363+00:00",
-  "checked_human": "2026-08-15 09:20 UTC",
+  "checked_utc": "2026-09-01T13:52:32.512637+00:00",
+  "checked_human": "2026-09-01 13:52 UTC",
   "status": "ok",
   "needs_action_count": 3,
   "forecasters": [
     {
       "id": "wells_fargo_ii",
       "name": "Wells Fargo Inv. Institute",
-      "status": "current",
+      "status": "error",
       "prior_as_of": "2026-06",
-      "report_month": "2026-06",
-      "report_title": "2026 Midyear Outlook: Keeping Discipline in Noisy Markets",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHExH5_0BzO7ubfNxmNjjcWPsw6cOKsH15dNIR1DFIiSYIxvzl2doKpwdp3Uk8dXljyaq-hmbi5wC9WogsahX9xN17Mk4f00LS-sRWsKuT-CPOMR-sXbUM0BPyueX2mPxrNLmE0QYtXpb2cUik2KPMEFJSpgSNrPqy5z1w_lGy-gnA93usq_cNviFJOjTkKt28neYlCxmNRoDzTUX6gxJKx-U76EWEbjAhKpjQDiTJplW2y5Znx03lM4o_uO47Q-uLMXF810h1GrgATtHlTT_CeUliSbg==",
-      "error": null
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "No JSON found: "
     },
     {
       "id": "fannie_mae_esr",
       "name": "Fannie Mae (ESR)",
-      "status": "stale",
+      "status": "current",
       "prior_as_of": "2026-06",
-      "report_month": "2026-07",
-      "report_title": "Fannie Mae Publishes July 2026 Economic and Housing Outlook",
-      "url": "https://www.fanniemae.com/data-and-insights/research-and-commentary/economic-and-housing-outlook/july-2026-economic-and-housing-outlook",
+      "report_month": "2026-06",
+      "report_title": "Economic Forecast: June 2026",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGKKns6g1q_QdivYTkngvkA4WHeYJX54Xwrju8MMVHdyEMJ6Cqjw772aA5EOoSaBc_ERUrYPfnZUvJxFAlfwrz35p4xXt-vLXmol_DSeGTjXaHeE8xNhBhtOP5DOH8VqzEDImOMeKVjRfxJ95zeXMKcgWHnQjHJcZcTe_9N80K9",
       "error": null
     },
     {
       "id": "kpmg",
       "name": "KPMG Economics",
-      "status": "error",
+      "status": "current",
       "prior_as_of": "2026-06",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-06",
+      "report_title": "Spring thaw, summer heat: Biannual economic outlook",
+      "url": "https://kpmg.com/us/en/home/insights/2026/06/spring-thaw-summer-heat-biannual-economic-outlook.html",
+      "error": null
     },
     {
       "id": "guggenheim",
       "name": "Guggenheim Investments",
-      "status": "error",
+      "status": "stale",
       "prior_as_of": "2026-06",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-08",
+      "report_title": "August 2026 Economic Outlook and Key Themes",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEw85MXQtJUHQx73XR_KAz797g7DIDxBIuWqPGCeb4CFlQ6KDkBEw_n1im-6CeSODp7OBC3V9RtQ4C9ogfI2ghrDYATzwh_bOiQxY6cB_Fk0Q0OquVqT1XtgrM6zhvuMTy97UpTRHF5ZrixiVuYzdf2B_YRuW3Sd09Npkl9b9AVJWJN4LXe8_8igUA-TCzUcjeXW6xmFqeXof2MSGkcxz_WSK8SS3IEz8cda3J4LCKXPMU=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEOAodqeL9HvJW5OPvfnXSP3Zk5sLE8cURDgXIvrXOqSNM3VOu4mqFFjRkVZzWUEsSL87GXjgRbyTh2Jp9BfEsCcVeW3V3Cesjjl6D30dn9s8VhOqoRb5HNvZZysxNUcB1gd9uQ1CGsAl39A7lUXw==,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFvjDuxTti0yrgvQigK0YKgV6fsOyrE0yi-A527MIJB6QpJqwr4DhuX5DkQB44Tfa8ip2Wub9aYD_kOMWuGbMTUqE3y5IzSA_GnLRaDUpHG5R49Ljhlk14aFckpwXI4lP_b",
+      "error": null
     },
     {
       "id": "ubs_cio",
       "name": "UBS CIO GWM",
-      "status": "error",
+      "status": "current",
       "prior_as_of": "2025-11",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2025-11",
+      "report_title": "UBS Year Ahead 2026 ('Escape velocity?')",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEkdx27rV9c6xUV-T0-Z7xVcDFaL-CHjgJ1LRaPbq1AkfuuyOKdSEef81dZWYYVHbH02j8Tl1DUOR8gB59NO4PJJBdiyGuKhV5qaQoSSWShEK5fsxPABPdM2UztTveLrrotYKVDhkHrE9TJrjD8QdUBHBFcsrtwAadWv6g6bnnr-rLBTeawp4ZbwhIEN3khTvZf5WFnEiQTjoyQQNCGiA==",
+      "error": null
     },
     {
       "id": "goldman_sachs",
@@ -61,7 +61,7 @@
       "prior_as_of": "2026-06",
       "report_month": "2026-07",
       "report_title": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
-      "url": "https://www.goldmansachs.com/insights/\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f-content/exchanges/us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth.html",
+      "url": "https://www.goldmansachs.com/insights/\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4/us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth/index.html",
       "error": null
     },
     {
@@ -70,29 +70,29 @@
       "status": "current",
       "prior_as_of": "2026-05",
       "report_month": "2026-05",
-      "report_title": "2026 Midyear Investment Outlook: Constructive, Not Complacent",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE1PlURIyb7Igi6LNAvovL-OHK1LtEDdGVZst2FLSp_3B7DP9UW8OdGp1tMuWHkhVBZwFw8XdigzFzAXmu6JviEkeBAFDb00sSYb29LIUqaxLUQkJKwpprW8dVItrqHqDRcBj3I1rzcsjGygbypWduvLTzvHLw8wqnRsPHzDOPHJkNeva8jehIyw6E=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEqUMNv7INr2DLpeIpwTBAp9NjU1crhi91yi4kz4n7Oju6xkcciE0c92lBrE-mkGwNdJmpud47UiwbW4sEgmMTIsX1itVcdczpmTxT7KIqJdlRtNTLzamKmjwD38oMw8zIRjgHQBrTCX0GY-stNaOOSy3nRwSt50yO-9zxM_rNdjEu9bClaVxm7zg0a5XQpWYk=",
+      "report_title": "2026 Midyear Investment Outlook: Constructive, not complacent",
+      "url": "https://www.morganstanley.com/ideas/investment-outlook-midyear-2026",
       "error": null
     },
     {
       "id": "yardeni",
       "name": "Yardeni Research",
-      "status": "error",
+      "status": "stale",
       "prior_as_of": "2026-05",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-08",
+      "report_title": "US MARKET CALL: Warsh Proof",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH9O99oJF-G5QfTI2GvcXjtum_eDQg-z8FEcvBRN9brw3tFggoePtR4K4AIsecDn6r6rvI8qAZbSXDu1IfC8-0JPjM29yI5Uu2UTS4pJ4DaH8pnn41hlLO0OvjHWLcIK2zlPCJ8kqFZ_IQ1WfIqDC8X4C0jxsdpzPs=",
+      "error": null
     },
     {
       "id": "vanguard",
       "name": "Vanguard (VEMO)",
-      "status": "stale",
+      "status": "error",
       "prior_as_of": "2025-12",
-      "report_month": "2026-08",
-      "report_title": "Our economic outlook for the United States",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE_fNDu2YBABcdi0NzfRyEfqgOBt6Wo-WBhPopxWuLPircrTzZYUav26uiUkacQ96vuKy8UJn0DjK1jb-7BoWpMG8UHdP8mpaM867cfjaNtKjiq7Fzx_TVAUe31rkXGB2d2zNOSrjz2AVSrUOhO-GIQ7b5xuNOBkgXZ3NK4VF3PShMhGmtHpCgzXQzpajZ9YAu5oQaQkmI=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGCln0Qbkegzbbs-48QRvMgl36lrj2XQDztT0flnc5N1p7t37wZugmE-fYopIC5Qcwi-YMb327DDhG3tAwEtG8R3JPYNzukuIZGrssVOgNwnJrf6eWUPgtZJXswNsAjt1HcI5FxmuN9_gDUcQ-9DWrsRCf4v0RkB6lgu9fAfc2Rbl-SkxrSH-Jr0Kpqt4edNX8jdvyVHgYauqppcSoPbCO78D416w==",
-      "error": null
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "No JSON found: "
     }
   ]
 }
