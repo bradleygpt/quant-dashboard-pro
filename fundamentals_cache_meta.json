@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-02T08:09:58.902109",
+  "built_at": "2026-09-02T18:24:00.822523",
   "n_target": 1369,
   "n_records": 1362,
   "n_price": 1362,
@@ -9,7 +9,7 @@
   "prev_n_price": 1362,
   "backoff_pauses": 0,
   "failure_modes": {
-    "empty_info_no_marketcap": 27,
-    "no_history": 10
+    "empty_info_no_marketcap": 30,
+    "no_history": 7
   }
 }
