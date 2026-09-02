@@ -1,83 +1,90 @@
 {
-  "last_updated_utc": "2026-09-01T14:38:11.392657+00:00",
-  "last_updated_human": "2026-09-01 14:38 UTC",
-  "as_of_window": "August 2026",
+  "last_updated_utc": "2026-09-02T14:11:36.788053+00:00",
+  "last_updated_human": "2026-09-02 14:11 UTC",
+  "as_of_window": "June 2026",
   "risks": [
     {
-      "title": "Persistent Inflation and Potential for Further Rate Hikes",
+      "title": "Persistent Inflationary Pressures",
       "category": "Inflation",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Inflation remains elevated above central bank targets, driven by factors such as energy price shocks and AI-driven demand. This persistence raises concerns about the need for further interest rate hikes, which could dampen economic growth.",
-      "watch_for": "August CPI and PPI data releases, September FOMC meeting decision.",
+      "summary": "Inflation remains elevated above central bank targets, driven by factors such as AI-related capital expenditures, lingering supply chain disruptions, and potentially new tariffs. This persistent inflation complicates monetary policy decisions.",
+      "watch_for": "Core PCE inflation readings consistently above 3%, and Fed communications indicating a shift towards hawkish policy or rate hikes.",
       "sources": [
-        "Federal Reserve (FOMC statement, July 29, 2026)",
-        "Wells Fargo Investment Institute (outlook, August 18, 2026)",
-        "KPMG (Economic Compass, August 11, 2026)",
-        "Morningstar (report, August 31, 2026)",
-        "PBS (report, August 29, 2026)"
+        "Guggenheim Investments (June 2026)",
+        "Wells Fargo Investment Institute (June 2026)",
+        "KPMG International (June 2026)",
+        "Federal Reserve (July 2026)",
+        "IMF (July 2026)",
+        "FOMC Summary of Economic Projections, June 2026"
       ]
     },
     {
-      "title": "Geopolitical Tensions and Energy Price Volatility",
+      "title": "Geopolitical Instability and Conflict Escalation",
       "category": "Geopolitical",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Ongoing geopolitical conflicts, particularly in the Middle East, are leading to significant disruptions in energy markets, causing price volatility and contributing to inflationary pressures. This uncertainty poses a risk to global growth and stability.",
-      "watch_for": "Developments in the Middle East, Strait of Hormuz shipping activity, and subsequent oil price movements.",
+      "summary": "The ongoing conflict in the Middle East and other geopolitical tensions pose significant risks to global growth, commodity prices, and supply chains. Escalation could lead to further price volatility and economic disruption.",
+      "watch_for": "Developments in the Middle East conflict, and any new major geopolitical flashpoints.",
       "sources": [
-        "World Bank (Global Economic Prospects, June 2026)",
-        "Guggenheim Investments (Economic Outlook, August 17, 2026)",
-        "Wells Fargo Investment Institute (outlook, August 18, 2026)",
-        "KPMG (Economic Compass, August 11, 2026)",
-        "IMF (World Economic Outlook Update, July 2026)"
+        "World Bank (January 2026)",
+        "IMF (April 2026)",
+        "Guggenheim Investments (May 2026)",
+        "JPMorgan (July 2026)",
+        "Wells Fargo Investment Institute (June 2026)",
+        "IMF (July 2026)",
+        "KPMG International (February 2026)"
       ]
     },
     {
-      "title": "AI Boom's Impact on Investment and Productivity",
-      "category": "Growth",
+      "title": "AI Investment Boom and Productivity Paradox",
+      "category": "Markets",
       "severity": "Medium",
       "direction": "two-sided",
       "horizon": "2026",
-      "summary": "The rapid buildout of artificial intelligence is fueling significant business investment, but concerns remain about the potential for an AI bubble, the concentration of investment in specific sectors, and whether productivity gains will materialize quickly enough to offset costs.",
-      "watch_for": "Capital expenditure announcements by hyperscalers, AI-related firm valuations, and productivity growth data.",
+      "summary": "The surge in AI-related investment is a key driver of economic growth and business spending, but concerns exist about the timing and extent of productivity gains. A potential correction in AI-driven expectations could lead to market volatility.",
+      "watch_for": "Productivity growth figures, and any significant shifts in AI-related stock valuations or investment trends.",
       "sources": [
-        "Guggenheim Investments (Economic Outlook, August 17, 2026)",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\", August 2026)",
-        "KPMG (Economic Compass, June 10, 2026)",
-        "IMF (World Economic Outlook Update, July 2026)",
-        "Stanford SIEPR (report, March 13, 2026)"
+        "Guggenheim Investments (August 2026)",
+        "Stanford SIEPR (2026)",
+        "JPMorgan (July 2026)",
+        "Wells Fargo Investment Institute (June 2026)",
+        "KPMG International (June 2026)",
+        "IMF (July 2026)",
+        "Federal Reserve (August 2026)",
+        "Stanford SIEPR (March 2026)"
       ]
     },
     {
-      "title": "US Fiscal Deficits and Rising National Debt",
+      "title": "US Fiscal Deficits and Rising Debt Levels",
       "category": "Fiscal",
-      "severity": "High",
+      "severity": "Medium",
       "direction": "downside",
-      "horizon": "structural",
-      "summary": "Persistent large federal budget deficits are projected to drive the national debt to historically high levels. This trajectory raises concerns about long-term fiscal sustainability, potential crowding out of private investment, and increased borrowing costs.",
-      "watch_for": "CBO's updated budget projections, Congressional budget debates, and Treasury debt issuance.",
+      "horizon": "2026",
+      "summary": "Projected large federal budget deficits and a rising national debt in the US could put pressure on long-term interest rates and financial conditions, potentially impacting economic growth.",
+      "watch_for": "CBO's updated projections for federal deficits and debt, and any significant policy changes affecting fiscal balances.",
       "sources": [
-        "Congressional Budget Office (Budget and Economic Outlook, July 2026)",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\", August 2026)"
+        "Congressional Budget Office (February 2026)",
+        "Stanford SIEPR (2026)",
+        "KPMG International (February 2026)"
       ]
     },
     {
-      "title": "Labor Market Dynamics: Slowing Growth and Affordability Concerns",
+      "title": "Labor Market Softness and Wage Growth Concerns",
       "category": "Labor",
       "severity": "Medium",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "While the labor market has shown resilience, job growth has slowed, and concerns about affordability persist for consumers. The potential impact of AI on employment and the labor market's ability to adapt to these shifts are key areas of focus.",
-      "watch_for": "Monthly nonfarm payrolls data, unemployment rate trends, and consumer confidence surveys.",
+      "summary": "While the labor market has shown resilience, some indicators point to lingering softness, including a low job-finding rate and elevated long-term unemployment. Moderate wage growth is a concern for achieving inflation targets.",
+      "watch_for": "Unemployment rate trends, job gains concentration, and nominal wage growth figures.",
       "sources": [
-        "Guggenheim Investments (Economic Outlook, August 17, 2026)",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\", August 2026)",
-        "KPMG (Economic Compass, August 11, 2026)",
-        "KPMG (Economic Compass, January 12, 2026)",
-        "Stanford SIEPR (report, March 13, 2026)"
+        "Stanford SIEPR (2026)",
+        "Federal Reserve (July 2026)",
+        "Federal Reserve (August 2026)",
+        "KPMG International (January 2026)",
+        "Stanford SIEPR (March 2026)"
       ]
     },
     {
@@ -86,55 +93,54 @@
       "severity": "Medium",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Ongoing changes and potential new tariffs in trade policy create uncertainty for businesses and can impact import costs and global trade flows. This uncertainty can hinder investment and economic growth.",
-      "watch_for": "Announcements of new tariffs, trade agreement reviews (e.g., USMCA), and Supreme Court rulings on trade.",
+      "summary": "Evolving trade policies and the reintroduction of tariffs, even with some legal challenges, continue to create uncertainty and can filter through to prices, impacting businesses and consumers.",
+      "watch_for": "Announcements of new tariffs, and rulings on existing trade disputes.",
       "sources": [
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\", August 2026)",
-        "Wells Fargo Investment Institute (outlook, August 18, 2026)",
-        "Congressional Budget Office (Budget and Economic Outlook, July 2026)",
-        "KPMG (Economic Compass, June 10, 2026)",
-        "KPMG (Economic Compass, January 12, 2026)"
+        "Stanford SIEPR (2026)",
+        "KPMG International (June 2026)",
+        "KPMG International (February 2026)",
+        "Congressional Budget Office (February 2026)",
+        "Federal Reserve (July 2026)"
       ]
     },
     {
-      "title": "Financial Market Volatility and Interest Rate Sensitivity",
-      "category": "Markets",
-      "severity": "Medium",
-      "direction": "two-sided",
-      "horizon": "near-term",
-      "summary": "Financial markets are navigating a complex environment with potential for volatility due to shifting interest rate expectations, geopolitical risks, and the ongoing assessment of AI's economic impact. Bond markets, in particular, are sensitive to inflation data and central bank policy signals.",
-      "watch_for": "Federal funds futures for rate hike probabilities, Treasury yield movements, and corporate credit spreads.",
-      "sources": [
-        "Federal Reserve (FOMC minutes, July 28-29, 2026)",
-        "Wells Fargo Investment Institute (outlook, August 18, 2026)",
-        "KPMG (Economic Compass, January 12, 2026)",
-        "MUFG Research (report, August 20, 2026)",
-        "Morningstar (report, August 31, 2026)"
-      ]
-    },
-    {
-      "title": "Sovereign Debt Burdens and Government Bond Yields",
-      "category": "Fiscal",
+      "title": "Monetary Policy Tightening and Interest Rate Volatility",
+      "category": "Policy",
       "severity": "Medium",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Elevated sovereign debt levels in various countries, coupled with significant government bond issuances, are contributing to rising yields on the long end of the curve. This trend can increase borrowing costs for governments and corporations.",
-      "watch_for": "Volume of sovereign debt issuance, government bond auctions, and central bank commentary on fiscal sustainability.",
+      "summary": "The Federal Reserve's stance on interest rates is becoming less certain, with markets pricing in potential hikes due to persistent inflation. This creates volatility and uncertainty for financial markets and economic activity.",
+      "watch_for": "FOMC statements, Federal Reserve speeches, and fed funds futures pricing.",
       "sources": [
-        "KPMG (Economic Compass, August 19, 2026)",
-        "Congressional Budget Office (Budget and Economic Outlook, July 2026)"
+        "Guggenheim Investments (June 2026)",
+        "Wells Fargo Investment Institute (June 2026)",
+        "Federal Reserve (July 2026)",
+        "FOMC Summary of Economic Projections, June 2026"
+      ]
+    },
+    {
+      "title": "Global Growth Slowdown and Divergent Economic Performance",
+      "category": "Growth",
+      "severity": "Medium",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "Global growth is projected to slow, with emerging market and developing economies facing particular challenges. While AI offers an upside, the overall outlook is uneven, with risks skewed to the downside.",
+      "watch_for": "IMF and World Bank global growth forecasts, and regional economic performance data.",
+      "sources": [
+        "World Bank (January 2026)",
+        "IMF (April 2026)",
+        "IMF (July 2026)",
+        "World Bank (June 2026)"
       ]
     }
   ],
-  "consensus_note": "There is a broad consensus among institutions regarding the persistent nature of inflation and its potential to necessitate further central bank tightening. Geopolitical risks, particularly those stemming from the Middle East conflict, are a significant concern, driving energy price volatility and impacting global growth. While the AI boom is seen as a driver of investment, its ultimate productivity benefits and potential for market overheating are subjects of ongoing scrutiny. Disagreements are more nuanced, such as the precise timing and magnitude of potential Fed rate hikes and the exact trajectory of labor market recovery.",
+  "consensus_note": "There is a broad consensus that persistent inflation, driven in part by AI investment and geopolitical factors, remains a key concern. While AI is seen as a growth driver, there's a recognized 'productivity paradox' where the full benefits are yet to materialize. Disagreements are subtle, often revolving around the precise timing and magnitude of inflation's moderation and the extent of potential monetary policy tightening.",
   "themes": [
+    "Artificial Intelligence (AI) Impact",
+    "Geopolitical Risks",
     "Inflationary Pressures",
-    "Geopolitical Instability",
-    "Technological Disruption (AI)",
-    "Fiscal Sustainability",
-    "Monetary Policy Tightening"
+    "Monetary Policy Uncertainty",
+    "Global Economic Divergence"
   ],
-  "status": "stale",
-  "last_fresh": "2026-08-31T17:27:48.621536+00:00",
-  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
+  "status": "fresh"
 }
