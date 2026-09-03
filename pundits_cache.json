@@ -1,28 +1,57 @@
 {
-  "last_updated_utc": "2026-09-02T14:11:29.800648+00:00",
-  "last_updated_human": "2026-09-02 14:11 UTC",
+  "last_updated_utc": "2026-09-03T14:14:55.835570+00:00",
+  "last_updated_human": "2026-09-03 14:14 UTC",
   "market_context": {
-    "spy_price": 763.8800048828125,
-    "sp500_level": 7638.800048828125,
-    "btc_price": 77189.3671875,
-    "eth_price": 2403.449951171875
+    "spy_price": 768.1798706054688,
+    "sp500_level": 7681.7987060546875,
+    "btc_price": 78923.21875,
+    "eth_price": 2437.7099609375
   },
   "equity": {
     "commentators": [
       {
         "name": "Tom Lee",
-        "firm": "Fundstrat",
+        "firm": "Fundstrat Global Advisors",
         "stance": "Bearish",
         "key_quote": "If the Fed doesn't cut, doesn't hike, which is our base case, I think actually the markets could rally very strongly.",
         "quote_source": "CNBC",
         "quote_date": "Last week",
         "key_views": [
-          "Fed likely to hold rates steady.",
-          "Strong rally expected if Fed remains neutral.",
-          "Bitcoin could reach $150,000."
+          "Believes a lack of Fed action (no hike, no cut) will lead to a strong market rally.",
+          "Sees potential for S&P 500 to reach 8,000 or higher.",
+          "Suggests September pullback fears could trigger a rally."
         ],
         "price_target_or_view": "S&P 500 above 8,000",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,639, conflicts with 'Bullish' stance."
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,682, conflicts with 'Bullish' stance."
+      },
+      {
+        "name": "Savita Subramanian",
+        "firm": "Bank of America",
+        "stance": "Bearish",
+        "key_quote": "U.S. stocks are flashing 'too many red flags,' according to a CNBC report.",
+        "quote_source": "CNBC",
+        "quote_date": "Last week",
+        "key_views": [
+          "Warns of numerous bear-market signals in the U.S. stock market.",
+          "Highlights extreme concentration in the technology sector.",
+          "Maintains a year-end target of 7,100 for the S&P 500."
+        ],
+        "price_target_or_view": "S&P 500 target of 7,100"
+      },
+      {
+        "name": "Jeremy Siegel",
+        "firm": "University of Pennsylvania's Wharton School",
+        "stance": "Bearish",
+        "key_quote": "We need to get through some bumps, as I say. But if we can get through those successfully, it still looks like a positive year for me.",
+        "quote_source": "CNBC",
+        "quote_date": "Late 2025",
+        "key_views": [
+          "Expects muted market gains in 2026 compared to 2025.",
+          "Identifies potential headwinds like government shutdowns and Supreme Court tariff decisions.",
+          "Maintains a positive outlook if key hurdles are navigated successfully."
+        ],
+        "price_target_or_view": "S&P 500 to gain 5%-10% in 2026",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,682, conflicts with 'Cautiously Bullish' stance."
       },
       {
         "name": "Mike Wilson",
@@ -30,137 +59,106 @@
         "stance": "Bearish",
         "key_quote": "I still think we can hit 8,000 by year end, even if we go to 7,000 first.",
         "quote_source": "CNBC",
-        "quote_date": "Last week",
+        "quote_date": "July 2026",
         "key_views": [
-          "Year-end S&P 500 target of 8,000 maintained.",
-          "Market transitioning to a 'quality rotation'.",
-          "A 25-basis point rate hike would be an 'insurance hike'."
+          "Maintains a year-end S&P 500 target of 8,000.",
+          "Sees the market transitioning to a 'quality rotation'.",
+          "Believes 7,000 on the S&P 500 will serve as strong support."
         ],
         "price_target_or_view": "S&P 500 target of 8,000",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,639, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "Jeremy Siegel",
-        "firm": "Wharton School",
-        "stance": "Bearish",
-        "key_quote": "We need to get through some bumps, as I say. But if we can get through those successfully, it still looks like a positive year for me.",
-        "quote_source": "CNBC",
-        "quote_date": "Last week",
-        "key_views": [
-          "Expects muted gains in 2026 compared to 2025.",
-          "S&P 500 likely to gain between 5% to 10% in 2026.",
-          "Potential headwinds include government shutdown, Supreme Court tariff decision, and Fed Chair announcement."
-        ],
-        "price_target_or_view": "S&P 500 to gain 5-10%",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,639, conflicts with 'Bullish' stance."
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,682, conflicts with 'Bullish' stance."
       },
       {
         "name": "Lance Roberts",
         "firm": "RIA Advisors",
-        "stance": "Neutral",
-        "key_quote": "For now, patience may be the best strategy as markets work through this consolidation and correction process.",
-        "quote_source": "Before the Bell (YouTube)",
-        "quote_date": "Last week",
-        "key_views": [
-          "Broader signs of market weakness emerging.",
-          "Technology remains under pressure; sector rotation occurring.",
-          "Investors should avoid large portfolio bets until clearer direction."
-        ],
-        "price_target_or_view": "Cautious, awaiting clearer market direction"
-      },
-      {
-        "name": "Savita Subramanian",
-        "firm": "Bank of America",
-        "stance": "Bearish",
-        "key_quote": "Her unchanged 7,100 target is rooted in a risk hidden beneath the AI boom, one she feels investors are overlooking.",
-        "quote_source": "Yahoo Finance",
-        "quote_date": "Last week",
-        "key_views": [
-          "S&P 500 year-end target of 7,100.",
-          "Expects valuation multiple compression.",
-          "Warns of AI-driven job losses hurting consumption."
-        ],
-        "price_target_or_view": "S&P 500 target of 7,100"
-      },
-      {
-        "name": "Jim Cramer",
-        "firm": "CNBC",
         "stance": "Cautious",
-        "key_quote": "I don't see how rates can go down now that we see Warsh as a serious practitioner, the president unable to stop the war, and oil stocks headed back up quickly.",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "Last week",
+        "key_quote": "Now is the time to manage risk, take profits where appropriate, rebalance portfolio allocations, and raise some cash rather than make emotional decisions.",
+        "quote_source": "Substack",
+        "quote_date": "September 2, 2026",
         "key_views": [
-          "Unholy developments' crushing rate-cut hopes.",
-          "Rising oil prices and geopolitical tensions are headwinds.",
-          "Broader stock market feeling the heat from energy price surge."
+          "Notes September seasonality and upcoming buyback blackouts add downside risk.",
+          "Advises managing risk, taking profits, and rebalancing.",
+          "Suggests patience and waiting for clearer market direction."
         ],
-        "price_target_or_view": "Rates are getting very hard to overcome"
-      },
-      {
-        "name": "Brian Belski",
-        "firm": "Humilis Investment Strategies",
-        "stance": "Bearish",
-        "key_quote": "We view this volatility as a healthy characteristic of both a bull market and an earnings-driven environment, one that should continue to create attractive entry points for long-term investors.",
-        "quote_source": "AdvisorAnalyst.com",
-        "quote_date": "Last week",
-        "key_views": [
-          "2026 is an earnings-driven market.",
-          "Volatility is a healthy characteristic of bull markets.",
-          "Views continued weakness as an attractive entry point."
-        ],
-        "price_target_or_view": "S&P 500 to end the year with an '8 handle'",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,639, conflicts with 'Bullish' stance."
+        "price_target_or_view": "Cautious approach to market pullbacks"
       },
       {
         "name": "Marko Kolanovic",
-        "firm": "J.P. Morgan",
+        "firm": "J.P. Morgan (formerly)",
         "stance": "Bearish",
         "key_quote": "The probability of a recession is indeed very high, and we may already be in one.",
         "quote_source": "Investing.com",
-        "quote_date": "Last week",
+        "quote_date": "April 2025",
         "key_views": [
-          "Warns S&P 500 could fall to high 3,000s in a recession.",
-          "Cites 'enormous levels of uncertainty' not seen since 2008.",
-          "Markets never truly reset after the 2020 pandemic shock."
+          "Warns of high probability of recession.",
+          "Believes S&P 500 could fall to the high 3,000s in a recessionary scenario.",
+          "Notes 'enormous levels of uncertainty' not seen since 2008 or COVID-19."
         ],
         "price_target_or_view": "S&P 500 could fall to high 3,000s"
       },
       {
-        "name": "Stanley Druckenmiller",
-        "firm": "Duquesne Family Office",
-        "stance": "Neutral",
-        "key_quote": "Markets aggregate information no committee possesses, and prices are how that information reaches decision makers.",
-        "quote_source": "Wall Street Journal",
-        "quote_date": "Last week",
+        "name": "Brian Belski",
+        "firm": "Humilis Investment Strategies",
+        "stance": "Bullish",
+        "key_quote": "With earnings growth remaining strong and broad-based, we would view any meaningful pullback as a buying opportunity.",
+        "quote_source": "Seeking Alpha",
+        "quote_date": "August 31, 2026",
         "key_views": [
-          "Warns Treasury Secretary Bessent about bond buybacks.",
-          "Yield suppression reduces pressure for fiscal discipline.",
-          "Market internals show cracks despite index highs."
+          "Sees strong and broadening earnings growth as a key driver.",
+          "Views meaningful pullbacks as buying opportunities.",
+          "Projects full-year 2026 earnings growth at 31.2%."
         ],
-        "price_target_or_view": "Market internals show cracks"
+        "price_target_or_view": "Bullish on earnings growth, views pullbacks as buying opportunities"
+      },
+      {
+        "name": "Jim Cramer",
+        "firm": "CNBC (Mad Money)",
+        "stance": "Neutral",
+        "key_quote": "We keep hearing this drumbeat that 2026 is 1999 all over again... this market does not stop punishing the companies that disappointed.",
+        "quote_source": "CNBC",
+        "quote_date": "May 2026",
+        "key_views": [
+          "Compares current market to dot-com bubble but sees current risk as potentially greater.",
+          "Notes market's harsh punishment of disappointing companies.",
+          "Highlights narrow leadership in AI winners."
+        ],
+        "price_target_or_view": "Cautionary view on narrow market leadership"
       },
       {
         "name": "Jurrien Timmer",
         "firm": "Fidelity Investments",
-        "stance": "Neutral",
-        "key_quote": "Note that in 1999 the earnings peak was already well in place, and all the gains came from valuations. That's the opposite of what we have today (for now at least).",
+        "stance": "Bullish",
+        "key_quote": "The current stock market rally has been driven by earnings growth rather than valuation expansion.",
         "quote_source": "Seeking Alpha",
-        "quote_date": "Last week",
+        "quote_date": "August 12, 2026",
         "key_views": [
-          "Current rally driven by earnings growth, not valuation expansion.",
-          "Contrasts current market with late-1990s rally.",
-          "S&P 500 five-year CAPE ratio is high but not at 2000 peak levels."
+          "Asserts rally is driven by earnings growth, not valuation expansion.",
+          "Contrasts current market with the late-1990s rally.",
+          "Notes S&P 500's five-year CAPE ratio is close to 2000 levels."
         ],
-        "price_target_or_view": "Earnings growth is the primary driver, not valuations"
+        "price_target_or_view": "Bullish on earnings-driven rally"
+      },
+      {
+        "name": "David Rosenberg",
+        "firm": "Rosenberg Research",
+        "stance": "Bearish",
+        "key_quote": "The 'AI Lifeline' that kept the economy afloat in 2025 has finally snapped.",
+        "quote_source": "Kitco News",
+        "quote_date": "December 2025",
+        "key_views": [
+          "Believes the U.S. economy has entered a 'silent' contraction.",
+          "Warns of the '6th Mega Bubble' in the last 100 years.",
+          "Suggests 'Smart Money' has exited the market."
+        ],
+        "price_target_or_view": "Bearish outlook on economy and market"
       }
     ],
-    "synthesis": "This week's commentary shows a divided market. Bullish sentiment is driven by strong earnings growth and the potential for Fed rate stability, with targets for the S&P 500 around 8,000. Conversely, bearish voices highlight recession risks, high valuations, and geopolitical uncertainties, with one prominent strategist predicting a significant drop to the high 3,000s. Neutral observers emphasize the importance of earnings fundamentals over multiple expansion and advise caution amid potential volatility.",
+    "synthesis": "Commentators are divided on the near-term outlook for the S&P 500. Bullish voices like Tom Lee and Mike Wilson see potential for further upside, targeting levels around 8,000, driven by earnings growth and a lack of aggressive Fed action. Conversely, bearish analysts such as Savita Subramanian and Marko Kolanovic warn of significant risks, citing market red flags, potential recession, and high valuations.",
     "themes": [
-      "Fed Policy and Interest Rates",
-      "Earnings Growth vs. Valuation",
-      "Recession Risk and Economic Uncertainty",
-      "AI Impact on Markets",
-      "Geopolitical Risks and Inflation"
+      "Earnings Growth vs. Valuation Concerns",
+      "Federal Reserve Policy Uncertainty",
+      "Sector Concentration (AI/Tech Dominance)",
+      "September Seasonality and Market Pullbacks"
     ]
   },
   "equity_status": "fresh",
@@ -337,5 +335,7 @@
       "Ethereum's growth potential and its role in the evolving financial system"
     ]
   },
-  "crypto_status": "fresh"
+  "crypto_status": "stale",
+  "crypto_last_fresh": "2026-09-02T14:11:29.800648+00:00",
+  "crypto_error": "Could not parse JSON: Invalid control character at: line 327 column 69 (char 13558)"
 }

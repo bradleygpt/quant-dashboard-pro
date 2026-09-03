@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-09-02T14:11:36.788053+00:00",
-  "last_updated_human": "2026-09-02 14:11 UTC",
+  "last_updated_utc": "2026-09-03T14:15:02.164556+00:00",
+  "last_updated_human": "2026-09-03 14:15 UTC",
   "as_of_window": "June 2026",
   "risks": [
     {
@@ -142,5 +142,7 @@
     "Monetary Policy Uncertainty",
     "Global Economic Divergence"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-09-02T14:11:36.788053+00:00",
+  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
 }
