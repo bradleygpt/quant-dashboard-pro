@@ -1,11 +1,11 @@
 {
-  "built_at": "2026-09-04T08:02:18.794057",
+  "built_at": "2026-09-04T17:55:30.502344",
   "n_target": 1369,
   "n_records": 1362,
   "n_price": 1362,
   "n_fresh": 1326,
   "n_rescued": 36,
-  "n_batch_prices": 1339,
+  "n_batch_prices": 1340,
   "prev_n_price": 1362,
   "backoff_pauses": 0,
   "failure_modes": {
