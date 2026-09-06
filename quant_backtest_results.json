@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-08-30T16:18:12.915006+00:00",
+  "last_run_utc": "2026-09-06T15:02:26.152501+00:00",
   "strategy_label": "TOP-25 equal-weight \u00b7 quarterly rebalance \u00b7 2011+ (EDGAR point-in-time era)",
   "source": "build_quant_backtest.py (per-preset rebuild 2026-07-02)",
   "parameters": {
@@ -19,22 +19,22 @@
     "realistic_strategy": {
       "n_periods": 62,
       "win_rate_pct": 80.64516129032258,
-      "avg_return_pct": 4.442359018724498,
-      "avg_win_pct": 8.043316971166206,
-      "avg_loss_pct": -10.561632449782614,
+      "avg_return_pct": 4.454950427695837,
+      "avg_win_pct": 8.062049234151555,
+      "avg_loss_pct": -10.574627932536321,
       "best_period_pct": 30.00198314828991,
       "worst_period_pct": -36.19684701664624,
-      "total_compounded_pct": 957.1059789318534
+      "total_compounded_pct": 966.5596702123718
     },
     "theoretical_max_strategy": {
       "n_periods": 62,
       "win_rate_pct": 100.0,
-      "avg_return_pct": 15.737662690139421,
-      "avg_win_pct": 15.737662690139421,
+      "avg_return_pct": 15.759562566507489,
+      "avg_win_pct": 15.759562566507489,
       "avg_loss_pct": 0,
       "best_period_pct": 42.36593345710005,
       "worst_period_pct": 3.5102197013155494,
-      "total_compounded_pct": 763056.9706059162
+      "total_compounded_pct": 772463.6529143376
     },
     "spy_benchmark": {
       "n_periods": 62,
@@ -46,7 +46,7 @@
       "worst_period_pct": -24.231231693867926,
       "total_compounded_pct": 428.8638272062652
     },
-    "avg_data_quality_across_run": 85.81820098973205
+    "avg_data_quality_across_run": 85.83310534580743
   },
   "presets": {
     "equal": {
@@ -58,12 +58,12 @@
         "momentum": 0.25
       },
       "headline": {
-        "cagr_pct": 16.43,
+        "cagr_pct": 16.5,
         "sharpe": 0.85,
         "max_dd_pct": -36.37,
         "win_rate_pct": 80.6,
         "n_periods": 62,
-        "total_compounded_pct": 957.1
+        "total_compounded_pct": 966.6
       },
       "checkpoint_returns_pct": [
         12.9371,
@@ -87,7 +87,7 @@
         -12.1648,
         1.792,
         0.5444,
-        2.0754,
+        2.3185,
         4.5684,
         4.6805,
         5.8801,
@@ -123,11 +123,11 @@
         14.6884,
         1.6429,
         -7.3364,
-        28.4789,
-        12.2525,
-        0.0126,
-        -0.2501,
-        7.9829,
+        27.8447,
+        12.5569,
+        1.2795,
+        -0.4061,
+        7.7394,
         null
       ]
     },
@@ -140,12 +140,12 @@
         "momentum": 0.8
       },
       "headline": {
-        "cagr_pct": 27.1,
-        "sharpe": 1.03,
-        "max_dd_pct": -28.98,
+        "cagr_pct": 26.72,
+        "sharpe": 1.01,
+        "max_dd_pct": -31.61,
         "win_rate_pct": 75.8,
         "n_periods": 62,
-        "total_compounded_pct": 4015.1
+        "total_compounded_pct": 3827.1
       },
       "checkpoint_returns_pct": [
         11.5889,
@@ -172,7 +172,7 @@
         -5.6809,
         9.732,
         -4.3879,
-        4.5801,
+        4.707,
         9.1382,
         7.3062,
         7.4215,
@@ -181,12 +181,12 @@
         31.8303,
         -25.0886,
         25.3244,
-        13.4863,
-        -7.6966,
-        3.7951,
-        -25.8758,
+        11.6647,
+        -7.96,
+        3.1747,
+        -27.9855,
         56.0597,
-        22.1342,
+        23.4262,
         35.5381,
         20.1367,
         7.8263,
@@ -206,7 +206,7 @@
         8.6288,
         -9.2991,
         20.5674,
-        11.7036,
+        11.1921,
         7.2772,
         4.6415,
         22.7718,
@@ -222,12 +222,12 @@
         "momentum": 0.2
       },
       "headline": {
-        "cagr_pct": 16.83,
+        "cagr_pct": 16.77,
         "sharpe": 0.92,
         "max_dd_pct": -37.32,
         "win_rate_pct": 82.3,
         "n_periods": 62,
-        "total_compounded_pct": 1014.2
+        "total_compounded_pct": 1005.5
       },
       "checkpoint_returns_pct": [
         11.6555,
@@ -278,20 +278,20 @@
         -21.035,
         -2.8701,
         12.6796,
-        0.1272,
+        0.3261,
         8.0598,
         2.5966,
         9.6286,
-        8.3158,
+        9.4363,
         6.238,
         12.826,
         7.9428,
         -6.5139,
-        25.1338,
-        5.7922,
-        -1.219,
-        8.5415,
-        6.1821,
+        24.5049,
+        5.541,
+        -2.0256,
+        8.3011,
+        5.9385,
         null
       ]
     }
@@ -300,8 +300,8 @@
     {
       "date": "2011-01-01",
       "n_candidates_screened": 949,
-      "n_qualified": 540,
-      "avg_data_quality": 70.75925925925925,
+      "n_qualified": 538,
+      "avg_data_quality": 70.8457249070632,
       "spy_return_pct": 4.801252025347484,
       "top_picks": [
         {
@@ -731,8 +731,8 @@
     {
       "date": "2011-04-01",
       "n_candidates_screened": 957,
-      "n_qualified": 561,
-      "avg_data_quality": 73.60071301247771,
+      "n_qualified": 559,
+      "avg_data_quality": 73.69409660107334,
       "spy_return_pct": -0.8862130904028572,
       "top_picks": [
         {
@@ -1162,8 +1162,8 @@
     {
       "date": "2011-07-01",
       "n_candidates_screened": 958,
-      "n_qualified": 576,
-      "avg_data_quality": 73.28125,
+      "n_qualified": 574,
+      "avg_data_quality": 73.3362369337979,
       "spy_return_pct": -13.34378387210236,
       "top_picks": [
         {
@@ -1593,8 +1593,8 @@
     {
       "date": "2011-10-01",
       "n_candidates_screened": 959,
-      "n_qualified": 687,
-      "avg_data_quality": 67.60553129548762,
+      "n_qualified": 685,
+      "avg_data_quality": 67.62773722627738,
       "spy_return_pct": 14.163558311289428,
       "top_picks": [
         {
@@ -2024,8 +2024,8 @@
     {
       "date": "2012-01-01",
       "n_candidates_screened": 963,
-      "n_qualified": 825,
-      "avg_data_quality": 74.24242424242425,
+      "n_qualified": 823,
+      "avg_data_quality": 74.27703523693803,
       "spy_return_pct": 11.247055951286764,
       "top_picks": [
         {
@@ -2455,8 +2455,8 @@
     {
       "date": "2012-04-01",
       "n_candidates_screened": 970,
-      "n_qualified": 837,
-      "avg_data_quality": 76.45161290322581,
+      "n_qualified": 835,
+      "avg_data_quality": 76.49101796407186,
       "spy_return_pct": -4.046806530297153,
       "top_picks": [
         {
@@ -2886,8 +2886,8 @@
     {
       "date": "2012-07-01",
       "n_candidates_screened": 977,
-      "n_qualified": 842,
-      "avg_data_quality": 76.88836104513064,
+      "n_qualified": 840,
+      "avg_data_quality": 76.92857142857143,
       "spy_return_pct": 5.464806251599121,
       "top_picks": [
         {
@@ -3317,8 +3317,8 @@
     {
       "date": "2012-10-01",
       "n_candidates_screened": 981,
-      "n_qualified": 853,
-      "avg_data_quality": 77.42086752637749,
+      "n_qualified": 851,
+      "avg_data_quality": 77.46180963572267,
       "spy_return_pct": 1.1846147438690537,
       "top_picks": [
         {
@@ -3748,8 +3748,8 @@
     {
       "date": "2013-01-01",
       "n_candidates_screened": 985,
-      "n_qualified": 856,
-      "avg_data_quality": 80.48481308411215,
+      "n_qualified": 854,
+      "avg_data_quality": 80.5327868852459,
       "spy_return_pct": 6.278240669740294,
       "top_picks": [
         {
@@ -4179,8 +4179,8 @@
     {
       "date": "2013-04-01",
       "n_candidates_screened": 993,
-      "n_qualified": 863,
-      "avg_data_quality": 81.72653534183083,
+      "n_qualified": 861,
+      "avg_data_quality": 81.76538908246225,
       "spy_return_pct": 3.22332501180955,
       "top_picks": [
         {
@@ -4610,8 +4610,8 @@
     {
       "date": "2013-07-01",
       "n_candidates_screened": 1004,
-      "n_qualified": 869,
-      "avg_data_quality": 81.68584579976985,
+      "n_qualified": 867,
+      "avg_data_quality": 81.72433679354094,
       "spy_return_pct": 4.678980554784074,
       "top_picks": [
         {
@@ -5041,8 +5041,8 @@
     {
       "date": "2013-10-01",
       "n_candidates_screened": 1009,
-      "n_qualified": 875,
-      "avg_data_quality": 82.23428571428572,
+      "n_qualified": 873,
+      "avg_data_quality": 82.2737686139748,
       "spy_return_pct": 8.55085112759516,
       "top_picks": [
         {
@@ -5472,8 +5472,8 @@
     {
       "date": "2014-01-01",
       "n_candidates_screened": 1022,
-      "n_qualified": 881,
-      "avg_data_quality": 82.51986379114642,
+      "n_qualified": 879,
+      "avg_data_quality": 82.55972696245733,
       "spy_return_pct": 3.2582586778524414,
       "top_picks": [
         {
@@ -5903,8 +5903,8 @@
     {
       "date": "2014-04-01",
       "n_candidates_screened": 1030,
-      "n_qualified": 893,
-      "avg_data_quality": 82.92273236282195,
+      "n_qualified": 891,
+      "avg_data_quality": 82.96296296296296,
       "spy_return_pct": 3.9681281384877156,
       "top_picks": [
         {
@@ -6334,8 +6334,8 @@
     {
       "date": "2014-07-01",
       "n_candidates_screened": 1044,
-      "n_qualified": 898,
-      "avg_data_quality": 83.02338530066815,
+      "n_qualified": 896,
+      "avg_data_quality": 83.06361607142857,
       "spy_return_pct": 0.2588410445087643,
       "top_picks": [
         {
@@ -6765,8 +6765,8 @@
     {
       "date": "2014-10-01",
       "n_candidates_screened": 1051,
-      "n_qualified": 914,
-      "avg_data_quality": 83.03063457330416,
+      "n_qualified": 912,
+      "avg_data_quality": 83.0701754385965,
       "spy_return_pct": 6.81759690449545,
       "top_picks": [
         {
@@ -7196,8 +7196,8 @@
     {
       "date": "2015-01-01",
       "n_candidates_screened": 1061,
-      "n_qualified": 925,
-      "avg_data_quality": 82.98378378378378,
+      "n_qualified": 923,
+      "avg_data_quality": 83.02275189599133,
       "spy_return_pct": 0.4916564287762218,
       "top_picks": [
         {
@@ -7627,8 +7627,8 @@
     {
       "date": "2015-04-01",
       "n_candidates_screened": 1070,
-      "n_qualified": 930,
-      "avg_data_quality": 83.34946236559139,
+      "n_qualified": 927,
+      "avg_data_quality": 83.39266450916936,
       "spy_return_pct": 0.07292618254689741,
       "top_picks": [
         {
@@ -8058,8 +8058,8 @@
     {
       "date": "2015-07-01",
       "n_candidates_screened": 1084,
-      "n_qualified": 942,
-      "avg_data_quality": 83.30679405520169,
+      "n_qualified": 939,
+      "avg_data_quality": 83.3493077742279,
       "spy_return_pct": -9.33976138930723,
       "top_picks": [
         {
@@ -8489,8 +8489,8 @@
     {
       "date": "2015-10-01",
       "n_candidates_screened": 1093,
-      "n_qualified": 946,
-      "avg_data_quality": 83.74207188160676,
+      "n_qualified": 943,
+      "avg_data_quality": 83.78579003181336,
       "spy_return_pct": 7.182630220295833,
       "top_picks": [
         {
@@ -8920,8 +8920,8 @@
     {
       "date": "2016-01-01",
       "n_candidates_screened": 1099,
-      "n_qualified": 962,
-      "avg_data_quality": 83.67463617463618,
+      "n_qualified": 959,
+      "avg_data_quality": 83.71741397288842,
       "spy_return_pct": 2.6017289903398706,
       "top_picks": [
         {
@@ -9351,8 +9351,8 @@
     {
       "date": "2016-04-01",
       "n_candidates_screened": 1100,
-      "n_qualified": 969,
-      "avg_data_quality": 83.9938080495356,
+      "n_qualified": 966,
+      "avg_data_quality": 84.02173913043478,
       "spy_return_pct": -0.12564977244183914,
       "top_picks": [
         {
@@ -9644,22 +9644,6 @@
           }
         },
         {
-          "ticker": "LBRDA",
-          "composite_score": 75.76594038825141,
-          "data_quality": 95,
-          "weight": 0.04,
-          "entry_price": 54.507965087890625,
-          "realistic_return_pct": 1.358323670845751,
-          "max_return_pct": 3.1808806477963087,
-          "pillar_scores": {
-            "momentum": 63.06376155300566,
-            "valuation": 50,
-            "growth": 95,
-            "profitability": 95,
-            "financial_health": 90
-          }
-        },
-        {
           "ticker": "SPG",
           "composite_score": 75.7617571659914,
           "data_quality": 90,
@@ -9754,14 +9738,30 @@
             "profitability": 80,
             "financial_health": 10
           }
+        },
+        {
+          "ticker": "KIM",
+          "composite_score": 74.45149439943737,
+          "data_quality": 75,
+          "weight": 0.04,
+          "entry_price": 28.780000686645508,
+          "realistic_return_pct": 7.4357169513253,
+          "max_return_pct": 7.4357169513253,
+          "pillar_scores": {
+            "momentum": 67.80597759774946,
+            "valuation": 80,
+            "growth": 70,
+            "profitability": 80,
+            "financial_health": 50
+          }
         }
       ],
-      "portfolio_return_realistic": 2.0754174231138984,
-      "portfolio_return_max": 11.38437569946281,
+      "portfolio_return_realistic": 2.318513154333081,
+      "portfolio_return_max": 11.55456915160397,
       "preset_returns": {
         "equal": {
-          "realistic": 2.0754174231138984,
-          "max": 11.38437569946281,
+          "realistic": 2.318513154333081,
+          "max": 11.55456915160397,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -9782,8 +9782,8 @@
     {
       "date": "2016-07-01",
       "n_candidates_screened": 1103,
-      "n_qualified": 970,
-      "avg_data_quality": 84.27319587628865,
+      "n_qualified": 967,
+      "avg_data_quality": 84.30196483971045,
       "spy_return_pct": 2.2675278907944043,
       "top_picks": [
         {
@@ -10213,8 +10213,8 @@
     {
       "date": "2016-10-01",
       "n_candidates_screened": 1113,
-      "n_qualified": 974,
-      "avg_data_quality": 84.39938398357289,
+      "n_qualified": 971,
+      "avg_data_quality": 84.42842430484038,
       "spy_return_pct": 3.591621115878687,
       "top_picks": [
         {
@@ -10644,8 +10644,8 @@
     {
       "date": "2017-01-01",
       "n_candidates_screened": 1124,
-      "n_qualified": 980,
-      "avg_data_quality": 84.55102040816327,
+      "n_qualified": 977,
+      "avg_data_quality": 84.58034800409416,
       "spy_return_pct": 4.479664398781438,
       "top_picks": [
         {
@@ -11059,8 +11059,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 4.580068570631241,
-          "max": 14.461212519516687,
+          "realistic": 4.70704364283174,
+          "max": 14.587739686671279,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -11075,8 +11075,8 @@
     {
       "date": "2017-04-01",
       "n_candidates_screened": 1130,
-      "n_qualified": 993,
-      "avg_data_quality": 84.62235649546828,
+      "n_qualified": 990,
+      "avg_data_quality": 84.65151515151516,
       "spy_return_pct": 2.749331224391861,
       "top_picks": [
         {
@@ -11506,8 +11506,8 @@
     {
       "date": "2017-07-01",
       "n_candidates_screened": 1138,
-      "n_qualified": 1001,
-      "avg_data_quality": 84.66533466533467,
+      "n_qualified": 998,
+      "avg_data_quality": 84.6943887775551,
       "spy_return_pct": 3.724036482244751,
       "top_picks": [
         {
@@ -11937,8 +11937,8 @@
     {
       "date": "2017-10-01",
       "n_candidates_screened": 1141,
-      "n_qualified": 1007,
-      "avg_data_quality": 84.88083416087389,
+      "n_qualified": 1004,
+      "avg_data_quality": 84.91035856573706,
       "spy_return_pct": 5.762514903806497,
       "top_picks": [
         {
@@ -12368,8 +12368,8 @@
     {
       "date": "2018-01-01",
       "n_candidates_screened": 1152,
-      "n_qualified": 1013,
-      "avg_data_quality": 84.9111549851925,
+      "n_qualified": 1010,
+      "avg_data_quality": 84.94059405940594,
       "spy_return_pct": -2.976522799051442,
       "top_picks": [
         {
@@ -12799,8 +12799,8 @@
     {
       "date": "2018-04-01",
       "n_candidates_screened": 1161,
-      "n_qualified": 1022,
-      "avg_data_quality": 84.99021526418787,
+      "n_qualified": 1019,
+      "avg_data_quality": 85.01472031403337,
       "spy_return_pct": 5.212262929315306,
       "top_picks": [
         {
@@ -13230,8 +13230,8 @@
     {
       "date": "2018-07-01",
       "n_candidates_screened": 1172,
-      "n_qualified": 1030,
-      "avg_data_quality": 84.96601941747574,
+      "n_qualified": 1026,
+      "avg_data_quality": 85.00974658869396,
       "spy_return_pct": 6.937400458089235,
       "top_picks": [
         {
@@ -13661,8 +13661,8 @@
     {
       "date": "2018-10-01",
       "n_candidates_screened": 1179,
-      "n_qualified": 1040,
-      "avg_data_quality": 86.0048076923077,
+      "n_qualified": 1036,
+      "avg_data_quality": 86.03281853281854,
       "spy_return_pct": -14.331748960631352,
       "top_picks": [
         {
@@ -14092,8 +14092,8 @@
     {
       "date": "2019-01-01",
       "n_candidates_screened": 1187,
-      "n_qualified": 1047,
-      "avg_data_quality": 87.22540592168099,
+      "n_qualified": 1043,
+      "avg_data_quality": 87.25790987535954,
       "spy_return_pct": 14.30570373039528,
       "top_picks": [
         {
@@ -14523,8 +14523,8 @@
     {
       "date": "2019-04-01",
       "n_candidates_screened": 1191,
-      "n_qualified": 1056,
-      "avg_data_quality": 88.20075757575758,
+      "n_qualified": 1052,
+      "avg_data_quality": 88.2319391634981,
       "spy_return_pct": 2.5084888796024205,
       "top_picks": [
         {
@@ -14938,8 +14938,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 13.486261462076753,
-          "max": 23.715453128112436,
+          "realistic": 11.664700774924745,
+          "max": 22.574626144254463,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -14954,8 +14954,8 @@
     {
       "date": "2019-07-01",
       "n_candidates_screened": 1202,
-      "n_qualified": 1064,
-      "avg_data_quality": 88.29887218045113,
+      "n_qualified": 1060,
+      "avg_data_quality": 88.31603773584905,
       "spy_return_pct": -0.0879421505798763,
       "top_picks": [
         {
@@ -15369,8 +15369,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": -7.69662595562443,
-          "max": 14.327081256730885,
+          "realistic": -7.959970680090996,
+          "max": 14.125973361497902,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -15385,8 +15385,8 @@
     {
       "date": "2019-10-01",
       "n_candidates_screened": 1205,
-      "n_qualified": 1072,
-      "avg_data_quality": 88.85727611940298,
+      "n_qualified": 1068,
+      "avg_data_quality": 88.86235955056179,
       "spy_return_pct": 9.493928954109986,
       "top_picks": [
         {
@@ -15800,8 +15800,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 3.7950730245931696,
-          "max": 14.361713992213684,
+          "realistic": 3.1746532266154803,
+          "max": 13.729662510828005,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -15816,8 +15816,8 @@
     {
       "date": "2020-01-01",
       "n_candidates_screened": 1209,
-      "n_qualified": 1082,
-      "avg_data_quality": 89.32994454713493,
+      "n_qualified": 1078,
+      "avg_data_quality": 89.33673469387755,
       "spy_return_pct": -24.231231693867926,
       "top_picks": [
         {
@@ -16231,8 +16231,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": -25.87578723283036,
-          "max": 20.27557216211921,
+          "realistic": -27.98552376543528,
+          "max": 20.194536582774468,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -16247,8 +16247,8 @@
     {
       "date": "2020-04-01",
       "n_candidates_screened": 1213,
-      "n_qualified": 1087,
-      "avg_data_quality": 89.97240110395585,
+      "n_qualified": 1083,
+      "avg_data_quality": 89.97229916897507,
       "spy_return_pct": 25.273204549109124,
       "top_picks": [
         {
@@ -16678,8 +16678,8 @@
     {
       "date": "2020-07-01",
       "n_candidates_screened": 1216,
-      "n_qualified": 1089,
-      "avg_data_quality": 90.0734618916437,
+      "n_qualified": 1085,
+      "avg_data_quality": 90.06451612903226,
       "spy_return_pct": 7.036586009460921,
       "top_picks": [
         {
@@ -17093,8 +17093,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 22.13421965056871,
-          "max": 36.96142198300968,
+          "realistic": 23.426214978177086,
+          "max": 39.55167973785096,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -17109,8 +17109,8 @@
     {
       "date": "2020-10-01",
       "n_candidates_screened": 1228,
-      "n_qualified": 1094,
-      "avg_data_quality": 90.33363802559415,
+      "n_qualified": 1090,
+      "avg_data_quality": 90.3256880733945,
       "spy_return_pct": 10.369683362025809,
       "top_picks": [
         {
@@ -17540,8 +17540,8 @@
     {
       "date": "2021-01-01",
       "n_candidates_screened": 1239,
-      "n_qualified": 1100,
-      "avg_data_quality": 90.43636363636364,
+      "n_qualified": 1096,
+      "avg_data_quality": 90.42883211678833,
       "spy_return_pct": 10.187362980595575,
       "top_picks": [
         {
@@ -17971,8 +17971,8 @@
     {
       "date": "2021-04-01",
       "n_candidates_screened": 1247,
-      "n_qualified": 1112,
-      "avg_data_quality": 90.48111510791367,
+      "n_qualified": 1108,
+      "avg_data_quality": 90.47382671480145,
       "spy_return_pct": 6.852053920458821,
       "top_picks": [
         {
@@ -18402,8 +18402,8 @@
     {
       "date": "2021-07-01",
       "n_candidates_screened": 1261,
-      "n_qualified": 1120,
-      "avg_data_quality": 90.39285714285714,
+      "n_qualified": 1116,
+      "avg_data_quality": 90.3853046594982,
       "spy_return_pct": 0.9339543246648369,
       "top_picks": [
         {
@@ -18833,8 +18833,8 @@
     {
       "date": "2021-10-01",
       "n_candidates_screened": 1271,
-      "n_qualified": 1132,
-      "avg_data_quality": 90.36219081272085,
+      "n_qualified": 1128,
+      "avg_data_quality": 90.35460992907801,
       "spy_return_pct": 9.653651061734003,
       "top_picks": [
         {
@@ -19264,8 +19264,8 @@
     {
       "date": "2022-01-01",
       "n_candidates_screened": 1280,
-      "n_qualified": 1145,
-      "avg_data_quality": 90.33624454148472,
+      "n_qualified": 1141,
+      "avg_data_quality": 90.32865907099035,
       "spy_return_pct": -5.1893363067066804,
       "top_picks": [
         {
@@ -19695,8 +19695,8 @@
     {
       "date": "2022-04-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1153,
-      "avg_data_quality": 90.86730268863833,
+      "n_qualified": 1149,
+      "avg_data_quality": 90.86161879895562,
       "spy_return_pct": -15.826199123081205,
       "top_picks": [
         {
@@ -20126,8 +20126,8 @@
     {
       "date": "2022-07-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1159,
-      "avg_data_quality": 90.69025021570319,
+      "n_qualified": 1155,
+      "avg_data_quality": 90.68398268398268,
       "spy_return_pct": -4.839466520317195,
       "top_picks": [
         {
@@ -20557,8 +20557,8 @@
     {
       "date": "2022-10-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1163,
-      "avg_data_quality": 90.91573516766982,
+      "n_qualified": 1159,
+      "avg_data_quality": 90.91026747195859,
       "spy_return_pct": 4.315214521243352,
       "top_picks": [
         {
@@ -20988,8 +20988,8 @@
     {
       "date": "2023-01-01",
       "n_candidates_screened": 1287,
-      "n_qualified": 1164,
-      "avg_data_quality": 91.06099656357388,
+      "n_qualified": 1160,
+      "avg_data_quality": 91.05603448275862,
       "spy_return_pct": 7.911875506362437,
       "top_picks": [
         {
@@ -21409,8 +21409,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 0.1272258665513224,
-          "max": 16.468147654492835,
+          "realistic": 0.3260886460706643,
+          "max": 16.0143497740007,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -21419,8 +21419,8 @@
     {
       "date": "2023-04-01",
       "n_candidates_screened": 1288,
-      "n_qualified": 1166,
-      "avg_data_quality": 91.40222984562607,
+      "n_qualified": 1162,
+      "avg_data_quality": 91.39845094664372,
       "spy_return_pct": 7.991238681688191,
       "top_picks": [
         {
@@ -21850,8 +21850,8 @@
     {
       "date": "2023-07-01",
       "n_candidates_screened": 1295,
-      "n_qualified": 1168,
-      "avg_data_quality": 91.31849315068493,
+      "n_qualified": 1164,
+      "avg_data_quality": 91.31443298969072,
       "spy_return_pct": -3.675161054677688,
       "top_picks": [
         {
@@ -22281,8 +22281,8 @@
     {
       "date": "2023-10-01",
       "n_candidates_screened": 1300,
-      "n_qualified": 1170,
-      "avg_data_quality": 91.48717948717949,
+      "n_qualified": 1166,
+      "avg_data_quality": 91.483704974271,
       "spy_return_pct": 11.233062711905804,
       "top_picks": [
         {
@@ -22712,8 +22712,8 @@
     {
       "date": "2024-01-01",
       "n_candidates_screened": 1303,
-      "n_qualified": 1175,
-      "avg_data_quality": 91.49361702127659,
+      "n_qualified": 1171,
+      "avg_data_quality": 91.49017933390265,
       "spy_return_pct": 9.772566075416158,
       "top_picks": [
         {
@@ -23133,8 +23133,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 8.315827034977074,
-          "max": 16.77947495491479,
+          "realistic": 9.436304096434029,
+          "max": 17.71676182127344,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -23143,8 +23143,8 @@
     {
       "date": "2024-04-01",
       "n_candidates_screened": 1307,
-      "n_qualified": 1185,
-      "avg_data_quality": 91.51054852320675,
+      "n_qualified": 1181,
+      "avg_data_quality": 91.50719729043183,
       "spy_return_pct": 4.224758444379583,
       "top_picks": [
         {
@@ -23574,8 +23574,8 @@
     {
       "date": "2024-07-01",
       "n_candidates_screened": 1309,
-      "n_qualified": 1187,
-      "avg_data_quality": 91.52064026958719,
+      "n_qualified": 1183,
+      "avg_data_quality": 91.51732882502114,
       "spy_return_pct": 4.791495683587785,
       "top_picks": [
         {
@@ -24005,8 +24005,8 @@
     {
       "date": "2024-10-01",
       "n_candidates_screened": 1312,
-      "n_qualified": 1189,
-      "avg_data_quality": 91.63582842724979,
+      "n_qualified": 1185,
+      "avg_data_quality": 91.63291139240506,
       "spy_return_pct": 3.446937454582145,
       "top_picks": [
         {
@@ -24436,8 +24436,8 @@
     {
       "date": "2025-01-01",
       "n_candidates_screened": 1314,
-      "n_qualified": 1196,
-      "avg_data_quality": 91.61789297658864,
+      "n_qualified": 1192,
+      "avg_data_quality": 91.61493288590604,
       "spy_return_pct": -8.199918110332234,
       "top_picks": [
         {
@@ -24867,8 +24867,8 @@
     {
       "date": "2025-04-01",
       "n_candidates_screened": 1315,
-      "n_qualified": 1209,
-      "avg_data_quality": 91.69975186104219,
+      "n_qualified": 1201,
+      "avg_data_quality": 91.79433805162364,
       "spy_return_pct": 10.10393722856398,
       "top_picks": [
         {
@@ -24933,22 +24933,6 @@
             "growth": 85,
             "profitability": 95,
             "financial_health": 50
-          }
-        },
-        {
-          "ticker": "WBS",
-          "composite_score": 82.78077167239817,
-          "data_quality": 90,
-          "weight": 0.04,
-          "entry_price": 51.54999923706055,
-          "realistic_return_pct": 10.223085423394032,
-          "max_return_pct": 10.223085423394032,
-          "pillar_scores": {
-            "momentum": 61.123086689592675,
-            "valuation": 80,
-            "growth": 95,
-            "profitability": 95,
-            "financial_health": 90
           }
         },
         {
@@ -25270,14 +25254,30 @@
             "profitability": 95,
             "financial_health": 90
           }
+        },
+        {
+          "ticker": "UTHR",
+          "composite_score": 73.99541112760804,
+          "data_quality": 85,
+          "weight": 0.04,
+          "entry_price": 308.2699890136719,
+          "realistic_return_pct": -5.631422444691033,
+          "max_return_pct": 6.529991760540701,
+          "pillar_scores": {
+            "momentum": 35.981644510432176,
+            "valuation": 80,
+            "growth": 85,
+            "profitability": 95,
+            "financial_health": 50
+          }
         }
       ],
-      "portfolio_return_realistic": 28.47890437643299,
-      "portfolio_return_max": 36.17978207524792,
+      "portfolio_return_realistic": 27.844724061709584,
+      "portfolio_return_max": 36.03205832873379,
       "preset_returns": {
         "equal": {
-          "realistic": 28.47890437643299,
-          "max": 36.17978207524792,
+          "realistic": 27.844724061709584,
+          "max": 36.03205832873379,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -25288,8 +25288,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 25.13375617073887,
-          "max": 29.71673547997434,
+          "realistic": 24.504932480884495,
+          "max": 29.361773249982893,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -25298,8 +25298,8 @@
     {
       "date": "2025-07-01",
       "n_candidates_screened": 1317,
-      "n_qualified": 1225,
-      "avg_data_quality": 91.39183673469388,
+      "n_qualified": 1223,
+      "avg_data_quality": 91.34505314799672,
       "spy_return_pct": 7.452435269533966,
       "top_picks": [
         {
@@ -25442,22 +25442,6 @@
             "momentum": 63.23134870440037,
             "valuation": 90,
             "growth": 70,
-            "profitability": 95,
-            "financial_health": 90
-          }
-        },
-        {
-          "ticker": "WBS",
-          "composite_score": 79.45360031020556,
-          "data_quality": 90,
-          "weight": 0.04,
-          "entry_price": 54.599998474121094,
-          "realistic_return_pct": 9.120885524005974,
-          "max_return_pct": 15.238095105016663,
-          "pillar_scores": {
-            "momentum": 47.814401240822214,
-            "valuation": 80,
-            "growth": 95,
             "profitability": 95,
             "financial_health": 90
           }
@@ -25701,26 +25685,42 @@
             "profitability": 65,
             "financial_health": 90
           }
+        },
+        {
+          "ticker": "GRBK",
+          "composite_score": 74.7585412972908,
+          "data_quality": 100,
+          "weight": 0.04,
+          "entry_price": 62.880001068115234,
+          "realistic_return_pct": 16.73028034202449,
+          "max_return_pct": 19.67238982468348,
+          "pillar_scores": {
+            "momentum": 59.034165189163225,
+            "valuation": 90,
+            "growth": 70,
+            "profitability": 80,
+            "financial_health": 90
+          }
         }
       ],
-      "portfolio_return_realistic": 12.252500216535758,
-      "portfolio_return_max": 18.248418430578436,
+      "portfolio_return_realistic": 12.556876009256499,
+      "portfolio_return_max": 18.42579021936511,
       "preset_returns": {
         "equal": {
-          "realistic": 12.252500216535758,
-          "max": 18.248418430578436,
+          "realistic": 12.556876009256499,
+          "max": 18.42579021936511,
           "n_picks": 25,
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 11.70364218607583,
-          "max": 22.18967871416705,
+          "realistic": 11.192146258691226,
+          "max": 21.583330644455522,
           "n_picks": 25,
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 5.7921829375385325,
-          "max": 12.364906053149731,
+          "realistic": 5.540961920165882,
+          "max": 12.2231632113913,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -25730,7 +25730,7 @@
       "date": "2025-10-01",
       "n_candidates_screened": 1317,
       "n_qualified": 1225,
-      "avg_data_quality": 91.46530612244898,
+      "avg_data_quality": 91.35918367346939,
       "spy_return_pct": 2.7765722521739407,
       "top_picks": [
         {
@@ -25792,22 +25792,6 @@
           "pillar_scores": {
             "momentum": 89.87672414837277,
             "valuation": 60,
-            "growth": 95,
-            "profitability": 95,
-            "financial_health": 90
-          }
-        },
-        {
-          "ticker": "WBS",
-          "composite_score": 84.29233154103468,
-          "data_quality": 90,
-          "weight": 0.04,
-          "entry_price": 59.439998626708984,
-          "realistic_return_pct": 6.8808887063972355,
-          "max_return_pct": 9.253034895303436,
-          "pillar_scores": {
-            "momentum": 67.16932616413875,
-            "valuation": 80,
             "growth": 95,
             "profitability": 95,
             "financial_health": 90
@@ -26132,14 +26116,30 @@
             "profitability": 80,
             "financial_health": 75
           }
+        },
+        {
+          "ticker": "ENVA",
+          "composite_score": 77.54553604056713,
+          "data_quality": 100,
+          "weight": 0.04,
+          "entry_price": 115.08999633789062,
+          "realistic_return_pct": 38.55244746529616,
+          "max_return_pct": 43.23573842120517,
+          "pillar_scores": {
+            "momentum": 65.18214416226849,
+            "valuation": 80,
+            "growth": 85,
+            "profitability": 80,
+            "financial_health": 10
+          }
         }
       ],
-      "portfolio_return_realistic": 0.012606395386263895,
-      "portfolio_return_max": 11.743431512040356,
+      "portfolio_return_realistic": 1.279468745742221,
+      "portfolio_return_max": 13.102739653076426,
       "preset_returns": {
         "equal": {
-          "realistic": 0.012606395386263895,
-          "max": 11.743431512040356,
+          "realistic": 1.279468745742221,
+          "max": 13.102739653076426,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -26150,8 +26150,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": -1.2189556581539889,
-          "max": 8.844191868594649,
+          "realistic": -2.025622463343823,
+          "max": 8.598308624630024,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -26161,7 +26161,7 @@
       "date": "2026-01-01",
       "n_candidates_screened": 1318,
       "n_qualified": 1226,
-      "avg_data_quality": 91.46818923327896,
+      "avg_data_quality": 91.3621533442088,
       "spy_return_pct": -4.0019272661615135,
       "top_picks": [
         {
@@ -26306,22 +26306,6 @@
             "growth": 95,
             "profitability": 95,
             "financial_health": 20
-          }
-        },
-        {
-          "ticker": "WBS",
-          "composite_score": 81.8149277008258,
-          "data_quality": 90,
-          "weight": 0.04,
-          "entry_price": 62.939998626708984,
-          "realistic_return_pct": 10.883384871749136,
-          "max_return_pct": 17.30219803297622,
-          "pillar_scores": {
-            "momentum": 57.25971080330321,
-            "valuation": 80,
-            "growth": 95,
-            "profitability": 95,
-            "financial_health": 90
           }
         },
         {
@@ -26563,14 +26547,30 @@
             "profitability": 80,
             "financial_health": 90
           }
+        },
+        {
+          "ticker": "RTX",
+          "composite_score": 75.20797493936267,
+          "data_quality": 100,
+          "weight": 0.04,
+          "entry_price": 183.39999389648438,
+          "realistic_return_pct": 6.984740045636594,
+          "max_return_pct": 15.6815761847069,
+          "pillar_scores": {
+            "momentum": 75.83189975745069,
+            "valuation": 90,
+            "growth": 70,
+            "profitability": 65,
+            "financial_health": 60
+          }
         }
       ],
-      "portfolio_return_realistic": -0.2501302387753333,
-      "portfolio_return_max": 16.72265847597073,
+      "portfolio_return_realistic": -0.4060760318198351,
+      "portfolio_return_max": 16.657833602039954,
       "preset_returns": {
         "equal": {
-          "realistic": -0.2501302387753333,
-          "max": 16.72265847597073,
+          "realistic": -0.4060760318198351,
+          "max": 16.657833602039954,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -26581,8 +26581,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 8.541502198546686,
-          "max": 21.75115406119184,
+          "realistic": 8.30105348986772,
+          "max": 21.53952920327902,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -26592,7 +26592,7 @@
       "date": "2026-04-01",
       "n_candidates_screened": 1319,
       "n_qualified": 1226,
-      "avg_data_quality": 91.74551386623165,
+      "avg_data_quality": 91.62724306688418,
       "spy_return_pct": 9.579699112808663,
       "top_picks": [
         {
@@ -26820,22 +26820,6 @@
           }
         },
         {
-          "ticker": "WBS",
-          "composite_score": 77.94750999865934,
-          "data_quality": 90,
-          "weight": 0.04,
-          "entry_price": 69.41999816894531,
-          "realistic_return_pct": 2.62172247598587,
-          "max_return_pct": 5.690009625214501,
-          "pillar_scores": {
-            "momentum": 66.79003999463735,
-            "valuation": 80,
-            "growth": 70,
-            "profitability": 95,
-            "financial_health": 90
-          }
-        },
-        {
           "ticker": "WAL",
           "composite_score": 77.9249300844125,
           "data_quality": 90,
@@ -26994,14 +26978,30 @@
             "profitability": 95,
             "financial_health": 90
           }
+        },
+        {
+          "ticker": "HCI",
+          "composite_score": 75.13885355473431,
+          "data_quality": 90,
+          "weight": 0.04,
+          "entry_price": 154.61000061035156,
+          "realistic_return_pct": -3.466787781638943,
+          "max_return_pct": 2.2766989577421057,
+          "pillar_scores": {
+            "momentum": 30.555414218937273,
+            "valuation": 90,
+            "growth": 85,
+            "profitability": 95,
+            "financial_health": 90
+          }
         }
       ],
-      "portfolio_return_realistic": 7.982930354620122,
-      "portfolio_return_max": 11.497415987130507,
+      "portfolio_return_realistic": 7.739389944315129,
+      "portfolio_return_max": 11.360883560431612,
       "preset_returns": {
         "equal": {
-          "realistic": 7.982930354620122,
-          "max": 11.497415987130507,
+          "realistic": 7.739389944315129,
+          "max": 11.360883560431612,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -27012,8 +27012,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 6.182053310050053,
-          "max": 10.259283981193814,
+          "realistic": 5.93851289974506,
+          "max": 10.12275155449492,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -27022,8 +27022,8 @@
     {
       "date": "2026-07-01",
       "n_candidates_screened": 1319,
-      "n_qualified": 1226,
-      "avg_data_quality": 91.76182707993475,
+      "n_qualified": 1225,
+      "avg_data_quality": 91.71836734693878,
       "spy_return_pct": null,
       "top_picks": [],
       "portfolio_return_realistic": null,
