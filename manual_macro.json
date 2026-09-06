@@ -1,6 +1,6 @@
 {
-  "fetched_utc": "2026-09-05T16:43:25.677571+00:00",
-  "fetched_human": "2026-09-05 16:43 UTC",
+  "fetched_utc": "2026-09-06T16:51:45.186267+00:00",
+  "fetched_human": "2026-09-06 16:51 UTC",
   "source": "grounded Gemini web search (ISM releases + ICI weekly MMF)",
   "ism_mfg": {
     "value": 54.6,
@@ -10,12 +10,12 @@
   "ism_svcs": {
     "value": 55.4,
     "ref_month": "2026-08",
-    "source": "ISM\u00ae Services PMI\u00ae Report - PR Newswire (September 03 2026)"
+    "source": "Services PMI\u00ae at 55.4%; August 2026 ISM\u00ae Services PMI\u00ae Report - PR Newswire (September 03 2026)"
   },
   "mmf_total_t": {
     "value": 7.98,
     "as_of": "2026-09-02",
-    "source": "Investment Company Institute (September 03 2026)"
+    "source": "Release: Money Market Fund Assets | Investment Company Institute (September 03 2026)"
   },
   "status": "ok"
 }
