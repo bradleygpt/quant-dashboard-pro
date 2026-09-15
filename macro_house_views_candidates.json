@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-01T13:52:32.512637+00:00",
+  "generated_utc": "2026-09-15T14:06:21.954969+00:00",
   "_warning": "UNVERIFIED LLM-drafted figures. Verify EACH against the cited source PDF before promoting into macro_house_views.json. Never merge a figure whose quote does not plainly state the number. The live panel reads ONLY macro_house_views.json, never this file.",
   "candidates": [
     {
@@ -10,49 +10,47 @@
       "as_of": "2026-08",
       "prior_as_of": "2026-06",
       "source": "August 2026 Economic Outlook and Key Themes",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEw85MXQtJUHQx73XR_KAz797g7DIDxBIuWqPGCeb4CFlQ6KDkBEw_n1im-6CeSODp7OBC3V9RtQ4C9ogfI2ghrDYATzwh_bOiQxY6cB_Fk0Q0OquVqT1XtgrM6zhvuMTy97UpTRHF5ZrixiVuYzdf2B_YRuW3Sd09Npkl9b9AVJWJN4LXe8_8igUA-TCzUcjeXW6xmFqeXof2MSGkcxz_WSK8SS3IEz8cda3J4LCKXPMU=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEOAodqeL9HvJW5OPvfnXSP3Zk5sLE8cURDgXIvrXOqSNM3VOu4mqFFjRkVZzWUEsSL87GXjgRbyTh2Jp9BfEsCcVeW3V3Cesjjl6D30dn9s8VhOqoRb5HNvZZysxNUcB1gd9uQ1CGsAl39A7lUXw==,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFvjDuxTti0yrgvQigK0YKgV6fsOyrE0yi-A527MIJB6QpJqwr4DhuX5DkQB44Tfa8ip2Wub9aYD_kOMWuGbMTUqE3y5IzSA_GnLRaDUpHG5R49Ljhlk14aFckpwXI4lP_b",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF03MS_M0EIQFDO-_WC7lbFhAeF80Y89sInRp_nXbB5NlQWnn6V6uLx8GDg10pj9oDjMhTfN7iVypDmir-LAKTxQLF5sPAQjUetd1yi0J_5yV7V2H8TZhkljsgN_Wrg4_eNcDghRInDZtofw_PS97KVs-05qlxyEybNgw405jXKERC7eyKXW5XF8n-pD1wRAdHkMx9qJ761jC1_jJQ1EmLaWJo1lgofJQ67VA6XI9PK4w==",
       "inflation_basis": "PCE",
-      "notes": "The report mentions \"around 2 percent\" for GDP growth in 2026 and 2027. No specific S&P 500 year-end target was found for 2026.",
+      "notes": "The report mentions that the Fed is expected to remain on hold into 2027, implying no change to the Fed Funds rate by year-end 2026. The unemployment rate is stated to remain around current levels, but a specific percentage is not provided for 2026.",
       "values": {
         "gdp": {
           "2026": {
             "value": 2.0,
             "quote": "We see real GDP growth around 2 percent in 2026 and 2027, underpinned by robust business investment as the artificial intelligence buildout continues and fiscal policy helps broaden capex."
           }
-        }
-      }
-    },
-    {
-      "id": "goldman_sachs",
-      "name": "Goldman Sachs Research",
-      "kind": "house",
-      "status": "stale",
-      "as_of": "2026-07",
-      "prior_as_of": "2026-06",
-      "source": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
-      "url": "https://www.goldmansachs.com/insights/\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4/us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth/index.html",
-      "inflation_basis": "PCE",
-      "notes": "The report focuses on 2026 GDP growth. Other metrics for 2026 and any metrics for 2027 were not explicitly stated in this report.",
-      "values": {
-        "gdp": {
+        },
+        "inflation": {
           "2026": {
-            "value": 2.0,
-            "quote": "explains why he expects US GDP to expand around 2% this year."
+            "value": 3.0,
+            "quote": "That will keep year-over-year readings above 3 percent through year-end, but sequential run rates should show more progress."
+          }
+        },
+        "unemployment": {
+          "2026": {
+            "value": 0.0,
+            "quote": "We expect unemployment will remain around current levels over the next year."
+          }
+        },
+        "fed_funds": {
+          "2026": {
+            "value": 0.0,
+            "quote": "Despite a more hawkish tone recently from Fed officials, our baseline view has the Fed remaining on hold into 2027 as inflation moderates."
           }
         }
       }
     },
     {
-      "id": "yardeni",
-      "name": "Yardeni Research",
+      "id": "ubs_cio",
+      "name": "UBS CIO GWM",
       "kind": "house",
       "status": "stale",
-      "as_of": "2026-08",
-      "prior_as_of": "2026-05",
-      "source": "US MARKET CALL: Warsh Proof",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH9O99oJF-G5QfTI2GvcXjtum_eDQg-z8FEcvBRN9brw3tFggoePtR4K4AIsecDn6r6rvI8qAZbSXDu1IfC8-0JPjM29yI5Uu2UTS4pJ4DaH8pnn41hlLO0OvjHWLcIK2zlPCJ8kqFZ_IQ1WfIqDC8X4C0jxsdpzPs=",
+      "as_of": "2026-03",
+      "prior_as_of": "2025-11",
+      "source": "UBS Global Investment Returns Yearbook 2026",
+      "url": "https://www.ubs.com/global/en/investment-bank/research/global-investment-returns-yearbook.html",
       "inflation_basis": "unknown",
-      "notes": "The most recent report found is dated August 2026. It is a 'QuickTake' and does not contain the specific forecast figures requested. The report mentions that \"August inflation data suggest persistent weakness\" and that \"semiconductor chip prices have skyrocketed,\" which has \"bumped up the prices consumers pay for tech devices.\" It also notes that \"The AI industry may well consolidate, possibly down to a few powerful players.\"",
+      "notes": "The \"UBS Global Investment Returns Yearbook 2026\" was published on March 3, 2026. This report focuses on historical data and long-term trends, and does not explicitly provide forward-looking forecasts for specific metrics like US GDP, inflation, unemployment, Fed Funds rate, or S&P 500 target for 2026 or 2027. The report mentions that an initial investment of USD 1 in equities in 1900 grew to USD 124,854 in nominal terms by end 2025, and discusses historical equity returns and inflation's impact over the long term. The \"UBS Year Ahead 2026 ('Escape velocity?')\" report, published in November 2025, provided some forward-looking estimates, but the request is for the single most recent published outlook, which is the Yearbook.",
       "values": {}
     }
   ]
