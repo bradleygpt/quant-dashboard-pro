@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-09-17T14:46:40.891753+00:00",
-  "last_updated_human": "2026-09-17 14:46 UTC",
+  "last_updated_utc": "2026-09-18T14:13:18.984759+00:00",
+  "last_updated_human": "2026-09-18 14:13 UTC",
   "market_context": {
-    "spy_price": 761.7000122070312,
-    "sp500_level": 7617.0001220703125,
-    "btc_price": 76645.34375,
-    "eth_price": 2465.7099609375
+    "spy_price": 759.6359252929688,
+    "sp500_level": 7596.3592529296875,
+    "btc_price": 80199.8203125,
+    "eth_price": 2556.530029296875
   },
   "equity": {
     "commentators": [
@@ -159,7 +159,9 @@
       "Market seasonality and potential for corrections"
     ]
   },
-  "equity_status": "fresh",
+  "equity_status": "stale",
+  "equity_last_fresh": "2026-09-17T14:46:40.891753+00:00",
+  "equity_error": "No JSON found in response: ",
   "crypto": {
     "commentators": [
       {
@@ -444,5 +446,7 @@
       "Ethereum's Role in AI and Finance"
     ]
   },
-  "crypto_status": "fresh"
+  "crypto_status": "stale",
+  "crypto_last_fresh": "2026-09-17T14:46:40.891753+00:00",
+  "crypto_error": "No JSON found in response: "
 }
