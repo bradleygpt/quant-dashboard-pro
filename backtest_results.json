@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-09-13T10:37:44.076160+00:00",
+  "last_run_utc": "2026-09-20T10:14:21.456565+00:00",
   "parameters": {
     "start_year": 2005,
     "hold_days": 14,
@@ -1842,7 +1842,7 @@
     {
       "date": "2006-04-01",
       "n_candidates_screened": 197,
-      "n_qualified": 21,
+      "n_qualified": 66,
       "top_picks": [],
       "portfolio_return_realistic": null,
       "portfolio_return_max": null,
