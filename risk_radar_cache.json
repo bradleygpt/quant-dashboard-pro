@@ -1,142 +1,168 @@
 {
-  "last_updated_utc": "2026-09-21T16:21:22.462811+00:00",
-  "last_updated_human": "2026-09-21 16:21 UTC",
+  "last_updated_utc": "2026-09-22T14:29:57.120519+00:00",
+  "last_updated_human": "2026-09-22 14:29 UTC",
   "as_of_window": "September 2026",
   "risks": [
     {
-      "title": "Persistent Elevated Inflation and Monetary Policy Tightening",
+      "title": "Persistent Inflation and Monetary Policy Tightening",
       "category": "Inflation",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Inflation remains elevated, driven by supply shocks from energy and ongoing geopolitical developments, leading central banks to continue monetary policy tightening. This risks slowing economic growth and increasing financial market volatility.",
-      "watch_for": "Core PCE inflation readings, Federal Reserve statements on inflation targets, and central bank interest rate decisions.",
+      "summary": "Inflation remains elevated above the 2% target, forcing central banks, particularly the Federal Reserve, to continue raising interest rates. This tightening cycle risks slowing economic growth and increasing borrowing costs.",
+      "watch_for": "FOMC statements and Summary of Economic Projections (SEP) indicating future rate hikes; core PCE inflation data; wage and housing inflation trends.",
       "sources": [
-        "Federal Reserve FOMC statement (September 2026)",
-        "JPMorgan (Mid-Year Outlook 2026)",
+        "Federal Reserve (FOMC statement / SEP, September 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
         "KPMG (Economic Compass, September 2026)",
         "Wells Fargo Investment Institute (outlook, September 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, March 2026)",
         "IMF (World Economic Outlook, September 2026)",
-        "Guggenheim Investments (Economic Outlook, September 2026)",
+        "World Bank (Global Economic Prospects, January 2026)",
+        "KPMG (September 2026 Quarterly Outlook, September 2026)",
+        "Federal Reserve (Summary of Economic Projections, September 2026)",
         "KPMG (Inflation Forces the Fed's Hand, September 2026)"
       ]
     },
     {
-      "title": "Geopolitical Tensions and Supply Chain Disruptions",
+      "title": "Geopolitical Fragmentation and Trade Tensions",
       "category": "Geopolitical",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Ongoing geopolitical conflicts, particularly in the Middle East, are contributing to elevated energy prices and supply chain disruptions, posing a significant risk to global economic stability and growth.",
-      "watch_for": "Escalation of conflicts, changes in energy prices, and reports of new supply chain bottlenecks.",
+      "summary": "Ongoing geopolitical conflicts and rising trade tensions, including tariffs, are redrawing alliances, rerouting trade, and increasing supply chain costs and uncertainty. This fragmentation poses a significant risk to global growth and stability.",
+      "watch_for": "Escalation of existing conflicts (e.g., Middle East); new trade disputes; retaliatory tariffs; shifts in global supply chain strategies.",
       "sources": [
-        "Federal Reserve FOMC statement (September 2026)",
-        "JPMorgan (Mid-Year Outlook 2026)",
+        "Federal Reserve (FOMC statement / SEP, September 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
         "IMF (World Economic Outlook, September 2026)",
-        "World Bank (Global Economic Prospects, September 2026)",
-        "Guggenheim Investments (Economic Outlook, September 2026)",
-        "KPMG (Economic Compass, September 2026)"
+        "World Bank (Global Economic Prospects, January 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "JPMorgan (Mid-Year Investment Outlook 2026, June 2026)",
+        "IMF (World Economic Situation and Prospects 2026 September Update, September 2026)",
+        "World Bank (Global Economic Prospects, January 2026)",
+        "World Economic Forum (Chief Economists Outlook, September 2026)",
+        "KPMG (The donut economy, September 2026)"
       ]
     },
     {
-      "title": "Slowing Global Growth Amidst Economic Fragmentation",
-      "category": "Growth",
-      "severity": "Medium",
-      "direction": "downside",
-      "horizon": "2026",
-      "summary": "Global economic growth is projected to slow, influenced by geopolitical fragmentation, trade tensions, and the lingering effects of energy shocks. This could lead to reduced trade and investment flows.",
-      "watch_for": "IMF and World Bank global growth forecasts, trade data, and indicators of international investment.",
-      "sources": [
-        "IMF (World Economic Outlook, September 2026)",
-        "World Bank (Global Economic Prospects, September 2026)",
-        "JPMorgan (Mid-Year Outlook 2026)",
-        "KPMG (Economic Compass, September 2026)"
-      ]
-    },
-    {
-      "title": "AI Investment Boom and Potential Disruptions",
+      "title": "AI Investment Boom and Economic Dependence",
       "category": "Growth",
       "severity": "Medium",
       "direction": "two-sided",
       "horizon": "2026",
-      "summary": "The rapid buildout of Artificial Intelligence (AI) is driving significant business investment, but also presents risks. Disruptions to the AI investment thesis could negatively impact growth and equity markets, while the concentration of AI benefits could exacerbate inequality.",
-      "watch_for": "Corporate AI investment plans, data center construction rates, and reports on AI's impact on labor markets and productivity.",
+      "summary": "The surge in Artificial Intelligence (AI) investment is a significant driver of economic growth, particularly in the US. However, an increasing reliance on this narrow set of drivers presents a downside risk if the AI investment thesis is disrupted.",
+      "watch_for": "Corporate AI investment spending trends; data center buildouts; AI-related stock valuations; potential disruptions to AI supply chains or technological advancements.",
       "sources": [
-        "Guggenheim Investments (Economic Outlook, September 2026)",
-        "JPMorgan (Mid-Year Outlook 2026)",
-        "KPMG (Economic Compass, September 2026)",
-        "Wells Fargo Investment Institute (outlook, September 2026)",
-        "Stanford SIEPR (US Economy 2026: What to Watch, September 2026)",
-        "World Bank (Global Economic Prospects, September 2026)"
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, March 2026)",
+        "JPMorgan (2026 Mid-Year Investment Outlook, June 2026)",
+        "KPMG (Spring thaw, summer heat: Biannual economic outlook, June 2026)",
+        "Wells Fargo Investment Institute (Investment Strategy, September 2026)",
+        "Stanford SIEPR (Got data? Monitoring the US economy, March 2026)",
+        "World Bank (Global Economic Prospects, January 2026)",
+        "World Economic Forum (Chief Economists Outlook, September 2026)",
+        "KPMG (The donut economy, September 2026)"
       ]
     },
     {
-      "title": "US Fiscal Sustainability and Rising National Debt",
+      "title": "Elevated Energy Prices and Supply Chain Disruptions",
+      "category": "Inflation",
+      "severity": "Medium",
+      "direction": "downside",
+      "horizon": "near-term",
+      "summary": "The ongoing conflict in the Middle East continues to drive elevated energy prices, which feed into broader inflation through transportation, manufacturing, and food production costs. Supply chain disruptions exacerbate these pressures.",
+      "watch_for": "Oil and gas prices; Brent crude benchmarks; news on Middle East conflict escalation; reports of supply chain bottlenecks.",
+      "sources": [
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "IMF (World Economic Outlook, September 2026)",
+        "World Bank (Global Economic Prospects, January 2026)",
+        "JPMorgan (Mid-Year Investment Outlook 2026, June 2026)",
+        "IMF (World Economic Situation and Prospects 2026 September Update, September 2026)",
+        "World Bank (Global Economic Prospects, January 2026)",
+        "KPMG (Spring thaw, summer heat: Biannual economic outlook, June 2026)",
+        "Wells Fargo Investment Institute (Investment Strategy, September 2026)",
+        "IMF (Executive Board Concludes 2026 Article IV Consultation with the Republic of Latvia, September 2026)"
+      ]
+    },
+    {
+      "title": "US Fiscal Sustainability and Rising Debt",
       "category": "Fiscal",
       "severity": "Medium",
       "direction": "downside",
-      "horizon": "structural",
-      "summary": "The US faces challenges related to its national debt and fiscal space, with increasing defense spending and competition for government financing. This could lead to higher borrowing costs and constrain future policy options.",
-      "watch_for": "Congressional Budget Office (CBO) budget outlooks, US Treasury debt levels, and discussions on fiscal policy reforms.",
+      "horizon": "2027",
+      "summary": "Growing government deficits and a deteriorating budget trajectory in the US are leading to increased national debt. This raises concerns about fiscal sustainability and the government's ability to finance future demands.",
+      "watch_for": "Congressional Budget Office (CBO) reports on budget outlook; US Treasury debt issuance levels; discussions on debt ceiling; fiscal stimulus measures.",
       "sources": [
-        "Congressional Budget Office (Budget and Economic Outlook, September 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, March 2026)",
         "KPMG (Economic Compass, September 2026)",
-        "Stanford SIEPR (US Economy 2026: What to Watch, September 2026)"
+        "IMF (World Economic Outlook, September 2026)",
+        "World Bank (Global Economic Prospects, January 2026)",
+        "Stanford SIEPR (The U.S. economy in 2026: What to watch for, March 2026)",
+        "Stanford SIEPR (Got data? Monitoring the US economy, March 2026)",
+        "World Bank (Global Economic Prospects, January 2026)",
+        "IMF (Executive Board Concludes 2026 Article IV Consultation with the Republic of Latvia, September 2026)"
       ]
     },
     {
-      "title": "Labor Market Dynamics and Affordability Concerns",
+      "title": "Labor Market Resilience Amidst Slowing Growth",
       "category": "Labor",
       "severity": "Medium",
-      "direction": "downside",
-      "horizon": "2026",
-      "summary": "While the US labor market remains steady, concerns about affordability persist for consumers, particularly leading up to elections. Slowing job growth and the impact of AI on hiring could also present challenges.",
-      "watch_for": "Unemployment rate, job creation figures, wage growth, and consumer sentiment surveys.",
-      "sources": [
-        "Federal Reserve FOMC statement (September 2026)",
-        "Guggenheim Investments (Economic Outlook, September 2026)",
-        "Stanford SIEPR (US Economy 2026: What to Watch, September 2026)",
-        "KPMG (Economic Compass, September 2026)"
-      ]
-    },
-    {
-      "title": "Valuation Risks in Equity Markets Amidst Higher Rates",
-      "category": "Markets",
-      "severity": "Medium",
-      "direction": "downside",
-      "horizon": "2026",
-      "summary": "Higher interest rates and moderating earnings growth could lead to valuation compression in equity markets, particularly for AI-related firms. Investors are advised to focus on disciplined investing and diversification.",
-      "watch_for": "S&P 500 P/E ratios, corporate earnings reports, and central bank statements on interest rate policy.",
-      "sources": [
-        "Wells Fargo Investment Institute (outlook, September 2026)",
-        "JPMorgan (Mid-Year Outlook 2026)",
-        "Stanford SIEPR (US Economy 2026: What to Watch, September 2026)",
-        "Guggenheim Investments (Economic Outlook, September 2026)"
-      ]
-    },
-    {
-      "title": "Commodity Price Volatility and Supply/Demand Imbalances",
-      "category": "Inflation",
-      "severity": "Low",
       "direction": "two-sided",
       "horizon": "2026",
-      "summary": "Base metals prices are hitting new highs due to demand growth outstripping supply, while energy prices remain volatile due to geopolitical events. This can impact inflation and investment strategies.",
-      "watch_for": "Prices of key commodities (copper, oil, gold), inventory levels, and geopolitical developments affecting supply.",
+      "summary": "While the US labor market has shown resilience with job gains keeping pace and a stable unemployment rate, there are concerns about potential headwinds. AI's impact on hiring and a general slowing of job growth could pose risks.",
+      "watch_for": "Monthly jobs reports (nonfarm payrolls); unemployment rate trends; wage growth data; AI's impact on labor demand.",
       "sources": [
-        "Wells Fargo Investment Institute (outlook, September 2026)",
-        "JPMorgan (Mid-Year Outlook 2026)",
+        "Federal Reserve (FOMC statement / SEP, September 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, March 2026)",
+        "KPMG (Spring thaw, summer heat: Biannual economic outlook, June 2026)",
+        "Stanford SIEPR (The U.S. economy in 2026: What to watch for, March 2026)",
+        "Stanford SIEPR (Got data? Monitoring the US economy, March 2026)"
+      ]
+    },
+    {
+      "title": "Sticky Services Inflation and Consumer Spending Moderation",
+      "category": "Inflation",
+      "severity": "Low",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "While energy-related inflation pressures may be peaking, sticky services prices continue to contribute to elevated inflation. This, combined with the depletion of fiscal support, could lead to a moderation in consumer spending.",
+      "watch_for": "Services component of CPI and PCE; consumer spending data (retail sales, personal consumption expenditures); trends in wage growth and housing inflation.",
+      "sources": [
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "KPMG (Spring thaw, summer heat: Biannual economic outlook, June 2026)",
+        "IMF (World Economic Situation and Prospects 2026 September Update, September 2026)"
+      ]
+    },
+    {
+      "title": "Financial Stability and Liquidity Pressures",
+      "category": "Markets",
+      "severity": "Low",
+      "direction": "downside",
+      "horizon": "near-term",
+      "summary": "Rising global public debt and potential liquidity constraints in developing economies pose risks to financial stability. Central bank actions to combat inflation could also inadvertently expose market fragilities.",
+      "watch_for": "Global public debt levels; liquidity conditions in emerging markets; signs of stress in financial markets; central bank communication on financial stability.",
+      "sources": [
         "IMF (World Economic Outlook, September 2026)",
-        "World Bank (Global Economic Prospects, September 2026)"
+        "World Bank (Global Economic Prospects, January 2026)",
+        "IMF (World Economic Situation and Prospects 2026 September Update, September 2026)",
+        "KPMG (Inflation Forces the Fed's Hand, September 2026)"
       ]
     }
   ],
-  "consensus_note": "There is a strong consensus across institutions regarding the persistent nature of elevated inflation and the necessity for continued monetary policy tightening by central banks, particularly the Federal Reserve. Geopolitical tensions and their impact on energy prices and supply chains are also widely flagged as significant downside risks. While AI investment is seen as a growth driver, its potential for disruption and exacerbation of inequality is a noted concern. Divergence exists in the precise timing and magnitude of potential economic slowdowns and the effectiveness of policy responses.",
+  "consensus_note": "There is a strong consensus among institutions regarding the persistence of inflation and the necessity for continued monetary policy tightening by the Federal Reserve. Geopolitical fragmentation and trade tensions are also widely flagged as significant downside risks to the global economy. While AI is seen as a growth driver, its increasing importance also introduces a concentration risk. Divergence exists in the precise timing and extent of future rate hikes and the speed at which inflation will return to target.",
   "themes": [
-    "Persistent Inflation and Monetary Policy",
-    "Geopolitical Fragmentation and Supply Chain Resilience",
-    "AI as a Growth Driver and Disruptor",
-    "Fiscal Sustainability and Debt Management",
-    "Labor Market Resilience and Affordability"
+    "Persistent Inflation",
+    "Geopolitical Uncertainty",
+    "AI-Driven Growth and Risks",
+    "Monetary Policy Tightening",
+    "Supply Chain Resilience",
+    "Fiscal Sustainability"
   ],
   "status": "fresh"
 }
