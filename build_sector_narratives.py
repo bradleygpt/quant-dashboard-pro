@@ -22,7 +22,14 @@ ai_assistant.call_llm = _llm
 
 DASH = [Path(r"C:\Users\bmhar\code\quant-dashboard-pro-v2\public\data"),
         Path(r"C:\Users\bmhar\code\quant-dashboard-react\web\public\data")]
-rows = json.load(open(DASH[0] / "universe_floor0.json"))["rows"]
+# universe_floor0.json no longer ships to pro-v2 (only the react data dir carries it);
+# fall back so a missing copy in DASH[0] doesn't kill the whole narrative build. Same
+# fix build_strategy_rationale.py already carries -- C10 was missed when pro-v2 stopped
+# receiving the file, and it broke on its first chain run (2026-09-24).
+_ufloor = next((d / "universe_floor0.json" for d in DASH if (d / "universe_floor0.json").exists()), None)
+if _ufloor is None:
+    raise SystemExit("universe_floor0.json not found in either dashboard data dir")
+rows = json.load(open(_ufloor))["rows"]
 stocks = [r for r in rows if r.get("sector") and r.get("sector") != "ETF"]
 
 GRADE_NUM = {"A+": 12, "A": 11, "A-": 10, "B+": 9, "B": 8, "B-": 7, "C+": 6, "C": 5, "C-": 4, "D+": 3, "D": 2, "D-": 1, "F": 0}
