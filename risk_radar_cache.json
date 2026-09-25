@@ -1,42 +1,58 @@
 {
-  "last_updated_utc": "2026-09-24T14:43:07.166421+00:00",
-  "last_updated_human": "2026-09-24 14:43 UTC",
+  "last_updated_utc": "2026-09-25T15:04:12.243942+00:00",
+  "last_updated_human": "2026-09-25 15:04 UTC",
   "as_of_window": "September 2026",
   "risks": [
     {
-      "title": "Persistent Elevated Inflation and Interest Rate Uncertainty",
+      "title": "Persistent Inflationary Pressures",
       "category": "Inflation",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Inflation remains elevated above central bank targets, leading to continued uncertainty about the path of monetary policy. This persistence complicates efforts to return to price stability without harming economic growth.",
-      "watch_for": "Core PCE inflation readings, Federal Reserve statements on future rate hikes, and market pricing of interest rate futures.",
+      "summary": "Inflation remains elevated above central bank targets, driven by a combination of supply shocks, energy price volatility, and strong demand in certain sectors. This persistence complicates monetary policy decisions and erodes purchasing power.",
+      "watch_for": "Core PCE inflation readings, wage growth, and central bank statements on inflation outlook.",
       "sources": [
-        "Federal Reserve (FOMC statement / SEP / minutes), September 2026",
-        "IMF (World Economic Outlook), September 2026",
-        "Guggenheim Investments (Economic Outlook / macro themes), September 2026",
-        "KPMG (Economic Compass), September 2026",
-        "Wells Fargo Investment Institute (outlook), September 2026",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\"), September 2026"
+        "Federal Reserve (FOMC statement / SEP, September 2026)",
+        "IMF (World Economic Outlook, July 2026)",
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Wells Fargo Investment Institute (outlook, September 2026)",
+        "RBC Economics (September Executive Briefing, September 2026)"
       ]
     },
     {
-      "title": "Geopolitical Tensions and Supply Chain Disruptions",
+      "title": "Geopolitical Tensions and Trade Uncertainty",
       "category": "Geopolitical",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Ongoing geopolitical conflicts, particularly in the Middle East, continue to disrupt global supply chains, leading to elevated energy and commodity prices and contributing to inflationary pressures.",
-      "watch_for": "Developments in the Middle East conflict, energy price movements (oil and gas), and reports of new supply chain bottlenecks.",
+      "summary": "Ongoing conflicts and shifting global alliances create uncertainty in trade flows, supply chains, and commodity prices, leading to potential disruptions and increased costs.",
+      "watch_for": "Developments in the Middle East conflict, trade policy announcements, and global alliance shifts.",
       "sources": [
-        "Federal Reserve (FOMC statement / SEP / minutes), September 2026",
-        "IMF (World Economic Outlook), September 2026",
-        "World Bank (Global Economic Prospects), September 2026",
-        "JPMorgan (Mid-Year Outlook 2026), September 2026",
-        "Guggenheim Investments (Economic Outlook / macro themes), September 2026",
-        "KPMG (Economic Compass), September 2026",
-        "Wells Fargo Investment Institute (outlook), September 2026",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\"), September 2026"
+        "IMF (World Economic Outlook, July 2026)",
+        "World Bank (Global Economic Prospects, June 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "Wells Fargo Investment Institute (outlook, September 2026)",
+        "IMF (Article IV Consultation with Brunei Darussalam, September 2026)"
+      ]
+    },
+    {
+      "title": "Monetary Policy Tightening and Interest Rate Path",
+      "category": "Policy",
+      "severity": "High",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "Central banks are continuing to raise interest rates to combat inflation, leading to higher borrowing costs and potential dampening of economic activity. Uncertainty remains about the future path of rate hikes and cuts.",
+      "watch_for": "FOMC meeting minutes and statements, median projections for the federal funds rate, and central bank communications.",
+      "sources": [
+        "Federal Reserve (FOMC statement / SEP / minutes, September 2026)",
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Wells Fargo Investment Institute (outlook, September 2026)",
+        "Stanford SIEPR ('US Economy 2026: What to Watch', March 2026)",
+        "RBC Economics (September Executive Briefing, September 2026)"
       ]
     },
     {
@@ -45,82 +61,85 @@
       "severity": "Medium",
       "direction": "two-sided",
       "horizon": "2026",
-      "summary": "The rapid buildout of Artificial Intelligence (AI) is a significant driver of investment and growth, but the economy's increasing reliance on this narrow set of drivers poses a risk if the AI investment thesis falters.",
-      "watch_for": "Corporate capital expenditure plans for AI, profitability of AI-related firms, and any signs of a slowdown in AI investment.",
+      "summary": "The rapid buildout of AI infrastructure is a significant driver of current economic growth, but also creates a dependence on this sector. Disruptions to AI investment could pose a substantial risk to overall economic expansion.",
+      "watch_for": "Corporate investment plans in AI, data center construction, and profitability of AI-related firms.",
       "sources": [
-        "Guggenheim Investments (Economic Outlook / macro themes), September 2026",
-        "KPMG (Economic Compass), September 2026",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\"), September 2026"
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Stanford SIEPR ('US Economy 2026: What to Watch', March 2026)",
+        "Wells Fargo Investment Institute (outlook, September 2026)",
+        "RBC Economics (September Executive Briefing, September 2026)",
+        "IMF (Article IV Consultation with Brunei Darussalam, September 2026)",
+        "World Bank (Global Economic Prospects, June 2026)"
       ]
     },
     {
-      "title": "Slowing Global Growth Amidst Divergent Economic Paths",
-      "category": "Growth",
+      "title": "Labor Market Dynamics and Wage Growth",
+      "category": "Labor",
       "severity": "Medium",
-      "direction": "downside",
+      "direction": "two-sided",
       "horizon": "2026",
-      "summary": "Global economic growth is projected to slow in 2026, with divergent performance across regions. Emerging markets and developing economies are particularly vulnerable to the ongoing energy shock and geopolitical uncertainties.",
-      "watch_for": "IMF and World Bank global growth forecasts, regional economic performance indicators, and trade data.",
+      "summary": "While the labor market remains relatively resilient with low unemployment, concerns exist about labor availability, wage growth pressures, and the impact of AI on employment, which could influence inflation and consumer spending.",
+      "watch_for": "Unemployment rate, job openings, wage growth data, and labor force participation rates.",
       "sources": [
-        "IMF (World Economic Outlook), September 2026",
-        "World Bank (Global Economic Prospects), September 2026",
-        "JPMorgan (Mid-Year Outlook 2026), September 2026"
+        "Federal Reserve (FOMC statement / SEP, September 2026)",
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Stanford SIEPR ('US Economy 2026: What to Watch', March 2026)",
+        "RBC Economics (September Executive Briefing, September 2026)"
       ]
     },
     {
-      "title": "Fiscal Policy Constraints and Rising Debt Levels",
+      "title": "Fiscal Policy and Government Debt Levels",
       "category": "Fiscal",
       "severity": "Medium",
       "direction": "downside",
-      "horizon": "2026",
-      "summary": "Governments face increasing pressure to finance demands, including defense spending and AI investments, while also managing rising national debt. This limits fiscal space for stimulus and increases vulnerability to financial crises.",
-      "watch_for": "Government budget deficits and debt-to-GDP ratios, announcements of new fiscal stimulus or austerity measures, and sovereign debt ratings.",
+      "horizon": "2027",
+      "summary": "Elevated government spending, particularly on defense, and increasing national debt levels raise concerns about fiscal sustainability and could limit future policy flexibility.",
+      "watch_for": "Government budget proposals, national debt figures, and fiscal deficit trends.",
       "sources": [
-        "IMF (World Economic Outlook), September 2026",
-        "KPMG (Economic Compass), September 2026",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\"), September 2026"
+        "KPMG (Economic Compass, September 2026)",
+        "Stanford SIEPR ('US Economy 2026: What to Watch', March 2026)",
+        "IMF (World Economic Outlook, July 2026)",
+        "World Bank (Global Economic Prospects, June 2026)"
       ]
     },
     {
-      "title": "Labor Market Dynamics and Affordability Concerns",
-      "category": "Labor",
-      "severity": "Low",
-      "direction": "two-sided",
-      "horizon": "2026",
-      "summary": "While the labor market shows resilience with stable unemployment, concerns about affordability persist for consumers, particularly low- and middle-income households. The impact of AI on jobs also remains a focus.",
-      "watch_for": "Unemployment rate, wage growth, consumer sentiment surveys, and data on AI adoption in the workforce.",
-      "sources": [
-        "Federal Reserve (FOMC statement / SEP / minutes), September 2026",
-        "Guggenheim Investments (Economic Outlook / macro themes), September 2026",
-        "KPMG (Economic Compass), September 2026",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\"), September 2026"
-      ]
-    },
-    {
-      "title": "Trade Policy Uncertainty and Tariffs",
-      "category": "Trade",
+      "title": "Consumer Spending and Affordability Challenges",
+      "category": "Growth",
       "severity": "Low",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Ongoing trade tensions and the potential for new tariffs create uncertainty, impacting global trade flows, supply chains, and potentially leading to further economic fragmentation.",
-      "watch_for": "Announcements of new tariffs or trade disputes, changes in trade volumes, and statements from trade organizations.",
+      "summary": "While some consumer segments benefit from wealth gains, persistent inflation and higher interest rates are creating affordability challenges for many households, potentially moderating overall spending.",
+      "watch_for": "Retail sales data, consumer confidence surveys, and inflation rates for essential goods and services.",
       "sources": [
-        "IMF (World Economic Outlook), September 2026",
-        "JPMorgan (Mid-Year Outlook 2026), September 2026",
-        "KPMG (Economic Compass), September 2026",
-        "Stanford SIEPR (\"US Economy 2026: What to Watch\"), September 2026"
+        "Guggenheim Investments (Economic Outlook / macro themes, September 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Stanford SIEPR ('US Economy 2026: What to Watch', March 2026)",
+        "Wells Fargo Investment Institute (outlook, September 2026)"
+      ]
+    },
+    {
+      "title": "Stock Market Valuations and Bubble Concerns",
+      "category": "Markets",
+      "severity": "Low",
+      "direction": "downside",
+      "horizon": "2026",
+      "summary": "Concerns exist about potentially high valuations in certain market segments, particularly those related to AI, raising the risk of a market correction if expectations are not met.",
+      "watch_for": "Price-to-earnings ratios in tech sectors, market volatility, and investor sentiment towards growth stocks.",
+      "sources": [
+        "Stanford SIEPR ('US Economy 2026: What to Watch', March 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)"
       ]
     }
   ],
-  "consensus_note": "There is a strong consensus across institutions regarding the persistent nature of inflation and the ongoing risks posed by geopolitical tensions and supply chain disruptions. While AI investment is seen as a growth driver, its concentration as a key economic engine is flagged as a potential vulnerability. Divergent global growth paths and fiscal policy constraints are also widely recognized concerns.",
+  "consensus_note": "There is a strong consensus across institutions regarding persistent inflation and the ongoing impact of geopolitical tensions as key risks. While economic growth is expected to remain resilient, driven by AI investment, there is a shared concern about the path of monetary policy and its implications for interest rates and financial conditions. Disagreements may emerge on the precise timing and magnitude of potential rate cuts or the extent to which AI-driven productivity gains will offset inflationary pressures.",
   "themes": [
     "Inflation Persistence",
     "Geopolitical Fragmentation",
-    "AI-Driven Investment",
-    "Monetary Policy Tightrope",
-    "Supply Chain Resilience"
+    "AI-Driven Economic Transformation",
+    "Monetary Policy Tightening Cycle",
+    "Resilient but Uneven Growth"
   ],
-  "status": "stale",
-  "last_fresh": "2026-09-23T14:48:44.120115+00:00",
-  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
+  "status": "fresh"
 }
