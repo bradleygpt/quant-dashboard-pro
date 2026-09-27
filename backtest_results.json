@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-09-20T10:14:21.456565+00:00",
+  "last_run_utc": "2026-09-27T11:07:57.883886+00:00",
   "parameters": {
     "start_year": 2005,
     "hold_days": 14,
@@ -8,34 +8,34 @@
   },
   "aggregate_metrics": {
     "realistic_strategy": {
-      "n_periods": 15,
-      "win_rate_pct": 60.0,
-      "avg_return_pct": 0.5606481598613416,
-      "avg_win_pct": 1.509805251401619,
+      "n_periods": 14,
+      "win_rate_pct": 57.14285714285714,
+      "avg_return_pct": 0.5848371119525728,
+      "avg_win_pct": 1.6707805540038085,
       "avg_loss_pct": -0.8630874774490748,
       "best_period_pct": 2.2084159452251924,
       "worst_period_pct": -2.081375768534698,
-      "total_compounded_pct": 8.599328883749656
+      "total_compounded_pct": 8.358769348609641
     },
     "theoretical_max_strategy": {
-      "n_periods": 15,
+      "n_periods": 14,
       "win_rate_pct": 100.0,
-      "avg_return_pct": 4.091548776149444,
-      "avg_win_pct": 4.091548776149444,
+      "avg_return_pct": 4.062712926100921,
+      "avg_win_pct": 4.062712926100921,
       "avg_loss_pct": 0,
       "best_period_pct": 9.601984029561779,
       "worst_period_pct": 0.7305135843712579,
-      "total_compounded_pct": 81.92135208940445
+      "total_compounded_pct": 74.09533056390332
     },
     "spy_benchmark": {
-      "n_periods": 15,
-      "win_rate_pct": 60.0,
-      "avg_return_pct": 0.2895459740682676,
-      "avg_win_pct": 1.5850840049832364,
+      "n_periods": 14,
+      "win_rate_pct": 57.14285714285714,
+      "avg_return_pct": 0.24121204698610907,
+      "avg_win_pct": 1.6624418864538302,
       "avg_loss_pct": -1.6537610723041858,
       "best_period_pct": 3.8509415486043856,
       "worst_period_pct": -2.3001629118449585,
-      "total_compounded_pct": 4.166655922265505
+      "total_compounded_pct": 3.1698076236109873
     }
   },
   "monthly_results": [
@@ -1722,127 +1722,16 @@
     {
       "date": "2006-03-01",
       "n_candidates_screened": 197,
-      "n_qualified": 106,
-      "top_picks": [
-        {
-          "ticker": "NOC",
-          "swing_score": 80,
-          "weight": 0.10738255033557047,
-          "entry_price": 57.91434860229492,
-          "target_price": 59.500636509486604,
-          "stop_price": 57.12120464869908,
-          "realistic_return_pct": 2.7390239991904592,
-          "realistic_exit_reason": "target",
-          "max_return_pct": 8.939158401725635
-        },
-        {
-          "ticker": "GS",
-          "swing_score": 75,
-          "weight": 0.10067114093959731,
-          "entry_price": 141.2899932861328,
-          "target_price": 146.68856811523438,
-          "stop_price": 138.59070587158203,
-          "realistic_return_pct": 3.8209180307402675,
-          "realistic_exit_reason": "target",
-          "max_return_pct": 6.419426537766666
-        },
-        {
-          "ticker": "BIIB",
-          "swing_score": 75,
-          "weight": 0.10067114093959731,
-          "entry_price": 47.25,
-          "target_price": 50.5942862374442,
-          "stop_price": 45.5778568812779,
-          "realistic_return_pct": -3.538927235390682,
-          "realistic_exit_reason": "stop",
-          "max_return_pct": 4.190475221664187
-        },
-        {
-          "ticker": "RSG",
-          "swing_score": 75,
-          "weight": 0.10067114093959731,
-          "entry_price": 25.913333892822266,
-          "target_price": 26.563810076032365,
-          "stop_price": 25.588095801217218,
-          "realistic_return_pct": 2.510198749031958,
-          "realistic_exit_reason": "target",
-          "max_return_pct": 6.3545106929534345
-        },
-        {
-          "ticker": "OXY",
-          "swing_score": 75,
-          "weight": 0.10067114093959731,
-          "entry_price": 43.85047149658203,
-          "target_price": 46.394809177943635,
-          "stop_price": 42.578302655901226,
-          "realistic_return_pct": -2.901152022458792,
-          "realistic_exit_reason": "stop",
-          "max_return_pct": 3.8890094229403775
-        },
-        {
-          "ticker": "EXC",
-          "swing_score": 75,
-          "weight": 0.10067114093959731,
-          "entry_price": 40.73466491699219,
-          "target_price": 42.27735955374581,
-          "stop_price": 39.963317598615376,
-          "realistic_return_pct": -1.89358945249369,
-          "realistic_exit_reason": "stop",
-          "max_return_pct": -0.15758991933958322
-        },
-        {
-          "ticker": "ARE",
-          "swing_score": 75,
-          "weight": 0.10067114093959731,
-          "entry_price": 88.0199966430664,
-          "target_price": 90.32999747140067,
-          "stop_price": 86.86499622889927,
-          "realistic_return_pct": 2.624404585814345,
-          "realistic_exit_reason": "target",
-          "max_return_pct": 10.293121487754526
-        },
-        {
-          "ticker": "VWO",
-          "swing_score": 75,
-          "weight": 0.10067114093959731,
-          "entry_price": 33.25,
-          "target_price": 34.257143293108264,
-          "stop_price": 32.74642835344587,
-          "realistic_return_pct": -1.5145011926439955,
-          "realistic_exit_reason": "stop",
-          "max_return_pct": 2.390971936677632
-        },
-        {
-          "ticker": "KO",
-          "swing_score": 70,
-          "weight": 0.09395973154362416,
-          "entry_price": 20.985000610351562,
-          "target_price": 21.513572147914342,
-          "stop_price": 20.72071484157017,
-          "realistic_return_pct": 1.9537757230746184,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": 1.9537757230746184
-        },
-        {
-          "ticker": "ACN",
-          "swing_score": 70,
-          "weight": 0.09395973154362416,
-          "entry_price": 32.65999984741211,
-          "target_price": 33.81285558428083,
-          "stop_price": 32.08357197897775,
-          "realistic_return_pct": -1.764935306575124,
-          "realistic_exit_reason": "stop",
-          "max_return_pct": -0.09185174353040305
-        }
-      ],
-      "portfolio_return_realistic": 0.2220028305841036,
-      "portfolio_return_max": 4.4952506768287765,
-      "spy_return_pct": 0.9662209532184876
+      "n_qualified": 102,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
     },
     {
       "date": "2006-04-01",
       "n_candidates_screened": 197,
-      "n_qualified": 66,
+      "n_qualified": 0,
       "top_picks": [],
       "portfolio_return_realistic": null,
       "portfolio_return_max": null,
