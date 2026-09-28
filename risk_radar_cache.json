@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-09-25T15:04:12.243942+00:00",
-  "last_updated_human": "2026-09-25 15:04 UTC",
+  "last_updated_utc": "2026-09-28T18:01:01.069263+00:00",
+  "last_updated_human": "2026-09-28 18:01 UTC",
   "as_of_window": "September 2026",
   "risks": [
     {
@@ -141,5 +141,7 @@
     "Monetary Policy Tightening Cycle",
     "Resilient but Uneven Growth"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-09-25T15:04:12.243942+00:00",
+  "error": "No JSON found: "
 }
