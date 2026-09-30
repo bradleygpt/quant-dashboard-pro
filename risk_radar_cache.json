@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-09-29T16:24:00.747384+00:00",
-  "last_updated_human": "2026-09-29 16:24 UTC",
+  "last_updated_utc": "2026-09-30T16:19:04.625895+00:00",
+  "last_updated_human": "2026-09-30 16:19 UTC",
   "as_of_window": "September 2026",
   "risks": [
     {
@@ -122,5 +122,7 @@
     "AI-Driven Investment and Disruption",
     "Labor Market Dynamics"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-09-29T16:24:00.747384+00:00",
+  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
 }
