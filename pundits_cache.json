@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-09-30T16:18:55.484223+00:00",
-  "last_updated_human": "2026-09-30 16:18 UTC",
+  "last_updated_utc": "2026-10-01T16:56:07.050764+00:00",
+  "last_updated_human": "2026-10-01 16:56 UTC",
   "market_context": {
-    "spy_price": 768.2949829101562,
-    "sp500_level": 7682.9498291015625,
-    "btc_price": 84307.3828125,
-    "eth_price": 2687.340087890625
+    "spy_price": 760.6799926757812,
+    "sp500_level": 7606.7999267578125,
+    "btc_price": 84117.296875,
+    "eth_price": 2678.739990234375
   },
   "equity": {
     "commentators": [
@@ -160,8 +160,8 @@
     ]
   },
   "equity_status": "stale",
-  "equity_last_fresh": "2026-09-29T16:23:52.083914+00:00",
-  "equity_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
+  "equity_last_fresh": "2026-09-30T16:18:55.484223+00:00",
+  "equity_error": "No JSON found in response: ",
   "crypto": {
     "commentators": [
       {
@@ -336,5 +336,7 @@
       "Shifting market cycles and the obsolescence of the four-year Bitcoin cycle"
     ]
   },
-  "crypto_status": "fresh"
+  "crypto_status": "stale",
+  "crypto_last_fresh": "2026-09-30T16:18:55.484223+00:00",
+  "crypto_error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
 }
