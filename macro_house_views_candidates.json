@@ -1,57 +1,52 @@
 {
-  "generated_utc": "2026-09-15T14:06:21.954969+00:00",
+  "generated_utc": "2026-10-01T15:55:35.795146+00:00",
   "_warning": "UNVERIFIED LLM-drafted figures. Verify EACH against the cited source PDF before promoting into macro_house_views.json. Never merge a figure whose quote does not plainly state the number. The live panel reads ONLY macro_house_views.json, never this file.",
   "candidates": [
-    {
-      "id": "guggenheim",
-      "name": "Guggenheim Investments",
-      "kind": "house",
-      "status": "stale",
-      "as_of": "2026-08",
-      "prior_as_of": "2026-06",
-      "source": "August 2026 Economic Outlook and Key Themes",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF03MS_M0EIQFDO-_WC7lbFhAeF80Y89sInRp_nXbB5NlQWnn6V6uLx8GDg10pj9oDjMhTfN7iVypDmir-LAKTxQLF5sPAQjUetd1yi0J_5yV7V2H8TZhkljsgN_Wrg4_eNcDghRInDZtofw_PS97KVs-05qlxyEybNgw405jXKERC7eyKXW5XF8n-pD1wRAdHkMx9qJ761jC1_jJQ1EmLaWJo1lgofJQ67VA6XI9PK4w==",
-      "inflation_basis": "PCE",
-      "notes": "The report mentions that the Fed is expected to remain on hold into 2027, implying no change to the Fed Funds rate by year-end 2026. The unemployment rate is stated to remain around current levels, but a specific percentage is not provided for 2026.",
-      "values": {
-        "gdp": {
-          "2026": {
-            "value": 2.0,
-            "quote": "We see real GDP growth around 2 percent in 2026 and 2027, underpinned by robust business investment as the artificial intelligence buildout continues and fiscal policy helps broaden capex."
-          }
-        },
-        "inflation": {
-          "2026": {
-            "value": 3.0,
-            "quote": "That will keep year-over-year readings above 3 percent through year-end, but sequential run rates should show more progress."
-          }
-        },
-        "unemployment": {
-          "2026": {
-            "value": 0.0,
-            "quote": "We expect unemployment will remain around current levels over the next year."
-          }
-        },
-        "fed_funds": {
-          "2026": {
-            "value": 0.0,
-            "quote": "Despite a more hawkish tone recently from Fed officials, our baseline view has the Fed remaining on hold into 2027 as inflation moderates."
-          }
-        }
-      }
-    },
     {
       "id": "ubs_cio",
       "name": "UBS CIO GWM",
       "kind": "house",
       "status": "stale",
-      "as_of": "2026-03",
+      "as_of": "2026-09",
       "prior_as_of": "2025-11",
-      "source": "UBS Global Investment Returns Yearbook 2026",
-      "url": "https://www.ubs.com/global/en/investment-bank/research/global-investment-returns-yearbook.html",
+      "source": "UBS CIO House View",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH5ntmSAQ-nX3epP090aVsPkK01cHoxRWyPI4Oa2V9LrKF1zdE5cMsdsKpuMKSXhMi83os2g3d46IAybNYMUB0LwxRb9FDYXe6ZQa3M-FuksjvbaZHXFY3nT-kyKUlC7l_mPXT8neYFh4mNLU2zTYjSj26l5hr5FZp5OfD99lN-9KVHUGzbaTu8cA4nxSMIHyztUSGct1qu-9CjbOvApG7soILB7isXDGZjffxNin2xWLWDHg==",
       "inflation_basis": "unknown",
-      "notes": "The \"UBS Global Investment Returns Yearbook 2026\" was published on March 3, 2026. This report focuses on historical data and long-term trends, and does not explicitly provide forward-looking forecasts for specific metrics like US GDP, inflation, unemployment, Fed Funds rate, or S&P 500 target for 2026 or 2027. The report mentions that an initial investment of USD 1 in equities in 1900 grew to USD 124,854 in nominal terms by end 2025, and discusses historical equity returns and inflation's impact over the long term. The \"UBS Year Ahead 2026 ('Escape velocity?')\" report, published in November 2025, provided some forward-looking estimates, but the request is for the single most recent published outlook, which is the Yearbook.",
-      "values": {}
+      "notes": "The GDP forecast is from a November 2025 report titled 'Escape velocity?', while other data points are from a September 28, 2026, UBS CIO House View report. The S&P 500 target is a percentage increase, not a price target.",
+      "values": {
+        "gdp": {
+          "2026": {
+            "value": 1.7,
+            "quote": "In the US, growth is expected at 1.7 per cent, backed by more favourable financial conditions and accommodative fiscal policies."
+          }
+        },
+        "sp500_target": {
+          "2026": {
+            "value": 15,
+            "quote": "UBS recommends adding to equities which are expected to rise by around 15 per cent by the end of 2026."
+          }
+        }
+      }
+    },
+    {
+      "id": "goldman_sachs",
+      "name": "Goldman Sachs Research",
+      "kind": "house",
+      "status": "stale",
+      "as_of": "2026-07",
+      "prior_as_of": "2026-06",
+      "source": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGsiDdUftcQiMuxuNOB0xkE6e2NNpjJxu3mqZ3KaLQkyguT1iF8OXC9Jon676B1gl_-BeoCGICFKrsIPubiAoX6ObQyJUhsXDr6bujjVbNFuW1l4m24ycInM2Jc24KP-gCv4PqnUcTHXEcFiS-z94znPgwfZVR7GBApbBDm35sjgjTFFSfRhVXvtOe456C1zXjhjksxUrlLgfPXuBN6Pb_IagKH5ZTVKnwAgNzFmxcYq7zhsKy4v9enLK8=",
+      "inflation_basis": "PCE",
+      "notes": "The report focuses on the outlook for the remainder of 2026 and into 2027. Specific figures for 2027 are not explicitly stated for all requested metrics.",
+      "values": {
+        "gdp": {
+          "2026": {
+            "value": 2.0,
+            "quote": "David Mericle, chief US economist in Goldman Sachs Research, forecasts the Fed to keep interest rates unchanged this year before cutting its policy rate in 2027. He also unpacks the factors driving US inflation, highlights the surprising resilience of the US labor market, and explains why he expects US GDP to expand around 2% this year."
+          }
+        }
+      }
     }
   ]
 }
