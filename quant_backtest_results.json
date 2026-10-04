@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-09-27T16:39:57.466419+00:00",
+  "last_run_utc": "2026-10-04T16:50:31.101080+00:00",
   "strategy_label": "TOP-25 equal-weight \u00b7 quarterly rebalance \u00b7 2011+ (EDGAR point-in-time era)",
   "source": "build_quant_backtest.py (per-preset rebuild 2026-07-02)",
   "parameters": {
@@ -46,7 +46,7 @@
       "worst_period_pct": -24.231231693867926,
       "total_compounded_pct": 428.8638272062652
     },
-    "avg_data_quality_across_run": 85.87365583589958
+    "avg_data_quality_across_run": 85.87533889882495
   },
   "presets": {
     "equal": {
@@ -24436,8 +24436,8 @@
     {
       "date": "2025-01-01",
       "n_candidates_screened": 1314,
-      "n_qualified": 1190,
-      "avg_data_quality": 91.66386554621849,
+      "n_qualified": 1189,
+      "avg_data_quality": 91.72413793103448,
       "spy_return_pct": -8.199918110332234,
       "top_picks": [
         {
@@ -24868,7 +24868,7 @@
       "date": "2025-04-01",
       "n_candidates_screened": 1315,
       "n_qualified": 1197,
-      "avg_data_quality": 91.88805346700083,
+      "avg_data_quality": 91.92564745196324,
       "spy_return_pct": 10.10393722856398,
       "top_picks": [
         {
@@ -26592,7 +26592,7 @@
       "date": "2026-04-01",
       "n_candidates_screened": 1319,
       "n_qualified": 1224,
-      "avg_data_quality": 91.65441176470588,
+      "avg_data_quality": 91.66666666666667,
       "spy_return_pct": 9.579699112808663,
       "top_picks": [
         {
@@ -27023,7 +27023,7 @@
       "date": "2026-07-01",
       "n_candidates_screened": 1319,
       "n_qualified": 1223,
-      "avg_data_quality": 91.74570727718725,
+      "avg_data_quality": 91.74161896974653,
       "spy_return_pct": null,
       "top_picks": [],
       "portfolio_return_realistic": null,
