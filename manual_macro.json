@@ -1,21 +1,25 @@
 {
-  "fetched_utc": "2026-10-05T21:26:49.793080+00:00",
-  "fetched_human": "2026-10-05 21:26 UTC",
+  "fetched_utc": "2026-10-06T19:24:45.430171+00:00",
+  "fetched_human": "2026-10-06 19:24 UTC",
   "source": "grounded Gemini web search (ISM releases + ICI weekly MMF)",
   "ism_mfg": {
     "value": 54.5,
     "ref_month": "2026-09",
-    "source": "Manufacturing PMI\u00ae at 54.5%; September 2026 ISM\u00ae Manufacturing PMI\u00ae Report - PR Newswire (October 01 2026)"
+    "source": "Manufacturing PMI\u00ae at 54.5%; September 2026 ISM\u00ae Manufacturing PMI\u00ae Report - PR Newswire (October 01 2026)",
+    "_stale": true
   },
   "ism_svcs": {
     "value": 54.9,
     "ref_month": "2026-09",
-    "source": "Services PMI\u00ae at 54.9%; September 2026 ISM\u00ae Services PMI\u00ae Report - PR Newswire (October 05 2026)"
+    "source": "Services PMI\u00ae at 54.9%; September 2026 ISM\u00ae Services PMI\u00ae Report - PR Newswire (October 05 2026)",
+    "_stale": true
   },
   "mmf_total_t": {
     "value": 7.89,
     "as_of": "2026-09-30",
-    "source": "Release: Money Market Fund Assets | Investment Company Institute (October 01 2026)"
+    "source": "Release: Money Market Fund Assets | Investment Company Institute (October 01 2026)",
+    "_stale": true
   },
-  "status": "ok"
+  "status": "failed",
+  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
 }
