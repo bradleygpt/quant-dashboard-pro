@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-10-08T17:17:33.685702+00:00",
-  "last_updated_human": "2026-10-08 17:17 UTC",
+  "last_updated_utc": "2026-10-09T16:52:43.963746+00:00",
+  "last_updated_human": "2026-10-09 16:52 UTC",
   "as_of_window": "October 2026",
   "risks": [
     {
@@ -166,5 +166,7 @@
     "Monetary Policy Tightening",
     "Supply Chain Resilience"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-10-08T17:17:33.685702+00:00",
+  "error": "No JSON found: "
 }
