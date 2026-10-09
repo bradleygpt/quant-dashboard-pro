@@ -1,25 +1,21 @@
 {
-  "fetched_utc": "2026-10-08T19:47:21.766784+00:00",
-  "fetched_human": "2026-10-08 19:47 UTC",
+  "fetched_utc": "2026-10-09T19:25:00.754995+00:00",
+  "fetched_human": "2026-10-09 19:25 UTC",
   "source": "grounded Gemini web search (ISM releases + ICI weekly MMF)",
   "ism_mfg": {
     "value": 54.5,
     "ref_month": "2026-09",
-    "source": "ISM\u00ae Manufacturing PMI\u00ae Report (October 01, 2026)",
-    "_stale": true
+    "source": "ISM Manufacturing PMI\u00ae Report - September 2026 ISM\u00ae Manufacturing PMI\u00ae Report - PR Newswire (October 01 2026)"
   },
   "ism_svcs": {
     "value": 54.9,
     "ref_month": "2026-09",
-    "source": "ISM\u00ae Services PMI\u00ae Report (October 05, 2026)",
-    "_stale": true
+    "source": "Services PMI\u00ae at 54.9%; September 2026 ISM\u00ae Services PMI\u00ae Report - PR Newswire (October 05 2026)"
   },
   "mmf_total_t": {
-    "value": 7.89,
-    "as_of": "2026-09-30",
-    "source": "ICI weekly MMF Assets (October 01, 2026)",
-    "_stale": true
+    "value": 7.96,
+    "as_of": "2026-10-07",
+    "source": "Release: Money Market Fund Assets | Investment Company Institute (October 08 2026)"
   },
-  "status": "failed",
-  "error": "No JSON found: "
+  "status": "ok"
 }
