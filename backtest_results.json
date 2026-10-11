@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-10-04T13:09:43.204223+00:00",
+  "last_run_utc": "2026-10-11T13:30:17.657817+00:00",
   "parameters": {
     "start_year": 2005,
     "hold_days": 14,
@@ -10,32 +10,32 @@
     "realistic_strategy": {
       "n_periods": 262,
       "win_rate_pct": 54.961832061068705,
-      "avg_return_pct": 0.32942319977699164,
+      "avg_return_pct": 0.3300133629587046,
       "avg_win_pct": 1.5419077280230176,
-      "avg_loss_pct": -1.1502189363876503,
+      "avg_loss_pct": -1.1489085740689318,
       "best_period_pct": 8.12970915816841,
       "worst_period_pct": -6.2023069048297135,
-      "total_compounded_pct": 127.14010015936181
+      "total_compounded_pct": 127.4920259126195
     },
     "theoretical_max_strategy": {
       "n_periods": 262,
       "win_rate_pct": 98.47328244274809,
-      "avg_return_pct": 3.857184446504334,
-      "avg_win_pct": 3.9289741913794596,
+      "avg_return_pct": 3.869657166644138,
+      "avg_win_pct": 3.941640287025307,
       "avg_loss_pct": -0.7732540979412408,
       "best_period_pct": 11.453344422768952,
       "worst_period_pct": -1.0217564850371612,
-      "total_compounded_pct": 1907167.7659161382
+      "total_compounded_pct": 1969053.519783006
     },
     "spy_benchmark": {
       "n_periods": 262,
       "win_rate_pct": 62.59541984732825,
-      "avg_return_pct": 0.4871102959773089,
-      "avg_win_pct": 2.731616862192754,
+      "avg_return_pct": 0.49157160331723354,
+      "avg_win_pct": 2.7387440726992187,
       "avg_loss_pct": -3.2690027331995584,
       "best_period_pct": 16.449328359106417,
       "worst_period_pct": -22.18771317208354,
-      "total_compounded_pct": 183.72967045469596
+      "total_compounded_pct": 187.02173405694987
     }
   },
   "monthly_results": [
@@ -31329,7 +31329,7 @@
           "stop_price": 151.42786516462053,
           "realistic_return_pct": 4.735191224227632,
           "realistic_exit_reason": "target",
-          "max_return_pct": 4.197288362768399
+          "max_return_pct": 4.661505765972489
         },
         {
           "ticker": "AAPL",
@@ -31340,7 +31340,7 @@
           "stop_price": 326.32784598214283,
           "realistic_return_pct": -2.009531935710412,
           "realistic_exit_reason": "stop",
-          "max_return_pct": 0.20119315651856204
+          "max_return_pct": 2.2220961678545663
         },
         {
           "ticker": "PM",
@@ -31351,7 +31351,7 @@
           "stop_price": 186.6378620692662,
           "realistic_return_pct": -2.1916702098468916,
           "realistic_exit_reason": "stop",
-          "max_return_pct": -1.383510400957013
+          "max_return_pct": 5.43443806684696
         },
         {
           "ticker": "QCOM",
@@ -31360,8 +31360,8 @@
           "entry_price": 184.0399932861328,
           "target_price": 203.89999607631137,
           "stop_price": 174.10999189104353,
-          "realistic_return_pct": 0.4509899268276202,
-          "realistic_exit_reason": "timeout",
+          "realistic_return_pct": -5.395567136133715,
+          "realistic_exit_reason": "stop",
           "max_return_pct": 0.4509899268276202
         },
         {
@@ -31373,7 +31373,7 @@
           "stop_price": 220.66714586530412,
           "realistic_return_pct": -2.307800117240493,
           "realistic_exit_reason": "stop",
-          "max_return_pct": -1.3547005013486209
+          "max_return_pct": -0.07526038837900162
         },
         {
           "ticker": "VLO",
@@ -31382,9 +31382,9 @@
           "entry_price": 387.6099853515625,
           "target_price": 422.80285208565846,
           "stop_price": 370.0135519845145,
-          "realistic_return_pct": 4.821857833320369,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": 5.379119963745169
+          "realistic_return_pct": 9.079453075022307,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 14.496531194995372
         },
         {
           "ticker": "DE",
@@ -31406,7 +31406,7 @@
           "stop_price": 102.85357448032924,
           "realistic_return_pct": -1.950836049363458,
           "realistic_exit_reason": "stop",
-          "max_return_pct": -2.583411863730143
+          "max_return_pct": 3.0028612774631833
         },
         {
           "ticker": "ABBV",
@@ -31415,9 +31415,9 @@
           "entry_price": 261.5899963378906,
           "target_price": 271.58999415806363,
           "stop_price": 256.5899974278041,
-          "realistic_return_pct": 0.47020566671033714,
-          "realistic_exit_reason": "timeout",
-          "max_return_pct": 0.47020566671033714
+          "realistic_return_pct": 3.8227753202214227,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.6882927830284045
         },
         {
           "ticker": "GILD",
@@ -31428,12 +31428,12 @@
           "stop_price": 145.58714512416293,
           "realistic_return_pct": -2.3232860494423475,
           "realistic_exit_reason": "stop",
-          "max_return_pct": -1.0399215162844189
+          "max_return_pct": 1.4223381910641952
         }
       ],
-      "portfolio_return_realistic": -0.20330306461741637,
-      "portfolio_return_max": 0.7125175739907015,
-      "spy_return_pct": 0.7395416806873607
+      "portfolio_return_realistic": -0.0486803110086296,
+      "portfolio_return_max": 3.980370250619368,
+      "spy_return_pct": 1.9084042037476077
     }
   ],
   "universe_size": 197,
