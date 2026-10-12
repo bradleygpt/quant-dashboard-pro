@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-10-09T16:52:41.385369+00:00",
-  "last_updated_human": "2026-10-09 16:52 UTC",
+  "last_updated_utc": "2026-10-12T19:41:28.309736+00:00",
+  "last_updated_human": "2026-10-12 19:41 UTC",
   "market_context": {
-    "spy_price": 778.5549926757812,
-    "sp500_level": 7785.5499267578125,
-    "btc_price": 82794.921875,
-    "eth_price": 2493.699951171875
+    "spy_price": 777.8300170898438,
+    "sp500_level": 7778.3001708984375,
+    "btc_price": 82635.5625,
+    "eth_price": 2514.81005859375
   },
   "equity": {
     "commentators": [
@@ -231,193 +231,180 @@
       "Earnings Season Catalysts"
     ]
   },
-  "equity_status": "fresh",
+  "equity_status": "stale",
+  "equity_last_fresh": "2026-10-09T16:52:41.385369+00:00",
+  "equity_error": "No JSON found in response: ",
   "crypto": {
     "commentators": [
       {
         "name": "Michael Saylor",
-        "firm": "Strategy Inc. (formerly MicroStrategy)",
+        "firm": "MicroStrategy",
         "stance": "Very Bullish",
-        "key_quote": "Bitcoin can serve very different investors. $BTC offers direct ownership, $MSTR amplified exposure, and $STRC income with less 30-day price volatility than every Mag 7 stock.",
+        "key_quote": "There's always room for more orange.",
         "quote_source": "X (formerly Twitter)",
-        "quote_date": "October 4, 2026",
+        "quote_date": "Last week",
         "key_views": [
-          "Bitcoin is digital capital and the foundation for digital equity and credit.",
-          "Strategy does not have a fixed target for Bitcoin holdings but continues to accumulate.",
-          "AI agents will be future Bitcoin users, advocating for expanded bank custody and lending options."
+          "Continued accumulation of Bitcoin by MicroStrategy.",
+          "Bitcoin as a primary corporate treasury asset.",
+          "Long-term belief in Bitcoin's value appreciation."
         ],
         "btc_view": "Very Bullish",
         "eth_view": "Not specified",
-        "price_target": "Not specified, but implies significant long-term growth."
+        "price_target": "Implied continued accumulation, no specific target mentioned."
       },
       {
-        "name": "Willy Woo",
-        "firm": "Independent Analyst",
+        "name": "Tom Lee",
+        "firm": "Fundstrat / Bitmine",
         "stance": "Bearish",
-        "key_quote": "I've never seen BTC rally when both sources of liquidity are bearish.",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "October 1, 2026",
+        "key_quote": "Ethereum could surpass $5,000 before the end of 2026.",
+        "quote_source": "Coinage / Ondo Finance interview",
+        "quote_date": "Last week",
         "key_views": [
-          "Bitcoin selling pressure is fading, but a sustained recovery may take months.",
-          "Spot and futures liquidity are deteriorating, indicating a heavily bearish market.",
-          "If macroeconomic conditions worsen, $30,000 is the next support level for Bitcoin."
-        ],
-        "btc_view": "Bearish",
-        "eth_view": "Not specified",
-        "price_target": "$30,000 (support level), $16,000 (long-term bull structure threshold)."
-      },
-      {
-        "name": "Mike Novogratz",
-        "firm": "Galaxy Digital",
-        "stance": "Bullish",
-        "key_quote": "I think the 60 print is the low of the cycle... And I would not be surprised if we end the year close to 100, having gone through it.",
-        "quote_source": "All Things Markets (via U.Today)",
-        "quote_date": "October 2, 2026",
-        "key_views": [
-          "The worst of Bitcoin's latest downturn may already be over.",
-          "Bitcoin is currently in a range from $80,000 to $100,000.",
-          "Bitcoin sets the direction for the broader cryptocurrency market."
+          "Significant wealth transfer to younger generations will boost crypto.",
+          "Ethereum's potential driven by tokenization and institutional adoption.",
+          "Bitcoin's cycle bottom identified around October 5th."
         ],
         "btc_view": "Bullish",
-        "eth_view": "Not specified",
-        "price_target": "$100,000 by year-end 2026."
+        "eth_view": "Very Bullish",
+        "price_target": "Ethereum: $5,000 by end of 2026; potentially $7,500 if BTC hits $100,000.",
+        "_validation_warning": "Stance auto-corrected: target 5,000 implies -93.9% downside from current ~82,636, conflicts with 'Very Bullish' stance."
       },
       {
         "name": "Cathie Wood",
         "firm": "ARK Invest",
         "stance": "Bearish",
-        "key_quote": "We do think the turn is in here for Bitcoin.",
-        "quote_source": "In the Know (via Stocktwits)",
-        "quote_date": "October 4, 2026",
+        "key_quote": "Bitcoin could reach 1.5 million dollars by 2030.",
+        "quote_source": "The Motley Fool",
+        "quote_date": "Last week",
         "key_views": [
-          "Bitcoin has outpaced gold since mid-August and is reclaiming the upper hand.",
-          "AI could drive inflation lower than anticipated.",
-          "Bitcoin has a $1.5 million price target by the end of 2030."
+          "Bitcoin as a global store of value.",
+          "AI integration in payment services.",
+          "Increasing institutional investment in Bitcoin."
         ],
         "btc_view": "Very Bullish",
         "eth_view": "Not specified",
-        "price_target": "$1.5 million by end of 2030.",
-        "_validation_warning": "Stance auto-corrected: target 2,030 implies -97.5% downside from current ~82,795, conflicts with 'Very Bullish' stance."
+        "price_target": "Bitcoin: $1.5 million by 2030.",
+        "_validation_warning": "Stance auto-corrected: target 2,030 implies -97.5% downside from current ~82,636, conflicts with 'Very Bullish' stance."
+      },
+      {
+        "name": "Mike Novogratz",
+        "firm": "Galaxy Digital",
+        "stance": "Bullish",
+        "key_quote": "Bitcoin could finish 2026 near the psychologically important $100,000 level.",
+        "quote_source": "All Things Markets podcast",
+        "quote_date": "Last week",
+        "key_views": [
+          "Bitcoin's recent correction may have bottomed out.",
+          "The $60,000 level as a likely cycle low.",
+          "Importance of holding $80,000 on a weekly close."
+        ],
+        "btc_view": "Bullish",
+        "eth_view": "Not specified",
+        "price_target": "Bitcoin: Near $100,000 by end of 2026."
+      },
+      {
+        "name": "Arthur Hayes",
+        "firm": "BitMEX / Maelstrom",
+        "stance": "Bullish",
+        "key_quote": "The next super bull market in the digital asset market will begin by overcoming a wall of FUD.",
+        "quote_source": "MarsBit",
+        "quote_date": "Last week",
+        "key_views": [
+          "Inflationary pressures will drive asset prices higher.",
+          "AI-related FUD is a sign of an early bull market.",
+          "Ethereum is his leading cryptocurrency selection."
+        ],
+        "btc_view": "Bullish",
+        "eth_view": "Bullish",
+        "price_target": "Bitcoin: $126,000 by end of 2026; Ethereum: 3-5x in short order."
       },
       {
         "name": "Vitalik Buterin",
         "firm": "Ethereum Foundation",
         "stance": "Neutral",
-        "key_quote": "I don't recommend anyone scramble to move their funds to new wallets today. But we should take the risks to cryptography from AI-accelerated math seriously.",
+        "key_quote": "We should take the risks to cryptography from AI-accelerated math seriously.",
         "quote_source": "X (formerly Twitter)",
-        "quote_date": "October 7, 2026",
+        "quote_date": "Last week",
         "key_views": [
-          "AI-driven advances in mathematics could weaken existing crypto signatures and post-quantum defenses.",
-          "Ethereum developers are turning to hash-based systems for security.",
-          "Hasty wallet migrations pose a greater immediate danger than demonstrated cryptographic breaks."
+          "AI is accelerating Ethereum's roadmap development.",
+          "Concerns about AI's impact on cryptography and wallet security.",
+          "Advocates for cautious approach to wallet migrations."
         ],
-        "btc_view": "Potentially at risk due to cryptography concerns.",
-        "eth_view": "Potentially at risk due to cryptography concerns, but moving towards hash-based systems.",
-        "price_target": "Not specified."
-      },
-      {
-        "name": "Peter Schiff",
-        "firm": "Euro Pacific Capital",
-        "stance": "Very Bearish",
-        "key_quote": "There's no way that he's going to be able to start selling more STRC. And that means he's not going to be able to raise money to really start buying more Bitcoin.",
-        "quote_source": "Peter Schiff Show (via Crypto Potato)",
-        "quote_date": "October 5, 2026",
-        "key_views": [
-          "Bitcoin's resilience could make a later reversal more painful for Strategy.",
-          "Markets have absorbed worsening economic signals without fully pricing the risks.",
-          "Bitcoin is vulnerable to a tech-led market reversal."
-        ],
-        "btc_view": "Very Bearish",
-        "eth_view": "Not specified",
-        "price_target": "Implies significant downside risk for Bitcoin."
-      },
-      {
-        "name": "Tom Lee",
-        "firm": "Fundstrat",
-        "stance": "Very Bullish",
-        "key_quote": "The crypto bull market is underway, and this cycle is likely to be the largest.",
-        "quote_source": "Chairman's Message (via YouTube)",
-        "quote_date": "October 7, 2026",
-        "key_views": [
-          "The current crypto cycle could be the biggest in its history.",
-          "Institutional inflows are positive, and major financial institutions are moving toward tokenized assets.",
-          "Ethereum has emerged as a strong macro asset."
-        ],
-        "btc_view": "Very Bullish",
-        "eth_view": "Bullish",
-        "price_target": "$250,000 for Bitcoin in 2026."
-      },
-      {
-        "name": "Arthur Hayes",
-        "firm": "Maelstrom",
-        "stance": "Bullish",
-        "key_quote": "If you study financial history and you study every single major technological rollout, it always is overbuilt. There always is a crash, and there always is a bailout.",
-        "quote_source": "CNBC (via Benzinga)",
-        "quote_date": "October 7, 2026",
-        "key_views": [
-          "Excessive AI investment could trigger a crash and a government bailout.",
-          "Bitcoin and other cryptocurrencies could 'soak up' excess liquidity after a bailout.",
-          "A $126,000 Bitcoin level by year-end 2026 is 'essentially assured'."
-        ],
-        "btc_view": "Bullish",
-        "eth_view": "Bullish",
-        "price_target": "$126,000 by end of 2026."
-      },
-      {
-        "name": "Caitlin Long",
-        "firm": "Custodia Bank",
-        "stance": "Neutral",
-        "key_quote": "Stablecoins are about $300 billion against roughly $5.7 trillion in traditional demand deposits, and that bringing tokenization into the banking system could be the bigger story.",
-        "quote_source": "WEEX Crypto News",
-        "quote_date": "October 5, 2026",
-        "key_views": [
-          "The introduction of tokenization into the banking system is a significant development.",
-          "Bitcoin's role as digital gold is important, especially for retail ownership.",
-          "The Federal Reserve's actions regarding tokenized dollars are being closely watched."
-        ],
-        "btc_view": "Neutral (as digital gold)",
-        "eth_view": "Not specified",
+        "btc_view": "Not specified",
+        "eth_view": "Neutral (focus on security and development acceleration)",
         "price_target": "Not specified."
       },
       {
         "name": "Lyn Alden",
-        "firm": "Independent Macroeconomist",
+        "firm": "Macroeconomist",
         "stance": "Bullish",
-        "key_quote": "Hard assets like Bitcoin that are 'under-owned' will come out winning over the long-run.",
-        "quote_source": "Bitcoin Magazine",
-        "quote_date": "October 5, 2026",
+        "key_quote": "Bitcoin still has substantial room for long-term growth.",
+        "quote_source": "Hot podcast",
+        "quote_date": "Last week",
         "key_views": [
-          "Bitcoin still has substantial room for long-term growth.",
-          "Most cryptocurrencies will likely struggle to sustain value accumulation.",
-          "AI-driven price deflation in services does not address monetary inflation."
+          "Bitcoin as a scarce asset unaffected by AI-driven deflation.",
+          "US debt levels create a case for Bitcoin.",
+          "Expects BTC to reclaim $100,000 in 2026."
         ],
         "btc_view": "Bullish",
         "eth_view": "Not specified",
-        "price_target": "Implies strong long-term upside for Bitcoin."
+        "price_target": "Bitcoin: Reclaim $100,000 in 2026."
       },
       {
-        "name": "Fred Krueger",
-        "firm": "Investor & Crypto Entrepreneur",
-        "stance": "Neutral",
-        "key_quote": "Bitcoin slipped approximately 2%, breaking below the $83,000 mark on Thursday, October 8.",
+        "name": "Peter Schiff",
+        "firm": "Euro Pacific Asset Management",
+        "stance": "Very Bearish",
+        "key_quote": "So far, according to your own data metrics, 2026 has been a failure.",
         "quote_source": "X (formerly Twitter)",
-        "quote_date": "October 8, 2026",
+        "quote_date": "Last week",
         "key_views": [
-          "Spot Bitcoin ETFs recorded significant outflows.",
-          "Michael Saylor sees AI agents as future Bitcoin users.",
-          "Four-year Bitcoin holders have historically outperformed stocks."
+          "Criticizes Michael Saylor's Bitcoin accumulation strategy.",
+          "Believes Bitcoin's resilience is tied to tech stocks.",
+          "Predicts Bitcoin will drop if the tech market pulls back."
         ],
-        "btc_view": "Neutral (observing short-term price action and ETF flows)",
+        "btc_view": "Very Bearish",
+        "eth_view": "Not specified",
+        "price_target": "Implied further downside for Bitcoin."
+      },
+      {
+        "name": "Nic Carter",
+        "firm": "Castle Island",
+        "stance": "Neutral",
+        "key_quote": "Bitcoin's real value proposition is its political neutrality.",
+        "quote_source": "Alexei Zamyatin discussion",
+        "quote_date": "Last week",
+        "key_views": [
+          "Opposes government buying Bitcoin.",
+          "Concerned about Bitcoin becoming too 'American'.",
+          "Anticipates real Bitcoin DeFi launches in 2026."
+        ],
+        "btc_view": "Neutral (focus on decentralization and neutrality)",
+        "eth_view": "Not specified",
+        "price_target": "Not specified."
+      },
+      {
+        "name": "Balaji Srinivasan",
+        "firm": "Investor / Former CTO of Coinbase",
+        "stance": "Neutral",
+        "key_quote": "The rise of the Internet means that order is ending. But what comes next? Decentralized democracy.",
+        "quote_source": "X (formerly Twitter)",
+        "quote_date": "Last week",
+        "key_views": [
+          "Advocates for decentralized democracy over centralization.",
+          "Crypto infrastructure can organize communities.",
+          "Proposes crypto-based equity for community development."
+        ],
+        "btc_view": "Not specified (focus on broader societal structures)",
         "eth_view": "Not specified",
         "price_target": "Not specified."
       }
     ],
-    "synthesis": "This week's crypto commentary highlights a divided market sentiment. While some, like Michael Saylor and Tom Lee, remain extremely bullish on Bitcoin's long-term prospects and potential for a major bull run, others, such as Willy Woo and Peter Schiff, express significant bearish concerns regarding liquidity, macroeconomic conditions, and corporate financing. A recurring theme is the potential impact of AI, with analysts like Arthur Hayes and Mike Novogratz seeing it as a catalyst for a crypto boom through eventual market crashes and bailouts, while Vitalik Buterin warns of cryptographic risks.",
+    "synthesis": "This week's commentary shows a divided market, with strong bullish sentiment from figures like Cathie Wood and Tom Lee predicting significant price appreciation for Bitcoin and Ethereum, driven by institutional adoption and wealth transfer. Conversely, staunch critics like Peter Schiff remain highly bearish, questioning the sustainability of current strategies. A key theme is the growing influence of AI, with Vitalik Buterin highlighting its impact on development and security, while Arthur Hayes sees it as a catalyst for a broader bull market.",
     "themes": [
-      "AI's impact on crypto and traditional markets",
-      "Bitcoin's long-term value proposition and institutional adoption",
-      "Macroeconomic factors and their influence on crypto prices",
-      "Cryptographic security concerns in the age of AI"
+      "AI's impact on crypto development and security",
+      "Institutional adoption and its effect on price targets",
+      "Macroeconomic factors influencing crypto markets",
+      "Debate on Bitcoin's long-term value proposition vs. traditional assets"
     ]
   },
   "crypto_status": "fresh"
