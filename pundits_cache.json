@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-10-13T17:26:15.372564+00:00",
-  "last_updated_human": "2026-10-13 17:26 UTC",
+  "last_updated_utc": "2026-10-14T14:56:33.982505+00:00",
+  "last_updated_human": "2026-10-14 14:56 UTC",
   "market_context": {
-    "spy_price": 777.1799926757812,
-    "sp500_level": 7771.7999267578125,
-    "btc_price": 83159.203125,
-    "eth_price": 2506.77001953125
+    "spy_price": 772.22998046875,
+    "sp500_level": 7722.2998046875,
+    "btc_price": 81706.25,
+    "eth_price": 2419.7900390625
   },
   "equity": {
     "commentators": [
@@ -13,156 +13,42 @@
         "name": "Jurrien Timmer",
         "firm": "Fidelity Investments",
         "stance": "Bearish",
-        "key_quote": "Let's see if that momentum combined with the start of a bullish seasonal window could be enough to push the S&P 500 index above 8k.",
-        "quote_source": "X (formerly Twitter)",
-        "quote_date": "October 12, 2026",
-        "key_views": [
-          "Corporate earnings momentum and seasonal tailwinds could push the S&P 500 above 8,000.",
-          "Sustained corporate profit growth is supporting the market despite elevated real yields.",
-          "Q3 earnings growth could reach 30% to 35%."
-        ],
-        "price_target_or_view": "S&P 500 above 8,000",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.6% downside from current ~7,772, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "Tom Lee",
-        "firm": "Fundstrat Capital",
-        "stance": "Bearish",
-        "key_quote": "The head of research and chief investment officer at Fundstrat Capital pointed to an S&P 500 that could climb as much as 9% before year-end, potentially reaching 8,200 to 8,400.",
-        "quote_source": "CNBC",
-        "quote_date": "October 5, 2026",
-        "key_views": [
-          "Excessive pessimism is gripping markets, and stocks are poised to surge higher.",
-          "Softer employment data suggests the Federal Reserve may ease its hawkish stance.",
-          "Third-quarter earnings are expected to come in at nearly 30% growth."
-        ],
-        "price_target_or_view": "S&P 500 potentially reaching 8,200 to 8,400 by year-end",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.6% downside from current ~7,772, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "Savita Subramanian",
-        "firm": "Morgan Stanley",
-        "stance": "Cautious",
-        "key_quote": "On October 7, 2026, Morgan Stanley's Savita Subramanian said bonds have become a competitive alternative to stocks for the first time in decades.",
-        "quote_source": "KuCoin",
-        "quote_date": "October 7, 2026",
-        "key_views": [
-          "Bonds are now a competitive alternative to stocks.",
-          "S&P 500 may underperform over the next decade.",
-          "Earnings growth excluding tech and energy is slowing."
-        ],
-        "price_target_or_view": "S&P 500 may underperform over the next decade"
-      },
-      {
-        "name": "Marko Kolanovic",
-        "firm": "J.P. Morgan (formerly)",
-        "stance": "Bearish",
-        "key_quote": "he predicts the S&P 500, which entered Monday trading above 6,000 and touched a record high two weeks ago, could be 'back down in the 5,000s this year'.",
-        "quote_source": "Bloomberg",
-        "quote_date": "February 3, 2025 (recent commentary cited)",
-        "key_views": [
-          "Predicts S&P 500 could fall to the 5,000s this year.",
-          "Potential turmoil under a new administration could bring the index much lower.",
-          "Markets have recovered but the downturn is perhaps not over."
-        ],
-        "price_target_or_view": "S&P 500 could fall to the 5,000s"
-      },
-      {
-        "name": "Ray Dalio",
-        "firm": "Bridgewater Associates",
-        "stance": "Cautious",
-        "key_quote": "Ray Dalio warns that stocks have limited room for error as rising bond yields narrow the advantage of equities over bonds.",
-        "quote_source": "Pluang",
-        "quote_date": "October 11, 2026",
-        "key_views": [
-          "Stocks have limited room for error as bond yields rise.",
-          "AI companies are burning cash rapidly, creating liquidity challenges.",
-          "Growing debt and capital competition could pressure weaker balance sheets."
-        ],
-        "price_target_or_view": "Shrinking margin for error for stocks"
-      },
-      {
-        "name": "Mohamed El-Erian",
-        "firm": "Allianz Chief Economic Advisor",
-        "stance": "Cautious",
-        "key_quote": "He notes that the economy remains robust\u2014growing in the \u201c3\u20134% range, according to the Atlanta Fed GDPNow measure\u201d\u2014supported by a \u201cstrong labor market.\u201d",
-        "quote_source": "Benzinga",
-        "quote_date": "October 12, 2026",
-        "key_views": [
-          "US economy is fundamentally strong but navigating a precarious environment.",
-          "Stock market growth is fragile, driven almost exclusively by narrow momentum in the technology sector.",
-          "Interest-rate risk is increasingly spilling into credit and spread risk."
-        ],
-        "price_target_or_view": "Fragile growth driven by narrow tech momentum"
-      },
-      {
-        "name": "Michael Wilson",
-        "firm": "Morgan Stanley",
-        "stance": "Bearish",
-        "key_quote": "On October 12, 2026, Morgan Stanley strategist Michael Wilson highlighted growing financial headwinds impacting economically sensitive stocks, underscoring risks for the broad market.",
-        "quote_source": "GuruFocus",
-        "quote_date": "October 12, 2026",
-        "key_views": [
-          "Growing financial headwinds are impacting economically sensitive stocks.",
-          "Tighter financial conditions are masking underlying weakness in major indices.",
-          "Risk of another real-yield-led spike in bond volatility."
-        ],
-        "price_target_or_view": "Potential 5%-10% decline in S&P 500"
-      },
-      {
-        "name": "Jim Cramer",
-        "firm": "CNBC's Mad Money",
-        "stance": "Bullish",
-        "key_quote": "No matter what the most important point is that the consistent invested. Putting money in work regularly, including Bad times in stocks and indices, is by far the best strategy towards wealth.",
-        "quote_source": "Benzinga",
+        "key_quote": "Earnings momentum combined with the start of a bullish seasonal period could be enough to push the index above 8,000.",
+        "quote_source": "X/LinkedIn",
         "quote_date": "October 13, 2026",
         "key_views": [
-          "Investors should stay invested and keep buying.",
-          "Market timing is a costly mistake as it's hard to predict declines and rebounds.",
-          "The S&P 500 has surged 118% since its October 2022 low."
+          "S&P 500 could rise above 8,000",
+          "Strong Q3 earnings growth expected",
+          "Bullish seasonal period beginning"
         ],
-        "price_target_or_view": "Stay invested, keep buying"
+        "price_target_or_view": "S&P 500 above 8,000",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,722, conflicts with 'Bullish' stance."
       },
       {
         "name": "Lance Roberts",
-        "firm": "RIA Chief Investment Strategist",
+        "firm": "RIA Advisors",
         "stance": "Neutral",
-        "key_quote": "He also observed that S&P 500 year-to-date gains of 10% to 20% by late September have often been followed by a bullish fourth quarter here.",
-        "quote_source": "Traders Union",
-        "quote_date": "October 1, 2026",
+        "key_quote": "The aggregate demand impulse turned negative in September, suggesting a flat to down S&P 500 in October.",
+        "quote_source": "Substack",
+        "quote_date": "October 10, 2026",
         "key_views": [
-          "Market's implied long-term growth expectation for the S&P 500 is 10%.",
-          "S&P 500 gains by late September have often been followed by a bullish fourth quarter.",
-          "The rubber band is badly stretched, indicating a mature move."
+          "Weak September demand suggests a flat to down October",
+          "October's strong government spending may lift stocks in November",
+          "Mid-December risks signal coming volatility"
         ],
-        "price_target_or_view": "S&P 500 gains often followed by bullish Q4"
-      },
-      {
-        "name": "Tom Lee",
-        "firm": "Fundstrat Global Advisors",
-        "stance": "Bearish",
-        "key_quote": "Lee projects that S&P 500 earnings could reach $300 per share by 2026, materially above the consensus range.",
-        "quote_source": "Seeking Alpha",
-        "quote_date": "N/A (referencing 2026 outlook)",
-        "key_views": [
-          "S&P 500 earnings could reach $300 per share by 2026.",
-          "Market has underestimated U.S. corporations' resilience.",
-          "Potential for modest multiple expansion on top of accelerating profits."
-        ],
-        "price_target_or_view": "S&P 500 earnings to reach $300/share by 2026",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.6% downside from current ~7,772, conflicts with 'Bullish' stance."
+        "price_target_or_view": "Flat to down S&P 500 in October"
       },
       {
         "name": "Savita Subramanian",
         "firm": "Bank of America",
-        "stance": "Bearish",
-        "key_quote": "Bank of America's head of U.S. equity and quantitative strategy, Savita Subramanian, believes bond markets are becoming interesting again and may compete with the S&P 500.",
-        "quote_source": "TradingView",
-        "quote_date": "October 8, 2026",
+        "stance": "Cautious",
+        "key_quote": "Bonds have become a competitive alternative to stocks for the first time in decades.",
+        "quote_source": "Bloomberg TV",
+        "quote_date": "October 7, 2026",
         "key_views": [
-          "Bonds may compete with the S&P 500 for returns.",
-          "S&P 500 may not provide 5% returns over the next 10 years.",
-          "Sentiment has gotten very bullish."
+          "Bonds offer competitive returns compared to stocks",
+          "S&P 500 may underperform over the next decade",
+          "Sentiment has become very bullish"
         ],
         "price_target_or_view": "S&P 500 returns may fall below 5% over 10 years"
       },
@@ -170,65 +56,107 @@
         "name": "Marko Kolanovic",
         "firm": "J.P. Morgan (formerly)",
         "stance": "Bearish",
-        "key_quote": "Markets ended 2024 with P/E multiple near the highest level since the dot-com bubble burst. Even assuming a quick earnings recovery to $300, a multiple of ~15x would place the S&P 500 below 5,000.",
-        "quote_source": "Investing.com",
-        "quote_date": "April 30, 2025 (recent commentary cited)",
+        "key_quote": "S&P 500 predicted to crash to 2,900 by October 2026.",
+        "quote_source": "Facebook (reporting on his note)",
+        "quote_date": "January 9, 2026 (note date)",
         "key_views": [
-          "Markets ignoring clear signs of fragility.",
-          "P/E multiple near highest level since dot-com bubble burst.",
-          "S&P 500 could fall to high 3,000s or low 4,000s in a recession."
+          "Markets are ignoring clear signs of fragility",
+          "Recession risk could drive S&P 500 significantly lower",
+          "P/E multiples near highest levels since dot-com bubble"
         ],
-        "price_target_or_view": "S&P 500 could fall to high 3,000s/low 4,000s in recession"
+        "price_target_or_view": "S&P 500 to 2,900"
       },
       {
         "name": "Ray Dalio",
         "firm": "Bridgewater Associates",
         "stance": "Cautious",
-        "key_quote": "Ray Dalio warned that AI is a bubble close to bursting, pointing to heavy AI borrowing and rising interest rates.",
-        "quote_source": "Seeking Alpha",
-        "quote_date": "October 9, 2026",
+        "key_quote": "The bond bear market probably has a long way to go.",
+        "quote_source": "LinkedIn",
+        "quote_date": "October 13, 2026",
         "key_views": [
-          "AI is a 'classic bubble' close to bursting.",
-          "Heavy AI borrowing and rising interest rates are concerns.",
-          "Mounting debt and pricier interest are pressuring finance."
+          "AI is a 'classic bubble' near bursting",
+          "Mounting sovereign debt refinancing and waning international interest",
+          "Margin for error for stocks is shrinking"
         ],
-        "price_target_or_view": "AI bubble near bursting"
+        "price_target_or_view": "Bond bear market has a long way to go"
       },
       {
         "name": "Michael Wilson",
         "firm": "Morgan Stanley",
         "stance": "Bearish",
-        "key_quote": "Morgan Stanley's Mike Wilson is welcoming an S&P 500 correction as bond yields surge.",
+        "key_quote": "Major stock indices are masking significant underlying weakness because their largest, AI-centric holdings remain insulated.",
         "quote_source": "Seeking Alpha",
-        "quote_date": "September 29, 2026",
+        "quote_date": "October 12, 2026",
         "key_views": [
-          "A pullback in the S&P 500 could set up a stronger finish to the year.",
-          "Rising bond yields are a significant headwind.",
-          "Breadth measures have deteriorated markedly."
+          "Rising bond yields, stronger dollar, elevated oil prices are tightening financial conditions",
+          "Breadth measures have deteriorated markedly",
+          "Risk of real-yield-led spike in bond volatility"
         ],
-        "price_target_or_view": "Welcomes S&P 500 correction"
+        "price_target_or_view": "Potential 5% to 10% decline in the S&P 500"
+      },
+      {
+        "name": "Jeremy Siegel",
+        "firm": "WisdomTree / Wharton School",
+        "stance": "Bearish",
+        "key_quote": "Higher rates are not necessarily bearish for stocks if those rates reflect stronger productivity and economic growth.",
+        "quote_source": "Benzinga",
+        "quote_date": "October 14, 2026",
+        "key_views": [
+          "Rising real rates can signal stronger growth",
+          "Upgraded equity view; economy still looks strong",
+          "Long-term real equity returns estimated at 5.5%\u20136.5%"
+        ],
+        "price_target_or_view": "S&P 500 long-term real returns of 5.5%-6.5%",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,722, conflicts with 'Bullish' stance."
       },
       {
         "name": "Jim Cramer",
-        "firm": "CNBC's Mad Money",
-        "stance": "Bullish",
-        "key_quote": "Jim Cramer says investors keep making this costly mistake as S&P 500 surges 118%.",
+        "firm": "CNBC (Mad Money)",
+        "stance": "Mixed (leaning cautious on broad market)",
+        "key_quote": "I would argue that either you're in a bear market or you're close to a bear market for most of the market.",
         "quote_source": "Benzinga",
-        "quote_date": "October 13, 2026",
+        "quote_date": "October 14, 2026",
         "key_views": [
-          "Investors miss upside by waiting for certainty.",
-          "Market timing is difficult and often leads to missed opportunities.",
-          "Momentum is the path of least resistance."
+          "Most of the market is already in a bear market",
+          "Bonds, housing, and consumer stocks have rolled over",
+          "Market punishes companies that disappoint"
         ],
-        "price_target_or_view": "Momentum is the path of least resistance"
+        "price_target_or_view": "Most of the market is in a bear market"
+      },
+      {
+        "name": "Tom Lee",
+        "firm": "Fundstrat Global Advisors",
+        "stance": "Bullish",
+        "key_quote": "Buckle up for a potential stock market rally, pointing to a historical S&P 500 setup that indicates a strong fourth quarter.",
+        "quote_source": "X",
+        "quote_date": "October 1, 2026",
+        "key_views": [
+          "Historical S&P 500 setup signals a strong Q4",
+          "AI-driven tech gains and dovish Fed as tailwinds",
+          "Favors tech, AI, crypto, materials, energy, and financials"
+        ],
+        "price_target_or_view": "Strong Q4 rally expected"
+      },
+      {
+        "name": "Mohamed El-Erian",
+        "firm": "Queens' College, University of Cambridge",
+        "stance": "Cautious",
+        "key_quote": "Interest-rate risk is increasingly spilling into credit and spread risk, forcing markets to distinguish more carefully among countries and companies.",
+        "quote_source": "TowneBank Newsletter",
+        "quote_date": "October 8, 2026",
+        "key_views": [
+          "Treasury market dynamics are spilling over into credit risk",
+          "US budget deficit is significant despite a robust economy",
+          "Growth is fragile, driven almost exclusively by narrow momentum in tech"
+        ],
+        "price_target_or_view": "Fragile growth driven by narrow tech momentum"
       }
     ],
-    "synthesis": "Commentators this week present a divided outlook, with strong bullish sentiment from strategists like Tom Lee and Jurrien Timmer focusing on earnings growth and seasonal tailwinds, while others like Michael Wilson and Marko Kolanovic express significant caution or bearishness due to rising yields, market breadth concerns, and potential economic fragility. A notable theme is the tension between robust headline index performance and underlying weakness in many individual stocks.",
+    "synthesis": "Commentators are divided on the near-term outlook, with some seeing continued upside driven by earnings momentum and seasonal tailwinds, while others warn of underlying market weakness and increasing financial headwinds. A key point of contention is the impact of rising bond yields and whether they pose a significant threat to equity valuations.",
     "themes": [
-      "Earnings Growth vs. Valuation Concerns",
-      "Impact of Rising Interest Rates and Bond Yields",
-      "Narrow Market Leadership (Tech/AI Dominance)",
-      "Investor Pessimism vs. Market Resilience"
+      "Impact of rising bond yields on equity valuations",
+      "Strength of corporate earnings and forward guidance",
+      "Market breadth and concentration in mega-cap tech stocks"
     ]
   },
   "equity_status": "fresh",
@@ -422,5 +350,7 @@
       "Regulatory and geopolitical risks"
     ]
   },
-  "crypto_status": "fresh"
+  "crypto_status": "stale",
+  "crypto_last_fresh": "2026-10-13T17:26:15.372564+00:00",
+  "crypto_error": "No JSON found in response: "
 }
