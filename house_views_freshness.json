@@ -1,28 +1,28 @@
 {
-  "checked_utc": "2026-10-01T15:55:35.795146+00:00",
-  "checked_human": "2026-10-01 15:55 UTC",
+  "checked_utc": "2026-10-15T13:51:51.799514+00:00",
+  "checked_human": "2026-10-15 13:51 UTC",
   "status": "ok",
-  "needs_action_count": 2,
+  "needs_action_count": 3,
   "forecasters": [
     {
       "id": "wells_fargo_ii",
       "name": "Wells Fargo Inv. Institute",
-      "status": "current",
-      "prior_as_of": "2026-06",
-      "report_month": "2026-06",
-      "report_title": "Wells Fargo Investment Institute: When Every Headline Shouts, Discipline Matters Most",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFyvHG5yJybLJRWuIFIngoMtHRJH4-ouf3z7X8e4LtA7Ubt7ck4dLD4-KWe6F3GdmCXy5MH7gO1MHt6IOYVdTOSBGto06DTw1LCqJOZDSbRT71ajq4bVwrloXdlOLx1INi9bgr7DItJQAAA-LcdFzmiEuY_ktwgKfkMao4ZTfwfMV9Pa3JUQU_GKNwZS-2XFRw7TUv_J-1K-5vKsbSlpYAAHE5YFEHWgtAR4oMMgsaOwW1KTEZTAqDNKp3X082g8-92mlpUFflsCLuFk2Klc5GQQvFuEQ==",
-      "error": null
-    },
-    {
-      "id": "fannie_mae_esr",
-      "name": "Fannie Mae (ESR)",
       "status": "error",
       "prior_as_of": "2026-06",
       "report_month": null,
       "report_title": null,
       "url": null,
       "error": "No JSON found: "
+    },
+    {
+      "id": "fannie_mae_esr",
+      "name": "Fannie Mae (ESR)",
+      "status": "stale",
+      "prior_as_of": "2026-06",
+      "report_month": "2026-10",
+      "report_title": "Fannie Mae Publishes October 2026 Economic and Housing Outlook",
+      "url": "https://www.fanniemae.com/news/economic-and-housing-outlook/fannie-mae-publishes-october-2026-economic-and-housing-outlook",
+      "error": null
     },
     {
       "id": "kpmg",
@@ -37,62 +37,62 @@
     {
       "id": "guggenheim",
       "name": "Guggenheim Investments",
-      "status": "error",
+      "status": "stale",
       "prior_as_of": "2026-06",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-09",
+      "report_title": "September Economic Outlook and Key Themes",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFNM-E6QED0b6f8BK7QTFtY-b5E3AmycrXT6WhFJrtrxXauNaWSLsCf3gMWa60Smm88wDm9fzav7gvi6lFhukqj-6zzZsaAR6Xp9FSg4kSCzF4ZDBrZODHmhz4JHZMGp0bzVVRoPVgDk-ApFfzg-OLcdcBUMxd5KS3e2564C_kd5-LaizotnMsQjH5prijwbkQAG_9qDnjksDvfkspS296rQlRtweRz3Tggym0mwTK_",
+      "error": null
     },
     {
       "id": "ubs_cio",
       "name": "UBS CIO GWM",
-      "status": "stale",
+      "status": "current",
       "prior_as_of": "2025-11",
-      "report_month": "2026-09",
-      "report_title": "UBS CIO House View",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH5ntmSAQ-nX3epP090aVsPkK01cHoxRWyPI4Oa2V9LrKF1zdE5cMsdsKpuMKSXhMi83os2g3d46IAybNYMUB0LwxRb9FDYXe6ZQa3M-FuksjvbaZHXFY3nT-kyKUlC7l_mPXT8neYFh4mNLU2zTYjSj26l5hr5FZp5OfD99lN-9KVHUGzbaTu8cA4nxSMIHyztUSGct1qu-9CjbOvApG7soILB7isXDGZjffxNin2xWLWDHg==",
+      "report_month": "2025-11",
+      "report_title": "UBS Year Ahead 2026: Escape velocity?",
+      "url": "https://www.ubs.com/global/en/wealth/market-news/year-ahead-2026.html",
       "error": null
     },
     {
       "id": "goldman_sachs",
       "name": "Goldman Sachs Research",
-      "status": "stale",
+      "status": "current",
       "prior_as_of": "2026-06",
-      "report_month": "2026-07",
-      "report_title": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGsiDdUftcQiMuxuNOB0xkE6e2NNpjJxu3mqZ3KaLQkyguT1iF8OXC9Jon676B1gl_-BeoCGICFKrsIPubiAoX6ObQyJUhsXDr6bujjVbNFuW1l4m24ycInM2Jc24KP-gCv4PqnUcTHXEcFiS-z94znPgwfZVR7GBApbBDm35sjgjTFFSfRhVXvtOe456C1zXjhjksxUrlLgfPXuBN6Pb_IagKH5ZTVKnwAgNzFmxcYq7zhsKy4v9enLK8=",
+      "report_month": "2026-01",
+      "report_title": "2026 US Economic Outlook: Solid Growth, Low Inflation, Shaky Labor Market",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFAZvHiNA-X6AhUF7Khbi2L4REAsM2ibgCnUeLDVWXhjQOXsUEDLVP9NjpIN9Bk6vp1shgTyhUc5Azw_V00HztqkWpAYbTdWzjhiNR29GZ6cMZQZKHtukhkfb72D-Ub_591g7miIqhEJVsjjckG9Fi3HalDfuWnvx5X8wg4GfcfebYQhfSzIKIMOitPmT6HwiWlghBxQlbIDxk9Fxryft16eMWInJnKYQ==",
       "error": null
     },
     {
       "id": "morgan_stanley",
       "name": "Morgan Stanley Research",
-      "status": "error",
+      "status": "stale",
       "prior_as_of": "2026-05",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": "
+      "report_month": "2026-10",
+      "report_title": "Rising Bond Yields 2026: Investment Outlook",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQElOFhwRnWi2zTcD5KKxttLfn1_a8SCWAZGb8-AoWtk1NUCztHZoNMvBZ1-Njygz8-9-KaWShtM4ZJPcNbr7ARuIWNMIsWFgzb3FOnZwVtTPnaVCElOvKPofS6WFsXzLS000Y0bv1QTKJ_OtsqLZsKM4cH4TzO71KAD2CsFVhw39JncgaZzXRQenx-BeM8pSw-_jObqqIM=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGEgyDjAW8PEEQ2XvGKzIzpcdQce9ryGJjMxWM_aVuxGZIvbfJicGzgHVCkOFcwSeUvGxVSwiVsc4QTaJTf0N4cGGNeEXoBszLqn8v42nVyR2azIwf7pHp2CkjRe7t_IpBFk_E1vamw3FRg3MoYPkA1sONIfhtNgXlkjklngYsG",
+      "error": null
     },
     {
       "id": "yardeni",
       "name": "Yardeni Research",
-      "status": "error",
+      "status": "current",
       "prior_as_of": "2026-05",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-05",
+      "report_title": "MARKET CALL: Raising Our 2026 S&P 500 Target Range Due To Earnings-Led Meltup",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH-eTA4HZ1DeELlGXUVH6Wr9gA050-5WijHBm5OupkFJm8stbrlzEqOtLJ0hCbKnzoS_uE-VQBggj2SdWsX_E1fczbx2yNDDDzkr0IdfUqfQyXTItT9u5skQgmDpL9-cZVA8vNasRG1AW-kSxcrKR5Yn8MysryUdhmQlOjwtGgixxUSk_YJNkdnAJFu2jR-FkxtKKKa4FCAd7Hs6ThF7UV4S7QCLYaLpZrG",
+      "error": null
     },
     {
       "id": "vanguard",
       "name": "Vanguard (VEMO)",
-      "status": "current",
+      "status": "error",
       "prior_as_of": "2025-12",
-      "report_month": "2025-12",
-      "report_title": "AI exuberance: Economic upside, stock market downside",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGsCl65Nko59ovZ_yxvWHoe48e41hy4uanZ7A8Fp9_uTR9jXoEarV9LfHArABbelrpwUJPtKe90_d06iZR_qZocI-ENZvmAppWei5b71RXLWWuUjfgMjlF0w7KMlPOlGDLqqh9WjaYTqfPZKcUVJ2QwLeCW3ThdtRJohGHeo4CAZE1SubwsG-b3jWW9303B9xphD49Ul8ULNiOLXnH5UDi8oilTx43t1QtJBCsjHCtdJBU526Aymp5Y5nuEuVhW7hg-aGlRq3-OFwNnnqC6rOCkYCZwE54MOgFG2w9syw==",
-      "error": null
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "No JSON found: "
     }
   ]
 }
