@@ -8,3 +8,10 @@ secrets.toml
 
 # build_cache.py incremental scratch (promoted to fundamentals_cache.json on success)
 fundamentals_cache.partial.json
+
+# update_price_cache.py: the live price cache, appended nightly (too large to commit: the
+# snapshot prices_cache.parquet is already 99 MiB of the 100 MiB GitHub file limit)
+prices_cache_live.parquet
+prices_cache_live.parquet.tmp
+prices_cache_live_events.json
+prices_cache_live_events.json.tmp

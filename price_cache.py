@@ -26,7 +26,47 @@ import pandas as pd
 
 warnings.filterwarnings("ignore")
 
-CACHE_FILE = "prices_cache.parquet"
+# The committed snapshot (built 2026-05-04, read by the backtests in CI) and the untracked live
+# cache that update_price_cache.py extends append-only every night. The live file wins when it
+# exists: without it the bake's buy points and price shards froze at 2026-05-04.
+SNAPSHOT_FILE = "prices_cache.parquet"
+LIVE_FILE = "prices_cache_live.parquet"
+CACHE_FILE = LIVE_FILE if os.path.exists(LIVE_FILE) else SNAPSHOT_FILE
+# Split/spin-off events update_price_cache.py recorded for the live file. Yahoo restates a
+# ticker's whole history after one, so the bars stored before it sit on the old scale; they
+# are rescaled here, at load, and the stored rows are never rewritten.
+EVENTS_FILE = "prices_cache_live_events.json"
+
+
+def _apply_split_events(ticker_groups):
+    """Divide prices (and multiply volume) of bars stored through each event's applies_through
+    date by its factor, so every ticker's series reads on today's scale."""
+    if CACHE_FILE != LIVE_FILE or not os.path.exists(EVENTS_FILE):
+        return 0
+    import json
+    with open(EVENTS_FILE) as f:
+        splits = (json.load(f) or {}).get("splits", {})
+    n = 0
+    for ticker, events in splits.items():
+        group = ticker_groups.get(ticker.upper())
+        if group is None:
+            continue
+        group = group.copy()
+        if "volume" in group.columns:
+            group["volume"] = group["volume"].astype("float64")
+        for event in events:
+            factor = float(event["factor"])
+            if not factor or factor <= 0:
+                continue
+            mask = group.index <= pd.Timestamp(event["applies_through"])
+            for col in ("open", "high", "low", "close", "adj_close"):
+                if col in group.columns:
+                    group.loc[mask, col] = group.loc[mask, col] / factor
+            if "volume" in group.columns:
+                group.loc[mask, "volume"] = group.loc[mask, "volume"] * factor
+            n += 1
+        ticker_groups[ticker.upper()] = group
+    return n
 
 # Module-level state - LOADED ONCE per Python process
 _TICKER_DFS = None  # dict: ticker (uppercase) -> DataFrame indexed by date
@@ -67,6 +107,10 @@ def _ensure_loaded():
             ticker_groups[ticker_upper] = sorted_group
             first_dates[ticker_upper] = sorted_group.index.min()
             last_dates[ticker_upper] = sorted_group.index.max()
+
+        n_events = _apply_split_events(ticker_groups)
+        if n_events:
+            print(f"price_cache: applied {n_events} split/spin-off events from {EVENTS_FILE}", file=sys.stderr)
 
         _TICKER_DFS = ticker_groups
         _TICKER_FIRST_DATES = first_dates
