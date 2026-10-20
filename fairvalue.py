@@ -36,6 +36,16 @@ SECTOR_RELATIVE_METRIC = {
 DEFAULT_RELATIVE_METRIC = {"key": "trailingPE", "name": "P/E", "label": "Trailing P/E"}
 
 
+def fv_verdict(pd_pct: float) -> tuple:
+    """Map premium/discount % (price vs composite FV) to (verdict, color).
+    Wider bands: Fairly Valued from -15% to +25%."""
+    if pd_pct < -30: return "Deeply Undervalued", "#00C805"
+    if pd_pct < -15: return "Undervalued", "#8BC34A"
+    if pd_pct < 25: return "Fairly Valued", "#FFC107"
+    if pd_pct < 50: return "Overvalued", "#FF5722"
+    return "Significantly Overvalued", "#D32F2F"
+
+
 def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = None,
                         current_price: float = None,
                         pred_12m: float = None, pred_12m_median: float = None) -> dict:
@@ -104,12 +114,7 @@ def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = N
     composite = wsum / tw if tw > 0 else 0
     pd_pct = ((price - composite) / composite * 100) if composite > 0 else 0
 
-    # Wider bands: Fairly Valued from -15% to +25%
-    if pd_pct < -30: verdict, vc = "Deeply Undervalued", "#00C805"
-    elif pd_pct < -15: verdict, vc = "Undervalued", "#8BC34A"
-    elif pd_pct < 25: verdict, vc = "Fairly Valued", "#FFC107"
-    elif pd_pct < 50: verdict, vc = "Overvalued", "#FF5722"
-    else: verdict, vc = "Significantly Overvalued", "#D32F2F"
+    verdict, vc = fv_verdict(pd_pct)
 
     rel = SECTOR_RELATIVE_METRIC.get(sector, DEFAULT_RELATIVE_METRIC)
     return {

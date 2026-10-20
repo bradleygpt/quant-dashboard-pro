@@ -22,6 +22,15 @@ import pandas as pd
 import yfinance as yf
 
 
+def bp_signal(distance_pct: float) -> tuple:
+    """Map % distance of price above the buy point to (signal, color, score)."""
+    if distance_pct <= 0: return "AT BUY POINT", "#00C805", 100
+    if distance_pct < 3: return "Near Buy Point", "#8BC34A", 85
+    if distance_pct < 8: return "Approaching", "#FFC107", 60
+    if distance_pct < 15: return "Above Buy Point", "#FF9800", 35
+    return "Far from Buy Point", "#FF5722", 10
+
+
 def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: float = None,
                        price_history: pd.DataFrame = None,
                        current_price: float = None) -> dict:
@@ -131,26 +140,7 @@ def compute_buy_point(ticker: str, scored_df: pd.DataFrame = None, fair_value: f
 
         distance_pct = ((current_price - buy_point) / buy_point) * 100
 
-        if distance_pct <= 0:
-            signal = "AT BUY POINT"
-            signal_color = "#00C805"
-            signal_score = 100
-        elif distance_pct < 3:
-            signal = "Near Buy Point"
-            signal_color = "#8BC34A"
-            signal_score = 85
-        elif distance_pct < 8:
-            signal = "Approaching"
-            signal_color = "#FFC107"
-            signal_score = 60
-        elif distance_pct < 15:
-            signal = "Above Buy Point"
-            signal_color = "#FF9800"
-            signal_score = 35
-        else:
-            signal = "Far from Buy Point"
-            signal_color = "#FF5722"
-            signal_score = 10
+        signal, signal_color, signal_score = bp_signal(distance_pct)
 
         sma200 = float(close.rolling(200).mean().iloc[-1]) if len(close) >= 200 else None
         rsi = _compute_rsi(close)

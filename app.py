@@ -35,7 +35,7 @@ from treasury_handler import (
 from sectors import get_sector_overview, get_sector_detail
 from fairvalue import compute_fair_value
 from sentiment import fetch_index_data, fetch_vix_data, fetch_buffett_indicator, compute_market_breadth, compute_fear_greed, compute_pgi, COMING_SOON_INDICATORS
-from advanced_screener import apply_advanced_filters, compute_fair_values_batch, PRESET_SCREENS, FILTERABLE_METRICS
+from advanced_screener import apply_advanced_filters, attach_fv_bp_columns, PRESET_SCREENS, FILTERABLE_METRICS
 from etf_screener import load_etf_data, get_etf_categories, filter_etfs, get_etf_detail
 from buy_point import compute_buy_point, compute_buy_points_batch
 from macro import get_macro_summary, get_fed_rate_outlook, fetch_economic_calendar, fetch_yield_curve
@@ -986,18 +986,10 @@ with tab_screener:
         results=apply_advanced_filters(scored_df,rating_filter=adv_ratings or None,sector_filter=adv_sectors or None,metric_filters=active_filters or None,qbp_filter=adv_qbp)
         if results.empty: st.warning("No stocks match all filters.")
         else:
-            # Always compute fair values
-            with st.spinner(f"Computing fair values for {len(results)} stocks..."):
-                fv_r=compute_fair_values_batch(scored_df,results.index.tolist())
-                results["fv_price"]=results.index.map(lambda t:fv_r.get(t,{}).get("fair_value"))
-                results["fv_verdict"]=results.index.map(lambda t:fv_r.get(t,{}).get("verdict","N/A"))
-                results["fv_premium"]=results.index.map(lambda t:fv_r.get(t,{}).get("premium_discount"))
-            # Compute buy points
-            with st.spinner("Computing buy points..."):
-                bp_r=compute_buy_points_batch(results.index.tolist()[:100],scored_df)
-                results["bp_price"]=results.index.map(lambda t:bp_r.get(t,{}).get("buy_point"))
-                results["bp_distance"]=results.index.map(lambda t:bp_r.get(t,{}).get("distance_pct"))
-                results["bp_signal"]=results.index.map(lambda t:bp_r.get(t,{}).get("signal","N/A"))
+            # FV + QBP from scoring's precomputed columns, all derived off scored_df currentPrice
+            # (same price as the Price column, QBP filter and tier gate). See attach_fv_bp_columns.
+            with st.spinner(f"Attaching fair values and buy points for {len(results)} stocks..."):
+                results=attach_fv_bp_columns(results,scored_df)
             # Filter by fair value if selected
             if adv_fv:
                 results=results[results["fv_verdict"].isin(adv_fv)]

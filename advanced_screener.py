@@ -6,7 +6,8 @@ Includes preset screens inspired by institutional portfolio strategy frameworks.
 
 import pandas as pd
 import numpy as np
-from fairvalue import compute_fair_value
+from fairvalue import compute_fair_value, fv_verdict
+from buy_point import compute_buy_point, bp_signal
 
 
 # ── Available Filter Metrics ───────────────────────────────────────
@@ -114,6 +115,71 @@ def compute_fair_values_batch(scored_df, tickers):
             results[ticker] = {"fair_value": None, "premium_discount": None, "verdict": "N/A"}
     return results
 
+
+
+def _num(v):
+    try:
+        v = float(v)
+        return v if np.isfinite(v) and v > 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
+def attach_fv_bp_columns(results, scored_df, bp_fallback_limit=100):
+    """Add fv_price/fv_verdict/fv_premium/bp_price/bp_distance/bp_signal to screener results.
+
+    Single price source: every derived column uses scored_df["currentPrice"], the same
+    price shown in the Price column and used by the QBP filter and the TOP25 tier gate.
+    Reads the fair_value / buy_point columns precomputed by scoring (no network calls);
+    only rows missing a precomputed value are computed on the fly, with the same price
+    passed explicitly. Previously the screener recomputed FV off cached price but QBP
+    off a live yfinance close, so BP Dist/Signal could disagree with the Price column
+    and with the QBP filter.
+    """
+    results = results.copy()
+    fv_price, fv_ver, fv_prem = [], [], []
+    bp_price, bp_dist, bp_sig = [], [], []
+    bp_fallbacks = 0
+    for t in results.index:
+        row = scored_df.loc[t] if t in scored_df.index else results.loc[t]
+        price = _num(row.get("currentPrice"))
+
+        fv = _num(row.get("fair_value"))
+        if fv is None and price is not None:
+            try:
+                r = compute_fair_value(t, scored_df, current_price=price)
+                if "error" not in r:
+                    fv = _num(r.get("composite_fair_value"))
+            except Exception:
+                fv = None
+        if fv is not None and price is not None:
+            prem = round((price - fv) / fv * 100, 1)
+            fv_price.append(round(fv, 2)); fv_prem.append(prem); fv_ver.append(fv_verdict(prem)[0])
+        else:
+            fv_price.append(None); fv_prem.append(None); fv_ver.append("N/A")
+
+        bp = _num(row.get("buy_point"))
+        if bp is None and price is not None and bp_fallbacks < bp_fallback_limit:
+            bp_fallbacks += 1
+            try:
+                r = compute_buy_point(t, scored_df, fair_value=fv, current_price=price)
+                if "error" not in r:
+                    bp = _num(r.get("buy_point"))
+            except Exception:
+                bp = None
+        if bp is not None and price is not None:
+            dist = round((price - bp) / bp * 100, 1)
+            bp_price.append(round(bp, 2)); bp_dist.append(dist); bp_sig.append(bp_signal(dist)[0])
+        else:
+            bp_price.append(None); bp_dist.append(None); bp_sig.append("N/A")
+
+    results["fv_price"] = fv_price
+    results["fv_verdict"] = fv_ver
+    results["fv_premium"] = fv_prem
+    results["bp_price"] = bp_price
+    results["bp_distance"] = bp_dist
+    results["bp_signal"] = bp_sig
+    return results
 
 # ── Preset Screens ─────────────────────────────────────────────────
 
