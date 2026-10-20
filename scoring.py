@@ -237,9 +237,12 @@ def _classify_top25_tier(ticker: str, scored_df: pd.DataFrame,
     if price_histories and ticker in price_histories:
         try:
             from buy_point import compute_buy_point
+            # current_price: the buy point measures its distance from the same price the
+            # fair value used, not the price history's last close (2026-10-20).
             bp_result = compute_buy_point(
                 ticker, scored_df, fair_value=fv_price,
-                price_history=price_histories[ticker]
+                price_history=price_histories[ticker],
+                current_price=current_price,
             )
             if bp_result and "error" not in bp_result:
                 qbp = bp_result.get("buy_point")
