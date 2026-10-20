@@ -15,7 +15,7 @@ Preset/custom-weight switching is done CLIENT-SIDE: composite = Σ(pillar×weigh
 ratings re-derived from composite + FV/QBP (all preset-independent here).
 """
 import json, math, sys, os, time as _time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Run the repo's real modules: make the repo root importable and the cwd, so
 # `import config` resolves and the cache files (read by relative path) are found.
@@ -434,7 +434,9 @@ except Exception as _pe:
     log(f"meta preset provenance pass failed ({_pe}) — all config-literal")
 
 meta = {
-    "generated_at": datetime.now().isoformat(timespec="seconds"),
+    # UTC with an explicit Z (2026-10-20). It was the bake host's naive local (Eastern) time,
+    # which V3 ingests as UTC -- 4-5 h off (2026-10-20 bake at 14:52Z stamped "10:52:57").
+    "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "source_commit": os.popen("git rev-parse --short HEAD").read().strip(),
     "default_preset": DEFAULT_PRESET,
     "default_floor": 0,
