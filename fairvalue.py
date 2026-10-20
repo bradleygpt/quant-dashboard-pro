@@ -35,6 +35,22 @@ SECTOR_RELATIVE_METRIC = {
 }
 DEFAULT_RELATIVE_METRIC = {"key": "trailingPE", "name": "P/E", "label": "Trailing P/E"}
 
+# ONE BLEND (2026-10-20). The bake registers the MLPred 12-month forecasts here once, and every
+# compute_fair_value call that is not handed a forecast uses them -- scoring.py's rating-tier
+# pass (which fills the universe rows' fv/qbp) as well as the bake's detail shards. Before this,
+# only the shards were given the forecast, so one bake shipped two fair values per stock (NVDA:
+# 207.54 in the universe row, 210.27 in its detail shard) and two buy points derived from them.
+# Nothing registers a context outside the bake, so the Streamlit app is unchanged.
+_ML_FORECASTS: dict = {}
+_ML_MEDIAN = None
+
+
+def set_ml_forecasts(pred_by_ticker: dict, median) -> None:
+    """Register the cohort's pred_12m (return space) and its median for every FV computation."""
+    global _ML_FORECASTS, _ML_MEDIAN
+    _ML_FORECASTS = dict(pred_by_ticker or {})
+    _ML_MEDIAN = median if _ML_FORECASTS else None
+
 
 def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = None,
                         current_price: float = None,
@@ -52,6 +68,11 @@ def compute_fair_value(ticker: str, scored_df: pd.DataFrame, raw_cache: dict = N
                         the ~5% mismatch between cached scored_df price and live
                         yfinance price on the dashboard).
     """
+    if pred_12m is None and ticker in _ML_FORECASTS:
+        pred_12m = _ML_FORECASTS[ticker]
+    if pred_12m_median is None:
+        pred_12m_median = _ML_MEDIAN
+
     if ticker not in scored_df.index:
         if raw_cache and ticker in raw_cache: data = raw_cache[ticker]
         else: return {"error": "Ticker not found."}

@@ -32,7 +32,7 @@ from config import (DEFAULT_PILLAR_WEIGHTS, WEIGHT_PRESETS, ABSOLUTE_THRESHOLDS,
                     DEFAULT_PRESET)
 from data_fetcher import get_broad_universe, fetch_universe_data
 from scoring import (score_universe, get_sector_stats, get_pillar_detail)
-from fairvalue import compute_fair_value
+from fairvalue import compute_fair_value, set_ml_forecasts
 from buy_point import compute_buy_point
 import price_cache
 
@@ -283,6 +283,7 @@ def bake_floor(floor):
     os.makedirs(detail_dir, exist_ok=True)
     ma_col = next((c for c in scored.columns if "ma_" in c.lower() and "score" in c.lower()), None)
     n_detail = 0
+    n_blend_mismatch = 0
 
     for tk, r in scored.iterrows():
         sector = r.get("sector")
@@ -307,7 +308,10 @@ def bake_floor(floor):
             ph_t = ph.get(tk)
             if ph_t is not None:
                 try:
-                    qbp = compute_buy_point(tk, scored, fair_value=fv_comp, price_history=ph_t)
+                    # the same price the FV used (buy_point.py's own guidance); the price
+                    # history's last close can lag it by months
+                    qbp = compute_buy_point(tk, scored, fair_value=fv_comp, price_history=ph_t,
+                                            current_price=num(r.get("currentPrice")))
                     if "error" not in qbp:
                         d["qbp"] = deep_clean(qbp)
                 except Exception:
@@ -336,6 +340,12 @@ def bake_floor(floor):
             "grades": grades,
             "raw": {k: num(r.get(k)) for k in RAW_KEYS if k in scored.columns},
         }
+        # one blend: the row's fv/qbp (scoring's tier pass) must equal its detail shard's
+        _fv_d = (d["fv"] or {}).get("composite_fair_value")
+        _qbp_d = (d["qbp"] or {}).get("buy_point")
+        if (row["fv"] is not None and _fv_d is not None and abs(row["fv"] - _fv_d) > 0.011) or \
+           (row["qbp"] is not None and _qbp_d is not None and abs(row["qbp"] - _qbp_d) > 0.011):
+            n_blend_mismatch += 1
         if ma_col:
             row["ma_score"] = num(r.get(ma_col))
         # authoritative per-preset composite + rating
@@ -357,6 +367,7 @@ def bake_floor(floor):
     json.dump(deep_clean({"meta": meta, "rows": rows}),
               open(f"{OUT}/universe_floor{floor}.json", "w"), allow_nan=False)
     log(f"  wrote universe_floor{floor}.json ({len(rows)} rows) + {n_detail} detail shards")
+    log(f"  one-blend FV/QBP mismatches, row vs detail shard (should be 0): {n_blend_mismatch}")
     return meta
 
 
@@ -386,6 +397,9 @@ def _load_pred12():
     log("  FV<-ML: no universe_predictions CSV found; FV baked without the ML method")
     return {}, None
 PRED12, PRED12_MED = _load_pred12()
+# ONE BLEND (2026-10-20): scoring's rating-tier pass computes the fv/qbp the universe rows carry;
+# registering the forecasts makes it use the same ML blend as the detail shards below.
+set_ml_forecasts(PRED12, PRED12_MED)
 metas = {str(f): bake_floor(f) for f in FLOORS}
 
 # ── meta preset provenance (2026-07-02): prefer the backtest builder's RECOMPUTED
