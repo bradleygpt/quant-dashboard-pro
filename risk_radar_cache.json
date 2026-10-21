@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-10-20T14:49:31.731564+00:00",
-  "last_updated_human": "2026-10-20 14:49 UTC",
+  "last_updated_utc": "2026-10-21T14:57:02.812947+00:00",
+  "last_updated_human": "2026-10-21 14:57 UTC",
   "as_of_window": "October 2026",
   "risks": [
     {
@@ -138,5 +138,7 @@
     "Fiscal Sustainability",
     "Energy Market Volatility"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-10-20T14:49:31.731564+00:00",
+  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
 }
