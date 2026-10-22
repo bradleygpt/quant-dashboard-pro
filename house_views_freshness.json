@@ -1,22 +1,12 @@
 {
-  "checked_utc": "2026-08-01T10:37:13.195646+00:00",
-  "checked_human": "2026-08-01 10:37 UTC",
+  "checked_utc": "2026-10-15T13:51:51.799514+00:00",
+  "checked_human": "2026-10-15 13:51 UTC",
   "status": "ok",
-  "needs_action_count": 4,
+  "needs_action_count": 3,
   "forecasters": [
     {
       "id": "wells_fargo_ii",
       "name": "Wells Fargo Inv. Institute",
-      "status": "current",
-      "prior_as_of": "2026-06",
-      "report_month": "2026-06",
-      "report_title": "2026 Midyear Outlook Report: Keeping Discipline in Noisy Markets",
-      "url": "https://www.wellsfargo.com/investment-institute/reports/2026-midyear-outlook/",
-      "error": null
-    },
-    {
-      "id": "fannie_mae_esr",
-      "name": "Fannie Mae (ESR)",
       "status": "error",
       "prior_as_of": "2026-06",
       "report_month": null,
@@ -25,63 +15,73 @@
       "error": "No JSON found: "
     },
     {
+      "id": "fannie_mae_esr",
+      "name": "Fannie Mae (ESR)",
+      "status": "stale",
+      "prior_as_of": "2026-06",
+      "report_month": "2026-10",
+      "report_title": "Fannie Mae Publishes October 2026 Economic and Housing Outlook",
+      "url": "https://www.fanniemae.com/news/economic-and-housing-outlook/fannie-mae-publishes-october-2026-economic-and-housing-outlook",
+      "error": null
+    },
+    {
       "id": "kpmg",
       "name": "KPMG Economics",
-      "status": "current",
+      "status": "error",
       "prior_as_of": "2026-06",
-      "report_month": "2026-06",
-      "report_title": "Spring thaw, summer heat: Biannual economic outlook",
-      "url": "https://kpmg.com/us/en/home/insights/2026/06/spring-thaw-summer-heat-biannual-economic-outlook.html",
-      "error": null
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "error": "No JSON found: "
     },
     {
       "id": "guggenheim",
       "name": "Guggenheim Investments",
       "status": "stale",
       "prior_as_of": "2026-06",
-      "report_month": "2026-07",
-      "report_title": "July 2026 Economic Outlook and Key Themes",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF1RohbIRxRdS7vqnd-elRh5JZrmg7vOMtT1Fa-aZxMpAaZ41LMGas3iPSAtoAm23xAwUQa8MVUmlqIU9osDbXo76tOHSTcZF0PBNc4FiWhp4adrI566Elj-ZZabvWFNoh1JjjYaDIl5kw2OXOjhpZVhUj9Q3ojteKQIqnYSGEqYNrWLq8U01A4K4oOaC26rQbCiU03BjR25-J-FJadV43Izf69nrTa-x4uL8OHRpOp",
+      "report_month": "2026-09",
+      "report_title": "September Economic Outlook and Key Themes",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFNM-E6QED0b6f8BK7QTFtY-b5E3AmycrXT6WhFJrtrxXauNaWSLsCf3gMWa60Smm88wDm9fzav7gvi6lFhukqj-6zzZsaAR6Xp9FSg4kSCzF4ZDBrZODHmhz4JHZMGp0bzVVRoPVgDk-ApFfzg-OLcdcBUMxd5KS3e2564C_kd5-LaizotnMsQjH5prijwbkQAG_9qDnjksDvfkspS296rQlRtweRz3Tggym0mwTK_",
       "error": null
     },
     {
       "id": "ubs_cio",
       "name": "UBS CIO GWM",
-      "status": "stale",
+      "status": "current",
       "prior_as_of": "2025-11",
-      "report_month": "2026-05",
-      "report_title": "Energy spikes and bond yields: Why the market has overshot",
-      "url": "https://www.ubs.com/global/en/investment-principles/chief-investment-office/insights/energy-spikes-and-bond-yields-why-the-market-has-overshot.html",
+      "report_month": "2025-11",
+      "report_title": "UBS Year Ahead 2026: Escape velocity?",
+      "url": "https://www.ubs.com/global/en/wealth/market-news/year-ahead-2026.html",
       "error": null
     },
     {
       "id": "goldman_sachs",
       "name": "Goldman Sachs Research",
-      "status": "stale",
+      "status": "current",
       "prior_as_of": "2026-06",
-      "report_month": "2026-07",
-      "report_title": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
-      "url": "https://www.goldmansachs.com/insights/\u0baa\u0bcd\u0baa\u0b9f\u0bc1\u0ba4\u0bcd\u0ba4-us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth/index.html",
+      "report_month": "2026-01",
+      "report_title": "2026 US Economic Outlook: Solid Growth, Low Inflation, Shaky Labor Market",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFAZvHiNA-X6AhUF7Khbi2L4REAsM2ibgCnUeLDVWXhjQOXsUEDLVP9NjpIN9Bk6vp1shgTyhUc5Azw_V00HztqkWpAYbTdWzjhiNR29GZ6cMZQZKHtukhkfb72D-Ub_591g7miIqhEJVsjjckG9Fi3HalDfuWnvx5X8wg4GfcfebYQhfSzIKIMOitPmT6HwiWlghBxQlbIDxk9Fxryft16eMWInJnKYQ==",
       "error": null
     },
     {
       "id": "morgan_stanley",
       "name": "Morgan Stanley Research",
-      "status": "current",
+      "status": "stale",
       "prior_as_of": "2026-05",
-      "report_month": "2026-05",
-      "report_title": "2026 Midyear Investment Outlook: Constructive, Not Complacent",
-      "url": "https://www.morganstanley.com/insights/articles/2026-midyear-investment-outlook-constructive-not-complacent",
+      "report_month": "2026-10",
+      "report_title": "Rising Bond Yields 2026: Investment Outlook",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQElOFhwRnWi2zTcD5KKxttLfn1_a8SCWAZGb8-AoWtk1NUCztHZoNMvBZ1-Njygz8-9-KaWShtM4ZJPcNbr7ARuIWNMIsWFgzb3FOnZwVtTPnaVCElOvKPofS6WFsXzLS000Y0bv1QTKJ_OtsqLZsKM4cH4TzO71KAD2CsFVhw39JncgaZzXRQenx-BeM8pSw-_jObqqIM=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGEgyDjAW8PEEQ2XvGKzIzpcdQce9ryGJjMxWM_aVuxGZIvbfJicGzgHVCkOFcwSeUvGxVSwiVsc4QTaJTf0N4cGGNeEXoBszLqn8v42nVyR2azIwf7pHp2CkjRe7t_IpBFk_E1vamw3FRg3MoYPkA1sONIfhtNgXlkjklngYsG",
       "error": null
     },
     {
       "id": "yardeni",
       "name": "Yardeni Research",
-      "status": "stale",
+      "status": "current",
       "prior_as_of": "2026-05",
-      "report_month": "2026-07",
-      "report_title": "US Economy Is Still Flying",
-      "url": "https://www.yardeni.com/quicktakes/us-economy-is-still-flying/",
+      "report_month": "2026-05",
+      "report_title": "MARKET CALL: Raising Our 2026 S&P 500 Target Range Due To Earnings-Led Meltup",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH-eTA4HZ1DeELlGXUVH6Wr9gA050-5WijHBm5OupkFJm8stbrlzEqOtLJ0hCbKnzoS_uE-VQBggj2SdWsX_E1fczbx2yNDDDzkr0IdfUqfQyXTItT9u5skQgmDpL9-cZVA8vNasRG1AW-kSxcrKR5Yn8MysryUdhmQlOjwtGgixxUSk_YJNkdnAJFu2jR-FkxtKKKa4FCAd7Hs6ThF7UV4S7QCLYaLpZrG",
       "error": null
     },
     {

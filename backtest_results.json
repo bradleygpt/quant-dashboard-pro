@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-08-09T06:11:31.027989+00:00",
+  "last_run_utc": "2026-10-18T09:49:33.503636+00:00",
   "parameters": {
     "start_year": 2005,
     "hold_days": 14,
@@ -8,41 +8,41 @@
   },
   "aggregate_metrics": {
     "realistic_strategy": {
-      "n_periods": 16,
-      "win_rate_pct": 62.5,
-      "avg_return_pct": 0.547742728336665,
-      "avg_win_pct": 1.3942408518081089,
+      "n_periods": 17,
+      "win_rate_pct": 64.70588235294117,
+      "avg_return_pct": 0.6753498366271288,
+      "avg_win_pct": 1.5144974624868761,
       "avg_loss_pct": -0.8630874774490748,
-      "best_period_pct": 2.2084159452251924,
+      "best_period_pct": 2.717068979853588,
       "worst_period_pct": -2.081375768534698,
-      "total_compounded_pct": 8.983945549794248
+      "total_compounded_pct": 11.945108574591877
     },
     "theoretical_max_strategy": {
-      "n_periods": 16,
+      "n_periods": 17,
       "win_rate_pct": 100.0,
-      "avg_return_pct": 4.054420173399791,
-      "avg_win_pct": 4.054420173399791,
+      "avg_return_pct": 4.381005258393552,
+      "avg_win_pct": 4.381005258393552,
       "avg_loss_pct": 0,
-      "best_period_pct": 9.601984029561779,
+      "best_period_pct": 9.606344571044266,
       "worst_period_pct": 0.7305135843712579,
-      "total_compounded_pct": 88.28403621556009
+      "total_compounded_pct": 106.37129240587674
     },
     "spy_benchmark": {
-      "n_periods": 16,
-      "win_rate_pct": 62.5,
-      "avg_return_pct": 0.33022533065132736,
+      "n_periods": 17,
+      "win_rate_pct": 58.82352941176471,
+      "avg_return_pct": 0.12178934908788544,
       "avg_win_pct": 1.5206171724246351,
-      "avg_loss_pct": -1.6537610723041858,
+      "avg_loss_pct": -1.876536112821757,
       "best_period_pct": 3.8509415486043856,
-      "worst_period_pct": -2.3001629118449585,
-      "total_compounded_pct": 5.146255487262241
+      "worst_period_pct": -3.2131863559271854,
+      "total_compounded_pct": 1.7677103521771986
     }
   },
   "monthly_results": [
     {
       "date": "2005-01-01",
       "n_candidates_screened": 197,
-      "n_qualified": 116,
+      "n_qualified": 115,
       "top_picks": [
         {
           "ticker": "PLD",
@@ -522,7 +522,7 @@
     {
       "date": "2005-05-01",
       "n_candidates_screened": 197,
-      "n_qualified": 77,
+      "n_qualified": 76,
       "top_picks": [
         {
           "ticker": "SO",
@@ -550,12 +550,12 @@
           "ticker": "MNST",
           "swing_score": 75,
           "weight": 0.10460251046025104,
-          "entry_price": 0.5904170274734497,
-          "target_price": 0.6655063288552421,
-          "stop_price": 0.5528723767825535,
-          "realistic_return_pct": 12.718010810616237,
+          "entry_price": 0.29520800709724426,
+          "target_price": 0.3327524406569345,
+          "stop_price": 0.2764357903173991,
+          "realistic_return_pct": 12.717959085480611,
           "realistic_exit_reason": "target",
-          "max_return_pct": 22.81217183814252
+          "max_return_pct": 22.8123826098474
         },
         {
           "ticker": "NEE",
@@ -635,14 +635,14 @@
           "max_return_pct": 5.776340273826169
         }
       ],
-      "portfolio_return_realistic": 1.749148801933774,
-      "portfolio_return_max": 6.060731123230802,
+      "portfolio_return_realistic": 1.7491433913547336,
+      "portfolio_return_max": 6.060753170480266,
       "spy_return_pct": 2.4828173125117283
     },
     {
       "date": "2005-06-01",
       "n_candidates_screened": 197,
-      "n_qualified": 113,
+      "n_qualified": 112,
       "top_picks": [
         {
           "ticker": "TMO",
@@ -762,7 +762,7 @@
     {
       "date": "2005-07-01",
       "n_candidates_screened": 197,
-      "n_qualified": 90,
+      "n_qualified": 89,
       "top_picks": [
         {
           "ticker": "TGT",
@@ -882,7 +882,7 @@
     {
       "date": "2005-08-01",
       "n_candidates_screened": 197,
-      "n_qualified": 108,
+      "n_qualified": 107,
       "top_picks": [
         {
           "ticker": "AEP",
@@ -1122,7 +1122,7 @@
     {
       "date": "2005-10-01",
       "n_candidates_screened": 197,
-      "n_qualified": 75,
+      "n_qualified": 74,
       "top_picks": [
         {
           "ticker": "HUM",
@@ -1242,7 +1242,7 @@
     {
       "date": "2005-11-01",
       "n_candidates_screened": 197,
-      "n_qualified": 81,
+      "n_qualified": 80,
       "top_picks": [
         {
           "ticker": "C",
@@ -1362,7 +1362,7 @@
     {
       "date": "2005-12-01",
       "n_candidates_screened": 197,
-      "n_qualified": 129,
+      "n_qualified": 128,
       "top_picks": [
         {
           "ticker": "ADBE",
@@ -1482,7 +1482,7 @@
     {
       "date": "2006-01-01",
       "n_candidates_screened": 197,
-      "n_qualified": 83,
+      "n_qualified": 82,
       "top_picks": [
         {
           "ticker": "AAPL",
@@ -1602,7 +1602,7 @@
     {
       "date": "2006-02-01",
       "n_candidates_screened": 197,
-      "n_qualified": 99,
+      "n_qualified": 98,
       "top_picks": [
         {
           "ticker": "FIS",
@@ -1722,7 +1722,7 @@
     {
       "date": "2006-03-01",
       "n_candidates_screened": 197,
-      "n_qualified": 107,
+      "n_qualified": 106,
       "top_picks": [
         {
           "ticker": "NOC",
@@ -1842,7 +1842,7 @@
     {
       "date": "2006-04-01",
       "n_candidates_screened": 197,
-      "n_qualified": 94,
+      "n_qualified": 93,
       "top_picks": [
         {
           "ticker": "DUK",
@@ -1962,16 +1962,127 @@
     {
       "date": "2006-05-01",
       "n_candidates_screened": 197,
-      "n_qualified": 14,
-      "top_picks": [],
-      "portfolio_return_realistic": null,
-      "portfolio_return_max": null,
-      "spy_return_pct": null
+      "n_qualified": 87,
+      "top_picks": [
+        {
+          "ticker": "MS",
+          "swing_score": 80,
+          "weight": 0.11065006915629322,
+          "entry_price": 64.30000305175781,
+          "target_price": 66.55999919346401,
+          "stop_price": 63.170004980904714,
+          "realistic_return_pct": -1.7573841636422856,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.2550495791967897
+        },
+        {
+          "ticker": "GS",
+          "swing_score": 75,
+          "weight": 0.1037344398340249,
+          "entry_price": 160.2899932861328,
+          "target_price": 167.3471396309989,
+          "stop_price": 156.76142011369978,
+          "realistic_return_pct": -2.201368345018388,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 3.406330365315169
+        },
+        {
+          "ticker": "MNST",
+          "swing_score": 75,
+          "weight": 0.1037344398340249,
+          "entry_price": 1.3485419750213623,
+          "target_price": 1.453497733388628,
+          "stop_price": 1.2960640958377294,
+          "realistic_return_pct": 7.782906302609022,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 55.30661513614717
+        },
+        {
+          "ticker": "ROP",
+          "swing_score": 73,
+          "weight": 0.10096818810511757,
+          "entry_price": 47.459999084472656,
+          "target_price": 49.67142759050641,
+          "stop_price": 46.35428483145578,
+          "realistic_return_pct": 4.659562892316324,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 5.79435325126188
+        },
+        {
+          "ticker": "NVDA",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 0.4869999885559082,
+          "target_price": 0.5252622876848493,
+          "stop_price": 0.46786883899143766,
+          "realistic_return_pct": 7.856735118700834,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 7.049895575597295
+        },
+        {
+          "ticker": "XOM",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 63.08000183105469,
+          "target_price": 65.63428824288505,
+          "stop_price": 61.80285862513951,
+          "realistic_return_pct": -2.0246404071701134,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 2.5206028721258846
+        },
+        {
+          "ticker": "NFLX",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 0.423429012298584,
+          "target_price": 0.45734758036477224,
+          "stop_price": 0.4064697282654899,
+          "realistic_return_pct": 8.010449704913073,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 4.284539890427311
+        },
+        {
+          "ticker": "INTU",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 27.084999084472656,
+          "target_price": 28.46285683768136,
+          "stop_price": 26.396070207868306,
+          "realistic_return_pct": -2.543580948464204,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 4.301277293360582
+        },
+        {
+          "ticker": "LMT",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 75.9000015258789,
+          "target_price": 78.3500006539481,
+          "stop_price": 74.6750019618443,
+          "realistic_return_pct": -1.6139651375592237,
+          "realistic_exit_reason": "stop",
+          "max_return_pct": 1.4229272850362849
+        },
+        {
+          "ticker": "FCX",
+          "swing_score": 70,
+          "weight": 0.09681881051175657,
+          "entry_price": 32.290000915527344,
+          "target_price": 35.37285777500697,
+          "stop_price": 30.74857248578753,
+          "realistic_return_pct": 9.547404063395886,
+          "realistic_exit_reason": "target",
+          "max_return_pct": 8.113963634559337
+        }
+      ],
+      "portfolio_return_realistic": 2.717068979853588,
+      "portfolio_return_max": 9.606344571044266,
+      "spy_return_pct": -3.2131863559271854
     },
     {
       "date": "2006-06-01",
       "n_candidates_screened": 197,
-      "n_qualified": 0,
+      "n_qualified": 40,
       "top_picks": [],
       "portfolio_return_realistic": null,
       "portfolio_return_max": null,
@@ -4154,8 +4265,26 @@
       "portfolio_return_realistic": null,
       "portfolio_return_max": null,
       "spy_return_pct": null
+    },
+    {
+      "date": "2026-09-01",
+      "n_candidates_screened": 197,
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
+    },
+    {
+      "date": "2026-10-01",
+      "n_candidates_screened": 197,
+      "n_qualified": 0,
+      "top_picks": [],
+      "portfolio_return_realistic": null,
+      "portfolio_return_max": null,
+      "spy_return_pct": null
     }
   ],
   "universe_size": 197,
-  "n_checkpoints": 260
+  "n_checkpoints": 262
 }

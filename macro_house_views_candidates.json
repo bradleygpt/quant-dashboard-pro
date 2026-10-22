@@ -1,85 +1,81 @@
 {
-  "generated_utc": "2026-08-01T10:37:13.195646+00:00",
+  "generated_utc": "2026-10-15T13:51:51.799514+00:00",
   "_warning": "UNVERIFIED LLM-drafted figures. Verify EACH against the cited source PDF before promoting into macro_house_views.json. Never merge a figure whose quote does not plainly state the number. The live panel reads ONLY macro_house_views.json, never this file.",
   "candidates": [
     {
-      "id": "guggenheim",
-      "name": "Guggenheim Investments",
+      "id": "fannie_mae_esr",
+      "name": "Fannie Mae (ESR)",
       "kind": "house",
       "status": "stale",
-      "as_of": "2026-07",
+      "as_of": "2026-10",
       "prior_as_of": "2026-06",
-      "source": "July 2026 Economic Outlook and Key Themes",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF1RohbIRxRdS7vqnd-elRh5JZrmg7vOMtT1Fa-aZxMpAaZ41LMGas3iPSAtoAm23xAwUQa8MVUmlqIU9osDbXo76tOHSTcZF0PBNc4FiWhp4adrI566Elj-ZZabvWFNoh1JjjYaDIl5kw2OXOjhpZVhUj9Q3ojteKQIqnYSGEqYNrWLq8U01A4K4oOaC26rQbCiU03BjR25-J-FJadV43Izf69nrTa-x4uL8OHRpOp",
-      "inflation_basis": "PCE",
-      "notes": "Unemployment rate for 2026 is described as 'near current levels' rather than a specific percentage.",
+      "source": "Fannie Mae Publishes October 2026 Economic and Housing Outlook",
+      "url": "https://www.fanniemae.com/news/economic-and-housing-outlook/fannie-mae-publishes-october-2026-economic-and-housing-outlook",
+      "inflation_basis": "CPI",
+      "notes": "GDP and unemployment figures are Q4/Q4 annual averages. Fed Funds rate is an annual average. Inflation is CPI, Q4/Q4.",
       "values": {
         "gdp": {
           "2026": {
             "value": 2.0,
-            "quote": "We see real gross domestic product (GDP) growth around 2 percent in 2026 and 2027, underpinned by robust artificial intelligence (AI) capital expenditures and near-term fiscal tailwinds.",
-            "verified": true,
-            "notes": "Verified 2026-08-16T20:16:58Z against https://www.guggenheiminvestments.com/perspectives/macroeconomic-research/july-2026-economic-outlook-and-key-themes/"
-          }
-        },
-        "inflation": {
-          "2026": {
-            "value": 3.0,
-            "quote": "While year-over-year core PCE is expected to end the year above 3 percent, we expect some moderation in sequential numbers in coming months as these impulses cool.",
-            "verified": true,
-            "notes": "Verified 2026-08-16T20:16:58Z against https://www.guggenheiminvestments.com/perspectives/macroeconomic-research/july-2026-economic-outlook-and-key-themes/"
-          }
-        }
-      }
-    },
-    {
-      "id": "goldman_sachs",
-      "name": "Goldman Sachs Research",
-      "kind": "house",
-      "status": "stale",
-      "as_of": "2026-07",
-      "prior_as_of": "2026-06",
-      "source": "US Midyear Outlook: Geopolitical Shocks, the New Fed Era, and Growth",
-      "url": "https://www.goldmansachs.com/insights/ப்படுத்த-us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth/index.html",
-      "inflation_basis": "PCE",
-      "notes": "The report focuses on the outlook for the current year (2026) and does not explicitly state forecasts for 2027. The GDP forecast is for the full year.",
-      "values": {
-        "gdp": {
-          "2026": {
-            "value": 2.0,
-            "quote": "David Mericle, chief US economist in Goldman Sachs Research, forecasts the Fed to keep interest rates unchanged this year before cutting its policy rate in 2027. He also unpacks the factors driving US inflation, highlights the surprising resilience of the US labor market, and explains why he expects US GDP to expand around 2% this year.",
-            "verified": true,
-            "notes": "Verified 2026-08-16T20:16:58Z against https://www.goldmansachs.com/insights/goldman-sachs-exchanges/us-midyear-outlook-geopolitical-shocks-the-new-fed-era-and-growth"
-          }
-        }
-      }
-    },
-    {
-      "id": "yardeni",
-      "name": "Yardeni Research",
-      "kind": "house",
-      "status": "stale",
-      "as_of": "2026-07",
-      "prior_as_of": "2026-05",
-      "source": "US Economy Is Still Flying",
-      "url": "https://www.yardeni.com/quicktakes/us-economy-is-still-flying/",
-      "inflation_basis": "PCE",
-      "notes": "The report provides Q2 2026 GDP growth and June 2026 inflation data. It does not explicitly state full-year 2026 forecasts for GDP or inflation, nor does it provide unemployment, fed funds rate, or S&P 500 targets for 2026 or 2027.",
-      "values": {
-        "gdp": {
-          "2026": {
-            "value": 1.5,
-            "quote": "The US economy expanded at a 1.5% annualized rate in Q2-2026, down from 2.1% in Q1 (chart).",
-            "verified": false,
-            "notes": "NOT A FORECAST — cites a specific quarter's realized print — as of 2026-08-16T20:16:58Z; realized data must not enter a forecast panel"
+            "quote": "2.0. 2.0. 2.4."
           }
         },
         "inflation": {
           "2026": {
             "value": 3.7,
-            "quote": "Headline PCED inflation declined 0.1% m/m in June, but was still up 3.7% y/y (chart).",
-            "verified": false,
-            "notes": "NOT A FORECAST — past-tense/realized wording ('declined') — as of 2026-08-16T20:16:58Z; realized data must not enter a forecast panel"
+            "quote": "The forecast also puts consumer price inflation at 3.7% in the fourth quarter of 2026 and 1.9% in the fourth quarter of 2027, measured year over year."
+          }
+        },
+        "unemployment": {
+          "2026": {
+            "value": 4.3,
+            "quote": "4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3."
+          }
+        },
+        "fed_funds": {
+          "2026": {
+            "value": 3.6,
+            "quote": "3.6. 3.6. 3.6. 3.6. 3.6. 3.6. 3.6. 3.6. 4.2. 3.6. 3.6."
+          }
+        }
+      }
+    },
+    {
+      "id": "guggenheim",
+      "name": "Guggenheim Investments",
+      "kind": "house",
+      "status": "stale",
+      "as_of": "2026-09",
+      "prior_as_of": "2026-06",
+      "source": "September Economic Outlook and Key Themes",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFNM-E6QED0b6f8BK7QTFtY-b5E3AmycrXT6WhFJrtrxXauNaWSLsCf3gMWa60Smm88wDm9fzav7gvi6lFhukqj-6zzZsaAR6Xp9FSg4kSCzF4ZDBrZODHmhz4JHZMGp0bzVVRoPVgDk-ApFfzg-OLcdcBUMxd5KS3e2564C_kd5-LaizotnMsQjH5prijwbkQAG_9qDnjksDvfkspS296rQlRtweRz3Tggym0mwTK_",
+      "inflation_basis": "PCE",
+      "notes": "The report mentions \"around 2 percent\" for GDP growth in 2026 and 2027. No explicit S&P 500 target was found.",
+      "values": {
+        "gdp": {
+          "2026": {
+            "value": 2.0,
+            "quote": "We see real gross domestic product growth of around 2 percent in 2026 and 2027, underpinned by robust business investment as the AI buildout continues."
+          }
+        }
+      }
+    },
+    {
+      "id": "morgan_stanley",
+      "name": "Morgan Stanley Research",
+      "kind": "house",
+      "status": "stale",
+      "as_of": "2026-10",
+      "prior_as_of": "2026-05",
+      "source": "Rising Bond Yields 2026: Investment Outlook",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQElOFhwRnWi2zTcD5KKxttLfn1_a8SCWAZGb8-AoWtk1NUCztHZoNMvBZ1-Njygz8-9-KaWShtM4ZJPcNbr7ARuIWNMIsWFgzb3FOnZwVtTPnaVCElOvKPofS6WFsXzLS000Y0bv1QTKJ_OtsqLZsKM4cH4TzO71KAD2CsFVhw39JncgaZzXRQenx-BeM8pSw-_jObqqIM=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGEgyDjAW8PEEQ2XvGKzIzpcdQce9ryGJjMxWM_aVuxGZIvbfJicGzgHVCkOFcwSeUvGxVSwiVsc4QTaJTf0N4cGGNeEXoBszLqn8v42nVyR2azIwf7pHp2CkjRe7t_IpBFk_E1vamw3FRg3MoYPkA1sONIfhtNgXlkjklngYsG",
+      "inflation_basis": "unknown",
+      "notes": "The report mentions that \"Markets are pricing in about three Federal Reserve rate hikes through next December, while Morgan Stanley analysts expect only two.\" and \"We see the 10-year Treasury yield gradually declining toward 4.7% over the next 12 to 15 months.\" No explicit mention of US GDP growth, CPI or PCE inflation, or unemployment rate for 2026 was found in this specific report.",
+      "values": {
+        "sp500_target": {
+          "2026": {
+            "value": 8000,
+            "quote": "Our S&P 500 targets are 8,000 by year-end and 8,300 by next June."
           }
         }
       }

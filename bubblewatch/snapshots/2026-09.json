@@ -1,0 +1,316 @@
+{
+ "month": "2026-09",
+ "generated_at": "2026-09-07T18:55:51",
+ "capex": {
+  "MSFT": {
+   "ttm_usd_bn": 115.9,
+   "quarters": [
+    {
+     "end": "2024-09-30",
+     "usd_bn": 14.92
+    },
+    {
+     "end": "2024-12-31",
+     "usd_bn": 15.8
+    },
+    {
+     "end": "2025-03-31",
+     "usd_bn": 16.75
+    },
+    {
+     "end": "2025-06-30",
+     "usd_bn": 17.08
+    },
+    {
+     "end": "2025-09-30",
+     "usd_bn": 19.39
+    },
+    {
+     "end": "2025-12-31",
+     "usd_bn": 29.88
+    },
+    {
+     "end": "2026-03-31",
+     "usd_bn": 30.88
+    },
+    {
+     "end": "2026-06-30",
+     "usd_bn": 35.8
+    }
+   ]
+  },
+  "AMZN": {
+   "ttm_usd_bn": 173.0,
+   "quarters": [
+    {
+     "end": "2024-09-30",
+     "usd_bn": 22.62
+    },
+    {
+     "end": "2024-12-31",
+     "usd_bn": 27.83
+    },
+    {
+     "end": "2025-03-31",
+     "usd_bn": 25.02
+    },
+    {
+     "end": "2025-06-30",
+     "usd_bn": 32.18
+    },
+    {
+     "end": "2025-09-30",
+     "usd_bn": 35.09
+    },
+    {
+     "end": "2025-12-31",
+     "usd_bn": 39.52
+    },
+    {
+     "end": "2026-03-31",
+     "usd_bn": 44.2
+    },
+    {
+     "end": "2026-06-30",
+     "usd_bn": 54.21
+    }
+   ]
+  },
+  "GOOGL": {
+   "ttm_usd_bn": 132.4,
+   "quarters": [
+    {
+     "end": "2024-09-30",
+     "usd_bn": 13.06
+    },
+    {
+     "end": "2024-12-31",
+     "usd_bn": 14.28
+    },
+    {
+     "end": "2025-03-31",
+     "usd_bn": 17.2
+    },
+    {
+     "end": "2025-06-30",
+     "usd_bn": 22.45
+    },
+    {
+     "end": "2025-09-30",
+     "usd_bn": 23.95
+    },
+    {
+     "end": "2025-12-31",
+     "usd_bn": 27.85
+    },
+    {
+     "end": "2026-03-31",
+     "usd_bn": 35.67
+    },
+    {
+     "end": "2026-06-30",
+     "usd_bn": 44.92
+    }
+   ]
+  },
+  "META": {
+   "ttm_usd_bn": 89.3,
+   "quarters": [
+    {
+     "end": "2024-09-30",
+     "usd_bn": 8.26
+    },
+    {
+     "end": "2024-12-31",
+     "usd_bn": 14.43
+    },
+    {
+     "end": "2025-03-31",
+     "usd_bn": 12.94
+    },
+    {
+     "end": "2025-06-30",
+     "usd_bn": 16.54
+    },
+    {
+     "end": "2025-09-30",
+     "usd_bn": 18.83
+    },
+    {
+     "end": "2025-12-31",
+     "usd_bn": 21.38
+    },
+    {
+     "end": "2026-03-31",
+     "usd_bn": 19.0
+    },
+    {
+     "end": "2026-06-30",
+     "usd_bn": 30.12
+    }
+   ]
+  },
+  "ORCL": {
+   "ttm_usd_bn": 55.7,
+   "quarters": [
+    {
+     "end": "2024-08-31",
+     "usd_bn": 2.3
+    },
+    {
+     "end": "2024-11-30",
+     "usd_bn": 3.97
+    },
+    {
+     "end": "2025-02-28",
+     "usd_bn": 5.86
+    },
+    {
+     "end": "2025-05-31",
+     "usd_bn": 9.08
+    },
+    {
+     "end": "2025-08-31",
+     "usd_bn": 8.5
+    },
+    {
+     "end": "2025-11-30",
+     "usd_bn": 12.03
+    },
+    {
+     "end": "2026-02-28",
+     "usd_bn": 18.64
+    },
+    {
+     "end": "2026-05-31",
+     "usd_bn": 16.49
+    }
+   ]
+  },
+  "NVDA": {
+   "ttm_usd_bn": 7.4,
+   "quarters": [
+    {
+     "end": "2024-10-27",
+     "usd_bn": 0.81
+    },
+    {
+     "end": "2025-01-26",
+     "usd_bn": 1.08
+    },
+    {
+     "end": "2025-04-27",
+     "usd_bn": 1.23
+    },
+    {
+     "end": "2025-07-27",
+     "usd_bn": 1.9
+    },
+    {
+     "end": "2025-10-26",
+     "usd_bn": 1.64
+    },
+    {
+     "end": "2026-01-25",
+     "usd_bn": 1.28
+    },
+    {
+     "end": "2026-04-26",
+     "usd_bn": 1.76
+    },
+    {
+     "end": "2026-07-26",
+     "usd_bn": 2.68
+    }
+   ]
+  }
+ },
+ "capex_ttm_total_bn": 573.7,
+ "valuations": {
+  "NVDA": {
+   "fwd_pe": 14.843682,
+   "ev_s": 18.246,
+   "mcap_bn": 5562.5
+  },
+  "MSFT": {
+   "fwd_pe": 21.19773,
+   "ev_s": 11.338,
+   "mcap_bn": 3710.5
+  },
+  "GOOGL": {
+   "fwd_pe": 22.785429,
+   "ev_s": 9.051,
+   "mcap_bn": 4139.3
+  },
+  "AMZN": {
+   "fwd_pe": 24.855967,
+   "ev_s": 3.761,
+   "mcap_bn": 2788.4
+  },
+  "META": {
+   "fwd_pe": 17.642334,
+   "ev_s": 6.981,
+   "mcap_bn": 1571.2
+  },
+  "ORCL": {
+   "fwd_pe": 14.477147,
+   "ev_s": 8.884,
+   "mcap_bn": 457.4
+  },
+  "AVGO": {
+   "fwd_pe": 18.474785,
+   "ev_s": 19.541,
+   "mcap_bn": 1702.7
+  },
+  "AMD": {
+   "fwd_pe": 30.90922,
+   "ev_s": 18.661,
+   "mcap_bn": 779.6
+  },
+  "TSM": {
+   "fwd_pe": 19.619719,
+   "ev_s": 3.466,
+   "mcap_bn": 2224.5
+  },
+  "PLTR": {
+   "fwd_pe": 74.94938,
+   "ev_s": 66.576,
+   "mcap_bn": 418.9
+  }
+ },
+ "credit": {
+  "hy_oas_pct": 2.65,
+  "asof": "2026-09-03",
+  "source": "FRED BAMLH0A0HYM2"
+ },
+ "gdp_trillions_used": 29.7,
+ "composite": {
+  "reading": 51.7,
+  "components": {
+   "capex_intensity": {
+    "value": 1.93,
+    "unit": "% of GDP (hyperscaler TTM capex)",
+    "score": 19.3,
+    "anchor": "railway-era peak ~10.0% of GDP = 100"
+   },
+   "valuation": {
+    "value": 11.3,
+    "unit": "median EV/S of the AI complex",
+    "score": 37.8,
+    "anchor": "dot-com large-cap peak zone ~30.0x EV/S = 100"
+   },
+   "credit_froth": {
+    "value": 2.65,
+    "unit": "HY OAS %",
+    "score": 98.0,
+    "anchor": "OAS 2.5% (max froth) = 100, 10.0% (distress) = 0"
+   }
+  },
+  "method": "unweighted mean of available component scores; components normalized to historical-analog peaks (anchors stored per component). Raw inputs stored so the composite can be recomputed under different anchors."
+ },
+ "sources": {
+  "capex": "SEC companyfacts PaymentsToAcquirePropertyPlantAndEquipment (10-Q/10-K, cumulative-diffed)",
+  "valuations": "yfinance .info (fwd P/E, EV/S, mcap)",
+  "credit": "FRED BAMLH0A0HYM2 (keyless CSV)"
+ }
+}
