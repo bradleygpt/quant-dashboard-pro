@@ -1,5 +1,5 @@
 {
-  "last_run_utc": "2026-10-18T15:14:34.423792+00:00",
+  "last_run_utc": "2026-10-25T15:57:23.137435+00:00",
   "strategy_label": "TOP-25 equal-weight \u00b7 quarterly rebalance \u00b7 2011+ (EDGAR point-in-time era)",
   "source": "build_quant_backtest.py (per-preset rebuild 2026-07-02)",
   "parameters": {
@@ -46,7 +46,7 @@
       "worst_period_pct": -24.231231693867926,
       "total_compounded_pct": 428.8638272062652
     },
-    "avg_data_quality_across_run": 85.86756154405032
+    "avg_data_quality_across_run": 85.84639663410792
   },
   "presets": {
     "equal": {
@@ -140,12 +140,12 @@
         "momentum": 0.8
       },
       "headline": {
-        "cagr_pct": 27.57,
+        "cagr_pct": 27.6,
         "sharpe": 1.04,
         "max_dd_pct": -28.98,
         "win_rate_pct": 75.8,
         "n_periods": 62,
-        "total_compounded_pct": 4253.6
+        "total_compounded_pct": 4274.2
       },
       "checkpoint_returns_pct": [
         11.5889,
@@ -156,12 +156,12 @@
         -9.6849,
         10.3655,
         5.0106,
-        10.3579,
-        13.0451,
+        10.417,
+        12.2578,
         19.3529,
-        12.1068,
-        5.6946,
-        6.3264,
+        13.4844,
+        7.8959,
+        8.0036,
         -0.0004,
         6.3122,
         5.0657,
@@ -175,11 +175,11 @@
         4.707,
         9.1382,
         7.3062,
-        7.4215,
-        -3.0457,
+        6.8571,
+        -4.3061,
         17.6201,
-        31.8303,
-        -23.9971,
+        30.9952,
+        -24.9483,
         25.3244,
         13.4863,
         -7.6966,
@@ -222,12 +222,12 @@
         "momentum": 0.2
       },
       "headline": {
-        "cagr_pct": 16.71,
+        "cagr_pct": 16.7,
         "sharpe": 0.91,
         "max_dd_pct": -37.32,
         "win_rate_pct": 82.3,
         "n_periods": 62,
-        "total_compounded_pct": 997.6
+        "total_compounded_pct": 995.5
       },
       "checkpoint_returns_pct": [
         11.6555,
@@ -288,7 +288,7 @@
         7.9428,
         -6.5139,
         24.5049,
-        5.541,
+        5.3398,
         -2.0256,
         8.3011,
         5.1813,
@@ -300,8 +300,8 @@
     {
       "date": "2011-01-01",
       "n_candidates_screened": 949,
-      "n_qualified": 536,
-      "avg_data_quality": 70.83022388059702,
+      "n_qualified": 535,
+      "avg_data_quality": 70.78504672897196,
       "spy_return_pct": 4.801252025347484,
       "top_picks": [
         {
@@ -731,8 +731,8 @@
     {
       "date": "2011-04-01",
       "n_candidates_screened": 957,
-      "n_qualified": 557,
-      "avg_data_quality": 73.68940754039497,
+      "n_qualified": 556,
+      "avg_data_quality": 73.65107913669065,
       "spy_return_pct": -0.8862130904028572,
       "top_picks": [
         {
@@ -1162,8 +1162,8 @@
     {
       "date": "2011-07-01",
       "n_candidates_screened": 958,
-      "n_qualified": 572,
-      "avg_data_quality": 73.33041958041959,
+      "n_qualified": 571,
+      "avg_data_quality": 73.29246935201401,
       "spy_return_pct": -13.34378387210236,
       "top_picks": [
         {
@@ -1593,8 +1593,8 @@
     {
       "date": "2011-10-01",
       "n_candidates_screened": 959,
-      "n_qualified": 683,
-      "avg_data_quality": 67.60614934114201,
+      "n_qualified": 682,
+      "avg_data_quality": 67.56598240469208,
       "spy_return_pct": 14.163558311289428,
       "top_picks": [
         {
@@ -2024,8 +2024,8 @@
     {
       "date": "2012-01-01",
       "n_candidates_screened": 963,
-      "n_qualified": 820,
-      "avg_data_quality": 74.29268292682927,
+      "n_qualified": 818,
+      "avg_data_quality": 74.27261613691931,
       "spy_return_pct": 11.247055951286764,
       "top_picks": [
         {
@@ -2455,8 +2455,8 @@
     {
       "date": "2012-04-01",
       "n_candidates_screened": 970,
-      "n_qualified": 832,
-      "avg_data_quality": 76.51442307692308,
+      "n_qualified": 830,
+      "avg_data_quality": 76.5,
       "spy_return_pct": -4.046806530297153,
       "top_picks": [
         {
@@ -2886,8 +2886,8 @@
     {
       "date": "2012-07-01",
       "n_candidates_screened": 977,
-      "n_qualified": 837,
-      "avg_data_quality": 76.95340501792114,
+      "n_qualified": 835,
+      "avg_data_quality": 76.94011976047904,
       "spy_return_pct": 5.464806251599121,
       "top_picks": [
         {
@@ -3317,8 +3317,8 @@
     {
       "date": "2012-10-01",
       "n_candidates_screened": 981,
-      "n_qualified": 848,
-      "avg_data_quality": 77.48820754716981,
+      "n_qualified": 846,
+      "avg_data_quality": 77.47635933806147,
       "spy_return_pct": 1.1846147438690537,
       "top_picks": [
         {
@@ -3748,8 +3748,8 @@
     {
       "date": "2013-01-01",
       "n_candidates_screened": 985,
-      "n_qualified": 851,
-      "avg_data_quality": 80.56991774383079,
+      "n_qualified": 849,
+      "avg_data_quality": 80.54770318021201,
       "spy_return_pct": 6.278240669740294,
       "top_picks": [
         {
@@ -4163,8 +4163,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 10.357868334293153,
-          "max": 27.23550907941272,
+          "realistic": 10.416963427534233,
+          "max": 26.862025140104254,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -4179,8 +4179,8 @@
     {
       "date": "2013-04-01",
       "n_candidates_screened": 993,
-      "n_qualified": 858,
-      "avg_data_quality": 81.8065268065268,
+      "n_qualified": 856,
+      "avg_data_quality": 81.78738317757009,
       "spy_return_pct": 3.22332501180955,
       "top_picks": [
         {
@@ -4594,8 +4594,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 13.045112650390976,
-          "max": 25.274148864312618,
+          "realistic": 12.25777484749642,
+          "max": 24.21419944598171,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -4610,8 +4610,8 @@
     {
       "date": "2013-07-01",
       "n_candidates_screened": 1004,
-      "n_qualified": 864,
-      "avg_data_quality": 81.76504629629629,
+      "n_qualified": 862,
+      "avg_data_quality": 81.74593967517401,
       "spy_return_pct": 4.678980554784074,
       "top_picks": [
         {
@@ -5041,8 +5041,8 @@
     {
       "date": "2013-10-01",
       "n_candidates_screened": 1009,
-      "n_qualified": 870,
-      "avg_data_quality": 82.316091954023,
+      "n_qualified": 868,
+      "avg_data_quality": 82.29838709677419,
       "spy_return_pct": 8.55085112759516,
       "top_picks": [
         {
@@ -5456,8 +5456,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 12.106776680326753,
-          "max": 90.57998140101431,
+          "realistic": 13.484372752289733,
+          "max": 87.9575771323793,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -5472,8 +5472,8 @@
     {
       "date": "2014-01-01",
       "n_candidates_screened": 1022,
-      "n_qualified": 876,
-      "avg_data_quality": 82.6027397260274,
+      "n_qualified": 874,
+      "avg_data_quality": 82.5858123569794,
       "spy_return_pct": 3.2582586778524414,
       "top_picks": [
         {
@@ -5887,8 +5887,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 5.694648953368792,
-          "max": 19.929176838807447,
+          "realistic": 7.895860849195987,
+          "max": 19.911341201006834,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -5903,8 +5903,8 @@
     {
       "date": "2014-04-01",
       "n_candidates_screened": 1030,
-      "n_qualified": 888,
-      "avg_data_quality": 83.00675675675676,
+      "n_qualified": 886,
+      "avg_data_quality": 82.99097065462755,
       "spy_return_pct": 3.9681281384877156,
       "top_picks": [
         {
@@ -6318,8 +6318,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 6.326368160755217,
-          "max": 12.316989256704687,
+          "realistic": 8.003581711061528,
+          "max": 12.257877095673038,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -6334,8 +6334,8 @@
     {
       "date": "2014-07-01",
       "n_candidates_screened": 1044,
-      "n_qualified": 893,
-      "avg_data_quality": 83.10750279955207,
+      "n_qualified": 891,
+      "avg_data_quality": 83.09203142536475,
       "spy_return_pct": 0.2588410445087643,
       "top_picks": [
         {
@@ -6765,8 +6765,8 @@
     {
       "date": "2014-10-01",
       "n_candidates_screened": 1051,
-      "n_qualified": 909,
-      "avg_data_quality": 83.11331133113312,
+      "n_qualified": 907,
+      "avg_data_quality": 83.0981256890849,
       "spy_return_pct": 6.81759690449545,
       "top_picks": [
         {
@@ -7196,8 +7196,8 @@
     {
       "date": "2015-01-01",
       "n_candidates_screened": 1061,
-      "n_qualified": 920,
-      "avg_data_quality": 83.06521739130434,
+      "n_qualified": 918,
+      "avg_data_quality": 83.05010893246187,
       "spy_return_pct": 0.4916564287762218,
       "top_picks": [
         {
@@ -7627,8 +7627,8 @@
     {
       "date": "2015-04-01",
       "n_candidates_screened": 1070,
-      "n_qualified": 924,
-      "avg_data_quality": 83.43614718614718,
+      "n_qualified": 922,
+      "avg_data_quality": 83.42190889370933,
       "spy_return_pct": 0.07292618254689741,
       "top_picks": [
         {
@@ -8058,8 +8058,8 @@
     {
       "date": "2015-07-01",
       "n_candidates_screened": 1084,
-      "n_qualified": 935,
-      "avg_data_quality": 83.40641711229947,
+      "n_qualified": 933,
+      "avg_data_quality": 83.39228295819936,
       "spy_return_pct": -9.33976138930723,
       "top_picks": [
         {
@@ -8489,8 +8489,8 @@
     {
       "date": "2015-10-01",
       "n_candidates_screened": 1093,
-      "n_qualified": 939,
-      "avg_data_quality": 83.84451544195953,
+      "n_qualified": 937,
+      "avg_data_quality": 83.83137673425827,
       "spy_return_pct": 7.182630220295833,
       "top_picks": [
         {
@@ -8920,8 +8920,8 @@
     {
       "date": "2016-01-01",
       "n_candidates_screened": 1099,
-      "n_qualified": 955,
-      "avg_data_quality": 83.75916230366492,
+      "n_qualified": 953,
+      "avg_data_quality": 83.74606505771249,
       "spy_return_pct": 2.6017289903398706,
       "top_picks": [
         {
@@ -9351,8 +9351,8 @@
     {
       "date": "2016-04-01",
       "n_candidates_screened": 1100,
-      "n_qualified": 962,
-      "avg_data_quality": 84.04885654885655,
+      "n_qualified": 960,
+      "avg_data_quality": 84.03645833333333,
       "spy_return_pct": -0.12564977244183914,
       "top_picks": [
         {
@@ -9782,8 +9782,8 @@
     {
       "date": "2016-07-01",
       "n_candidates_screened": 1103,
-      "n_qualified": 963,
-      "avg_data_quality": 84.33021806853583,
+      "n_qualified": 961,
+      "avg_data_quality": 84.31841831425598,
       "spy_return_pct": 2.2675278907944043,
       "top_picks": [
         {
@@ -10213,8 +10213,8 @@
     {
       "date": "2016-10-01",
       "n_candidates_screened": 1113,
-      "n_qualified": 967,
-      "avg_data_quality": 84.45708376421923,
+      "n_qualified": 965,
+      "avg_data_quality": 84.44559585492227,
       "spy_return_pct": 3.591621115878687,
       "top_picks": [
         {
@@ -10644,8 +10644,8 @@
     {
       "date": "2017-01-01",
       "n_candidates_screened": 1124,
-      "n_qualified": 973,
-      "avg_data_quality": 84.60945529290854,
+      "n_qualified": 971,
+      "avg_data_quality": 84.59835221421216,
       "spy_return_pct": 4.479664398781438,
       "top_picks": [
         {
@@ -11075,8 +11075,8 @@
     {
       "date": "2017-04-01",
       "n_candidates_screened": 1130,
-      "n_qualified": 986,
-      "avg_data_quality": 84.68052738336714,
+      "n_qualified": 984,
+      "avg_data_quality": 84.65447154471545,
       "spy_return_pct": 2.749331224391861,
       "top_picks": [
         {
@@ -11506,8 +11506,8 @@
     {
       "date": "2017-07-01",
       "n_candidates_screened": 1138,
-      "n_qualified": 994,
-      "avg_data_quality": 84.72334004024145,
+      "n_qualified": 992,
+      "avg_data_quality": 84.6975806451613,
       "spy_return_pct": 3.724036482244751,
       "top_picks": [
         {
@@ -11937,8 +11937,8 @@
     {
       "date": "2017-10-01",
       "n_candidates_screened": 1141,
-      "n_qualified": 1000,
-      "avg_data_quality": 84.94,
+      "n_qualified": 998,
+      "avg_data_quality": 84.91482965931864,
       "spy_return_pct": 5.762514903806497,
       "top_picks": [
         {
@@ -12352,8 +12352,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 7.421538128524979,
-          "max": 21.196630771319338,
+          "realistic": 6.857137853928301,
+          "max": 20.389277944895547,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -12368,8 +12368,8 @@
     {
       "date": "2018-01-01",
       "n_candidates_screened": 1152,
-      "n_qualified": 1006,
-      "avg_data_quality": 84.97017892644135,
+      "n_qualified": 1004,
+      "avg_data_quality": 84.94521912350598,
       "spy_return_pct": -2.976522799051442,
       "top_picks": [
         {
@@ -12783,8 +12783,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": -3.0456943127899665,
-          "max": 20.2962105959069,
+          "realistic": -4.30611496959299,
+          "max": 19.95014906289025,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -12799,8 +12799,8 @@
     {
       "date": "2018-04-01",
       "n_candidates_screened": 1161,
-      "n_qualified": 1015,
-      "avg_data_quality": 85.04433497536945,
+      "n_qualified": 1013,
+      "avg_data_quality": 85.01974333662389,
       "spy_return_pct": 5.212262929315306,
       "top_picks": [
         {
@@ -13230,8 +13230,8 @@
     {
       "date": "2018-07-01",
       "n_candidates_screened": 1172,
-      "n_qualified": 1023,
-      "avg_data_quality": 85.01955034213098,
+      "n_qualified": 1021,
+      "avg_data_quality": 84.9951028403526,
       "spy_return_pct": 6.937400458089235,
       "top_picks": [
         {
@@ -13645,8 +13645,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": 31.83032590374416,
-          "max": 42.9443233885197,
+          "realistic": 30.995158782361727,
+          "max": 39.31161037793333,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -13661,8 +13661,8 @@
     {
       "date": "2018-10-01",
       "n_candidates_screened": 1179,
-      "n_qualified": 1033,
-      "avg_data_quality": 86.04549854791868,
+      "n_qualified": 1031,
+      "avg_data_quality": 86.02327837051406,
       "spy_return_pct": -14.331748960631352,
       "top_picks": [
         {
@@ -14076,8 +14076,8 @@
           "n_simulated": 25
         },
         "m_heavy": {
-          "realistic": -23.99714989126527,
-          "max": 1.7131548219777784,
+          "realistic": -24.948348374772948,
+          "max": 1.4912221203719747,
           "n_picks": 25,
           "n_simulated": 25
         },
@@ -14092,8 +14092,8 @@
     {
       "date": "2019-01-01",
       "n_candidates_screened": 1187,
-      "n_qualified": 1040,
-      "avg_data_quality": 87.27403846153847,
+      "n_qualified": 1038,
+      "avg_data_quality": 87.25433526011561,
       "spy_return_pct": 14.30570373039528,
       "top_picks": [
         {
@@ -14523,8 +14523,8 @@
     {
       "date": "2019-04-01",
       "n_candidates_screened": 1191,
-      "n_qualified": 1049,
-      "avg_data_quality": 88.25548141086749,
+      "n_qualified": 1047,
+      "avg_data_quality": 88.2378223495702,
       "spy_return_pct": 2.5084888796024205,
       "top_picks": [
         {
@@ -14954,8 +14954,8 @@
     {
       "date": "2019-07-01",
       "n_candidates_screened": 1202,
-      "n_qualified": 1057,
-      "avg_data_quality": 88.35383159886472,
+      "n_qualified": 1055,
+      "avg_data_quality": 88.33649289099526,
       "spy_return_pct": -0.0879421505798763,
       "top_picks": [
         {
@@ -15385,8 +15385,8 @@
     {
       "date": "2019-10-01",
       "n_candidates_screened": 1205,
-      "n_qualified": 1065,
-      "avg_data_quality": 88.90140845070422,
+      "n_qualified": 1063,
+      "avg_data_quality": 88.88523047977422,
       "spy_return_pct": 9.493928954109986,
       "top_picks": [
         {
@@ -15816,8 +15816,8 @@
     {
       "date": "2020-01-01",
       "n_candidates_screened": 1209,
-      "n_qualified": 1075,
-      "avg_data_quality": 89.37674418604651,
+      "n_qualified": 1073,
+      "avg_data_quality": 89.36160298229264,
       "spy_return_pct": -24.231231693867926,
       "top_picks": [
         {
@@ -16247,8 +16247,8 @@
     {
       "date": "2020-04-01",
       "n_candidates_screened": 1213,
-      "n_qualified": 1080,
-      "avg_data_quality": 90.01388888888889,
+      "n_qualified": 1078,
+      "avg_data_quality": 90.0,
       "spy_return_pct": 25.273204549109124,
       "top_picks": [
         {
@@ -16678,8 +16678,8 @@
     {
       "date": "2020-07-01",
       "n_candidates_screened": 1216,
-      "n_qualified": 1082,
-      "avg_data_quality": 90.11552680221811,
+      "n_qualified": 1080,
+      "avg_data_quality": 90.10185185185185,
       "spy_return_pct": 7.036586009460921,
       "top_picks": [
         {
@@ -17109,8 +17109,8 @@
     {
       "date": "2020-10-01",
       "n_candidates_screened": 1228,
-      "n_qualified": 1087,
-      "avg_data_quality": 90.3771849126035,
+      "n_qualified": 1085,
+      "avg_data_quality": 90.36405529953917,
       "spy_return_pct": 10.369683362025809,
       "top_picks": [
         {
@@ -17540,8 +17540,8 @@
     {
       "date": "2021-01-01",
       "n_candidates_screened": 1239,
-      "n_qualified": 1093,
-      "avg_data_quality": 90.48032936870997,
+      "n_qualified": 1091,
+      "avg_data_quality": 90.46746104491292,
       "spy_return_pct": 10.187362980595575,
       "top_picks": [
         {
@@ -17971,8 +17971,8 @@
     {
       "date": "2021-04-01",
       "n_candidates_screened": 1247,
-      "n_qualified": 1105,
-      "avg_data_quality": 90.52488687782805,
+      "n_qualified": 1103,
+      "avg_data_quality": 90.51223934723481,
       "spy_return_pct": 6.852053920458821,
       "top_picks": [
         {
@@ -18402,8 +18402,8 @@
     {
       "date": "2021-07-01",
       "n_candidates_screened": 1261,
-      "n_qualified": 1113,
-      "avg_data_quality": 90.43575920934411,
+      "n_qualified": 1111,
+      "avg_data_quality": 90.42304230423042,
       "spy_return_pct": 0.9339543246648369,
       "top_picks": [
         {
@@ -18833,8 +18833,8 @@
     {
       "date": "2021-10-01",
       "n_candidates_screened": 1271,
-      "n_qualified": 1125,
-      "avg_data_quality": 90.40444444444445,
+      "n_qualified": 1123,
+      "avg_data_quality": 90.39180765805877,
       "spy_return_pct": 9.653651061734003,
       "top_picks": [
         {
@@ -19264,8 +19264,8 @@
     {
       "date": "2022-01-01",
       "n_candidates_screened": 1280,
-      "n_qualified": 1138,
-      "avg_data_quality": 90.37785588752197,
+      "n_qualified": 1136,
+      "avg_data_quality": 90.36531690140845,
       "spy_return_pct": -5.1893363067066804,
       "top_picks": [
         {
@@ -19695,8 +19695,8 @@
     {
       "date": "2022-04-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1146,
-      "avg_data_quality": 90.90314136125654,
+      "n_qualified": 1144,
+      "avg_data_quality": 90.89160839160839,
       "spy_return_pct": -15.826199123081205,
       "top_picks": [
         {
@@ -20126,8 +20126,8 @@
     {
       "date": "2022-07-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1152,
-      "avg_data_quality": 90.72482638888889,
+      "n_qualified": 1150,
+      "avg_data_quality": 90.71304347826087,
       "spy_return_pct": -4.839466520317195,
       "top_picks": [
         {
@@ -20557,8 +20557,8 @@
     {
       "date": "2022-10-01",
       "n_candidates_screened": 1283,
-      "n_qualified": 1156,
-      "avg_data_quality": 90.9515570934256,
+      "n_qualified": 1154,
+      "avg_data_quality": 90.94020797227036,
       "spy_return_pct": 4.315214521243352,
       "top_picks": [
         {
@@ -20988,8 +20988,8 @@
     {
       "date": "2023-01-01",
       "n_candidates_screened": 1287,
-      "n_qualified": 1157,
-      "avg_data_quality": 91.09766637856525,
+      "n_qualified": 1155,
+      "avg_data_quality": 91.08658008658008,
       "spy_return_pct": 7.911875506362437,
       "top_picks": [
         {
@@ -21419,8 +21419,8 @@
     {
       "date": "2023-04-01",
       "n_candidates_screened": 1288,
-      "n_qualified": 1159,
-      "avg_data_quality": 91.44089732528042,
+      "n_qualified": 1157,
+      "avg_data_quality": 91.42610198789974,
       "spy_return_pct": 7.991238681688191,
       "top_picks": [
         {
@@ -21850,8 +21850,8 @@
     {
       "date": "2023-07-01",
       "n_candidates_screened": 1295,
-      "n_qualified": 1161,
-      "avg_data_quality": 91.35658914728683,
+      "n_qualified": 1159,
+      "avg_data_quality": 91.34167385677308,
       "spy_return_pct": -3.675161054677688,
       "top_picks": [
         {
@@ -22281,8 +22281,8 @@
     {
       "date": "2023-10-01",
       "n_candidates_screened": 1300,
-      "n_qualified": 1163,
-      "avg_data_quality": 91.5262252794497,
+      "n_qualified": 1161,
+      "avg_data_quality": 91.51162790697674,
       "spy_return_pct": 11.233062711905804,
       "top_picks": [
         {
@@ -22712,8 +22712,8 @@
     {
       "date": "2024-01-01",
       "n_candidates_screened": 1303,
-      "n_qualified": 1168,
-      "avg_data_quality": 91.53253424657534,
+      "n_qualified": 1166,
+      "avg_data_quality": 91.5180102915952,
       "spy_return_pct": 9.772566075416158,
       "top_picks": [
         {
@@ -23143,8 +23143,8 @@
     {
       "date": "2024-04-01",
       "n_candidates_screened": 1307,
-      "n_qualified": 1178,
-      "avg_data_quality": 91.54923599320882,
+      "n_qualified": 1176,
+      "avg_data_quality": 91.53486394557824,
       "spy_return_pct": 4.224758444379583,
       "top_picks": [
         {
@@ -23574,8 +23574,8 @@
     {
       "date": "2024-07-01",
       "n_candidates_screened": 1309,
-      "n_qualified": 1180,
-      "avg_data_quality": 91.55932203389831,
+      "n_qualified": 1178,
+      "avg_data_quality": 91.54499151103565,
       "spy_return_pct": 4.791495683587785,
       "top_picks": [
         {
@@ -24005,8 +24005,8 @@
     {
       "date": "2024-10-01",
       "n_candidates_screened": 1312,
-      "n_qualified": 1182,
-      "avg_data_quality": 91.6751269035533,
+      "n_qualified": 1180,
+      "avg_data_quality": 91.66101694915254,
       "spy_return_pct": 3.446937454582145,
       "top_picks": [
         {
@@ -24436,8 +24436,8 @@
     {
       "date": "2025-01-01",
       "n_candidates_screened": 1314,
-      "n_qualified": 1188,
-      "avg_data_quality": 91.71717171717172,
+      "n_qualified": 1186,
+      "avg_data_quality": 91.70320404721754,
       "spy_return_pct": -8.199918110332234,
       "top_picks": [
         {
@@ -24867,8 +24867,8 @@
     {
       "date": "2025-04-01",
       "n_candidates_screened": 1315,
-      "n_qualified": 1195,
-      "avg_data_quality": 91.94142259414225,
+      "n_qualified": 1194,
+      "avg_data_quality": 91.90536013400335,
       "spy_return_pct": 10.10393722856398,
       "top_picks": [
         {
@@ -25298,8 +25298,8 @@
     {
       "date": "2025-07-01",
       "n_candidates_screened": 1317,
-      "n_qualified": 1221,
-      "avg_data_quality": 91.35544635544636,
+      "n_qualified": 1220,
+      "avg_data_quality": 91.2827868852459,
       "spy_return_pct": 7.452435269533966,
       "top_picks": [
         {
@@ -25719,8 +25719,8 @@
           "n_simulated": 25
         },
         "v_heavy": {
-          "realistic": 5.540961920165882,
-          "max": 12.2231632113913,
+          "realistic": 5.339779892941806,
+          "max": 11.854556922807733,
           "n_picks": 25,
           "n_simulated": 25
         }
@@ -25730,7 +25730,7 @@
       "date": "2025-10-01",
       "n_candidates_screened": 1317,
       "n_qualified": 1223,
-      "avg_data_quality": 91.35731807031888,
+      "avg_data_quality": 91.30008176614882,
       "spy_return_pct": 2.7765722521739407,
       "top_picks": [
         {
@@ -26161,7 +26161,7 @@
       "date": "2026-01-01",
       "n_candidates_screened": 1318,
       "n_qualified": 1224,
-      "avg_data_quality": 91.36029411764706,
+      "avg_data_quality": 91.3031045751634,
       "spy_return_pct": -4.0019272661615135,
       "top_picks": [
         {
@@ -26592,7 +26592,7 @@
       "date": "2026-04-01",
       "n_candidates_screened": 1319,
       "n_qualified": 1224,
-      "avg_data_quality": 91.62581699346406,
+      "avg_data_quality": 91.58088235294117,
       "spy_return_pct": 9.579699112808663,
       "top_picks": [
         {
@@ -27023,7 +27023,7 @@
       "date": "2026-07-01",
       "n_candidates_screened": 1319,
       "n_qualified": 1223,
-      "avg_data_quality": 91.7170891251022,
+      "avg_data_quality": 91.65576451349142,
       "spy_return_pct": null,
       "top_picks": [],
       "portfolio_return_realistic": null,
