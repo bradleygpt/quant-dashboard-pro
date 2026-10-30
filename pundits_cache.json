@@ -1,166 +1,152 @@
 {
-  "last_updated_utc": "2026-10-29T16:44:50.297054+00:00",
-  "last_updated_human": "2026-10-29 16:44 UTC",
+  "last_updated_utc": "2026-10-30T16:35:16.034745+00:00",
+  "last_updated_human": "2026-10-30 16:35 UTC",
   "market_context": {
-    "spy_price": 769.1898803710938,
-    "sp500_level": 7691.8988037109375,
-    "btc_price": 81367.34375,
-    "eth_price": 2356.739990234375
+    "spy_price": 757.3800048828125,
+    "sp500_level": 7573.800048828125,
+    "btc_price": 77368.671875,
+    "eth_price": 2233.10009765625
   },
   "equity": {
     "commentators": [
       {
         "name": "Tom Lee",
-        "firm": "Fundstrat Capital",
+        "firm": "Fundstrat Global Advisors",
         "stance": "Bearish",
-        "key_quote": "I see 'excessive pessimism' gripping markets and believe stocks are poised to surge higher.",
-        "quote_source": "CNBC",
-        "quote_date": "October 5, 2026",
+        "key_quote": "Tom Lee projects the S&P 500 index will climb to between 8,200 and 8,400 by the end of 2026.",
+        "quote_source": "Wisevoter",
+        "quote_date": "October 20, 2026",
         "key_views": [
-          "Midterm elections to reduce market uncertainty.",
-          "Softer inflation and employment data to allow Fed to ease.",
-          "Accelerating earnings growth provides a strong valuation case."
+          "Midterm elections will reduce market uncertainty.",
+          "Earnings growth is accelerating.",
+          "Softer inflation readings will allow bond yields to normalize."
         ],
-        "price_target_or_view": "S&P 500 could reach 8,200 to 8,400 by year-end 2026.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,692, conflicts with 'Bullish' stance."
+        "price_target_or_view": "S&P 500 target of 8,200-8,400 by year-end 2026",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.4% downside from current ~7,574, conflicts with 'Bullish' stance."
       },
       {
         "name": "Michael Wilson",
         "firm": "Morgan Stanley",
         "stance": "Bearish",
-        "key_quote": "The correction that began in June is now in its final stages, with much of the damage already done beneath the surface.",
+        "key_quote": "Morgan Stanley's Michael Wilson expects the current equity correction to bottom out in the 7,100 to 7,200 range on the S&P 500 before recovering sharply into year-end.",
         "quote_source": "24/7 Wall St.",
         "quote_date": "October 26, 2026",
         "key_views": [
-          "AI capital concerns, midterm elections, and Fed liquidity are key clearing events.",
-          "Tactical downside target at 7,100-7,200.",
-          "Market breadth is improving, suggesting convergence."
+          "Correction is in its final stages.",
+          "Midterm elections are a key catalyst to clear.",
+          "AI concerns and tight financial conditions are near-term hurdles."
         ],
-        "price_target_or_view": "S&P 500 year-end target of 8,000.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,692, conflicts with 'Cautiously Bullish' stance."
-      },
-      {
-        "name": "Jurrien Timmer",
-        "firm": "Fidelity Investments",
-        "stance": "Bearish",
-        "key_quote": "Earnings momentum combined with seasonal tailwinds could push the S&P 500 index above the 8,000 threshold.",
-        "quote_source": "Benzinga",
-        "quote_date": "October 13, 2026",
-        "key_views": [
-          "Strong Q3 earnings growth expected.",
-          "Bullish seasonal period beginning.",
-          "Corporate profit growth preventing a return to bear market conditions."
-        ],
-        "price_target_or_view": "S&P 500 could rise above 8,000.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,692, conflicts with 'Bullish' stance."
+        "price_target_or_view": "S&P 500 target of 8,000 by year-end 2026, with a near-term downside of 7,100-7,200",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.4% downside from current ~7,574, conflicts with 'Cautiously Bullish' stance."
       },
       {
         "name": "Lance Roberts",
         "firm": "RIA Chief Investment Strategist",
         "stance": "Neutral",
         "key_quote": "The S&P 500 is testing its 100-day moving average as markets remain trapped in a two-month consolidation range.",
-        "quote_source": "Substack (Before the Bell)",
+        "quote_source": "Substack",
         "quote_date": "October 26, 2026",
         "key_views": [
-          "S&P 500 testing critical technical support.",
-          "Divergence between market-cap-weighted and equal-weighted indexes.",
+          "Market is in a consolidation range.",
+          "Watching critical S&P 500 support levels.",
           "Potential rotation back into technology stocks."
         ],
-        "price_target_or_view": "Observing if support holds for a year-end rally or if a deeper correction is ahead."
+        "price_target_or_view": "Qualitative view on testing critical support levels"
+      },
+      {
+        "name": "Jurrien Timmer",
+        "firm": "Fidelity Investments",
+        "stance": "Bearish",
+        "key_quote": "Corporate earnings momentum combined with seasonal tailwinds could push the S&P 500 index above the 8,000 threshold.",
+        "quote_source": "Benzinga",
+        "quote_date": "October 13, 2026",
+        "key_views": [
+          "Sustained corporate profit growth is saving the market.",
+          "Q3 earnings growth projected at 25%, potentially higher.",
+          "Bullish seasonal window is starting."
+        ],
+        "price_target_or_view": "S&P 500 could rise above 8,000",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.4% downside from current ~7,574, conflicts with 'Bullish' stance."
+      },
+      {
+        "name": "Ray Dalio",
+        "firm": "Bridgewater Associates",
+        "stance": "Bearish",
+        "key_quote": "Ray Dalio warns that the cushion protecting stocks from rising bond yields is shrinking, with the worst possibly still ahead.",
+        "quote_source": "Daily Market Report",
+        "quote_date": "October 18, 2026",
+        "key_views": [
+          "Stock-over-bond advantage has narrowed.",
+          "Bond bear market has further to run.",
+          "AI capex is consuming cash flow."
+        ],
+        "price_target_or_view": "Qualitative view on shrinking margin for error and potential for worse ahead"
+      },
+      {
+        "name": "Liz Ann Sonders",
+        "firm": "Charles Schwab",
+        "stance": "Neutral",
+        "key_quote": "Rapid-fire market rotations are likely to continue as investors keep capital in the market despite dramatic single-stock drawdowns.",
+        "quote_source": "SA News Editor",
+        "quote_date": "October 29, 2026",
+        "key_views": [
+          "Market rotations are rapid and ongoing.",
+          "Broader market has shown resilience.",
+          "AI investment theme is broadening beyond infrastructure."
+        ],
+        "price_target_or_view": "Qualitative view on market rotations and resilience"
       },
       {
         "name": "Brian Belski",
         "firm": "Humilis Investment Strategies",
-        "stance": "Bullish",
-        "key_quote": "Earnings are the signal, and everything else is noise.",
-        "quote_source": "AdvisorAnalyst.com",
-        "quote_date": "September 21, 2026",
+        "stance": "Bearish",
+        "key_quote": "Humilis Investment Strategies CIO Brian Belski joins 'Varney & Co.' to discuss the S&P 500 and Nasdaq reaching record highs and explain why investors should remain confident despite higher interest rates.",
+        "quote_source": "Fox Business",
+        "quote_date": "October 06, 2026",
         "key_views": [
-          "Strong Q3 earnings growth consensus.",
-          "Forward P/E is down, presenting a buying opportunity on pullbacks.",
-          "Revenue growth across all sectors confirms the thesis."
+          "Investors should remain confident despite higher interest rates.",
+          "Earnings are the signal, everything else is noise.",
+          "Positive growth in GDP and earnings."
         ],
-        "price_target_or_view": "Thesis holds until earnings estimates break; forward P/E compression towards 18x is a buying opportunity."
-      },
-      {
-        "name": "Jim Cramer",
-        "firm": "CNBC (Mad Money)",
-        "stance": "Cautious",
-        "key_quote": "We're on the verge of the earnings deluge and, this time, I don't think we'll be getting the kind of strong numbers that we've become accustomed to.",
-        "quote_source": "BeInCrypto",
-        "quote_date": "October 3, 2026",
-        "key_views": [
-          "Expects a potentially rougher Q3 earnings season.",
-          "Higher rates and Fed's focus on inflation create a difficult backdrop.",
-          "Higher rates make it harder to make money owning stocks."
-        ],
-        "price_target_or_view": "Caution advised for Q3 earnings season."
+        "price_target_or_view": "Bullish on S&P 500 and Nasdaq reaching record highs",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.4% downside from current ~7,574, conflicts with 'Bullish' stance."
       },
       {
         "name": "Marko Kolanovic",
         "firm": "J.P. Morgan (formerly)",
         "stance": "Bearish",
-        "key_quote": "Markets ended 2024 with P/E multiple near the highest level since the dot-com bubble burst.",
+        "key_quote": "Marko Kolanovic warns S&P 500 could fall to high 3,000s if recession hits.",
         "quote_source": "Investing.com",
         "quote_date": "April 30, 2025",
         "key_views": [
           "Probability of recession is very high.",
           "Markets are ignoring signs of fragility.",
-          "S&P 500 could fall to high 3,000s in a recession."
+          "P/E multiples are near dot-com bubble levels."
         ],
-        "price_target_or_view": "S&P 500 could fall to high 3,000s if recession hits."
-      },
-      {
-        "name": "Jeremy Siegel",
-        "firm": "Wharton School, University of Pennsylvania",
-        "stance": "Bearish",
-        "key_quote": "If we can get through those successfully, it still looks like a positive year for me.",
-        "quote_source": "Stocktwits",
-        "quote_date": "March 5, 2026",
-        "key_views": [
-          "Predicts muted stock market gains for 2026 (5-10% for S&P 500).",
-          "Potential headwinds: government shutdown, Supreme Court tariff decision, new Fed Chair announcement.",
-          "Positive outlook if near-term bumps are navigated successfully."
-        ],
-        "price_target_or_view": "S&P 500 likely to gain between 5% to 10% in 2026.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.5% downside from current ~7,692, conflicts with 'Bullish' stance."
+        "price_target_or_view": "S&P 500 could fall to high 3,000s in a recession scenario"
       },
       {
         "name": "Nouriel Roubini",
-        "firm": "Stern School of Business, New York University",
-        "stance": "Cautious",
-        "key_quote": "Some corrections could occur, though I didn't believe the current run-up in AI represented a market bubble.",
-        "quote_source": "Business Insider",
-        "quote_date": "September 6, 2026",
+        "firm": "NYU Stern",
+        "stance": "Bearish",
+        "key_quote": "Some corrections could occur, but he reiterated his optimism about the overall investment landscape.",
+        "quote_source": "The Economic Times",
+        "quote_date": "October 16, 2026",
         "key_views": [
           "Potential for market corrections.",
-          "Elevated yields and seasonally weak period increase risk.",
-          "Optimistic about the overall investment landscape despite risks."
+          "Optimistic on the overall investment landscape.",
+          "AI boom is a positive factor."
         ],
-        "price_target_or_view": "Acknowledges potential for corrections but remains broadly optimistic."
-      },
-      {
-        "name": "Howard Marks",
-        "firm": "Oaktree Capital Management",
-        "stance": "Neutral",
-        "key_quote": "Investors stands cold - the one notable exception - as AAII bears outnumber bulls and the CNN equity Fear and Greed score sits in Fear territory.",
-        "quote_source": "Daily Market Report",
-        "quote_date": "October 25, 2026",
-        "key_views": [
-          "Economy, lenders, capital markets, and capital are strong.",
-          "Investor sentiment is 'cold' with more bears than bulls.",
-          "Geopolitical risk from US-Iran diplomacy breakdown."
-        ],
-        "price_target_or_view": "Mixed signals, with strong economic fundamentals but cautious investor sentiment."
+        "price_target_or_view": "Qualitative view on potential corrections and overall optimism"
       }
     ],
-    "synthesis": "Commentators are largely divided, with a strong bullish contingent expecting further gains driven by earnings and seasonal tailwinds, while a cautious group points to potential near-term corrections and economic headwinds. Key themes include the impact of midterm elections, AI's role in the economy, and the Federal Reserve's monetary policy.",
+    "synthesis": "Commentators are divided on the immediate outlook, with some anticipating a year-end rally driven by post-election clarity and strong earnings (Lee, Timmer, Belski), while others warn of further downside due to tightening financial conditions, AI capex, and potential recession (Wilson, Dalio, Kolanovic). There's a general acknowledgment of market resilience and rapid rotations, with a focus on the interplay between earnings growth and rising rates.",
     "themes": [
-      "Midterm Election Impact",
-      "AI Investment and Inflation",
-      "Federal Reserve Policy and Interest Rates",
-      "Earnings Growth and Valuations",
-      "Market Breadth and Sector Rotation"
+      "Midterm Elections as a Catalyst",
+      "AI Investment and Capital Expenditure",
+      "Inflation and Interest Rate Dynamics",
+      "Earnings Growth vs. Cost of Capital",
+      "Market Breadth and Rotations"
     ]
   },
   "equity_status": "fresh",
@@ -385,5 +371,7 @@
       "Decentralization and future governance models (Srinivasan)"
     ]
   },
-  "crypto_status": "fresh"
+  "crypto_status": "stale",
+  "crypto_last_fresh": "2026-10-29T16:44:50.297054+00:00",
+  "crypto_error": "Could not parse JSON: Extra data: line 172 column 1 (char 8695)"
 }
