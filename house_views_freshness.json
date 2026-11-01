@@ -1,6 +1,6 @@
 {
-  "checked_utc": "2026-10-15T13:51:51.799514+00:00",
-  "checked_human": "2026-10-15 13:51 UTC",
+  "checked_utc": "2026-11-01T15:41:44.137104+00:00",
+  "checked_human": "2026-11-01 15:41 UTC",
   "status": "ok",
   "needs_action_count": 3,
   "forecasters": [
@@ -12,7 +12,10 @@
       "report_month": null,
       "report_title": null,
       "url": null,
-      "error": "No JSON found: "
+      "url_http_status": null,
+      "url_note": null,
+      "draft_check": null,
+      "error": "Gemini returned no text (finishReason='STOP', parts=0, promptFeedback={}). finishReason MAX_TOKENS means the JSON was truncated \u2014 raise max_tokens."
     },
     {
       "id": "fannie_mae_esr",
@@ -22,6 +25,9 @@
       "report_month": "2026-10",
       "report_title": "Fannie Mae Publishes October 2026 Economic and Housing Outlook",
       "url": "https://www.fanniemae.com/news/economic-and-housing-outlook/fannie-mae-publishes-october-2026-economic-and-housing-outlook",
+      "url_http_status": 404,
+      "url_note": null,
+      "draft_check": "draft-check skipped (url http 404)",
       "error": null
     },
     {
@@ -32,67 +38,75 @@
       "report_month": null,
       "report_title": null,
       "url": null,
-      "error": "No JSON found: "
+      "url_http_status": null,
+      "url_note": null,
+      "draft_check": null,
+      "error": "Gemini returned no text (finishReason='STOP', parts=0, promptFeedback={}). finishReason MAX_TOKENS means the JSON was truncated \u2014 raise max_tokens."
     },
     {
       "id": "guggenheim",
       "name": "Guggenheim Investments",
-      "status": "stale",
-      "prior_as_of": "2026-06",
-      "report_month": "2026-09",
-      "report_title": "September Economic Outlook and Key Themes",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFNM-E6QED0b6f8BK7QTFtY-b5E3AmycrXT6WhFJrtrxXauNaWSLsCf3gMWa60Smm88wDm9fzav7gvi6lFhukqj-6zzZsaAR6Xp9FSg4kSCzF4ZDBrZODHmhz4JHZMGp0bzVVRoPVgDk-ApFfzg-OLcdcBUMxd5KS3e2564C_kd5-LaizotnMsQjH5prijwbkQAG_9qDnjksDvfkspS296rQlRtweRz3Tggym0mwTK_",
-      "error": null
-    },
-    {
-      "id": "ubs_cio",
-      "name": "UBS CIO GWM",
-      "status": "current",
-      "prior_as_of": "2025-11",
-      "report_month": "2025-11",
-      "report_title": "UBS Year Ahead 2026: Escape velocity?",
-      "url": "https://www.ubs.com/global/en/wealth/market-news/year-ahead-2026.html",
-      "error": null
+      "status": "error",
+      "prior_as_of": "2026-07",
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "url_http_status": null,
+      "url_note": null,
+      "draft_check": null,
+      "error": "Gemini returned no text (finishReason='STOP', parts=0, promptFeedback={}). finishReason MAX_TOKENS means the JSON was truncated \u2014 raise max_tokens."
     },
     {
       "id": "goldman_sachs",
       "name": "Goldman Sachs Research",
       "status": "current",
-      "prior_as_of": "2026-06",
+      "prior_as_of": "2026-07",
       "report_month": "2026-01",
-      "report_title": "2026 US Economic Outlook: Solid Growth, Low Inflation, Shaky Labor Market",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFAZvHiNA-X6AhUF7Khbi2L4REAsM2ibgCnUeLDVWXhjQOXsUEDLVP9NjpIN9Bk6vp1shgTyhUc5Azw_V00HztqkWpAYbTdWzjhiNR29GZ6cMZQZKHtukhkfb72D-Ub_591g7miIqhEJVsjjckG9Fi3HalDfuWnvx5X8wg4GfcfebYQhfSzIKIMOitPmT6HwiWlghBxQlbIDxk9Fxryft16eMWInJnKYQ==",
+      "report_title": "Macro Outlook 2026: Sturdy Growth, Stagnant Jobs, Stable Prices",
+      "url": "https://www.goldmansachs.com/insights/2026-outlooks/macro-outlook-2026/index.html",
+      "url_http_status": 404,
+      "url_note": null,
+      "draft_check": null,
       "error": null
     },
     {
       "id": "morgan_stanley",
       "name": "Morgan Stanley Research",
-      "status": "stale",
+      "status": "error",
       "prior_as_of": "2026-05",
-      "report_month": "2026-10",
-      "report_title": "Rising Bond Yields 2026: Investment Outlook",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQElOFhwRnWi2zTcD5KKxttLfn1_a8SCWAZGb8-AoWtk1NUCztHZoNMvBZ1-Njygz8-9-KaWShtM4ZJPcNbr7ARuIWNMIsWFgzb3FOnZwVtTPnaVCElOvKPofS6WFsXzLS000Y0bv1QTKJ_OtsqLZsKM4cH4TzO71KAD2CsFVhw39JncgaZzXRQenx-BeM8pSw-_jObqqIM=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGEgyDjAW8PEEQ2XvGKzIzpcdQce9ryGJjMxWM_aVuxGZIvbfJicGzgHVCkOFcwSeUvGxVSwiVsc4QTaJTf0N4cGGNeEXoBszLqn8v42nVyR2azIwf7pHp2CkjRe7t_IpBFk_E1vamw3FRg3MoYPkA1sONIfhtNgXlkjklngYsG",
-      "error": null
+      "report_month": null,
+      "report_title": null,
+      "url": null,
+      "url_http_status": null,
+      "url_note": null,
+      "draft_check": null,
+      "error": "Extra data: line 2 column 1 (char 632)"
     },
     {
       "id": "yardeni",
       "name": "Yardeni Research",
-      "status": "current",
+      "status": "stale",
       "prior_as_of": "2026-05",
-      "report_month": "2026-05",
-      "report_title": "MARKET CALL: Raising Our 2026 S&P 500 Target Range Due To Earnings-Led Meltup",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH-eTA4HZ1DeELlGXUVH6Wr9gA050-5WijHBm5OupkFJm8stbrlzEqOtLJ0hCbKnzoS_uE-VQBggj2SdWsX_E1fczbx2yNDDDzkr0IdfUqfQyXTItT9u5skQgmDpL9-cZVA8vNasRG1AW-kSxcrKR5Yn8MysryUdhmQlOjwtGgixxUSk_YJNkdnAJFu2jR-FkxtKKKa4FCAd7Hs6ThF7UV4S7QCLYaLpZrG",
+      "report_month": "2026-10",
+      "report_title": "Yardeni Targets S&P 500 at 8400, Views Pullbacks as Buys",
+      "url": "https://gokhshtein.com/news/2026-10-26-yardeni-targets-sp-500-at-8400-views-pullbacks-as-buys",
+      "url_http_status": 200,
+      "url_note": "resolved grounding redirect to publisher URL",
+      "draft_check": "draft-check: 0 quote(s) found, 1 not in source",
       "error": null
     },
     {
       "id": "vanguard",
       "name": "Vanguard (VEMO)",
-      "status": "error",
+      "status": "stale",
       "prior_as_of": "2025-12",
-      "report_month": null,
-      "report_title": null,
-      "url": null,
-      "error": "No JSON found: "
+      "report_month": "2026-10",
+      "report_title": "Market perspectives",
+      "url": "https://www.vanguard.com/advisors/market-perspectives",
+      "url_http_status": 404,
+      "url_note": null,
+      "draft_check": "draft-check skipped (url http 404)",
+      "error": null
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-15T13:51:51.799514+00:00",
+  "generated_utc": "2026-11-01T15:41:44.137104+00:00",
   "_warning": "UNVERIFIED LLM-drafted figures. Verify EACH against the cited source PDF before promoting into macro_house_views.json. Never merge a figure whose quote does not plainly state the number. The live panel reads ONLY macro_house_views.json, never this file.",
   "candidates": [
     {
@@ -11,71 +11,69 @@
       "prior_as_of": "2026-06",
       "source": "Fannie Mae Publishes October 2026 Economic and Housing Outlook",
       "url": "https://www.fanniemae.com/news/economic-and-housing-outlook/fannie-mae-publishes-october-2026-economic-and-housing-outlook",
+      "url_http_status": 404,
+      "url_note": null,
+      "draft_check": "draft-check skipped (url http 404)",
       "inflation_basis": "CPI",
-      "notes": "GDP and unemployment figures are Q4/Q4 annual averages. Fed Funds rate is an annual average. Inflation is CPI, Q4/Q4.",
+      "notes": "GDP growth is on a Q4/Q4 basis.",
       "values": {
         "gdp": {
           "2026": {
-            "value": 2.0,
-            "quote": "2.0. 2.0. 2.4."
-          }
-        },
-        "inflation": {
-          "2026": {
-            "value": 3.7,
-            "quote": "The forecast also puts consumer price inflation at 3.7% in the fourth quarter of 2026 and 1.9% in the fourth quarter of 2027, measured year over year."
-          }
-        },
-        "unemployment": {
-          "2026": {
-            "value": 4.3,
-            "quote": "4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3. 4.3."
-          }
-        },
-        "fed_funds": {
-          "2026": {
-            "value": 3.6,
-            "quote": "3.6. 3.6. 3.6. 3.6. 3.6. 3.6. 3.6. 3.6. 4.2. 3.6. 3.6."
+            "value": 2.3,
+            "quote": "We have revised our real gross domestic product (GDP) growth outlook for 2025 and 2026 to 1.9 percent and 2.3 percent on a Q4/Q4 basis, respectively, compared to 1.5 percent and 2.1 percent in our prior forecast."
           }
         }
       }
     },
     {
-      "id": "guggenheim",
-      "name": "Guggenheim Investments",
-      "kind": "house",
-      "status": "stale",
-      "as_of": "2026-09",
-      "prior_as_of": "2026-06",
-      "source": "September Economic Outlook and Key Themes",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFNM-E6QED0b6f8BK7QTFtY-b5E3AmycrXT6WhFJrtrxXauNaWSLsCf3gMWa60Smm88wDm9fzav7gvi6lFhukqj-6zzZsaAR6Xp9FSg4kSCzF4ZDBrZODHmhz4JHZMGp0bzVVRoPVgDk-ApFfzg-OLcdcBUMxd5KS3e2564C_kd5-LaizotnMsQjH5prijwbkQAG_9qDnjksDvfkspS296rQlRtweRz3Tggym0mwTK_",
-      "inflation_basis": "PCE",
-      "notes": "The report mentions \"around 2 percent\" for GDP growth in 2026 and 2027. No explicit S&P 500 target was found.",
-      "values": {
-        "gdp": {
-          "2026": {
-            "value": 2.0,
-            "quote": "We see real gross domestic product growth of around 2 percent in 2026 and 2027, underpinned by robust business investment as the AI buildout continues."
-          }
-        }
-      }
-    },
-    {
-      "id": "morgan_stanley",
-      "name": "Morgan Stanley Research",
+      "id": "yardeni",
+      "name": "Yardeni Research",
       "kind": "house",
       "status": "stale",
       "as_of": "2026-10",
       "prior_as_of": "2026-05",
-      "source": "Rising Bond Yields 2026: Investment Outlook",
-      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQElOFhwRnWi2zTcD5KKxttLfn1_a8SCWAZGb8-AoWtk1NUCztHZoNMvBZ1-Njygz8-9-KaWShtM4ZJPcNbr7ARuIWNMIsWFgzb3FOnZwVtTPnaVCElOvKPofS6WFsXzLS000Y0bv1QTKJ_OtsqLZsKM4cH4TzO71KAD2CsFVhw39JncgaZzXRQenx-BeM8pSw-_jObqqIM=,https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGEgyDjAW8PEEQ2XvGKzIzpcdQce9ryGJjMxWM_aVuxGZIvbfJicGzgHVCkOFcwSeUvGxVSwiVsc4QTaJTf0N4cGGNeEXoBszLqn8v42nVyR2azIwf7pHp2CkjRe7t_IpBFk_E1vamw3FRg3MoYPkA1sONIfhtNgXlkjklngYsG",
+      "source": "Yardeni Targets S&P 500 at 8400, Views Pullbacks as Buys",
+      "url": "https://gokhshtein.com/news/2026-10-26-yardeni-targets-sp-500-at-8400-views-pullbacks-as-buys",
+      "url_http_status": 200,
+      "url_note": "resolved grounding redirect to publisher URL",
+      "draft_check": "draft-check: 0 quote(s) found, 1 not in source",
       "inflation_basis": "unknown",
-      "notes": "The report mentions that \"Markets are pricing in about three Federal Reserve rate hikes through next December, while Morgan Stanley analysts expect only two.\" and \"We see the 10-year Treasury yield gradually declining toward 4.7% over the next 12 to 15 months.\" No explicit mention of US GDP growth, CPI or PCE inflation, or unemployment rate for 2026 was found in this specific report.",
+      "notes": "The report focuses on S&P 500 targets and earnings per share for 2027, with a specific target for year-end 2026. Other requested metrics (GDP, inflation, unemployment, fed funds rate) were not explicitly stated for 2026 in the most recent reports found.",
       "values": {
         "sp500_target": {
           "2026": {
-            "value": 8000,
-            "quote": "Our S&P 500 targets are 8,000 by year-end and 8,300 by next June."
+            "value": 7900,
+            "quote": "Yardeni Research chief Ed Yardeni projects S&P 500 at 7,900 by end-2026 and 8,400 by mid-2027, backed by $425 earnings per share in 2027.",
+            "draft_check": "QUOTE_NOT_IN_SOURCE"
+          }
+        }
+      }
+    },
+    {
+      "id": "vanguard",
+      "name": "Vanguard (VEMO)",
+      "kind": "house",
+      "status": "stale",
+      "as_of": "2026-10",
+      "prior_as_of": "2025-12",
+      "source": "Market perspectives",
+      "url": "https://www.vanguard.com/advisors/market-perspectives",
+      "url_http_status": 404,
+      "url_note": null,
+      "draft_check": "draft-check skipped (url http 404)",
+      "inflation_basis": "PCE",
+      "notes": "The S&P 500 target was not explicitly stated. The report mentions annualized nominal return and volatility forecasts based on the Vanguard Capital Markets Model\u00ae (VCMM) as of September 30, 2026, but does not provide a specific year-end target for the S&P 500 index.",
+      "values": {
+        "gdp": {
+          "2026": {
+            "value": 2.3,
+            "quote": "Growth continues to demonstrate resilience, with activity tracking at a pace consistent with our 2.3% outlook for 2026."
+          }
+        },
+        "sp500_target": {
+          "2026": {
+            "value": 0.0,
+            "quote": "Our annualized nominal return and volatility forecasts are based on the September 30, 2026, running of the Vanguard Capital Markets Model\u00ae (VCMM)."
           }
         }
       }
