@@ -1,15 +1,15 @@
 {
-  "built_at": "2026-11-04T21:26:52.238080",
+  "built_at": "2026-11-05T10:38:29.981691",
   "n_target": 1369,
   "n_records": 1362,
   "n_price": 1362,
-  "n_fresh": 1246,
-  "n_rescued": 116,
+  "n_fresh": 1316,
+  "n_rescued": 46,
   "n_batch_prices": 1336,
   "prev_n_price": 1362,
-  "backoff_pauses": 10,
+  "backoff_pauses": 0,
   "failure_modes": {
-    "empty_info_no_marketcap": 106,
-    "no_history": 17
+    "empty_info_no_marketcap": 37,
+    "no_history": 16
   }
 }
