@@ -1,138 +1,123 @@
 {
-  "last_updated_utc": "2026-11-04T17:51:00.288981+00:00",
-  "last_updated_human": "2026-11-04 17:51 UTC",
-  "as_of_window": "October 2026",
+  "last_updated_utc": "2026-11-05T17:54:47.607357+00:00",
+  "last_updated_human": "2026-11-05 17:54 UTC",
+  "as_of_window": "November 2026",
   "risks": [
     {
-      "title": "Persistent and elevated inflation",
+      "title": "Persistent Inflation and Interest Rate Uncertainty",
       "category": "Inflation",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Inflation remains elevated due to factors like energy price spikes, supply chain disruptions, and robust demand fueled by AI investment. This persistence challenges central banks' efforts to return inflation to their 2% targets.",
-      "watch_for": "Core PCE inflation readings, energy and commodity price trends, and central bank statements on policy stance.",
+      "summary": "Inflation is proving stickier than anticipated, forcing central banks to maintain higher interest rates for longer. This creates uncertainty about the future path of monetary policy, impacting investment decisions and economic growth.",
+      "watch_for": "PCE price index readings, Federal Reserve statements on inflation targets and policy path.",
       "sources": [
         "IMF (World Economic Outlook, October 2026)",
-        "JPMorgan (Mid-Year Outlook 2026)",
-        "Wells Fargo Investment Institute (outlook)",
-        "Guggenheim Investments (Economic Outlook / macro themes)",
-        "KPMG (Economic Compass)",
-        "Federal Reserve (FOMC statement, October 28, 2026)"
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "Guggenheim Investments (Quarterly Macro Themes, First Quarter 2026)",
+        "Wells Fargo Investment Institute (2026 Midyear Outlook, June 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Federal Reserve (FOMC statement, October 2026)"
       ]
     },
     {
-      "title": "Geopolitical conflicts and trade tensions",
+      "title": "Geopolitical Tensions and Energy Price Volatility",
       "category": "Geopolitical",
       "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "Ongoing geopolitical conflicts, particularly in the Middle East, continue to disrupt energy markets and supply chains, contributing to inflation and economic uncertainty. Renewed trade tensions also pose a risk to global growth.",
-      "watch_for": "Escalation of existing conflicts, new geopolitical flashpoints, and changes in global trade policies.",
+      "summary": "Ongoing geopolitical conflicts, particularly in the Middle East, are leading to sharp increases in energy prices and supply chain disruptions. This exacerbates inflation and poses a significant downside risk to global growth.",
+      "watch_for": "Developments in the Middle East conflict, oil price fluctuations, and their pass-through to broader inflation.",
       "sources": [
         "IMF (World Economic Outlook, October 2026)",
-        "World Bank (Global Economic Prospects)",
-        "JPMorgan (Mid-Year Outlook 2026)",
-        "Wells Fargo Investment Institute (outlook)"
+        "World Bank (Global Economic Prospects, January 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "Guggenheim Investments (Quarterly Macro Themes, First Quarter 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Wells Fargo Investment Institute (2026 Midyear Outlook, June 2026)",
+        "Federal Reserve (FOMC statement, September 2026)"
       ]
     },
     {
-      "title": "AI investment boom and its economic impact",
+      "title": "Slowing Global Growth Amidst Trade and Policy Uncertainty",
       "category": "Growth",
       "severity": "Medium",
-      "direction": "two-sided",
-      "horizon": "2026",
-      "summary": "The rapid buildout of Artificial Intelligence is fueling business investment and productivity growth, but also raises concerns about job displacement, market valuations, and potential shifts in AI narratives that could impact investment.",
-      "watch_for": "Corporate earnings reports from tech companies, AI-related capital expenditure announcements, and discussions on AI regulation.",
-      "sources": [
-        "IMF (World Economic Outlook, October 2026)",
-        "World Bank (Global Economic Prospects)",
-        "JPMorgan (Mid-Year Outlook 2026)",
-        "Stanford SIEPR ('US Economy 2026: What to Watch')",
-        "Guggenheim Investments (Economic Outlook / macro themes)",
-        "KPMG (Economic Compass)",
-        "Wells Fargo Investment Institute (outlook)"
-      ]
-    },
-    {
-      "title": "US fiscal trajectory and rising national debt",
-      "category": "Fiscal",
-      "severity": "High",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "The US faces a deteriorating budget trajectory with projected increases in the federal deficit and national debt, driven by spending on Social Security, Medicare, and debt servicing. This raises concerns about long-term fiscal sustainability.",
-      "watch_for": "Congressional Budget Office (CBO) deficit and debt projections, and legislative debates on fiscal policy.",
+      "summary": "Global economic growth is projected to slow, influenced by persistent trade tensions and policy uncertainty. This creates a challenging environment for emerging markets and developing economies.",
+      "watch_for": "IMF and World Bank growth forecasts, trade policy announcements, and indicators of global demand.",
       "sources": [
-        "Congressional Budget Office (Budget and Economic Outlook)",
-        "Stanford SIEPR ('US Economy 2026: What to Watch')",
-        "KPMG (Economic Compass)"
+        "IMF (World Economic Outlook, October 2026)",
+        "World Bank (Global Economic Prospects, January 2026)",
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, November 2026)"
       ]
     },
     {
-      "title": "Labor market fragmentation and 'jobless growth'",
+      "title": "US Fiscal Deficits and Rising National Debt",
+      "category": "Fiscal",
+      "severity": "Medium",
+      "direction": "downside",
+      "horizon": "2027",
+      "summary": "The US faces large and growing federal budget deficits and a rising national debt. This trend is driven by increased spending on social programs and interest payments, potentially crowding out other investments and posing long-term fiscal risks.",
+      "watch_for": "Congressional Budget Office (CBO) deficit and debt projections, Treasury issuance levels.",
+      "sources": [
+        "Congressional Budget Office (Budget and Economic Outlook: 2026 to 2036, February 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, November 2026)",
+        "KPMG (Economic Compass, September 2026)"
+      ]
+    },
+    {
+      "title": "AI Investment Boom and Potential Market Volatility",
+      "category": "Markets",
+      "severity": "Medium",
+      "direction": "two-sided",
+      "horizon": "2026",
+      "summary": "The rapid buildout of Artificial Intelligence (AI) is driving significant investment and economic activity. However, concerns about AI-related valuations and potential disruptions create a risk of market volatility.",
+      "watch_for": "Corporate earnings reports from AI-focused companies, valuations of AI-related firms, and market reactions to AI advancements.",
+      "sources": [
+        "JPMorgan (Mid-Year Outlook 2026, July 2026)",
+        "Stanford SIEPR (US Economy 2026: What to Watch, November 2026)",
+        "Guggenheim Investments (Quarterly Macro Themes, First Quarter 2026)",
+        "KPMG (Global CEO Outlook, November 2026)",
+        "Wells Fargo Investment Institute (2026 Outlook report, December 2025)"
+      ]
+    },
+    {
+      "title": "Labor Market Fragmentation and Affordability Concerns",
       "category": "Labor",
-      "severity": "Medium",
+      "severity": "Low",
       "direction": "downside",
       "horizon": "2026",
-      "summary": "While overall economic growth is occurring, the labor market is characterized by 'jobless growth,' where GDP rises with minimal job creation. This leaves the economy vulnerable to shocks and creates a bifurcated consumer landscape.",
-      "watch_for": "Employment reports (job gains, unemployment rate), wage growth data, and labor force participation rates.",
+      "summary": "While the overall labor market may appear stable, there are signs of fragmentation, with some sectors experiencing job growth while others lag. Persistent affordability challenges for consumers, particularly concerning essential goods and services, remain a key concern.",
+      "watch_for": "Unemployment rate trends, wage growth relative to inflation, and consumer sentiment surveys on affordability.",
       "sources": [
-        "Stanford SIEPR ('US Economy 2026: What to Watch')",
-        "KPMG (Economic Compass)",
-        "Wells Fargo Investment Institute (outlook)"
+        "Stanford SIEPR (US Economy 2026: What to Watch, November 2026)",
+        "KPMG (Economic Compass, September 2026)",
+        "Wells Fargo Investment Institute (2026 Outlook report, December 2025)"
       ]
     },
     {
-      "title": "Monetary policy uncertainty and interest rate path",
-      "category": "Policy",
-      "severity": "Medium",
-      "direction": "two-sided",
-      "horizon": "2026",
-      "summary": "The path of future interest rate decisions by the Federal Reserve remains a key uncertainty. While some expect rate cuts, others anticipate further hikes to combat persistent inflation, creating volatility in financial markets.",
-      "watch_for": "FOMC statements and minutes, Federal Reserve speeches, and market expectations for future rate moves.",
-      "sources": [
-        "Federal Reserve (FOMC statement / SEP / minutes)",
-        "Stanford SIEPR ('US Economy 2026: What to Watch')",
-        "Guggenheim Investments (Economic Outlook / macro themes)",
-        "KPMG (Economic Compass)"
-      ]
-    },
-    {
-      "title": "Energy price volatility and supply disruptions",
-      "category": "Inflation",
-      "severity": "High",
-      "direction": "downside",
-      "horizon": "2026",
-      "summary": "The ongoing conflict in the Middle East and other geopolitical factors are leading to significant volatility in energy prices and potential supply disruptions, directly impacting inflation and global economic activity.",
-      "watch_for": "Oil and gas price movements, OPEC+ production decisions, and news related to geopolitical stability in energy-producing regions.",
-      "sources": [
-        "IMF (World Economic Outlook, October 2026)",
-        "World Bank (Global Economic Prospects)",
-        "JPMorgan (Mid-Year Outlook 2026)",
-        "Wells Fargo Investment Institute (outlook)",
-        "KPMG (Economic Compass)"
-      ]
-    },
-    {
-      "title": "Fiscal vulnerabilities in emerging markets",
-      "category": "Fiscal",
+      "title": "Cybersecurity Threats Amidst Digital Transformation",
+      "category": "Geopolitical",
       "severity": "Medium",
       "direction": "downside",
-      "horizon": "2026",
-      "summary": "Emerging market and developing economies face fiscal vulnerabilities, with limited space to respond to shocks. This is exacerbated by higher import bills and weaker demand, potentially widening income gaps.",
-      "watch_for": "Fiscal deficit and debt levels in emerging markets, and IMF/World Bank assessments of their financial stability.",
+      "horizon": "structural",
+      "summary": "The increasing reliance on digital infrastructure and the rapid adoption of AI present growing cybersecurity risks. CEOs are prioritizing investments in cybersecurity to mitigate threats from cybercrime and cyber insecurity.",
+      "watch_for": "Reports on cyberattacks, corporate spending on cybersecurity, and regulatory developments related to data security.",
       "sources": [
-        "IMF (World Economic Outlook, October 2026)",
-        "World Bank (Global Economic Prospects)"
+        "KPMG (Global CEO Outlook, November 2026)",
+        "KPMG (US CEO Outlook, November 2026)"
       ]
     }
   ],
-  "consensus_note": "There is a broad consensus that the global economy is resilient but faces significant downside risks, primarily from persistent inflation and geopolitical conflicts. While AI is seen as a growth driver, its full economic impact and associated risks are still being assessed. Disagreements emerge on the precise path of monetary policy and the extent to which inflation will remain sticky.",
+  "consensus_note": "There is a strong consensus across institutions regarding the persistent nature of inflation and the resulting uncertainty around monetary policy. Geopolitical tensions, particularly the conflict in the Middle East, are a significant shared concern, driving energy price volatility and impacting global growth. While AI investment is seen as a growth driver, it also introduces market volatility. Institutions diverge slightly on the severity and immediate horizon of some risks, with some emphasizing near-term inflation concerns and others focusing on longer-term fiscal sustainability.",
   "themes": [
-    "Artificial Intelligence (AI) impact on growth and labor",
-    "Geopolitical fragmentation and its economic consequences",
-    "Inflation persistence and central bank policy responses",
-    "Fiscal sustainability and rising debt levels",
-    "Energy market volatility and its inflationary effects"
+    "Persistent Inflation",
+    "Geopolitical Instability",
+    "AI-Driven Transformation",
+    "Fiscal Sustainability",
+    "Global Growth Slowdown"
   ],
   "status": "fresh"
 }

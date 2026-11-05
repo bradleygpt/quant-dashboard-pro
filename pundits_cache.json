@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-11-04T17:50:52.437724+00:00",
-  "last_updated_human": "2026-11-04 17:50 UTC",
+  "last_updated_utc": "2026-11-05T17:54:40.265390+00:00",
+  "last_updated_human": "2026-11-05 17:54 UTC",
   "market_context": {
-    "spy_price": 768.2999877929688,
-    "sp500_level": 7682.9998779296875,
-    "btc_price": 80295.921875,
-    "eth_price": 2425.47998046875
+    "spy_price": 737.8400268554688,
+    "sp500_level": 7378.4002685546875,
+    "btc_price": 75793.953125,
+    "eth_price": 2250.7900390625
   },
   "equity": {
     "commentators": [
@@ -13,158 +13,156 @@
         "name": "Mike Wilson",
         "firm": "Morgan Stanley",
         "stance": "Bearish",
-        "key_quote": "U.S. stocks face an imminent 9% correction to around 7,100, but this pullback should be treated as a buying opportunity before a rally to 8,000.",
-        "quote_source": "Bloomberg News / Morgan Stanley",
-        "quote_date": "Last week",
+        "key_quote": "The market correction may be approaching its final stages, although further declines remain possible.",
+        "quote_source": "Bloomberg News",
+        "quote_date": "November 1, 2026",
         "key_views": [
-          "Midterm elections and AI spending concerns could cause a near-term correction.",
-          "Liquidity constraints are the biggest risk.",
-          "Historical data suggests strong gains follow midterm elections."
+          "Potential for temporary declines creating buying opportunities.",
+          "Midterm elections may remove a source of uncertainty.",
+          "AI spending concerns and liquidity constraints are factors."
         ],
-        "price_target_or_view": "S&P 500 target of 8,000 (bullish)",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.4% downside from current ~7,548, conflicts with 'Cautiously Bullish' stance."
-      },
-      {
-        "name": "Tom Lee",
-        "firm": "Fundstrat Global Advisors",
-        "stance": "Bearish",
-        "key_quote": "Markets are going to exit the year strong, and the upcoming midterm elections are a key 'clearing event' for investors.",
-        "quote_source": "CNBC",
-        "quote_date": "Last week",
-        "key_views": [
-          "Markets climb a 'wall of worry' and will resolve issues to see money come off the sidelines.",
-          "House Democrats may support AI post-midterms due to economic benefits.",
-          "S&P 500 has advanced year-to-date and is expected to finish the year strong."
-        ],
-        "price_target_or_view": "S&P 500 target of 8,200 for year-end 2026 (bullish)",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.4% downside from current ~7,548, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "Mohamed El-Erian",
-        "firm": "Allianz",
-        "stance": "Neutral",
-        "key_quote": "Markets are pricing in too many rate hikes; the global economy is likely to face more violent and frequent shocks.",
-        "quote_source": "CNBC / Seeking Alpha",
-        "quote_date": "Last week",
-        "key_views": [
-          "Investor expectations of Fed rate hikes are excessive.",
-          "Geopolitical risks and financial instability are significant concerns.",
-          "Tech sell-off could be an economic and technical dampener."
-        ],
-        "price_target_or_view": "Cautious outlook on market pricing of rate hikes"
-      },
-      {
-        "name": "Lance Roberts",
-        "firm": "RIA Advisors",
-        "stance": "Neutral",
-        "key_quote": "The stock market broke below its 100-day moving average, triggering oversold conditions, but overhead resistance could keep stocks under pressure.",
-        "quote_source": "Lance Roberts Substack",
-        "quote_date": "Last week",
-        "key_views": [
-          "Watching for a post-election rally, but technical resistance is a concern.",
-          "Widening junk bond credit spreads could signal trouble.",
-          "Broader credit markets show little evidence of systemic financial stress."
-        ],
-        "price_target_or_view": "Focus on technical indicators and credit spreads"
-      },
-      {
-        "name": "Savita Subramanian",
-        "firm": "Bank of America Securities",
-        "stance": "Bearish",
-        "key_quote": "The S&P 500 will end 2026 at 7,100, with valuation multiple compression limiting upside despite strong earnings growth.",
-        "quote_source": "CNBC / Stocktwits",
-        "quote_date": "Last week",
-        "key_views": [
-          "AI-driven stock rallies may not sustain.",
-          "Valuation multiple compression will limit index upside.",
-          "Overweight consumer staples, underweight consumer discretionary."
-        ],
-        "price_target_or_view": "S&P 500 target of 7,100 (bearish)"
-      },
-      {
-        "name": "Brian Belski",
-        "firm": "Humilis Investment Strategies",
-        "stance": "Bearish",
-        "key_quote": "The U.S. stock market is in a secular bull market, and while a pause is expected, the S&P 500 could reach 8,000.",
-        "quote_source": "BNN Bloomberg",
-        "quote_date": "Last week",
-        "key_views": [
-          "Expect a brief pause in the market rally before continuing higher.",
-          "Advocates for diversified U.S. equities over gold.",
-          "Sees opportunity in strong brands like Lululemon and Aritzia."
-        ],
-        "price_target_or_view": "S&P 500 target of 7,000 by year-end (modestly bullish)",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.4% downside from current ~7,548, conflicts with 'Bullish' stance."
+        "price_target_or_view": "S&P 500 target of 8,000 by year-end 2026, with a potential support range of 7,100-7,200.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.2% downside from current ~7,378, conflicts with 'Cautiously Bullish' stance."
       },
       {
         "name": "Jim Cramer",
         "firm": "CNBC",
         "stance": "Neutral",
-        "key_quote": "Non-tech growth is where the money went, with medical devices and staples outperforming, but Apple's guidance may disappoint.",
-        "quote_source": "CNBC / 24/7 Wall St.",
-        "quote_date": "Last week",
+        "key_quote": "We could see a repeal of so much of this move that I hesitate to guess where we go next.",
+        "quote_source": "CNBC",
+        "quote_date": "November 5, 2026",
         "key_views": [
-          "Falling long rates are repricing everything outside of tech.",
-          "Growth stocks away from semis are a clean way to play the market.",
-          "Warns Apple holders that guidance may disappoint."
+          "Post-election rally may not last.",
+          "Jobs report could reverse market gains.",
+          "Elections did not upend the business cycle."
         ],
-        "price_target_or_view": "Focus on non-tech growth areas"
+        "price_target_or_view": "Hesitant to guess market direction due to upcoming jobs data."
       },
       {
-        "name": "Marko Kolanovic",
-        "firm": "JPMorgan",
+        "name": "Savita Subramanian",
+        "firm": "Bank of America",
+        "stance": "Cautious",
+        "key_quote": "The S&P 500 may not even provide 5% returns over the next 10 years.",
+        "quote_source": "Stocktwits",
+        "quote_date": "October 8, 2026",
+        "key_views": [
+          "Valuation multiple compression expected.",
+          "AI-heavy stocks face pressure.",
+          "Bonds may outperform stocks."
+        ],
+        "price_target_or_view": "S&P 500 year-end 2026 target of 7,400, with a 12-month objective of 7,800."
+      },
+      {
+        "name": "Tom Lee",
+        "firm": "Fundstrat Global Advisors",
         "stance": "Bearish",
-        "key_quote": "The S&P 500 could fall to the high 3,000s in the event of a recession, with high valuations and restrictive interest rates as key risks.",
-        "quote_source": "Investing.com / Bloomberg",
-        "quote_date": "Last week",
+        "key_quote": "We are at the bottom.",
+        "quote_source": "Benzinga",
+        "quote_date": "November 3, 2026",
         "key_views": [
-          "Probability of recession is very high.",
-          "Current equity valuations are excessively high.",
-          "Consumer weakness and geopolitical uncertainty are significant concerns."
+          "Bull market extending into fourth year.",
+          "Dovish Fed stance expected.",
+          "AI and productivity gains are tailwinds."
         ],
-        "price_target_or_view": "S&P 500 target of high 3,000s in a recession scenario (bearish)"
-      },
-      {
-        "name": "Howard Marks",
-        "firm": "Oaktree Capital",
-        "stance": "Neutral",
-        "key_quote": "The best opportunities appear when a good asset is priced as if the bad outcome is certain; buy quality when others are fearful.",
-        "quote_source": "CNBC / fffinstill",
-        "quote_date": "Last week",
-        "key_views": [
-          "Price is set by psychology, not asset value.",
-          "Focus on second-level thinking: is the business worse, or is the crowd more afraid?",
-          "Avoid permanent loss, not volatility."
-        ],
-        "price_target_or_view": "Focus on valuation and 'second-level thinking'"
+        "price_target_or_view": "S&P 500 target of 7,700 by 2026, with potential to reach 8,000.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.2% downside from current ~7,378, conflicts with 'Bullish' stance."
       },
       {
         "name": "Jeremy Siegel",
-        "firm": "University of Pennsylvania's Wharton School",
+        "firm": "Wharton School",
         "stance": "Bearish",
-        "key_quote": "Despite potential near-term bumps, 2026 looks like a positive year for the stock market, with muted gains of 5% to 10% for the S&P 500.",
-        "quote_source": "CNBC / The WealthAdvisor",
-        "quote_date": "Last week",
+        "key_quote": "If we can get through those successfully, it still looks like a positive year for me.",
+        "quote_source": "The WealthAdvisor",
+        "quote_date": "December 29, 2025",
         "key_views": [
-          "Potential headwinds include government shutdowns, tariff decisions, and Fed chair announcements.",
-          "Magnificent Seven stocks may see slower growth; non-Mag Seven growth could be stronger.",
-          "Inflation outlook looks good for 2026, with lower shelter prices and potential consumer boosts from tax cuts."
+          "Muted gains expected in 2026 compared to 2025.",
+          "Potential headwinds: government shutdown, tariff decision, Fed Chair announcement.",
+          "Value stocks may outperform if AI weakens."
         ],
-        "price_target_or_view": "S&P 500 target of 5% to 10% gain in 2026 (bullish)",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.4% downside from current ~7,548, conflicts with 'Bullish' stance."
+        "price_target_or_view": "S&P 500 likely to gain between 5% to 10% in 2026.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.2% downside from current ~7,378, conflicts with 'Bullish' stance."
+      },
+      {
+        "name": "Mohamed El-Erian",
+        "firm": "Allianz",
+        "stance": "Neutral",
+        "key_quote": "I am completely bullish on the tech sector, on what AI will do to the economy, but I do think that we needed to course correct.",
+        "quote_source": "CNBC",
+        "quote_date": "November 5, 2026",
+        "key_views": [
+          "Prepare for 'more violent and frequent shocks'.",
+          "Fed is using the 'wrong policy' to tackle inflation.",
+          "AI investment needs a course correction."
+        ],
+        "price_target_or_view": "Bullish on tech sector's long-term AI impact, but cautious on current pursuit."
+      },
+      {
+        "name": "Marko Kolanovic",
+        "firm": "JPMorgan (formerly)",
+        "stance": "Bearish",
+        "key_quote": "The probability of a recession is indeed very high, and we may already be in one.",
+        "quote_source": "Investing.com",
+        "quote_date": "April 30, 2025",
+        "key_views": [
+          "High probability of recession.",
+          "Market overlooks significant economic, political, and geopolitical risks.",
+          "Potential for S&P 500 to fall to high 3,000s in a recession."
+        ],
+        "price_target_or_view": "S&P 500 could fall to high 3,000s or low 4,000s in a recession."
+      },
+      {
+        "name": "Lance Roberts",
+        "firm": "Real Investment Advice",
+        "stance": "Neutral",
+        "key_quote": "The economy is showing surprising strength, but the stock market remains stuck in neutral.",
+        "quote_source": "Lance Roberts | Substack",
+        "quote_date": "November 3, 2026",
+        "key_views": [
+          "Market stuck in sideways trading.",
+          "Potential rotation from value to growth stocks.",
+          "Midterm election results and policy changes are key."
+        ],
+        "price_target_or_view": "Market remains in a consolidation range, awaiting a catalyst."
+      },
+      {
+        "name": "Brian Belski",
+        "firm": "Humilis Investment Strategies",
+        "stance": "Bearish",
+        "key_quote": "Earnings are the signal, and everything else is noise.",
+        "quote_source": "AdvisorAnalyst.com",
+        "quote_date": "September 21, 2026",
+        "key_views": [
+          "Focus on earnings growth.",
+          "Bullish on financials, small-mid caps, and industrials.",
+          "Normalization of returns expected in 2026."
+        ],
+        "price_target_or_view": "S&P 500 year-end target of 7,000 (as of Nov 2025), with a 2026 outlook between 7,300 and 7,500.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.2% downside from current ~7,378, conflicts with 'Bullish' stance."
+      },
+      {
+        "name": "David Rosenberg",
+        "firm": "Rosenberg Research",
+        "stance": "Bearish",
+        "key_quote": "The 'AI Lifeline' that kept the economy afloat in 2025 has finally snapped.",
+        "quote_source": "Kitco News",
+        "quote_date": "December 30, 2025",
+        "key_views": [
+          "Market vulnerable to multiple compression and recession.",
+          "Valuation discipline and downside protection are key.",
+          "Bullish on gold and natural gas."
+        ],
+        "price_target_or_view": "Warns of a 'silent' economic contraction masked by government hiring and a stock market bubble."
       }
     ],
-    "synthesis": "This week's commentary shows a market grappling with near-term uncertainty, particularly around the U.S. midterm elections and AI spending, with a split between those anticipating a correction before a rally (Wilson, Lee) and those maintaining a more cautious or bearish stance (Subramanian, Kolanovic). Consensus is leaning towards earnings driving the market, but disagreements persist on valuation and the sustainability of AI-driven growth.",
+    "synthesis": "Commentators are divided on the immediate market outlook, with some anticipating a near-term pullback before a broader rally, while others express caution due to economic uncertainties and valuation concerns. A key theme is the impact of the recent midterm elections and the ongoing influence of AI investment on corporate earnings and market direction.",
     "themes": [
       "Midterm Election Impact",
-      "AI Spending and Valuations",
-      "Market Correction vs. Continued Bull Market",
-      "Interest Rate Outlook and Fed Policy"
+      "AI Investment and Earnings",
+      "Inflation and Federal Reserve Policy",
+      "Market Valuations and Recession Risk"
     ]
   },
-  "equity_status": "stale",
-  "equity_last_fresh": "2026-11-03T17:38:14.489121+00:00",
-  "equity_error": "No JSON found in response: ",
+  "equity_status": "fresh",
   "crypto": {
     "commentators": [
       {
@@ -337,5 +335,7 @@
       "Midterm Election Uncertainty"
     ]
   },
-  "crypto_status": "fresh"
+  "crypto_status": "stale",
+  "crypto_last_fresh": "2026-11-04T17:50:52.437724+00:00",
+  "crypto_error": "Could not parse JSON: Extra data: line 173 column 1 (char 8365)"
 }
