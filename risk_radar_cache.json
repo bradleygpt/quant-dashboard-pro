@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-11-09T20:31:27.203493+00:00",
-  "last_updated_human": "2026-11-09 20:31 UTC",
+  "last_updated_utc": "2026-11-10T17:33:43.217243+00:00",
+  "last_updated_human": "2026-11-10 17:33 UTC",
   "as_of_window": "November 2026",
   "risks": [
     {
@@ -132,5 +132,7 @@
     "Fiscal Sustainability",
     "Labor Market Dynamics"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-11-09T20:31:27.203493+00:00",
+  "error": "No JSON found: "
 }
