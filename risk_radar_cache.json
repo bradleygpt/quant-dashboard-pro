@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-11-12T17:59:42.419123+00:00",
-  "last_updated_human": "2026-11-12 17:59 UTC",
+  "last_updated_utc": "2026-11-13T17:34:07.965433+00:00",
+  "last_updated_human": "2026-11-13 17:34 UTC",
   "as_of_window": "November 2026",
   "risks": [
     {
@@ -129,5 +129,7 @@
     "Fiscal Sustainability",
     "Energy Market Volatility"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-11-12T17:59:42.419123+00:00",
+  "error": "No JSON found: "
 }
