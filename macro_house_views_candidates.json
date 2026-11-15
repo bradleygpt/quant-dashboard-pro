@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-01T15:41:44.137104+00:00",
+  "generated_utc": "2026-11-15T16:01:40.993883+00:00",
   "_warning": "UNVERIFIED LLM-drafted figures. Verify EACH against the cited source PDF before promoting into macro_house_views.json. Never merge a figure whose quote does not plainly state the number. The live panel reads ONLY macro_house_views.json, never this file.",
   "candidates": [
     {
@@ -13,67 +13,31 @@
       "url": "https://www.fanniemae.com/news/economic-and-housing-outlook/fannie-mae-publishes-october-2026-economic-and-housing-outlook",
       "url_http_status": 404,
       "url_note": null,
-      "draft_check": "draft-check skipped (url http 404)",
+      "draft_check": null,
       "inflation_basis": "CPI",
-      "notes": "GDP growth is on a Q4/Q4 basis.",
-      "values": {
-        "gdp": {
-          "2026": {
-            "value": 2.3,
-            "quote": "We have revised our real gross domestic product (GDP) growth outlook for 2025 and 2026 to 1.9 percent and 2.3 percent on a Q4/Q4 basis, respectively, compared to 1.5 percent and 2.1 percent in our prior forecast."
-          }
-        }
-      }
+      "notes": "Specific forecast figures for GDP, unemployment, Fed Funds rate, and S&P 500 target for 2026 and 2027 were not found in the provided snippets. The inflation figure of 3.7% is for September 2026, not a full-year forecast.",
+      "values": {}
     },
     {
       "id": "yardeni",
       "name": "Yardeni Research",
       "kind": "house",
       "status": "stale",
-      "as_of": "2026-10",
+      "as_of": "2026-11",
       "prior_as_of": "2026-05",
-      "source": "Yardeni Targets S&P 500 at 8400, Views Pullbacks as Buys",
-      "url": "https://gokhshtein.com/news/2026-10-26-yardeni-targets-sp-500-at-8400-views-pullbacks-as-buys",
+      "source": "US MARKETS CALL: Below The Calm Deep Blue Sea",
+      "url": "https://www.yardeniquicktakes.com/us-markets-call-below-the-calm-deep-blue-sea/",
       "url_http_status": 200,
       "url_note": "resolved grounding redirect to publisher URL",
-      "draft_check": "draft-check: 0 quote(s) found, 1 not in source",
+      "draft_check": "draft-check: 1 quote(s) found, 0 not in source",
       "inflation_basis": "unknown",
-      "notes": "The report focuses on S&P 500 targets and earnings per share for 2027, with a specific target for year-end 2026. Other requested metrics (GDP, inflation, unemployment, fed funds rate) were not explicitly stated for 2026 in the most recent reports found.",
+      "notes": "The report is dated November 15, 2026. The S&P 500 target is for year-end 2026.",
       "values": {
         "sp500_target": {
           "2026": {
             "value": 7900,
-            "quote": "Yardeni Research chief Ed Yardeni projects S&P 500 at 7,900 by end-2026 and 8,400 by mid-2027, backed by $425 earnings per share in 2027.",
-            "draft_check": "QUOTE_NOT_IN_SOURCE"
-          }
-        }
-      }
-    },
-    {
-      "id": "vanguard",
-      "name": "Vanguard (VEMO)",
-      "kind": "house",
-      "status": "stale",
-      "as_of": "2026-10",
-      "prior_as_of": "2025-12",
-      "source": "Market perspectives",
-      "url": "https://www.vanguard.com/advisors/market-perspectives",
-      "url_http_status": 404,
-      "url_note": null,
-      "draft_check": "draft-check skipped (url http 404)",
-      "inflation_basis": "PCE",
-      "notes": "The S&P 500 target was not explicitly stated. The report mentions annualized nominal return and volatility forecasts based on the Vanguard Capital Markets Model\u00ae (VCMM) as of September 30, 2026, but does not provide a specific year-end target for the S&P 500 index.",
-      "values": {
-        "gdp": {
-          "2026": {
-            "value": 2.3,
-            "quote": "Growth continues to demonstrate resilience, with activity tracking at a pace consistent with our 2.3% outlook for 2026."
-          }
-        },
-        "sp500_target": {
-          "2026": {
-            "value": 0.0,
-            "quote": "Our annualized nominal return and volatility forecasts are based on the September 30, 2026, running of the Vanguard Capital Markets Model\u00ae (VCMM)."
+            "quote": "We think it is set for another rally that should take it up to 7,900 by the end of this year.",
+            "draft_check": "quote_found"
           }
         }
       }

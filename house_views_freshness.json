@@ -1,8 +1,8 @@
 {
-  "checked_utc": "2026-11-01T15:41:44.137104+00:00",
-  "checked_human": "2026-11-01 15:41 UTC",
+  "checked_utc": "2026-11-15T16:01:40.993883+00:00",
+  "checked_human": "2026-11-15 16:01 UTC",
   "status": "ok",
-  "needs_action_count": 3,
+  "needs_action_count": 2,
   "forecasters": [
     {
       "id": "wells_fargo_ii",
@@ -27,7 +27,7 @@
       "url": "https://www.fanniemae.com/news/economic-and-housing-outlook/fannie-mae-publishes-october-2026-economic-and-housing-outlook",
       "url_http_status": 404,
       "url_note": null,
-      "draft_check": "draft-check skipped (url http 404)",
+      "draft_check": null,
       "error": null
     },
     {
@@ -59,53 +59,53 @@
     {
       "id": "goldman_sachs",
       "name": "Goldman Sachs Research",
-      "status": "current",
-      "prior_as_of": "2026-07",
-      "report_month": "2026-01",
-      "report_title": "Macro Outlook 2026: Sturdy Growth, Stagnant Jobs, Stable Prices",
-      "url": "https://www.goldmansachs.com/insights/2026-outlooks/macro-outlook-2026/index.html",
-      "url_http_status": 404,
-      "url_note": null,
-      "draft_check": null,
-      "error": null
-    },
-    {
-      "id": "morgan_stanley",
-      "name": "Morgan Stanley Research",
       "status": "error",
-      "prior_as_of": "2026-05",
+      "prior_as_of": "2026-07",
       "report_month": null,
       "report_title": null,
       "url": null,
       "url_http_status": null,
       "url_note": null,
       "draft_check": null,
-      "error": "Extra data: line 2 column 1 (char 632)"
+      "error": "Gemini returned no text (finishReason='STOP', parts=0, promptFeedback={}). finishReason MAX_TOKENS means the JSON was truncated \u2014 raise max_tokens."
+    },
+    {
+      "id": "morgan_stanley",
+      "name": "Morgan Stanley Research",
+      "status": "current",
+      "prior_as_of": "2026-05",
+      "report_month": "2026-05",
+      "report_title": "2026 Midyear Investment Outlook: Constructive, Not Complacent",
+      "url": "https://us.etrade.com/knowledge/library/perspectives/ms-2026-outlook?linkId=898456168",
+      "url_http_status": 200,
+      "url_note": "resolved grounding redirect to publisher URL",
+      "draft_check": null,
+      "error": null
     },
     {
       "id": "yardeni",
       "name": "Yardeni Research",
       "status": "stale",
       "prior_as_of": "2026-05",
-      "report_month": "2026-10",
-      "report_title": "Yardeni Targets S&P 500 at 8400, Views Pullbacks as Buys",
-      "url": "https://gokhshtein.com/news/2026-10-26-yardeni-targets-sp-500-at-8400-views-pullbacks-as-buys",
+      "report_month": "2026-11",
+      "report_title": "US MARKETS CALL: Below The Calm Deep Blue Sea",
+      "url": "https://www.yardeniquicktakes.com/us-markets-call-below-the-calm-deep-blue-sea/",
       "url_http_status": 200,
       "url_note": "resolved grounding redirect to publisher URL",
-      "draft_check": "draft-check: 0 quote(s) found, 1 not in source",
+      "draft_check": "draft-check: 1 quote(s) found, 0 not in source",
       "error": null
     },
     {
       "id": "vanguard",
       "name": "Vanguard (VEMO)",
-      "status": "stale",
+      "status": "current",
       "prior_as_of": "2025-12",
-      "report_month": "2026-10",
-      "report_title": "Market perspectives",
-      "url": "https://www.vanguard.com/advisors/market-perspectives",
-      "url_http_status": 404,
-      "url_note": null,
-      "draft_check": "draft-check skipped (url http 404)",
+      "report_month": "2025-12",
+      "report_title": "Vanguard Releases 2026 Economic and Market Outlook",
+      "url": "https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/pressroom/press-release-vanguard-releases-2026-economic-and-market-outlook-121025.html",
+      "url_http_status": 200,
+      "url_note": "resolved grounding redirect to publisher URL",
+      "draft_check": null,
       "error": null
     }
   ]
