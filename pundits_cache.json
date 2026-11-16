@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-11-13T17:34:05.889567+00:00",
-  "last_updated_human": "2026-11-13 17:34 UTC",
+  "last_updated_utc": "2026-11-16T20:05:31.753898+00:00",
+  "last_updated_human": "2026-11-16 20:05 UTC",
   "market_context": {
-    "spy_price": 751.510009765625,
-    "sp500_level": 7515.10009765625,
-    "btc_price": 68696.4609375,
-    "eth_price": 1931.1300048828125
+    "spy_price": 740.1799926757812,
+    "sp500_level": 7401.7999267578125,
+    "btc_price": 65023.140625,
+    "eth_price": 1822.1400146484375
   },
   "equity": {
     "commentators": [
@@ -13,199 +13,167 @@
         "name": "Mike Wilson",
         "firm": "Morgan Stanley",
         "stance": "Bearish",
-        "key_quote": "We're into the zone. We don't know exactly when it's going to end, but we're into the zone.",
-        "quote_source": "CNBC",
-        "quote_date": "November 9, 2026",
+        "key_quote": "Morgan Stanley has raised its 12-month S&P 500 target to 8,700, citing stabilizing correction and supportive fundamentals.",
+        "quote_source": "CNBC / Traders Union",
+        "quote_date": "November 16, 2026",
         "key_views": [
-          "Correction nearing its final phase, with a potential bottom between 7,100 and 7,300.",
-          "Expects S&P 500 to rally towards 8,000 by year-end.",
-          "Last week's selloff was the S&P 500 catching down to broader market weakness."
+          "Market correction is nearing its end.",
+          "Healthy EPS growth and stabilizing rate volatility support the outlook.",
+          "Favors cyclical sectors like industrials."
         ],
-        "price_target_or_view": "S&P 500 target of 8,000 by year-end, with a potential bottom at 7,100-7,300.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,515, conflicts with 'Cautiously Bullish' stance."
-      },
-      {
-        "name": "Tom Lee",
-        "firm": "Fundstrat Global Advisors",
-        "stance": "Bearish",
-        "key_quote": "I think we are at the bottom.",
-        "quote_source": "Benzinga",
-        "quote_date": "November 4, 2026",
-        "key_views": [
-          "Believes the recent tech stock pullback has concluded.",
-          "Maintains target for S&P 500 to finish the year above 8,200.",
-          "Midterm elections are a crucial 'clearing event' for the market."
-        ],
-        "price_target_or_view": "S&P 500 target above 8,200 by year-end.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,515, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "Savita Subramanian",
-        "firm": "Bank of America",
-        "stance": "Neutral",
-        "key_quote": "We're not particularly bullish on this index. I think the index itself carries some risk.",
-        "quote_source": "Yahoo Finance / Zhitong Finance",
-        "quote_date": "November 11, 2026",
-        "key_views": [
-          "Investors are becoming increasingly concentrated in U.S. equities.",
-          "Concerns about sustained inflows into the S&P 500.",
-          "Potential for outflows if investors need to raise cash."
-        ],
-        "price_target_or_view": "Limited optimism about the S&P 500 index."
-      },
-      {
-        "name": "Jurrien Timmer",
-        "firm": "Fidelity Investments",
-        "stance": "Bearish",
-        "key_quote": "Earnings momentum and seasonal support could be enough to push the index above 8,000.",
-        "quote_source": "KuCoin",
-        "quote_date": "October 13, 2026",
-        "key_views": [
-          "S&P 500 could rise above 8,000.",
-          "Cyclical bull market is marking its fourth anniversary.",
-          "Strong Q3 earnings could lift actual growth to 30% or 35%."
-        ],
-        "price_target_or_view": "S&P 500 could rise above 8,000.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,515, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "David Rosenberg",
-        "firm": "Rosenberg Research",
-        "stance": "Cautious",
-        "key_quote": "The biggest risk ahead isn't volatility. It's misreading this cycle and staying positioned for an economy that no longer exists.",
-        "quote_source": "Kitco News",
-        "quote_date": "December 19, 2025",
-        "key_views": [
-          "Valuations are extreme, making the market vulnerable to multiple compression.",
-          "Potential recession is not priced in.",
-          "Favors defensive assets and areas where expectations remain restrained."
-        ],
-        "price_target_or_view": "Focus on valuation discipline, liquidity awareness, and downside protection."
+        "price_target_or_view": "S&P 500 target of 8,700 for 2027",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.2% downside from current ~7,402, conflicts with 'Bullish' stance."
       },
       {
         "name": "Lance Roberts",
         "firm": "Real Investment Advice",
         "stance": "Neutral",
-        "key_quote": "The 200-day moving average held, but the market hasn't confirmed a breakout.",
-        "quote_source": "Real Investment Advice (Substack)",
+        "key_quote": "The S&P 500 tested the critical 200-day moving average, but the market hasn't confirmed a breakout yet.",
+        "quote_source": "Lance Roberts / Substack",
         "quote_date": "November 10, 2026",
         "key_views": [
-          "Market needs confirmation of a breakout after testing the 200-day moving average.",
-          "Investors face a choice between a buying opportunity or a potential bull trap.",
-          "Patience, portfolio rebalancing, and risk management are key."
+          "Market is at a critical juncture, testing key technical levels.",
+          "Oversold conditions could support additional gains, but confirmation is needed.",
+          "Patience, rebalancing, and risk management are advised."
         ],
-        "price_target_or_view": "Wait for confirmation of a sustainable rally."
-      },
-      {
-        "name": "Jeremy Siegel",
-        "firm": "Wharton School",
-        "stance": "Bearish",
-        "key_quote": "The right takeaway is simpler and far more important: inflation is coming down decisively.",
-        "quote_source": "Stocktwits",
-        "quote_date": "March 5, 2026",
-        "key_views": [
-          "Constructive outlook for 2026, with cooling inflation supportive of equities.",
-          "Expects S&P 500 to gain between 5% to 10% in 2026.",
-          "Identified potential headwinds: government shutdown, Supreme Court tariff decision, Fed Chair announcement."
-        ],
-        "price_target_or_view": "S&P 500 to gain between 5% to 10% in 2026.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,515, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "Mohamed El-Erian",
-        "firm": "Allianz",
-        "stance": "Cautious",
-        "key_quote": "The global economy is likely to face 'more violent and more frequent shocks' this year.",
-        "quote_source": "KuCoin",
-        "quote_date": "November 10, 2026",
-        "key_views": [
-          "Investors may be underestimating risks.",
-          "Geopolitical tensions, energy price surges, and fragile sentiment pose risks.",
-          "Calls for restraining policies that have unsettled investors."
-        ],
-        "price_target_or_view": "Prepare for more violent and frequent global economic shocks."
-      },
-      {
-        "name": "Howard Marks",
-        "firm": "Oaktree Capital Management",
-        "stance": "Neutral",
-        "key_quote": "Whether AI will generate enough value to justify the trillions being invested remains 'largely a matter of faith.'",
-        "quote_source": "TradingView",
-        "quote_date": "November 11, 2026",
-        "key_views": [
-          "AI exposure is a 'fault line' running through portfolios.",
-          "Growing dependence on AI introduces significant risks.",
-          "Investing in data centers is a less risky way to profit from AI."
-        ],
-        "price_target_or_view": "AI investment justification is largely a matter of faith."
+        "price_target_or_view": "S&P 500 testing 200-day moving average; awaiting confirmation of a sustainable rally."
       },
       {
         "name": "Brian Belski",
         "firm": "Humilis Investment Strategies",
         "stance": "Bearish",
-        "key_quote": "Earnings are the signal, and everything else is noise.",
-        "quote_source": "AdvisorAnalyst.com",
-        "quote_date": "September 21, 2026",
-        "key_views": [
-          "Maintains a year-end target of 7,000 for the S&P 500 (as of Nov 2025).",
-          "Expects a short-term pause in the market after strong performance.",
-          "Advises rebalancing toward diversified U.S. equities."
-        ],
-        "price_target_or_view": "S&P 500 target of 7,000 by year-end (as of Nov 2025).",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,515, conflicts with 'Bullish' stance."
-      },
-      {
-        "name": "Ed Yardeni",
-        "firm": "Yardeni Research",
-        "stance": "Cautious",
-        "key_quote": "We have had an AI bubble and I think the air is coming out of that bubble.",
-        "quote_source": "The Star",
+        "key_quote": "The majority of the market correction is done, and we're going to get on to new highs by the end of the year.",
+        "quote_source": "Fox Business",
         "quote_date": "November 9, 2026",
         "key_views": [
-          "Believes the AI bubble is deflating.",
-          "Does not see a bursting AI bubble having significant adverse impacts on the economy.",
-          "Has a year-end S&P 500 target of 7,900."
+          "Market correction has been efficient, taking out overblown areas.",
+          "Focus will shift to stock picking in 2027, not sectors.",
+          "Earnings and cash flow are key drivers."
         ],
-        "price_target_or_view": "S&P 500 target of 7,900."
+        "price_target_or_view": "Expects new highs by year-end 2026.",
+        "_validation_warning": "Stance auto-corrected: target 2,026 implies -72.6% downside from current ~7,402, conflicts with 'Bullish' stance."
       },
       {
-        "name": "UBS (Keith Parker)",
-        "firm": "UBS",
-        "stance": "Bearish",
-        "key_quote": "A roughly 20% drop in the index's forward P/E during 2026 has historically preceded strong returns.",
-        "quote_source": "TradingView",
+        "name": "Savita Subramanian",
+        "firm": "Bank of America",
+        "stance": "Cautious",
+        "key_quote": "We are not particularly bullish on this index. I think the index itself carries some risk.",
+        "quote_source": "Yahoo Finance / Zhitong Finance",
         "quote_date": "November 11, 2026",
         "key_views": [
-          "Reiterated year-end 2027 S&P 500 target of 8,900.",
-          "Projects EPS of $430 in 2027 and $490 in 2028.",
-          "Expects buybacks to rebound significantly."
+          "Investors are becoming increasingly concentrated in U.S. equities.",
+          "Potential for net outflows from the S&P 500 exists.",
+          "Elevated equity exposure poses risks."
         ],
-        "price_target_or_view": "S&P 500 target of 8,900 by end-2027.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,515, conflicts with 'Bullish' stance."
+        "price_target_or_view": "Limited optimism about the S&P 500; concerned about it being the 'world's most crowded trade'."
       },
       {
-        "name": "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale",
-        "firm": "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale",
+        "name": "Tom Lee",
+        "firm": "Fundstrat Global Advisors",
         "stance": "Bearish",
-        "key_quote": "A confluence of favorable factors could propel the S&P 500 to a significant rally in the final weeks of 2026.",
-        "quote_source": "\u5bcc\u9014\u8d44\u8baf",
-        "quote_date": "November 12, 2026",
+        "key_quote": "Tom Lee targets S&P 500 at 8,000 by year-end, with SPY already up 9% as compressed P/E and strong Q2 earnings support further gains.",
+        "quote_source": "CNBC",
+        "quote_date": "July 06, 2026",
         "key_views": [
-          "Predicts a significant rally in the final weeks of 2026.",
-          "Expects further gains continuing into 2027.",
-          "Set a year-end 2026 target of 8,000 points for the index."
+          "Strong earnings and AI-driven productivity gains support higher equity levels.",
+          "Anticipates a 'wall of worry' effect fueling further gains.",
+          "Favors sectors like tech, AI, crypto, materials, energy, and financials."
         ],
-        "price_target_or_view": "S&P 500 target of 8,000 by year-end 2026.",
-        "_validation_warning": "Stance auto-corrected: target 500 implies -93.3% downside from current ~7,515, conflicts with 'Bullish' stance."
+        "price_target_or_view": "S&P 500 target of 8,000 by year-end 2026, with upside to 8,800.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.2% downside from current ~7,402, conflicts with 'Bullish' stance."
+      },
+      {
+        "name": "Jeremy Siegel",
+        "firm": "Wharton School / WisdomTree",
+        "stance": "Neutral",
+        "key_quote": "I could certainly see a 20% to 30% correction in Nasdaq, but the S&P 500 might drop only 5% to 10%.",
+        "quote_source": "Money Talks News",
+        "quote_date": "October 28, 2026",
+        "key_views": [
+          "Overall stock market is not overpriced, but Nasdaq could see a significant correction.",
+          "AI spending falling short of expectations is a key trigger.",
+          "Diversification is crucial for navigating market phases."
+        ],
+        "price_target_or_view": "Potential 5-10% drop in S&P 500 if AI expectations are not met."
+      },
+      {
+        "name": "Jurrien Timmer",
+        "firm": "Fidelity Investments",
+        "stance": "Bearish",
+        "key_quote": "Fidelity's Jurrien Timmer cited the fear and greed index and seasonal support level to argue the S&P 500 could rise above 8,000.",
+        "quote_source": "KuCoin",
+        "quote_date": "October 13, 2026",
+        "key_views": [
+          "Corporate earnings momentum and seasonal support could push the S&P 500 above 8,000.",
+          "Sustained corporate profit growth prevents a return to bear market conditions.",
+          "Divergence beneath the index's overall performance is noted."
+        ],
+        "price_target_or_view": "S&P 500 could rise above 8,000.",
+        "_validation_warning": "Stance auto-corrected: target 500 implies -93.2% downside from current ~7,402, conflicts with 'Bullish' stance."
+      },
+      {
+        "name": "David Rosenberg",
+        "firm": "Rosenberg Research",
+        "stance": "Bearish",
+        "key_quote": "The biggest risk ahead isn't volatility. It's misreading this cycle and staying positioned for an economy that no longer exists.",
+        "quote_source": "Kitco News",
+        "quote_date": "December 30, 2025",
+        "key_views": [
+          "Valuation discipline, liquidity awareness, and downside protection matter more than momentum.",
+          "Extreme investor positioning and stretched sentiment pose risks.",
+          "Favors defensive assets and gold."
+        ],
+        "price_target_or_view": "Warns of risks from misreading the economic cycle; favors defensive assets."
+      },
+      {
+        "name": "Lisa Shalett",
+        "firm": "Morgan Stanley Wealth Management",
+        "stance": "Neutral",
+        "key_quote": "Neither the management turmoil nor the Democrats' midterm election victory will derail the bull market's main engine\u2014AI infrastructure capital spending.",
+        "quote_source": "BigGo Finance",
+        "quote_date": "November 14, 2026",
+        "key_views": [
+          "AI infrastructure capital spending is the bull market's main engine.",
+          "Regulatory pressure could reduce bubble risk and extend the bull cycle.",
+          "Favors selective tech, power grid infrastructure, industrials, and financial services."
+        ],
+        "price_target_or_view": "Constructive on AI cycle, but selective approach needed; overseas equities for diversification."
+      },
+      {
+        "name": "Cathie Wood",
+        "firm": "ARK Invest",
+        "stance": "Bullish",
+        "key_quote": "The U.S. economy is a 'coiled spring' poised for a powerful rebound, forecasting a 'golden age' for U.S. equities.",
+        "quote_source": "ARK Invest",
+        "quote_date": "January 16, 2026",
+        "key_views": [
+          "Fiscal stimulus and pro-business deregulation will unleash capital spending, especially in AI and robotics.",
+          "Projects 6-8% real GDP growth driven by productivity.",
+          "Favors innovation-led growth benefiting ARKK and S&P 500."
+        ],
+        "price_target_or_view": "Forecasts a 'golden age' for U.S. equities."
+      },
+      {
+        "name": "Mike Hartnett",
+        "firm": "Bank of America",
+        "stance": "Bearish",
+        "key_quote": "Slowing AI capital expenditures and deteriorating free cash flow could cause U.S. stock performance in 2027 to be significantly weaker than market expectations.",
+        "quote_source": "TradingKey",
+        "quote_date": "November 14, 2026",
+        "key_views": [
+          "AI capital expenditures may slow.",
+          "Deteriorating free cash flow is a concern.",
+          "U.S. stock performance in 2027 could be weaker than expected."
+        ],
+        "price_target_or_view": "Warns of significantly weaker U.S. stock performance in 2027."
       }
     ],
-    "synthesis": "This week's commentary shows a divided market outlook. While some strategists like Mike Wilson and Tom Lee see a near-term bottom and a year-end rally towards 8,000, others like Savita Subramanian express caution due to crowded trades and potential outflows. Concerns about AI valuations and the broader economic environment persist, leading to a cautious stance from analysts like David Rosenberg and Mohamed El-Erian.",
+    "synthesis": "Commentators are divided on the immediate future of the S&P 500, with some bullish on a continued rally driven by AI and strong earnings, while others express caution due to high valuations and potential economic headwinds. A key theme is the debate around AI spending sustainability and its impact on future growth.",
     "themes": [
-      "AI Bubble and Valuations",
-      "Market Correction and Potential Bottom",
-      "Interest Rate Policy and Inflation",
-      "Geopolitical Risks",
-      "Midterm Election Impact"
+      "AI Spending and Valuations",
+      "Earnings Growth and Corporate Fundamentals",
+      "Interest Rate Environment and Fed Policy",
+      "Geopolitical Risks and Midterm Election Impact"
     ]
   },
   "equity_status": "fresh",
@@ -398,5 +366,7 @@
       "Ethereum's evolving narrative and core value drivers"
     ]
   },
-  "crypto_status": "fresh"
+  "crypto_status": "stale",
+  "crypto_last_fresh": "2026-11-13T17:34:05.889567+00:00",
+  "crypto_error": "No JSON found in response: "
 }
