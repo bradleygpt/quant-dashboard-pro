@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-11-17T18:59:38.720332+00:00",
-  "last_updated_human": "2026-11-17 18:59 UTC",
+  "last_updated_utc": "2026-11-18T18:43:47.182544+00:00",
+  "last_updated_human": "2026-11-18 18:43 UTC",
   "as_of_window": "November 2026",
   "risks": [
     {
@@ -125,6 +125,6 @@
     "Fiscal Sustainability"
   ],
   "status": "stale",
-  "last_fresh": "2026-11-16T20:05:38.806559+00:00",
-  "error": "Gemini API error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
+  "last_fresh": "2026-11-17T18:59:38.720332+00:00",
+  "error": "No JSON found: "
 }
