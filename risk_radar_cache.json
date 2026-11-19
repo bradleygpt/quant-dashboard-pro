@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-11-18T18:43:47.182544+00:00",
-  "last_updated_human": "2026-11-18 18:43 UTC",
+  "last_updated_utc": "2026-11-19T18:55:08.546184+00:00",
+  "last_updated_human": "2026-11-19 18:55 UTC",
   "as_of_window": "November 2026",
   "risks": [
     {
@@ -125,6 +125,6 @@
     "Fiscal Sustainability"
   ],
   "status": "stale",
-  "last_fresh": "2026-11-17T18:59:38.720332+00:00",
+  "last_fresh": "2026-11-18T18:43:47.182544+00:00",
   "error": "No JSON found: "
 }
