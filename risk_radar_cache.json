@@ -1,6 +1,6 @@
 {
-  "last_updated_utc": "2026-11-20T18:24:46.002312+00:00",
-  "last_updated_human": "2026-11-20 18:24 UTC",
+  "last_updated_utc": "2026-11-23T21:56:32.839716+00:00",
+  "last_updated_human": "2026-11-23 21:56 UTC",
   "as_of_window": "November 2026",
   "risks": [
     {
@@ -119,5 +119,7 @@
     "Fiscal Sustainability and Debt Levels",
     "Labor Market Resilience and Wage Dynamics"
   ],
-  "status": "fresh"
+  "status": "stale",
+  "last_fresh": "2026-11-20T18:24:46.002312+00:00",
+  "error": "No JSON found: "
 }
